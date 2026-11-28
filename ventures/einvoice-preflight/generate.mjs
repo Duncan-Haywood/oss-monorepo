@@ -13,6 +13,7 @@
 // Zero dependencies. Runs in Node 20+ and in the browser (create.html).
 
 import { roundHalfUpToCents } from "./checks.mjs";
+import { paymentTermsText } from "./profile.mjs";
 
 export const PROFILES = {
   xrechnung: {
@@ -520,7 +521,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     bic: text(pay.bic).replace(/\s+/g, "").toUpperCase(),
     account_name: text(pay.account_name),
     reference: text(pay.reference) || (iban ? number : ""),
-    terms: text(d.terms) || (text(pay.terms)),
+    // BT-20 keeps the line break BR-DE-18 needs after a Skonto line (paymentTermsText).
+    terms: paymentTermsText(text(d.terms) ? d.terms : pay.terms),
   };
 
   return {

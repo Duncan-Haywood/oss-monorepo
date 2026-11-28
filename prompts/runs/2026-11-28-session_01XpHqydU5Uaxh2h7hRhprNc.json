@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "node --test test/ (a directory) fails with MODULE_NOT_FOUND on Node 22; test/*.test.mjs works, as CLAUDE.md says",
-    "first Etsy page description was 164 characters; the site's honesty test caught it"
+    "first Etsy page description was 164 characters; the site's honesty test caught it",
+    "merge conflicts with main twice (Whatnot then Mercari taxes pages landed during CI); resolved by taking main and re-applying the Etsy additions"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "ventures/seller-books/biome.json",
       "issue": "biome is not installed in the clone; had to npm-install @biomejs/biome@2.6.8 into the scratchpad to run the check CI runs"
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books-site/src/pages.mjs",
+      "issue": "every platform-tax page edits the same nested ternary in platformPage, the allPages list, the footer and the llms list, so parallel runs (Whatnot, Mercari, Etsy today) conflict on every merge; a per-platform taxesPage field in PLATFORMS would let them land without conflicts"
     }
   ],
   "deviations": [

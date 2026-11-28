@@ -72,6 +72,12 @@ day before.
    by the page's modulepreload links). `node platform/pages/page-bench.mjs
    --pages=<a>,<b>` takes the before and after on a built site (median
    DOMContentLoaded, LCP, blocking, requests; header has its options).
+   A bet's Cloudflare Worker cold start: copy its built `dist/` aside, rebuild,
+   then `node platform/perf/worker-startup.mjs <before dir> <after dir>`
+   (interleaved `wrangler check startup` next to a do-nothing floor). Don't run
+   `wrangler check startup -c <copy>` from the app's directory: there it
+   profiles the app's own current `dist/` and ignores `-c` (2026-11-28,
+   `cmmc-worker-cold-start-perf-2026-11-28.md`).
 
 ## How to work
 

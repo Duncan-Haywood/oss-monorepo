@@ -51,7 +51,9 @@
   never a document's or audit's title or a nonconformity's text, which can name a customer, part
   or person), and the day each cyber incident's 90-day image hold ends as one event per day with a
   count (`incidentHoldDates` in `src/shared/incidents.ts`; never an incident's title, summary or
-  report number). No names, contacts or scores.
+  report number), and gauges' calibration due dates as one event per date with a count of gauges in
+  use (`calibrationDueDates` in `src/shared/calibration.ts`; never a gauge's id, description or
+  location). No names, contacts or scores.
 - Admins make, reset (the old token stops at once) and delete it; each is audited. Malformed, unknown
   and revoked tokens all answer the same 404. `last_fetched_at` is written at most hourly.
 - The token sits in the URL path, so Cloudflare's request logs for this Worker can hold it; anyone

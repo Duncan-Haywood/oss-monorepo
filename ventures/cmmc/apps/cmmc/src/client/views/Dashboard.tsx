@@ -1,4 +1,5 @@
 import { type AffirmationsResponse, addDays } from "@shared/affirmation";
+import type { CalibrationCheck, GaugeDue } from "@shared/calibration";
 import { fmtDuration, type IncidentAttention } from "@shared/incidents";
 import {
   AUDIT_WARNING_DAYS,
@@ -27,6 +28,7 @@ export function Dashboard({
   onOpenIncidents,
   onOpenDocuments,
   onOpenAudits,
+  onOpenGauges,
 }: {
   orgId: string;
   info: OrgInfo;
@@ -39,6 +41,7 @@ export function Dashboard({
   onOpenIncidents: () => void;
   onOpenDocuments: () => void;
   onOpenAudits: () => void;
+  onOpenGauges: () => void;
 }) {
   const level = info.profile.targetLevel === 1 ? 1 : 2;
   const score = useQuery({
@@ -87,6 +90,12 @@ export function Dashboard({
   const audits = useQuery({
     queryKey: ["audits", orgId],
     queryFn: () => api<AuditSummary>(`/api/orgs/${orgId}/audits`),
+    enabled: info.plan.quality,
+  });
+  // Gauge calibration (ISO 9001 7.1.5) is recorded on the quality plan only, like the dates above.
+  const gauges = useQuery({
+    queryKey: ["gauges", orgId],
+    queryFn: () => api<GaugeSummary>(`/api/orgs/${orgId}/gauges`),
     enabled: info.plan.quality,
   });
   // The target level's record, or the other level's when only that one is recorded.
@@ -223,6 +232,14 @@ export function Dashboard({
           error={documents.error ?? audits.error}
           onOpenDocuments={onOpenDocuments}
           onOpenAudits={onOpenAudits}
+        />
+      )}
+      {info.plan.quality && (
+        <CalibrationCard
+          orgId={orgId}
+          data={gauges.data}
+          error={gauges.error}
+          onOpen={onOpenGauges}
         />
       )}
       <button type="button" className={btnCls} onClick={onOpenControls}>
@@ -767,6 +784,106 @@ export function QualityDatesCard({
               The calendar file
             </a>{" "}
             has these dates as counts per day (no titles), beside the CMMC ones.
+          </p>
+        </>
+      )}
+    </Card>
+  );
+}
+
+/** The slice of GET /gauges the dashboard reads (services/calibration, gaugeList). */
+interface GaugeSummary {
+  today: string;
+  items: unknown[];
+  check: CalibrationCheck;
+  due: GaugeDue[];
+  dueSoonDays: number;
+}
+
+const CALIBRATION_LINES = 8;
+
+/**
+ * Gauges that need the lab: overdue first (oldest first), then due soon, then never calibrated, the
+ * Gauges tab's recall list cut to a few lines, plus out-of-tolerance results with no impact record.
+ */
+export function CalibrationCard({
+  orgId,
+  data,
+  error,
+  onOpen,
+}: {
+  orgId: string;
+  data: GaugeSummary | undefined;
+  error: unknown;
+  onOpen: () => void;
+}) {
+  const c = data?.check;
+  const text = (d: GaugeDue) =>
+    d.state === "overdue"
+      ? `${d.tag} ${d.description}: calibration was due ${d.dueOn}`
+      : d.state === "due_soon"
+        ? `${d.tag} ${d.description}: calibration due ${d.dueOn}`
+        : `${d.tag} ${d.description}: in use, never calibrated`;
+  return (
+    <Card
+      title="Gauge calibration"
+      actions={
+        <button type="button" className={btnGhostCls} onClick={onOpen}>
+          Gauges
+        </button>
+      }
+    >
+      <ErrorText error={error} />
+      {!data && !error && <p className="text-sm text-stone-600">Loading…</p>}
+      {data && c && data.items.length === 0 && (
+        <p className="text-sm text-stone-600">
+          No gauge recorded yet. List the calipers, micrometers and other gauges used to accept
+          parts on the Gauges tab; their calibration due dates show here and go into the calendar
+          file.
+        </p>
+      )}
+      {data && c && data.items.length > 0 && (
+        <>
+          {data.due.length === 0 && c.openOutOfTolerance === 0 ? (
+            <p className="text-sm text-emerald-800">
+              {c.inUse} {c.inUse === 1 ? "gauge" : "gauges"} in use, none overdue or due within{" "}
+              {data.dueSoonDays} days.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-stone-700">
+                {c.inUse} in use: {c.overdue} overdue, {c.dueSoon} due within {data.dueSoonDays}{" "}
+                days, {c.never} never calibrated.
+              </p>
+              {c.openOutOfTolerance > 0 && (
+                <p className="mt-1 text-sm text-red-800">
+                  {c.openOutOfTolerance} out-of-tolerance{" "}
+                  {c.openOutOfTolerance === 1 ? "result has" : "results have"} no record of what it
+                  meant for parts measured since the last good calibration.
+                </p>
+              )}
+              <ul className="mt-2 space-y-1 text-sm">
+                {data.due.slice(0, CALIBRATION_LINES).map((d) => (
+                  <li
+                    key={d.gaugeId}
+                    className={d.state === "due_soon" ? "text-amber-800" : "text-red-800"}
+                  >
+                    {text(d)}
+                  </li>
+                ))}
+              </ul>
+              {data.due.length > CALIBRATION_LINES && (
+                <p className="mt-1 text-xs text-stone-500">
+                  and {data.due.length - CALIBRATION_LINES} more on the Gauges tab's recall list.
+                </p>
+              )}
+            </>
+          )}
+          <p className="mt-2 text-xs text-stone-500">
+            <a className="underline" href={`/api/orgs/${orgId}/affirmations/calendar.ics`}>
+              The calendar file
+            </a>{" "}
+            has the due dates as a count of gauges per day (no gauge ids or names).
           </p>
         </>
       )}
