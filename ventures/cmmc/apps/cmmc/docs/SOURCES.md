@@ -130,7 +130,10 @@ followed by correction, a root cause, an action, and a later check that the acti
 grades (major, minor, observation, opportunity for improvement) are the words certification bodies
 commonly use; ISO 9001 itself does not grade findings. The 12-month coverage window, the 30-day and 14-day
 warnings and the 90-day default before an effectiveness check are the app's choices, not periods the
-standard sets (it sets none), and the page says so. AS9100D additions are not covered.
+standard sets (it sets none), and the page says so. AS9100D additions are not covered. The per-audit report
+(`auditReportMarkdown`) lists only what the workspace holds and the clause headings already checked
+against the contents page; its sections (scope, auditor, findings, follow-up, sign-off) are the app's
+own layout, not a form the standard prescribes.
 
 ## Incidents (`src/shared/incidents.ts`)
 
