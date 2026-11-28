@@ -1,0 +1,270 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/shift-roster-builder",
+ "stratum": "flagship",
+ "seed": "2026-11-28-25da",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-19-shift-roster-builder-r4.json",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a payroll and scheduling specialist for US hourly teams (restaurants, retail) who knows FLSA weekly overtime, California daily overtime and meal periods, and the federal 14-15 youth hour rules; first checks: what a week of shifts costs against a hand calculation, overnight shifts, minors' hours on weekends, and whether malformed input is refused rather than dropped",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed six weekly costs by hand from statute through buildRoster with my own script (scratchpad pay.mjs, not the product's tests), one person at $20/h: FLSA 5x10 h = 40x20 + 10x30 = $1,100 (pass); California 13 h day with OT after 8, DT after 12 = 8x20 + 4x30 + 1x40 = $320 (pass); California 5x9 h = $950 (pass); California 6x8 h, weekly OT on hours not already premium = 40x20 + 8x30 = $1,040 (pass); 30-min unpaid meal on five 9 h shifts = 42.5 paid h = $875 (pass; my first hand figure of $850 was my own arithmetic slip, corrected). Overnight Sat 8pm-6am with daily OT after 8: $220 with 2 OT h on arrival, where calendar days give 4 h + 6 h = $200 (fail: prior defect 0 still open on main). After this PR's re-land of PR #19894: $200, 0 OT h.",
+  "completeness": "Prior defects re-checked against the code on arrival: comma-less shift line now errors ('could not read the day') alone and before a valid line, while a real header row is still skipped; the youth rule gives a 15-year-old 8 h on Saturday (6 h Saturday shift filled) and keeps 3 h on a school day (Mon 4 h shift left open, correctly); the CLI disclaimer now names what is checked. Claimed '11 fair-workweek presets': FWW_PRESETS has 11 named cities plus custom (pass). Not run: browser page, server end to end, hosted hub (README itself says not deployed).",
+  "verification": "node --test '*.test.mjs' on main: 787 tests, 787 pass, 0 skipped, 277 s (82 files; round 84 ran 6 of 82). Mutants: youth weekend cap 8->3 caught (calc.test.mjs); comma-less-line header test >1 -> >=1 caught (closes the verification side of prior defect 2); default otAfter 40->41 survived calc.test.mjs but caught by the full suite; meal boundary len > mealAfter -> >= survived all 787 tests (new defect, low). This PR adds a test that catches the meal mutant and pins the 40 h default in calc.test.mjs; the re-landed overnight test catches reverting the midnight split.",
+  "craft": "calc.mjs is now 6,088 lines (6,076 at round 84) and README.md 543,860 bytes / 4,050 lines; the opener's 'hour of spreadsheet shuffling' line is still unmeasured (README.md:11). payParts and payPartsMap still duplicate the daily/weekly split, though the overnight split now shares slotDays. Prior defect 4 open.",
+  "claims": "Disclaimer cli.mjs:665/700 now 'Checks only the scheduling-notice presets it names and the US federal limits for ages 14-15' (pass, prior defect 3 closed). 11 presets (pass). README daily-OT paragraph said a shift counts on the day it starts, which matched the code but not the timesheet; the re-land rewrites it. served-copy.mjs: no placeholder or retired origin in llms.txt, sitemap, robots, canonicals (pass). Hosted hub section says plainly it is not deployed and pricing is not set (pass).",
+  "fitness": "A manager can build a week, see which shifts stay open and why, and price it under federal or California rules; before this PR a manager running overnight closes under daily overtime saw a planned cost that disagreed with the product's own timesheet.",
+  "domain": "Against 29 USC 207 (weekly OT over 40), California Labor Code 510 (daily OT after 8, DT after 12, weekly OT on non-premium hours) and 512(a) (meal for more than five hours), and 29 CFR 570.35 (14-15: 3 h school day, 8 h non-school day, 18/40 h week, 7am-7pm): all modelled rules match on the cases checked. The calendar-midnight workday is a stated simplification (California lets an employer fix any 24-hour workday); the README and post now say so."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "FLSA 5x10 h at $20",
+   "method": "29 USC 207(a)(1), by hand",
+   "command": "node pay.mjs (buildRoster, otAfter default)",
+   "expected": "$1,100, 10 OT h",
+   "observed": "$1,100, 10 OT h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "California 13 h day",
+   "method": "Labor Code 510, by hand",
+   "command": "node pay.mjs {dailyOtAfter:8,dailyDtAfter:12}",
+   "expected": "$320",
+   "observed": "$320",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "California 5x9 h",
+   "method": "Labor Code 510, by hand",
+   "command": "node pay.mjs",
+   "expected": "$950",
+   "observed": "$950",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "California 6x8 h, weekly OT after 40 on non-premium hours",
+   "method": "Labor Code 510, by hand",
+   "command": "node pay.mjs",
+   "expected": "$1,040",
+   "observed": "$1,040",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "30-min unpaid meal on five 9 h shifts",
+   "method": "by hand: 42.5 paid h",
+   "command": "node pay.mjs {mealAfter:5,mealMin:30}",
+   "expected": "$875",
+   "observed": "$875",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "overnight Sat 8pm-6am, daily OT after 8",
+   "method": "calendar-day workday, as the product's own timesheet (payrules.mjs byDay)",
+   "command": "node pay.mjs {dailyOtAfter:8}",
+   "expected": "$200, 0 OT h",
+   "observed": "$220, 2 OT h on main (after this PR: $200, 0)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "comma-less first shift line (prior defect 2)",
+   "method": "parseShifts",
+   "command": "node chk.mjs",
+   "expected": "an error, not a silent drop; header row still skipped",
+   "observed": "'Shift line 1: could not read the day'; header skipped",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "15-year-old, school week, 6 h Saturday and 4 h Monday (prior defect 1)",
+   "method": "29 CFR 570.35(a)(2)",
+   "command": "node chk.mjs",
+   "expected": "Saturday filled, Monday open at the 3 h limit",
+   "observed": "Saturday Ana, Monday open 'at their daily hour limit'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "CLI disclaimer names what is checked (prior defect 3)",
+   "method": "read cli.mjs:665",
+   "command": "grep -n 'not legal advice' cli.mjs",
+   "expected": "names presets and 14-15 limits",
+   "observed": "it does",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'11 fair-workweek presets'",
+   "method": "count FWW_PRESETS",
+   "command": "node -e \"import('./notice.mjs')...\"",
+   "expected": "11",
+   "observed": "11 named + custom",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served copy origins",
+   "method": "platform/pages/served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs shift-roster-builder",
+   "expected": "no placeholder origin",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "full suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "787/787, 0 skipped, 277 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "module and README size (prior defect 4)",
+   "method": "wc",
+   "command": "wc -l calc.mjs README.md",
+   "expected": "shrunk",
+   "observed": "6,088 lines; 543,860 bytes",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "relative canonical (prior defect 5)",
+   "method": "served copy",
+   "command": "grep canonical /tmp/served-copy/shift-roster-builder/index.html",
+   "expected": "absolute",
+   "observed": "href='./index.html'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:485",
+   "change": "weekendDaily ... : 8 -> : 3",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:512",
+   "change": "c.length > 1 -> c.length >= 1 (header test)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:565",
+   "change": "otAfter: 40 -> 41",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs (survived calc.test.mjs alone)"
+  },
+  {
+   "where": "calc.mjs:841",
+   "change": "len > o.mealAfter * 60 -> >=",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "medium",
+   "basis": "open",
+   "status": "open",
+   "what": "overnight shift priced on its start day for daily OT",
+   "evidence": "$220 / 2 OT h on main; PR #19894 open, red on an unrelated pages test",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20165"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "youth 3 h cap on weekends",
+   "evidence": "6 h Saturday filled for age 15; weekendDaily mutant caught"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "comma-less first shift line silently dropped",
+   "evidence": "now an error; header-test mutant caught"
+  },
+  {
+   "index": 3,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "disclaimer understated what is checked",
+   "evidence": "cli.mjs:665"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "6,000-line module, 540 KB README",
+   "evidence": "6,088 lines, 543,860 bytes"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "relative canonical",
+   "evidence": "served copy still ./index.html"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Planner daily overtime puts every hour of an overnight shift on its start day: Sat 8pm-6am at $20, OT after 8, $220 with 2 OT h vs $200 by calendar day (the product's own timesheet). Carried from round 3 and 84.",
+   "where": "ventures/shift-roster-builder/calc.mjs:855",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20165"
+  },
+  {
+   "severity": "low",
+   "what": "Meal-break boundary untested: changing len > mealAfter*60 to >= (deducting a meal from an exactly-5 h shift, which Labor Code 512(a) does not require) passed all 787 tests.",
+   "where": "ventures/shift-roster-builder/calc.mjs:841",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20165"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs 6,088 lines and README.md 544 KB / 4,050 lines with changelog prose between manager instructions; the opener's time-saved line is unmeasured.",
+   "where": "ventures/shift-roster-builder/README.md:11",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "index.html canonical is relative (./index.html) in the served copy.",
+   "where": "ventures/shift-roster-builder/index.html:10",
+   "category": "other",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/20165"
+ ],
+ "verdict": "Three of round 84's six defects are closed (weekend hours for 14-15 year olds, the silently dropped comma-less shift line, the understated disclaimer) and their mutants are now caught. Five of six hand-recomputed weekly costs match statute (FLSA $1,100; California $320, $950, $1,040; meal $875); the sixth, an overnight shift under daily overtime, still cost $220 against $200 on main, because PR #19894's fix sat open and red on an unrelated test. This PR re-lands it ($200 after). The full suite now runs: 787 of 787 pass in 277 s. A seeded meal-boundary bug survived all 787 tests; this PR adds the test. It still meets the bar on correctness, claims and verification; craft stays at 2 (6,088-line module, 544 KB README), and the relative canonical is unchanged. Not run: the browser page, the server, the hosted hub."
+}
