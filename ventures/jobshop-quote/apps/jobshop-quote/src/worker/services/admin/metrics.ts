@@ -27,6 +27,7 @@ import {
   subscriptions,
   user,
 } from "../../db/schema";
+import { signupSourceCounts } from "./sources";
 
 export const PRODUCT = { key: "jobshop-quote", name: "Job Shop Quote" } as const;
 
@@ -61,6 +62,7 @@ export async function productMetrics(
     anyTransactionEvent,
     llmMonth,
     llmWindow,
+    sources,
   ] = await Promise.all([
     db.select({ n: count() }).from(user).get(),
     db.select({ n: count() }).from(user).where(eq(user.emailVerified, true)).get(),
@@ -136,6 +138,8 @@ export async function productMetrics(
       .where(gte(llmCalls.createdAt, startOfUtcMonth(now)))
       .get(),
     db.select({ cost: llmCost }).from(llmCalls).where(gte(llmCalls.createdAt, since)).get(),
+    // Sign-ups by the page that sent them (services/admin/sources.ts).
+    signupSourceCounts(ctx, since),
   ]);
 
   const byPlan = new Map<string, { planKey: string; status: string; count: number }>();
@@ -198,6 +202,7 @@ export async function productMetrics(
       monthToDateMicros: llmMonth?.cost ?? 0,
       windowMicros: llmWindow?.cost ?? 0,
     },
+    sources,
   };
 }
 

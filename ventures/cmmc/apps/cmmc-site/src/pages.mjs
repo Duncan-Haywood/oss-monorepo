@@ -3,6 +3,7 @@
 // Copy rules: see the header of site.mjs and docs/CLAIMS.md.
 
 import { assessmentSheetPage } from "./assessment-sheet.mjs";
+import { COMPARE_PATH, comparePage } from "./compare.mjs";
 import { dfarsClausesPage } from "./dfars-clauses.mjs";
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { level1RequirementsPage } from "./level1-requirements.mjs";
@@ -176,7 +177,7 @@ ${statusBox()}
   <p>Shops of roughly 5 to 100 people that machine or fabricate parts for defense or aerospace primes, have no full-time
   security staff, and need to post a Level 1 or Level 2 self-assessment. DoD estimates ${cite("venable-size", "229,818 small entities")}
   among the 337,968 contractors the CMMC rule affects.</p>
-  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, or go straight to the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>.</p>
+  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, or go straight to the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>. Weighing tools? See <a href="${COMPARE_PATH}">CMMC compliance software compared</a>.</p>
 </section>
 <section>
   <h2>What it is not</h2>
@@ -371,6 +372,7 @@ ${cta}`,
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
     assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
+    comparePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     open
       ? pricingPage(launch)
       : {
@@ -588,7 +590,8 @@ No plan certifies your shop or guarantees a score. Refunds and cancellation: the
 <p>Level 1 is 15 requirements and a pass or fail, so it is free. A year of Level 2 (${usd(cheapest.annualPriceCents)}) costs less
 than the low end of a consultant engagement, and the documents stay current as your shop changes. FutureFeed costs less for
 Level 2 if a compliance checklist is all you need; this workspace adds the POA&amp;M rules, the asset inventory and the
-ISO 9001 records in one place. If you handle CUI you still need a place to store it; we do not replace that.</p>
+ISO 9001 records in one place. If you handle CUI you still need a place to store it; we do not replace that.
+More options, enclaves and consultants included: <a href="${COMPARE_PATH}">CMMC compliance software compared</a>.</p>
 ${CTA_MARKER}`,
   };
 }

@@ -38,10 +38,27 @@ The page starts at DoD's rates. Change any of them: your own director's loaded r
 
 The session that built the page read the rule from govinfo and saved the cost section in the repository. A test finds every hour, rate, quoted sentence and stated total in that saved text, and recomputing the lines at DoD's rates gives the rule's totals back to within a few dollars of rounding. That check turned up one inconsistency in the rule: the larger-business Level 2 (C3PAO) reaffirmation lists one line as 8 hours but prices it at 16, and its total only adds up at 16. The page uses 16 and says so in its source notes.
 
+## What the software costs
+
+DoD's estimate prices labour, not tools. The tools a small shop ends up paying for split into two jobs, and a shop with CUI usually needs one of each: somewhere compliant to keep the CUI (an enclave, encrypted email and file sharing, or a compliant cloud tenant), and something to hold the paperwork and the score (the SSP, the POA&M, the evidence and the SPRS score).
+
+Published prices, read on each vendor's page on 28 November 2026 and set side by side on the new [CMMC compliance software compared](https://marisstella.app/cmmc/cmmc-compliance-software-compared) page:
+
+| Option | Published price | Which job |
+|---|---|---|
+| A spreadsheet (a [free self-assessment sheet](https://marisstella.app/cmmc/cmmc-self-assessment-spreadsheet) or your own) | $0 | The score; the paperwork stays in other files |
+| [FutureFeed](https://futurefeed.co/pricing), 25 or fewer FTEs | $99/mo billed annually plus a $1,008/yr Level 2 add-on (about $183/mo) | Paperwork and score |
+| Our [Compliance Workspace](https://marisstella.app/cmmc/pricing) | Level 1 free; Level 2 $249/mo (not on sale yet) | Paperwork and score, plus ISO 9001 |
+| [PreVeil Pass](https://www.preveil.com/preveil-pass/) | From $450/mo for 3 users, 12 months paid up front | Keeping CUI, plus documentation |
+| [Cuick Trac](https://cuicktrac.com/pricing/) | Quote only | Keeping CUI (a managed enclave) |
+| A consultant writing the SSP and POA&M | $3,000–$25,000 ([PreVeil](https://www.preveil.com/blog/making-cmmc-compliance-affordable-for-smbs)) | Paperwork, once |
+
+At published prices the software runs about $2,200 to $5,400 a year, a small slice of DoD's three-year figures above. FutureFeed is the lowest published price for Level 2 software, below ours, and the comparison page says so. Several vendors publish no price at all.
+
 ## Which level, right now
 
 As checked on 24 November 2026, Phase 2 of the CMMC rollout, which would have required C3PAO certification from 10 November 2026, has been suspended since 13 July 2026, so new solicitations should ask only for Level 1 (Self) or Level 2 (Self) for now ([Level 1 vs Level 2](https://marisstella.app/machine-shop-guides/cmmc-level-1-vs-level-2.html) has the sources). Certification still belongs in a budget for a shop whose primes ask for it, or that wants to be ready when the suspension ends.
 
-The cheapest assessment is a small one. Keeping CUI on fewer machines (the [scoping worksheet](https://marisstella.app/machine-shop-guides/cmmc-scoping-worksheet.html) sorts assets into the rule's categories) and arriving with a drafted [system security plan](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html) cuts the paid hours in DoD's own model. We are building a CMMC workspace that keeps the SSP, POA&M, evidence and affirmations in one place between assessments; it is in early access on the [manufacturing page](https://marisstella.app/industries/manufacturing/). It certifies no one: only an authorized C3PAO can.
+The cheapest assessment is a small one. Keeping CUI on fewer machines (the [scoping worksheet](https://marisstella.app/machine-shop-guides/cmmc-scoping-worksheet.html) sorts assets into the rule's categories) and arriving with a drafted [system security plan](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html) cuts the paid hours in DoD's own model. Our [CMMC workspace](https://marisstella.app/cmmc/) keeps the SSP, POA&M, evidence and affirmations in one place between assessments; Level 1 is free, and Level 2 plans are not on sale yet. It certifies no one: only an authorized C3PAO can.
 
 *Not legal, compliance or financial advice. Not affiliated with or endorsed by the Department of Defense. Get quotes from your IT provider and an authorized C3PAO before you budget on these figures.*

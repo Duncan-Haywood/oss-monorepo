@@ -5,6 +5,7 @@ import { Link, Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { Button, Card, ErrorText, Field, Input } from "../components/ui";
 import { ApiError, api, queryClient } from "../lib/api";
+import { usePostSignupSource } from "../lib/use-signup-source";
 import { Centered, ResendVerification } from "./account";
 import { LegalFooter, LegalGate, LegalLinks } from "./legal";
 
@@ -163,6 +164,8 @@ export function AuthPage({ mode }: { mode: "sign-in" | "sign-up" }) {
 }
 
 export function OnboardingPage() {
+  const me = useMe();
+  usePostSignupSource(me.data?.user.id);
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const create = useMutation({
