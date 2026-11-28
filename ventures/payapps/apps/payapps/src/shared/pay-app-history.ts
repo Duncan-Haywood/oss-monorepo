@@ -31,6 +31,8 @@ export const PAY_APP_EVENT_ACTIONS = [
   "quickbooks_payment_marked",
   "quickbooks_credit_sent",
   "quickbooks_credit_marked",
+  "quickbooks_interest_sent",
+  "quickbooks_interest_marked",
   "waiver_created",
   "waiver_status_changed",
   "waiver_deleted",
@@ -175,6 +177,10 @@ export function describePayAppEvent(
     }
     case "quickbooks_credit_marked":
       return `Balance of ${money(d.amountCents)} closed short marked as already credited in QuickBooks`;
+    case "quickbooks_interest_sent":
+      return `Late-payment interest of ${money(d.amountCents)} on ${app.toLowerCase()} sent to QuickBooks as invoice ${d.note ?? ""}`;
+    case "quickbooks_interest_marked":
+      return `Late-payment interest of ${money(d.amountCents)} on ${app.toLowerCase()} marked as already invoiced in QuickBooks`;
     case "waiver_created":
       return `${capitalize(waiver(d))} for ${money(d.amountCents)} prepared`;
     case "waiver_status_changed":

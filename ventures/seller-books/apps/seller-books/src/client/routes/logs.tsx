@@ -304,7 +304,7 @@ export function ExpensesPage() {
       </form>
       <StatementImport orgId={orgId} />
       <section className="card overflow-x-auto">
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Date</th>
@@ -321,14 +321,18 @@ export function ExpensesPage() {
               <Fragment key={e.id}>
                 <tr>
                   <td>{e.date}</td>
-                  <td>{e.category.replace(/_/g, " ")}</td>
-                  <td>
+                  <td data-label="Category">{e.category.replace(/_/g, " ")}</td>
+                  <td data-label="Vendor">
                     {e.vendor}
                     {e.memo && <span className="ml-1 text-xs text-stone-500">{e.memo}</span>}
                   </td>
-                  <td>{e.platform ? PLATFORM_LABELS[e.platform as Platform] : "—"}</td>
-                  <td className="num">{usd(e.amountCents)}</td>
-                  <td>
+                  <td data-label="Platform">
+                    {e.platform ? PLATFORM_LABELS[e.platform as Platform] : "—"}
+                  </td>
+                  <td data-label="Amount" className="num">
+                    {usd(e.amountCents)}
+                  </td>
+                  <td data-label="Receipts">
                     <button
                       type="button"
                       className="text-xs underline"

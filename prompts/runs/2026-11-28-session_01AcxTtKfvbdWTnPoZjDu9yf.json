@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtKfvbdWTnPoZjDu9yf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T14:07:13Z",
+  "ended": "2026-11-28T14:18:37Z",
+  "wall_minutes": 16.28,
+  "tokens_in": 10529056,
+  "tokens_out": 34991,
+  "cost_usd": 3.8659,
+  "tool_calls": 91,
+  "task": "payapps bet #1: state bond claim steps in Oklahoma and the District of Columbia [state-bond-claims-ok-in-vt]",
+  "projects": [
+    "payapps",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20138",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a Python string replace meant for the bond-claim test's host regex also hit the lien-waiver test's identical tail",
+      "fix": "caught in git diff review and reverted before commit"
+    },
+    {
+      "what": "first full payapps unit run showed 1 failed of 1641 under parallel load",
+      "fix": "re-ran: 1641/1641 pass, and the same suite on stashed main also passes; treated as a flaky timing test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "the Alabama entry says oscn.net answers with a Turnstile challenge; on 2026-11-28 a plain curl of DeliverDocument.asp returned the statute text, so Oklahoma was reachable all along"
+    },
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "the bond table row regex only matched one- or two-word capitalised state names, so a 'District of Columbia' row was silently not counted; widened it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "claimed slug named Indiana and Vermont too; Indiana's code site was unreachable and Vermont has no statute found, so shipped Oklahoma plus D.C. under the same slug instead of guessing",
+      "did": "added D.C. (reachable, Miller-Act copy) in their place and recorded the gaps in the roadmap",
+      "result": "two jurisdictions shipped with source excerpts; nothing guessed"
+    },
+    {
+      "file": "prompt.md",
+      "why": "no new post: the customer post on state bond claims was extended instead, per the consolidate-posts direction",
+      "did": "added Oklahoma and D.C. rows and a dated section to docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md",
+      "result": "one consolidated post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended)"
+  ],
+  "goal": "$10k MRR via bet #1 payapps: widen public-job coverage so more subs can use the bond claim panel",
+  "notes": "Local checks: payapps tsc --noEmit exit 0; biome check clean after format; payapps unit suite 165 files, 1641 passed, 4 skipped; worker test/worker/lien-deadline.test.ts 5/5; pay-app-guides page.test.mjs 36/36; risk_review.py blocked nothing. Sources read 2026-11-28: oscn.net CiteID 85196, 85198; code.dccouncil.gov 2-201.01..03. run_venture_tests.py pay-app-guides: 408/409, the one failure is change-order-template's soffice xlsx->csv recalculation (LibreOffice conversion fails in this container; file untouched by this PR); its site page checks (title, description, llms-answers, FAQ) ok. Post seo_title shortened to 64 chars after check_posts flagged 76.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8a510216-6ea3-59ce-8c4f-2745a9132166",
+    "transcripts": 1,
+    "first": "2026-11-28T14:07:13Z",
+    "last": "2026-11-28T14:23:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 172,
+        "output": 34991,
+        "thinking": 5054,
+        "cache_read": 10393039,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135845,
+        "api_equivalent_usd": 3.8659,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 172,
+      "output": 34991,
+      "thinking": 5054,
+      "cache_read": 10393039,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135845,
+      "api_equivalent_usd": 3.8659,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 89,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.28,
+      "active_minutes": 16.28,
+      "model_minutes": 7.63,
+      "tool_minutes": 8.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "paralegal reading two statutes, drafting rule text, guide and post rows, plus a developer adding tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 103.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

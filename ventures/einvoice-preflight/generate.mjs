@@ -13,6 +13,7 @@
 // Zero dependencies. Runs in Node 20+ and in the browser (create.html).
 
 import { roundHalfUpToCents } from "./checks.mjs";
+import { paymentTermsText } from "./profile.mjs";
 
 export const PROFILES = {
   xrechnung: {
@@ -402,8 +403,27 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   }
   // Intra-community supply (K) needs the date of supply and the country the goods go to (BR-IC-11, -12).
   const hasK = lines.some((l) => l.category === "K");
-  const deliveryCountry = text(d.delivery_country).toUpperCase() || (hasK ? buyer.country : "");
+  // The deliver-to address (BT-70, BT-75 to BT-80). France made it a mandatory mention from
+  // 1 September 2026 when the goods go somewhere other than the billing address (DGFiP FAQ 3.4).
+  const da = d.delivery_address && typeof d.delivery_address === "object" ? d.delivery_address : null;
+  const deliveryAddress = da ? {
+    name: text(da.name), street: text(da.street), street2: text(da.street2),
+    city: text(da.city), postal_code: text(da.postal_code), country: text(da.country).toUpperCase(),
+  } : null;
+  if (deliveryAddress) {
+    if (!deliveryAddress.country) err("delivery_address.country", "A deliver-to address needs its country, a 2-letter ISO code (BT-80, BR-57).");
+    if (!deliveryAddress.street && !deliveryAddress.city) err("delivery_address", "A deliver-to address needs at least the street (BT-75) or the city (BT-77).");
+  }
+  const deliveryCountry = text(d.delivery_country).toUpperCase() || (deliveryAddress && deliveryAddress.country) || (hasK ? buyer.country : "");
   if (deliveryCountry && !/^[A-Z]{2}$/.test(deliveryCountry)) err("delivery_country", "Deliver-to country must be a 2-letter ISO code (BT-80).");
+  if (deliveryAddress && text(d.delivery_country) && deliveryAddress.country && text(d.delivery_country).toUpperCase() !== deliveryAddress.country) {
+    err("delivery_country", "delivery_country and delivery_address.country differ: give the country once, in delivery_address.");
+  }
+  // VAT on debits (option pour le paiement de la TVA d'après les débits): BT-8, the VAT point date
+  // code, set to the invoice date: 3 in UBL (UNTDID 2005, "Invoice document issue date time"), 5 in
+  // CII (BR-CL-06 accepts 5, 29, 72). DGFiP's table of invoice data maps the mention to BT-8.
+  if (d.vat_on_debits !== undefined && typeof d.vat_on_debits !== "boolean") err("vat_on_debits", "vat_on_debits is true or false.");
+  const vatOnDebits = d.vat_on_debits === true;
   if (hasK && !delivery && !(period && (period.start || period.end))) err("delivery_date", "An intra-community supply (K) needs the delivery date or the invoicing period (BR-IC-11).");
 
   // Croatia: the fields HR-CIUS 2025 makes compulsory, checked here so the file is not
@@ -481,7 +501,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     }
     if (buyer.country === "FR") {
       if (!buyer.legal_id) warn("buyer.legal_id", "A French buyer's SIREN (BT-47) is how a platform routes the invoice to them: ask your customer for it.");
-      else if (!/^\d{9}(\d{5})?$/.test(buyer.legal_id) || !luhnOk(buyer.legal_id)) err("buyer.legal_id", "The buyer's SIREN (9 digits) or SIRET (14 digits) fails its check digit.");
+      else if (/^\d{14}$/.test(buyer.legal_id) && luhnOk(buyer.legal_id)) err("buyer.legal_id", `The buyer's legal id (BT-47) is the 9-digit SIREN, not a 14-digit SIRET (BR-FR-32): use ${buyer.legal_id.slice(0, 9)}, the SIRET's first 9 digits.`);
+      else if (!/^\d{9}$/.test(buyer.legal_id) || !luhnOk(buyer.legal_id)) err("buyer.legal_id", "The buyer's SIREN must be 9 digits with a valid check digit (BR-FR-32): copy it again from your customer's Kbis or the directory (annuaire).");
     }
     if (kind === "invoice") {
       for (const [code, example] of Object.entries(FR_REQUIRED_NOTES)) {
@@ -500,7 +521,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     bic: text(pay.bic).replace(/\s+/g, "").toUpperCase(),
     account_name: text(pay.account_name),
     reference: text(pay.reference) || (iban ? number : ""),
-    terms: text(d.terms) || (text(pay.terms)),
+    // BT-20 keeps the line break BR-DE-18 needs after a Skonto line (paymentTermsText).
+    terms: paymentTermsText(text(d.terms) ? d.terms : pay.terms),
   };
 
   return {
@@ -513,6 +535,7 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       original_invoice: text(d.original_invoice), original_invoice_date: originalDate && dateOk(originalDate) ? originalDate : "", note: text(d.note),
       period: period && (period.start || period.end) ? { start: text(period.start), end: text(period.end) } : null,
       delivery_date: delivery && dateOk(delivery) ? delivery : "", delivery_country: deliveryCountry,
+      delivery_address: deliveryAddress, vat_on_debits: vatOnDebits,
       seller, buyer, lines, allowances, charges, breakdown, payment,
       notes, issue_time: time, process: hr ? hrProcess : frMode, hr_extension: hrData,
       totals: { net: netTotal, allowances: allowanceTotal, charges: chargeTotal, taxable: taxBasis, tax: taxTotal, gross, prepaid, due: due_amount },
@@ -621,10 +644,11 @@ export function toUbl(doc) {
   for (const n of doc.notes || []) o.push(`  <cbc:Note>${esc(n.subject ? `#${n.subject}#${n.text}` : n.text)}</cbc:Note>`);
   o.push(`  <cbc:DocumentCurrencyCode>${esc(cur)}</cbc:DocumentCurrencyCode>`);
   if (doc.buyer_reference) o.push(`  <cbc:BuyerReference>${esc(doc.buyer_reference)}</cbc:BuyerReference>`);
-  if (doc.period) {
+  if (doc.period || doc.vat_on_debits) {
     o.push(`  <cac:InvoicePeriod>`);
-    if (doc.period.start) o.push(`    <cbc:StartDate>${doc.period.start}</cbc:StartDate>`);
-    if (doc.period.end) o.push(`    <cbc:EndDate>${doc.period.end}</cbc:EndDate>`);
+    if (doc.period && doc.period.start) o.push(`    <cbc:StartDate>${doc.period.start}</cbc:StartDate>`);
+    if (doc.period && doc.period.end) o.push(`    <cbc:EndDate>${doc.period.end}</cbc:EndDate>`);
+    if (doc.vat_on_debits) o.push(`    <cbc:DescriptionCode>3</cbc:DescriptionCode>`);
     o.push(`  </cac:InvoicePeriod>`);
   }
   if (doc.order_reference) o.push(`  <cac:OrderReference><cbc:ID>${esc(doc.order_reference)}</cbc:ID></cac:OrderReference>`);
@@ -639,8 +663,16 @@ export function toUbl(doc) {
   o.push(`  <cac:AccountingCustomerParty>\n    <cac:Party>\n${ublParty(doc.buyer)}\n    </cac:Party>\n  </cac:AccountingCustomerParty>`);
   if (doc.delivery_date || doc.delivery_country) {
     const when = doc.delivery_date ? `<cbc:ActualDeliveryDate>${doc.delivery_date}</cbc:ActualDeliveryDate>` : "";
-    const where = doc.delivery_country ? `<cac:DeliveryLocation><cac:Address><cac:Country><cbc:IdentificationCode>${esc(doc.delivery_country)}</cbc:IdentificationCode></cac:Country></cac:Address></cac:DeliveryLocation>` : "";
-    o.push(`  <cac:Delivery>${when}${where}</cac:Delivery>`);
+    const a = doc.delivery_address || {};
+    const lines = [
+      a.street ? `<cbc:StreetName>${esc(a.street)}</cbc:StreetName>` : "",
+      a.street2 ? `<cbc:AdditionalStreetName>${esc(a.street2)}</cbc:AdditionalStreetName>` : "",
+      a.city ? `<cbc:CityName>${esc(a.city)}</cbc:CityName>` : "",
+      a.postal_code ? `<cbc:PostalZone>${esc(a.postal_code)}</cbc:PostalZone>` : "",
+    ].join("");
+    const where = doc.delivery_country ? `<cac:DeliveryLocation><cac:Address>${lines}<cac:Country><cbc:IdentificationCode>${esc(doc.delivery_country)}</cbc:IdentificationCode></cac:Country></cac:Address></cac:DeliveryLocation>` : "";
+    const who = a.name ? `<cac:DeliveryParty><cac:PartyName><cbc:Name>${esc(a.name)}</cbc:Name></cac:PartyName></cac:DeliveryParty>` : "";
+    o.push(`  <cac:Delivery>${when}${where}${who}</cac:Delivery>`);
   }
 
   const p = doc.payment;
@@ -796,7 +828,17 @@ export function toCii(doc) {
   // there is nothing to put in it (PEPPOL-EN16931-R008 then warns, as Mustang does).
   if (doc.delivery_date || doc.delivery_country) {
     o.push(`    <ram:ApplicableHeaderTradeDelivery>`);
-    if (doc.delivery_country) o.push(`      <ram:ShipToTradeParty><ram:PostalTradeAddress><ram:CountryID>${esc(doc.delivery_country)}</ram:CountryID></ram:PostalTradeAddress></ram:ShipToTradeParty>`);
+    if (doc.delivery_country) {
+      const a = doc.delivery_address || {};
+      const name = a.name ? `<ram:Name>${esc(a.name)}</ram:Name>` : "";
+      const lines = [
+        a.postal_code ? `<ram:PostcodeCode>${esc(a.postal_code)}</ram:PostcodeCode>` : "",
+        a.street ? `<ram:LineOne>${esc(a.street)}</ram:LineOne>` : "",
+        a.street2 ? `<ram:LineTwo>${esc(a.street2)}</ram:LineTwo>` : "",
+        a.city ? `<ram:CityName>${esc(a.city)}</ram:CityName>` : "",
+      ].join("");
+      o.push(`      <ram:ShipToTradeParty>${name}<ram:PostalTradeAddress>${lines}<ram:CountryID>${esc(doc.delivery_country)}</ram:CountryID></ram:PostalTradeAddress></ram:ShipToTradeParty>`);
+    }
     if (doc.delivery_date) o.push(`      <ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime>\n  ${ciiDate(doc.delivery_date)}\n      </ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent>`);
     o.push(`    </ram:ApplicableHeaderTradeDelivery>`);
   } else {
@@ -823,6 +865,7 @@ export function toCii(doc) {
     o.push(`        <ram:BasisAmount>${fixed(g.taxable)}</ram:BasisAmount>`);
     o.push(`        <ram:CategoryCode>${g.category}</ram:CategoryCode>`);
     if (g.reason_code) o.push(`        <ram:ExemptionReasonCode>${esc(g.reason_code)}</ram:ExemptionReasonCode>`);
+    if (doc.vat_on_debits) o.push(`        <ram:DueDateTypeCode>5</ram:DueDateTypeCode>`);
     if (g.category !== "O") o.push(`        <ram:RateApplicablePercent>${g.percent}</ram:RateApplicablePercent>`);
     o.push(`      </ram:ApplicableTradeTax>`);
   }

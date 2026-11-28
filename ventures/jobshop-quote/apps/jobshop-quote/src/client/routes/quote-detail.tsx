@@ -9,6 +9,7 @@ import type {
   QuoteEmailsDto,
   QuoteLineDto,
   RateCardDto,
+  RfqDetailDto,
 } from "@shared/api";
 import type { Blank, CostInputs, CostOutcome } from "@shared/costing";
 import { cycleText, falloutBpsFromText } from "@shared/costing";
@@ -38,6 +39,7 @@ import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QuoteFollowUpCard } from "../components/follow-up";
 import { RevisionChanges, revisionChangesKey } from "../components/revision-changes";
+import { ToleranceCheck } from "../components/tolerance-check";
 import {
   Badge,
   Button,
@@ -358,6 +360,14 @@ function LineEditor({
     description: line.description ?? "",
   });
   const [inputs, setInputs] = useState<CostInputs>(line.inputs);
+  // Tolerance check, part 2: the part's tolerance text from the RFQ (the same query, and cache, as the
+  // RFQ page), so the note sits beside the cycle times it should change. Reads only.
+  const rfqPart = useQuery({
+    queryKey: ["rfq", orgId, rfqId],
+    queryFn: () => api<RfqDetailDto>(orgApi(orgId, `/rfqs/${rfqId}`)),
+    enabled: Boolean(rfqId && line.rfqPartId),
+    select: (r) => r.parts.find((p) => p.id === line.rfqPartId) ?? null,
+  });
   // The saved routings this line is built from (win/loss by routing): set when a routing is applied
   // to the line, saved from it or updated from it, and stored with the next Save.
   const [routingIds, setRoutingIds] = useState<string[] | null>(line.routingIds);
@@ -675,6 +685,11 @@ function LineEditor({
 
           <div className="rounded border border-stone-200 p-2">
             <div className="mb-1 text-sm font-medium">Operations</div>
+            {rfqPart.data?.tolerances ? (
+              <div className="mb-1">
+                <ToleranceCheck text={rfqPart.data.tolerances} prefix="Part tolerance: " />
+              </div>
+            ) : null}
             {inputs.operations.map((op, i) => {
               const update = (patch: Partial<typeof op>) =>
                 setInputs({
