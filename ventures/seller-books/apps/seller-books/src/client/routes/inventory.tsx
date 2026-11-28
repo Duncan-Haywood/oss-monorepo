@@ -262,7 +262,7 @@ export function InventoryPage() {
 
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Lots</h2>
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Lot</th>
@@ -280,11 +280,20 @@ export function InventoryPage() {
                   {l.name}
                   {l.vendor && <span className="ml-1 text-xs text-stone-500">{l.vendor}</span>}
                 </td>
-                <td>{l.acquiredDate}</td>
-                <td className="num">{usd(l.totalCostCents)}</td>
-                <td className="num">{l.itemCount}</td>
-                <td className="num">{l.soldCount}</td>
-                <td className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}>
+                <td data-label="Bought">{l.acquiredDate}</td>
+                <td data-label="Cost" className="num">
+                  {usd(l.totalCostCents)}
+                </td>
+                <td data-label="Items" className="num">
+                  {l.itemCount}
+                </td>
+                <td data-label="Sold" className="num">
+                  {l.soldCount}
+                </td>
+                <td
+                  data-label="Not assigned to items"
+                  className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}
+                >
                   {usd(l.unallocatedCents)}
                 </td>
               </tr>
@@ -296,7 +305,7 @@ export function InventoryPage() {
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Items</h2>
         <ErrorText error={update.error ?? removeItem.error} />
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Item</th>
@@ -319,14 +328,14 @@ export function InventoryPage() {
                     <span className="ml-1 text-xs text-stone-500">· {lotName(i.lotId)}</span>
                   )}
                 </td>
-                <td>{i.acquiredDate}</td>
-                <td className="num">
+                <td data-label="Bought">{i.acquiredDate}</td>
+                <td data-label="Cost" className="num">
                   {usd(i.costCents)}
                   {i.lotId && !i.costIsManual && (
                     <span className="ml-1 text-xs text-stone-500">(lot share)</span>
                   )}
                 </td>
-                <td>
+                <td data-label="Status">
                   {i.status.replace("_", " ")}
                   {i.disposedDate && (
                     <span className="ml-1 text-xs text-stone-500">{i.disposedDate}</span>
