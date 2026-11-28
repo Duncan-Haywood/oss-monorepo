@@ -257,7 +257,7 @@ def _ts_suite(path: Path, repo: Path) -> tuple[list[str], Path] | None:
     seller-books) are pnpm workspaces in TypeScript, and two red-team runs that
     day found no file of theirs among the targets. Their packages (lien
     waivers, billing, qbo-sync, cad-features) test with `node --test`; the apps
-    test with vitest, which needs `pnpm install`, so they stay out for now."""
+    test with vitest: `_vitest_suite` reaches them once `pnpm install` has run."""
     rel = path.relative_to(repo).as_posix()
     if path.name.endswith(".d.ts") or "/test/" in f"/{rel}":
         return None
@@ -273,9 +273,32 @@ def _ts_suite(path: Path, repo: Path) -> tuple[list[str], Path] | None:
             # shell: a package.json in the tree must not be able to run anything else.
             if isinstance(script, str) and NODE_TS_TEST.fullmatch(script.strip()):
                 return shlex.split(script), d
-            return None
+            return _vitest_suite(path, d)
         d = d.parent
     return None
+
+
+VITEST_UNIT_CONFIG = "vitest.unit.config.ts"
+
+
+def _vitest_suite(path: Path, app: Path) -> tuple[list[str], Path] | None:
+    """The sibling `<name>.test.ts` under the app's unit vitest config, once its
+    dependencies are installed (`node_modules/.bin/vitest` exists).
+
+    The paid bets' apps (jobshop-quote, payapps, seller-books) test with vitest,
+    so their pricing, page-count and quoting code was out of every campaign's
+    reach (2026-11-28: a PDF sent as application/x-pdf counted as zero drawing
+    pages in jobshop-quote's src/shared/upload-pages.ts, and nothing could
+    measure the suite that guards it). The argv is fixed: the installed vitest
+    binary, the app's unit config and one test file, with no shell."""
+    vitest = app / "node_modules" / ".bin" / "vitest"
+    if not (vitest.is_file() and (app / VITEST_UNIT_CONFIG).is_file()):
+        return None
+    sibling = path.with_name(path.stem + ".test.ts")
+    if not sibling.is_file():
+        return None
+    return ([str(vitest), "run", "--config", VITEST_UNIT_CONFIG,
+             sibling.relative_to(app).as_posix()], app)
 
 
 def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:

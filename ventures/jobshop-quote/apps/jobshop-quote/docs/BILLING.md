@@ -47,7 +47,9 @@ ceiling is what keeps a shop with unusually large drawing packages from selling 
   email, text files and CAD models count nothing on their own. A PDF whose page count cannot be read
   without guessing (encrypted object streams, a broken file) counts as one page, so a reading error
   never makes an RFQ cost more. The RFQ page shows each PDF's pages and what the next read will count
-  before anyone presses the button.
+  before anyone presses the button. A file named `.pdf`, or sent with a non-standard PDF type
+  (`application/x-pdf`, `application/acrobat`), is read as a PDF whatever type the sender gave it
+  (`src/shared/upload-pages.ts`, `uploadMimeType`; until 2026-11-28 such a file counted no pages).
 - **Drawings added after a read** count only past each 10 pages: a 7-page RFQ that gains 3 pages
   is still one RFQ; one that grows to 22 pages counts 2 more on its next read, in that month. RFQs
   counted before this rule (migration 0005) carry one unit each with their pages unrecorded. Pasting an RFQ,

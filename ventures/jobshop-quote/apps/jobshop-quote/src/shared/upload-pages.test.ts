@@ -24,6 +24,17 @@ describe("uploadMimeType", () => {
     expect(uploadMimeType("notes.txt", "")).toBe("text/plain");
     expect(uploadMimeType("part.step", "")).toBe("application/octet-stream");
   });
+
+  it("calls a .pdf file a PDF whatever type the sender put on it", () => {
+    // Older mail clients and some browsers label PDFs application/x-pdf or application/acrobat; a
+    // client can send any type it likes. The page count, and so the allowance, must not depend on it.
+    for (const type of ["application/x-pdf", "application/acrobat", "text/plain", "image/png"]) {
+      expect(uploadMimeType("drawings.pdf", type), type).toBe("application/pdf");
+    }
+    for (const type of ["application/x-pdf", "application/acrobat", "application/vnd.pdf", "text/pdf"]) {
+      expect(uploadMimeType("drawings", type), type).toBe("application/pdf");
+    }
+  });
 });
 
 describe("countPackage", () => {
@@ -57,6 +68,14 @@ describe("countPackage", () => {
     ]);
     expect(pkg).toEqual({ pages: 2, units: 1 });
     expect(reads).toBe(0);
+  });
+
+  it("counts a mislabelled PDF by its page tree, not as zero pages", async () => {
+    const pkg = await countPackage([
+      upload("set.pdf", "application/x-pdf", fixture("drawings-12-chrome.pdf")),
+      upload("sheets.pdf", "text/plain", fixture("sheets-15-libreoffice.pdf")),
+    ]);
+    expect(pkg).toEqual({ pages: 27, units: 3 });
   });
 
   it("counts an unreadable PDF, or one whose bytes cannot be read, as one page", async () => {

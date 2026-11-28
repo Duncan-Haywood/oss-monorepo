@@ -83,6 +83,43 @@ describe("countPdfPages", () => {
   it("falls back to counting page leaves when the root has no /Count", async () => {
     const pdf = plainPdf(3).replace("/Count 3", "");
     expect(await countPdfPages(bytes(pdf))).toBe(3);
+    // One leaf is a one-page drawing, not "unreadable".
+    expect(await countPdfPages(bytes(plainPdf(1).replace("/Count 1", "")))).toBe(1);
+  });
+
+  it("reads a root that sits deep in the file, right after a page that names its parent", async () => {
+    // The root dictionary is found by scanning back from /Type to its "<<". Past the first 4 KB of
+    // the file that scan must still run, or the window falls back to 512 bytes before /Type and
+    // picks up the previous page's /Parent, and the root is skipped.
+    const pdf =
+      `%PDF-1.4\n%${"x".repeat(5000)}\n` +
+      `3 0 obj\n<< /Type /Page /Parent 2 0 R >>\nendobj\n` +
+      `2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 30 >>\nendobj\n%%EOF\n`;
+    expect(await countPdfPages(bytes(pdf))).toBe(30);
+  });
+
+  it("an object stream whose direct /Length overshoots endstream is read up to endstream", async () => {
+    const objects = "<< /Type /Pages /Kids [] /Count 15 >>";
+    const data = deflateSync(Buffer.from(objects, "latin1"));
+    const head = bytes(
+      `%PDF-1.5\n7 0 obj\n<< /Type /ObjStm /N 1 /First 4 /Filter /FlateDecode /Length 99999 >>\nstream\n`,
+    );
+    const pdf = concat(head, data, bytes("\nendstream\nendobj\n%%EOF\n"));
+    expect(await countPdfPages(pdf)).toBe(15);
+  });
+
+  it("inflates an object stream up to 8 MiB and refuses one byte more", async () => {
+    const MIB8 = 8 * 1024 * 1024;
+    const tree = "<< /Type /Pages /Kids [] /Count 15 >>";
+    const objStm = (size: number) => {
+      const data = deflateSync(Buffer.from(tree + " ".repeat(size - tree.length), "latin1"));
+      const head = bytes(
+        `%PDF-1.5\n7 0 obj\n<< /Type /ObjStm /N 1 /First 4 /Filter /FlateDecode /Length ${data.length} >>\nstream\n`,
+      );
+      return concat(head, data, bytes("\nendstream\nendobj\n%%EOF\n"));
+    };
+    expect(await countPdfPages(objStm(MIB8))).toBe(15);
+    expect(await countPdfPages(objStm(MIB8 + 1))).toBeNull();
   });
 
   it("never guesses: not a PDF, no page tree, a corrupt object stream, an absurd count", async () => {
