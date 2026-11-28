@@ -689,7 +689,8 @@ tasks:
       per this task's parent notes). The private copy is removed in a
       private-monorepo PR once the public one deploys.
     hours: 12
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 done 2026-11-27: ventures/payapps holds the app, the site and the
@@ -699,7 +700,11 @@ tasks:
       "Then"): port payapps-deploy.yml as priv-payapps-deploy.yml in its own
       PR, deploy once, then remove the private copy and repoint models.yaml,
       bets.md and roadmap_claim.py. Until then private-monorepo is where runs
-      build; refresh this copy with ventures/payapps/sync-from-private.sh.
+      build; the public copy is the source (below).
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
   - id: move-jobshop-quote-public
     direction: paid-bets
     title: "Move Job Shop Quote and the packages it imports into this repository (step 4 of products-to-public-repo, bet #2)"
@@ -710,13 +715,18 @@ tasks:
       PR, and the deploy path written down; the private copy is removed in
       a private-monorepo PR once the public one deploys.
     hours: 10
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 (copy, audit, CI) in PR 19594, from private 28895f0c
       (docs/reports/2026-11-27-move-jobshop-quote-public.md). Next: the
       Playwright job, priv-jobshop-quote-deploy.yml after PayApps' deploy
       port shows the pattern, then the private copy removed.
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
   - id: move-einvoice-pro-public
     direction: paid-bets
     title: "Move E-invoice Fix & Explain (bet #3) and the packages it imports into this repository (step 4 of products-to-public-repo)"
@@ -727,7 +737,8 @@ tasks:
       the deploy path written down. The private copy is removed in a
       private-monorepo PR once the public one deploys.
     hours: 10
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 (2026-11-27): ventures/einvoice-pro holds apps/einvoice-preflight,
@@ -739,6 +750,10 @@ tasks:
       Left (ventures/einvoice-pro/DEPLOY.md, "Then"): priv-einvoice-pro-deploy.yml
       in its own PR, deploy once, repoint bets.md, models.yaml and
       roadmap_claim.py, remove the private copy.
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
   - id: move-wall-framing-takeoff-public
     direction: paid-bets
     title: "Move Residential Takeoff, the paid Wall Framing Takeoff (bet #6), into this repository (step 4 of products-to-public-repo)"
@@ -749,7 +764,8 @@ tasks:
       served and how it checks out (Paddle, not the licence-key draft) is
       written down. The private copy is removed in a private-monorepo PR.
     hours: 6
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 done 2026-11-27: ventures/residential-takeoff/apps/wall-framing-takeoff
@@ -757,8 +773,11 @@ tasks:
       run_venture_tests.py, 16 inherited-key lookups guarded
       (docs/reports/2026-11-27-move-wall-framing-takeoff-public.md). Left:
       hosting (likely the estimating module in PayApps), Paddle checkout,
-      models.yaml repoint, private copy removed. Refresh meanwhile with
-      ventures/residential-takeoff/sync-from-private.sh.
+      models.yaml repoint, private copy removed.
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
   - id: move-seller-books-public
     direction: paid-bets
     title: "Move Seller Books (bet #5) and the packages it imports into this repository (step 4 of products-to-public-repo)"
@@ -769,7 +788,8 @@ tasks:
       the PR, and the deploy path written down. The private copy is removed
       in a private-monorepo PR once the public one deploys.
     hours: 8
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 done 2026-11-27: ventures/seller-books holds apps/seller-books,
@@ -783,6 +803,10 @@ tasks:
       (2026-11-27, private-monorepo PR 486, synced here:
       apps/seller-books/docs/LAUNCH-REVIEW.md), so the first deploy may open
       sign-ups.
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
   - id: move-cmmc-public
     direction: paid-bets
     title: "Move CMMC Workspace and the packages it imports into this repository (step 4 of products-to-public-repo, bet #4)"
@@ -793,13 +817,42 @@ tasks:
       path written down; the private copy is removed in a private-monorepo
       PR once the public one deploys.
     hours: 8
-    status: open
+    status: done
+    pr: 20182
     added: 2026-11-27
     notes: >-
       Part 1 (copy, audit, CI) from private 5f0757c7
       (docs/reports/2026-11-27-move-cmmc-public.md). Next:
       priv-cmmc-deploy.yml after PayApps' deploy port shows the pattern, a
       deploy for apps/cmmc-site, then the private copy removed.
+      Closed 2026-11-28: the copy, audit, CI and deploy path are done, and every private commit
+      is in the public copy (checked at private 1ee07fc); the sync script that would have
+      reverted public work was deleted. Removing the private copy is now one task for all six,
+      retire-private-copies.
+  - id: retire-private-copies
+    direction: paid-bets
+    title: Delete the six moved apps' stale copies from private-monorepo (one PR there)
+    done_when: >-
+      A private-monorepo PR removes apps/payapps, payapps-site, jobshop-quote,
+      jobshop-site, einvoice-preflight, einvoice-site, seller-books,
+      seller-books-site, cmmc, cmmc-site and wall-framing-takeoff, their
+      *-ci.yml and *-deploy.yml workflows, and their CLAUDE.md sections,
+      leaving a MOVED.md pointer to ventures/; the lockfile is regenerated,
+      admin-deploy.yml no longer builds from apps/payapps, and the remaining
+      apps (grants, admin) and packages/ still pass their CI.
+    hours: 3
+    status: open
+    added: 2026-11-28
+    notes: >-
+      Split from the six move-*-public tasks (all done 2026-11-28). The
+      private copies are 120 to 340 files behind the public ones and no
+      private commit has landed since 1ee07fc (2026-11-27), so they are a
+      trap, not a backup: a run that clones private-monorepo for grants could
+      edit them. Coupling found: admin-deploy.yml runs steps with
+      working-directory apps/payapps (lines 120 and 133); packages/billing,
+      admin-metrics, lien-waivers and trust-page name the moved apps in
+      comments or profiles; pnpm-workspace.yaml globs apps/*. Reach the repo
+      with add_repo (access push), per .github/prompts/cloud-session.md.
   - id: inboxes-without-owner
     direction: paid-bets
     title: Turn the agent inboxes on with no owner-pasted secrets
