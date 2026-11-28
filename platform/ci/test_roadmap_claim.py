@@ -144,13 +144,21 @@ class ParseTest(unittest.TestCase):
                       "History, part 3: history for waivers outside a pay app, if those ever exist",
                       "Win/loss, part 4 (by month done 2026-11-25). Next: whatever the first shops ask.",
                       "Import, part 4 (dates done 2026-11-26): check the headers once shops send real files",
-                      "Hosting, part 3: the owner runs the workflow once; then point the site's CTA at /app"):
+                      "Hosting, part 3: the owner runs the workflow once; then point the site's CTA at /app",
+                      # einvoice-preflight #1 and jobshop-quote #3, both listed "free" on 2026-11-28.
+                      "Hosting, part 3: the owner supplies the Impressum address; then point the CTA at /app",
+                      "launch (first deploy done 2026-11-27) the deploy workflow is ported to oss-monorepo; "
+                      "run the deploy once, onboard the sender domain"):
             self.assertIsNotNone(rc.gate(gated), gated)
         # Gated only when every open ask waits: one free ask leaves the item free, and the
         # history in the item (done notes, "X is done") is not an ask.
         mixed = ("Policies, part 2 (calendar done 2026-11-26): an import of an existing policy binder "
                  "from .docx files; the manual as a PDF if shops ask for one")
         self.assertIsNone(rc.gate(mixed))
+        # A state clause is history, but a conditional one is still an open ask.
+        self.assertEqual(rc.open_asks("the workflow is ported to oss-monorepo; add the CSV export now"),
+                         ["add the CSV export now"])
+        self.assertEqual(len(rc.open_asks("check the totals once the Worker is deployed there")), 1)
         self.assertEqual([h and h[0] for _, h in rc.ask_gates(mixed)], [None, "waits on demand"])
         history = ("Job costing, part 3 is done (2026-11-26): lines picked by class when a company "
                    "tracks jobs by class. Next, if people ask: a class and its sub-classes together. "

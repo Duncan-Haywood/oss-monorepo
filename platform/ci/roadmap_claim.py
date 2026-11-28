@@ -177,7 +177,10 @@ GATES = (
         r"answers|(?:is|can be) read|has run)\b|\bthe day\b[^.;()]{0,40}\b(?:is|goes) live\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
     ("owner step", re.compile(
         r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b|"
-        r"\b(?:once|until|after|when)\s+the owner\b|\bthe owner (?:runs|onboards|sets|adds)\b|"
+        r"\b(?:once|until|after|when)\s+the owner\b|"
+        # "the owner supplies the Impressum address" (einvoice-preflight #1, 2026-11-28).
+        r"\bthe owner (?:runs|onboards|sets|adds|supplies|provides|gives|signs|registers|pays|"
+        r"picks|chooses|approves|dispatches|creates|buys|enters|pastes|connects|names)\b|"
         r"\bonboard(?:s|ing)? the sender domain\b|(?:^|[.;(]\s*)owner:|"
         r"\b[A-Z][A-Z_]*_(?:TOKEN|SECRET|API_KEY)\b", re.I)),
     # Work only a person can honestly do: an agent's "native-speaker read" would be fabricated
@@ -271,7 +274,12 @@ def host_line(text: str, reach: dict[str, str] | None) -> str | None:
 _DONE = re.compile(r"\bdone(?: \d{4}-\d\d-\d\d)?\b", re.I)
 # A clause that reports state rather than asks for work: "X is done", "the host is named",
 # "the container stays the alternative".
+# "is ported" / "is wired in" (2026-11-28: jobshop-quote #3's "the deploy workflow is ported to
+# oss-monorepo" was its only "free" ask, so --bets sent runs to a launch item whose real asks are
+# the owner's). A condition word before the verb ("once it is deployed") keeps the clause open.
 _DONE_CLAUSE = re.compile(r"\b(?:is|are|was|were) (?:now )?(?:done|filled in|in place|named|recorded)\b|"
+                          r"^(?:(?!\b(?:once|until|if|when|after|before)\b).)*?"
+                          r"\b(?:is|are|was|were) (?:now )?(?:ported|wired in|deployed|shipped|merged)\b|"
                           r"^\W*done\b|\b(?:stays|remains)\b|\bsays so\b", re.I)
 _NEXT = re.compile(r"\bnext\b\s*[:,]", re.I)
 
