@@ -4,6 +4,7 @@ seo_title: "Gable dormer framing calculator: studs, valleys and jacks"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, roofing]
 description: "The wall-framing takeoff now counts the lumber for a gable dormer: cheek studs that shorten with the main roof slope, valleys and jacks, all closed-form."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*

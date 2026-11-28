@@ -4,6 +4,7 @@ seo_title: "Dormer framing calculator: rafters, valleys and studs"
 date: 2026-11-06
 tags: [wall-framing-takeoff, construction, calculators]
 description: "Width, eave height and two roof pitches give a dormer's studs, rafters, valleys and the hole in the main roof. Free, in your browser, MIT licensed."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 Dormers are where a framing takeoff goes wrong: the cheek studs are all different lengths, the valleys are a true-length diagonal, and the hole in the main roof cuts rafters you have to count. The framing engine in `wall-framing-takeoff` has handled this since October, but only inside the whole-house page. It now has its own page, [dormer-calculator.html](https://marisstella.app/wall-framing-takeoff/dormer-calculator.html).
