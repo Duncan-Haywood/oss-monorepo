@@ -398,7 +398,19 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
 - Expenses from a bank or card statement CSV (2026-11-26, IMPORTERS.md, "A bank or card statement"). A merchant's category is
   learned from the seller's own earlier expenses since 2026-11-26 (IMPORTERS.md, "The seller's own
   choices"). A merchant the seller leaves out is remembered on request since 2026-11-26 (IMPORTERS.md,
-  "Merchants the seller leaves out"). Next, if sellers ask: a receipt photo per expense. The statement layouts still need a real export each before launch.
+  "Merchants the seller leaves out"). Receipts per expense since 2026-11-28 (`src/shared/receipts.ts`, `services/books/receipts.ts`,
+  migration 0015, `components/expense-receipts.tsx`): `GET|POST /expenses/:id/receipts` (the upload is the file's
+  bytes as the body, its name in `?name=`), `GET|DELETE /expenses/:id/receipts/:receiptId`, `GET
+  /expenses/receipts/usage`; the expense list carries `receiptCount`. PDF, JPEG, PNG, WebP and HEIC only, the type
+  from the extension and the first bytes required to match it; 10 MB a file, 5 an expense, 50 MB a shop and 300 MB
+  for the deployment, because the bytes live in D1 (`expense_receipt_chunk`, 1 MiB rows written in one batch with
+  their `expense_receipt` row) and a free D1 database is 500 MB in all. Downloads are always `attachment` under the
+  API's CSP and nosniff. Deleting the expense or the shop cascades. The year-end ZIP adds the year's receipts under
+  `receipts/<date> <vendor> <amount> <id>.<ext>` with a README line; the JSON export lists their metadata
+  (`expenseReceipts`), not the bytes. Tests: `test/unit/receipts.test.ts`, `test/worker/receipts.test.ts`,
+  `test/e2e/17-expense-receipts.spec.ts`. Next, if sellers fill it: move the bytes to R2 once the deploy token
+  has R2 edit (PayApps' `file-store.ts` shows the R2-then-D1 fallback), and raise the shop limit by plan; reading
+  the amount and date off a photo, if sellers ask. The statement layouts still need a real export each before launch.
 - Onboarding: a getting-started checklist on the Profit & loss page since 2026-11-26
   (`src/shared/getting-started.ts`, `GET /api/orgs/:orgId/getting-started`): import a report, add stock
   costs, link sales to items, log expenses or mileage. Each step is a row count in the shop's own books, so

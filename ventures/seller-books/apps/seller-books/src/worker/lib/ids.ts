@@ -14,7 +14,8 @@ export type IdPrefix =
   | "mil"
   | "exp"
   | "bev"
-  | "aal";
+  | "aal"
+  | "rct";
 
 export function newId(prefix: IdPrefix): string {
   const bytes = new Uint8Array(20);
@@ -27,6 +28,12 @@ export function newId(prefix: IdPrefix): string {
 /** Hex SHA-256 of a string (import file fingerprints, invitation tokens). */
 export async function sha256Hex(text: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Hex SHA-256 of bytes (receipt fingerprints). */
+export async function sha256HexBytes(bytes: Uint8Array<ArrayBuffer>): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 

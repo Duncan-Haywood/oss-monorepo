@@ -3,7 +3,16 @@
 // calendar dates as ISO "YYYY-MM-DD" text (the seller's books are by calendar day, not instant).
 
 import type { ColumnMapping } from "@shared/column-mapping";
-import { index, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+  blob,
+  index,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { bool, cents, createdAt, json, updatedAt } from "./_columns";
 import { organization, user } from "./auth";
 
@@ -210,6 +219,46 @@ export const expense = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [index("expense_org_date_idx").on(t.orgId, t.date)],
+);
+
+/**
+ * A receipt file on an expense (shared/receipts.ts, services/books/receipts.ts): the name, the type read
+ * from its extension and checked against its first bytes, and its size. The bytes are in
+ * `expense_receipt_chunk`. Deleting the expense (or the shop) deletes its receipts.
+ */
+export const expenseReceipt = sqliteTable(
+  "expense_receipt",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgId(),
+    expenseId: text("expense_id")
+      .notNull()
+      .references(() => expense.id, { onDelete: "cascade" }),
+    fileName: text("file_name").notNull(),
+    contentType: text("content_type").notNull(),
+    size: integer("size").notNull(),
+    sha256: text("sha256").notNull(),
+    /** Who added it; null once that user is gone. */
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("expense_receipt_org_idx").on(t.orgId),
+    index("expense_receipt_expense_idx").on(t.expenseId),
+  ],
+);
+
+/** A receipt's bytes, cut under D1's 2 MB value limit (RECEIPT_CHUNK_BYTES each, in order). */
+export const expenseReceiptChunk = sqliteTable(
+  "expense_receipt_chunk",
+  {
+    receiptId: text("receipt_id")
+      .notNull()
+      .references(() => expenseReceipt.id, { onDelete: "cascade" }),
+    chunk: integer("chunk").notNull(),
+    bytes: blob("bytes").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.receiptId, t.chunk] })],
 );
 
 /**

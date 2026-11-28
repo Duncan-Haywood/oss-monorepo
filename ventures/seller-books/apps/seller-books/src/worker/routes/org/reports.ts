@@ -35,6 +35,7 @@ import {
   journalCsvRows,
 } from "../../services/books/journal";
 import { ledgerCsvRows } from "../../services/books/ledger";
+import { receiptBytes, receiptZipName, yearReceipts } from "../../services/books/receipts";
 import type { ScWorksheet } from "../../services/books/schedule-c";
 import {
   deleteFiledInventory,
@@ -566,14 +567,20 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
   const from = `${q.year}-01-01`;
   const to = `${q.year}-12-31`;
   const platformLabel = (p: string) => PLATFORM_LABELS[p as Platform] ?? p;
-  const [ws, items, trips, expenseRows, ledger, name] = await Promise.all([
+  const [ws, items, trips, expenseRows, ledger, name, receiptRows] = await Promise.all([
     scheduleCWorksheet(ctx, orgId, q.year, rate),
     yearEndInventory(ctx, orgId, q.year),
     yearEndTrips(ctx, orgId, q.year),
     yearEndExpenses(ctx, orgId, q.year),
     salesLedger(ctx, orgId, from, to),
     shopName(c),
+    yearReceipts(ctx, orgId, q.year),
   ]);
+  // Read one at a time: a shop's receipts are capped (SHOP_RECEIPT_LIMIT_BYTES), so they fit in memory.
+  const receiptFiles: { name: string; data: Uint8Array }[] = [];
+  for (const r of receiptRows) {
+    receiptFiles.push({ name: receiptZipName(r), data: await receiptBytes(ctx, r.id, r.size) });
+  }
   const inventory = closingInventoryList(q.year, items);
   const log = mileageLog(q.year, trips, rate);
   const expenses = expenseList(q.year, expenseRows, {
@@ -611,6 +618,10 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
       expenses: expenses.count,
       expensesCents: expenses.totalCents,
     },
+    receipts: {
+      files: receiptRows.length,
+      expenses: new Set(receiptRows.map((r) => r.expenseId)).size,
+    },
   });
   const body = zip([
     { name: files.readme, data: readme },
@@ -624,6 +635,7 @@ routes.get("/year-end.zip", validate("query", scQuery), async (c) => {
     { name: files.mileage, data: csv.mileage },
     { name: files.expenses, data: csv.expenses },
     { name: files.journal, data: csv.journal },
+    ...receiptFiles,
   ]);
   return new Response(body, {
     headers: {

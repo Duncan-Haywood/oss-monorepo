@@ -1,5 +1,6 @@
 // Other business expenses (supplies, software, packaging...), each in a Schedule C category.
 import { EXPENSE_CATEGORIES, type ExpenseCategory, SALE_CHANNELS } from "@shared/enums";
+import { MAX_RECEIPT_BYTES, SHOP_RECEIPT_LIMIT_BYTES } from "@shared/receipts";
 import { and, asc, desc, eq, gte, inArray, isNotNull, lte, type SQL, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -10,6 +11,14 @@ import { badRequest, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
+import {
+  addReceipt,
+  deleteReceipt,
+  listReceipts,
+  readReceipt,
+  receiptCounts,
+  receiptUsage,
+} from "../../services/books/receipts";
 import { ImportFormatError } from "../../services/importers/parse";
 import { MAX_STATEMENT_ROWS, parseStatement } from "../../services/importers/statement";
 import {
@@ -44,7 +53,16 @@ routes.get(
       .orderBy(desc(expense.date), expense.id)
       .limit(q.limit + 1)
       .offset(q.cursor);
-    return c.json(page(rows, q.limit, q.cursor));
+    const result = page(rows, q.limit, q.cursor);
+    const counts = await receiptCounts(
+      c.var.ctx,
+      orgId,
+      result.items.map((r) => r.id),
+    );
+    return c.json({
+      ...result,
+      items: result.items.map((r) => ({ ...r, receiptCount: counts.get(r.id) ?? 0 })),
+    });
   },
 );
 
@@ -339,6 +357,62 @@ routes.delete("/left-out/:merchant", requireRole("editor"), async (c) => {
     )
     .returning({ merchant: leftOutMerchant.merchant });
   if (res.length === 0) throw notFound("Merchant");
+  return c.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------------------------------------
+// Receipts on an expense (services/books/receipts.ts). The upload is the file's own bytes as the request
+// body, its name in `?name=`: no multipart parsing, and the size is checked before the body is read.
+
+routes.get("/receipts/usage", async (c) => {
+  const { shopBytes } = await receiptUsage(c.var.ctx, c.var.tenant.orgId);
+  return c.json({ usedBytes: shopBytes, limitBytes: SHOP_RECEIPT_LIMIT_BYTES });
+});
+
+routes.get("/:id/receipts", async (c) => {
+  const rows = await listReceipts(c.var.ctx, c.var.tenant.orgId, c.req.param("id"));
+  return c.json({ items: rows });
+});
+
+routes.post(
+  "/:id/receipts",
+  requireRole("editor"),
+  validate("query", z.object({ name: z.string().trim().min(1).max(255) })),
+  async (c) => {
+    const declared = Number(c.req.header("Content-Length") ?? "0");
+    if (declared > MAX_RECEIPT_BYTES) {
+      throw badRequest(`A receipt can be up to ${MAX_RECEIPT_BYTES / 1024 / 1024} MB.`);
+    }
+    const body = new Uint8Array(await c.req.arrayBuffer());
+    const row = await addReceipt(c.var.ctx, c.var.tenant.orgId, c.req.param("id"), {
+      fileName: c.req.valid("query").name,
+      bytes: body,
+      userId: c.var.tenant.userId,
+    });
+    return c.json(row, 201);
+  },
+);
+
+routes.get("/:id/receipts/:receiptId", async (c) => {
+  const r = await readReceipt(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    c.req.param("id"),
+    c.req.param("receiptId"),
+  );
+  // Always a download, never shown inline on this origin: the API's CSP and nosniff still apply.
+  const ascii = r.fileName.replace(/[^\x20-\x7e]/g, "_").replace(/["\\]/g, "_");
+  return new Response(r.bytes, {
+    headers: {
+      "Content-Type": r.contentType,
+      "Content-Disposition": `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(r.fileName)}`,
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+
+routes.delete("/:id/receipts/:receiptId", requireRole("editor"), async (c) => {
+  await deleteReceipt(c.var.ctx, c.var.tenant.orgId, c.req.param("id"), c.req.param("receiptId"));
   return c.json({ ok: true });
 });
 

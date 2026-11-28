@@ -18,6 +18,9 @@ the annualized (Schedule AI) methods (an estimate, not tax advice); the owner's 
 last year's tax, the payments sent) are saved to the shop for its owner and admins. An owner or admin can ask for a
 reminder email a week before each due date, carrying what is still to pay by then; a date already covered
 sends nothing, and each email has a one-click stop link.
+Each expense can carry its receipts (up to five photos or PDFs, 10 MB each, kept in the app's database; a file whose first
+bytes are not what its name says is refused), downloaded from the expense's row and, for a year, in the year-end ZIP's `receipts/`
+folder, each named by the expense's date, vendor and amount (`src/shared/receipts.ts`, `services/books/receipts.ts`).
 Expenses can be typed in or read from a bank or card statement CSV, each line with a suggested category and
 the ones that are really inventory, marketplace fees or fuel left unticked with the reason; a merchant filed
 before starts with the seller's own latest category.
@@ -51,7 +54,7 @@ and deleting the shop (the owner, by typing its name; refused while a paid plan 
 deleted shop is never billed again).
 The worksheet also downloads as a PDF, laid out by Schedule C part with the shop's name on it, to print or hand over.
 One download, "Everything for your preparer", puts the worksheet, the year's sales ledger, the three year-end
-lists below and the QuickBooks journal in a single ZIP, with a README that says what each file is and which line it
+lists below, the QuickBooks journal and the year's receipt files in a single ZIP, with a README that says what each file is and which line it
 totals to. Three year-end lists sit beside the worksheet, each totalling to its own figure: the closing inventory on
 December 31 at cost (Part III line 41), the mileage log with each trip's date, purpose and miles (the business
 miles, and each trip's IRS standard mileage rate on its date, totalling to line 9), and every expense with the
@@ -113,6 +116,9 @@ pnpm typecheck && pnpm test:unit && pnpm test:worker && pnpm build
      typing its name and lands on the shop list with it gone.
   16. another marketplace's file matched by hand: the column suggestions, the import as Grailed, and the
      saved columns offered for the second file, which adds nothing.
+
+  17. a receipt kept with an expense: attached as a PDF, counted on the row, downloaded byte for byte, a renamed
+     web page refused with the reason, and deleted.
 
   `scripts/e2e-run.sh <spec> -g <name>` runs one; `E2E_SERVER_LOGS=1` shows the server's output. CI runs
   it as the `e2e` job of `seller-books-ci`. It uses the preinstalled `/opt/pw-browsers` Chromium when
