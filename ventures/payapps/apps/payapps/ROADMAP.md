@@ -2607,6 +2607,16 @@ nothing to copy. No customers yet. Paid plans are dark
   holds is still flagged. Four tests in `payapp-math.test.ts` ("a line released in full, then the
   rate is cut"), including a 0% final application paying exactly the contract sum.
 
+- New job page leads with the schedule of values (2026-11-28, new-job-page-empty-modules-collapsed):
+  a walk of the first session (sign up, add a job) showed a new job's page at ~2,930 px on a laptop
+  and ~4,530 px on a phone, five empty entry forms (RFIs, schedule, punch list, close-out's two)
+  stacked under the schedule of values and the first pay application. An empty RFI log, schedule,
+  punch list or close-out list now shows its one-line explanation and a start button ("Log an RFI",
+  "Add your first activity", "Start the punch list", "List the close-out documents"); the form opens
+  on the button (cursor in its first field), on the jump links at the top of the job or a link with
+  the module's anchor (the weekly email's `#rfis`), and stays open once anything is in it
+  (`src/client/components/start-open.tsx`). Same page now ~2,280 px and ~3,290 px. Checked in
+  `test/e2e/01-first-pay-app.spec.ts`.
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers

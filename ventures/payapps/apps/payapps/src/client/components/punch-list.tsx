@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { ErrorText } from "./error";
+import { StartButton, useStartOpen } from "./start-open";
 
 interface Job {
   name: string;
@@ -74,6 +75,7 @@ export function PunchList(props: {
   const q = useQuery({ queryKey: ["punch-list", url], queryFn: () => api<PunchListDto>(url) });
   const refresh = () => qc.invalidateQueries({ queryKey: ["punch-list", url] });
   const section = useRef<HTMLElement>(null);
+  const [started, start] = useStartOpen(PUNCH_LIST_ANCHOR, section);
   const loaded = q.data !== undefined;
   useEffect(() => {
     if (loaded && window.location.hash === `#${PUNCH_LIST_ANCHOR}`) {
@@ -261,95 +263,101 @@ export function PunchList(props: {
       )}
       <ErrorText error={patch.error ?? remove.error} />
 
-      <form
-        className="mt-3 grid max-w-3xl gap-2 text-sm"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add.mutate();
-        }}
-      >
-        <div className="flex flex-wrap items-baseline gap-3">
-          <h3 className="font-semibold">
-            {paste ? "Paste a list" : `New item${list ? ` (${punchLabel(list.nextNumber)})` : ""}`}
-          </h3>
-          <button type="button" className="link" onClick={() => setPaste(!paste)}>
-            {paste ? "Add one item instead" : "Paste a list instead"}
-          </button>
-        </div>
-        {paste ? (
-          <>
-            <textarea
-              className="input min-h-28"
-              placeholder={
-                "One item per line, e.g.\n1. Room 104 - Missing cover plate\n2. Corridor 2: Touch up paint at door frame"
-              }
-              value={draft.pasted}
-              onChange={(e) => setDraft({ ...draft, pasted: e.target.value })}
-              aria-label="Pasted punch list"
-            />
-            {pastedItems.length > 0 && (
-              <p className="text-xs text-slate-600">
-                {pastedItems.length} item{pastedItems.length === 1 ? "" : "s"} to add
-                {pastedItems.some((i) => i.location)
-                  ? `; locations read from the text before " - " or ": " (first: ${pastedItems.find((i) => i.location)?.location})`
-                  : ""}
-                .
-              </p>
-            )}
-          </>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-3">
-            <input
-              className="input"
-              placeholder="Location, e.g. Room 104"
-              value={draft.location}
-              onChange={(e) => setDraft({ ...draft, location: e.target.value })}
-              aria-label="Punch item location"
-            />
-            <input
-              className="input sm:col-span-2"
-              placeholder="The item, e.g. Missing cover plate at receptacle"
-              value={draft.description}
-              onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-              aria-label="Punch item"
-              required
-            />
+      {list?.items.length === 0 && !started ? (
+        <StartButton label="Start the punch list" onClick={start} />
+      ) : (
+        <form
+          className="mt-3 grid max-w-3xl gap-2 text-sm"
+          onSubmit={(e) => {
+            e.preventDefault();
+            add.mutate();
+          }}
+        >
+          <div className="flex flex-wrap items-baseline gap-3">
+            <h3 className="font-semibold">
+              {paste
+                ? "Paste a list"
+                : `New item${list ? ` (${punchLabel(list.nextNumber)})` : ""}`}
+            </h3>
+            <button type="button" className="link" onClick={() => setPaste(!paste)}>
+              {paste ? "Add one item instead" : "Paste a list instead"}
+            </button>
           </div>
-        )}
-        <div className="flex flex-wrap items-end gap-3">
-          <SourceSelect value={source} onChange={setSource} />
-          <label className="grid gap-1">
-            <span className="text-slate-600">Date listed</span>
-            <input
-              className="input"
-              type="date"
-              value={draft.listedOn}
-              onChange={(e) => setDraft({ ...draft, listedOn: e.target.value })}
-            />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-slate-600">Due (optional)</span>
-            <input
-              className="input"
-              type="date"
-              value={draft.dueOn}
-              onChange={(e) => setDraft({ ...draft, dueOn: e.target.value })}
-            />
-          </label>
-          <button
-            className="btn"
-            type="submit"
-            disabled={add.isPending || (paste && pastedItems.length === 0)}
-          >
-            {paste
-              ? pastedItems.length
-                ? `Add ${pastedItems.length} item${pastedItems.length === 1 ? "" : "s"}`
-                : "Add items"
-              : "Add item"}
-          </button>
-        </div>
-        <ErrorText error={add.error} />
-      </form>
+          {paste ? (
+            <>
+              <textarea
+                className="input min-h-28"
+                placeholder={
+                  "One item per line, e.g.\n1. Room 104 - Missing cover plate\n2. Corridor 2: Touch up paint at door frame"
+                }
+                value={draft.pasted}
+                onChange={(e) => setDraft({ ...draft, pasted: e.target.value })}
+                aria-label="Pasted punch list"
+              />
+              {pastedItems.length > 0 && (
+                <p className="text-xs text-slate-600">
+                  {pastedItems.length} item{pastedItems.length === 1 ? "" : "s"} to add
+                  {pastedItems.some((i) => i.location)
+                    ? `; locations read from the text before " - " or ": " (first: ${pastedItems.find((i) => i.location)?.location})`
+                    : ""}
+                  .
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-3">
+              <input
+                className="input"
+                placeholder="Location, e.g. Room 104"
+                value={draft.location}
+                onChange={(e) => setDraft({ ...draft, location: e.target.value })}
+                aria-label="Punch item location"
+              />
+              <input
+                className="input sm:col-span-2"
+                placeholder="The item, e.g. Missing cover plate at receptacle"
+                value={draft.description}
+                onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                aria-label="Punch item"
+                required
+              />
+            </div>
+          )}
+          <div className="flex flex-wrap items-end gap-3">
+            <SourceSelect value={source} onChange={setSource} />
+            <label className="grid gap-1">
+              <span className="text-slate-600">Date listed</span>
+              <input
+                className="input"
+                type="date"
+                value={draft.listedOn}
+                onChange={(e) => setDraft({ ...draft, listedOn: e.target.value })}
+              />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-slate-600">Due (optional)</span>
+              <input
+                className="input"
+                type="date"
+                value={draft.dueOn}
+                onChange={(e) => setDraft({ ...draft, dueOn: e.target.value })}
+              />
+            </label>
+            <button
+              className="btn"
+              type="submit"
+              disabled={add.isPending || (paste && pastedItems.length === 0)}
+            >
+              {paste
+                ? pastedItems.length
+                  ? `Add ${pastedItems.length} item${pastedItems.length === 1 ? "" : "s"}`
+                  : "Add items"
+                : "Add item"}
+            </button>
+          </div>
+          <ErrorText error={add.error} />
+        </form>
+      )}
     </section>
   );
 }
