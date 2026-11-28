@@ -46,6 +46,7 @@ export const GROUPS = [
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["lien-waiver-form.html", "Free lien waiver form (general, fill in and print)"],
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
+    ["arizona-preliminary-notice.html", "Arizona 20-day preliminary notice"],
     ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
     ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
