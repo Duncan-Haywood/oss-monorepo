@@ -389,6 +389,7 @@ describe("state bond claims", () => {
     expect(ca.rule.law).toBe("Cal. Civ. Code §§ 9100-9566");
     expect(ca.steps.map((s) => s.citation)).toEqual([
       "Cal. Civ. Code §§ 9300, 9304",
+      "Cal. Civ. Code § 9560(b), (c)",
       "Cal. Civ. Code § 9356",
       "Cal. Civ. Code § 9502(a), (b)",
       "Cal. Civ. Code § 9558",
@@ -400,27 +401,81 @@ describe("state bond claims", () => {
     expect(dueOf(ca, "Cal. Civ. Code § 9356")).toBe("2027-01-13");
     expect(dueOf(ca, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-13");
     expect(dueOf(ca, "Cal. Civ. Code § 9558")).toBe("2027-07-13");
+    // § 9560(b): 15 days after a recording on the acceptance day = Tuesday 29 December 2026.
+    expect(dueOf(ca, "Cal. Civ. Code § 9560(b), (c)")).toBe("2026-12-29");
     expect(ca.dated.map((s) => s.citation)).toEqual([
+      "Cal. Civ. Code § 9560(b), (c)",
       "Cal. Civ. Code § 9356",
       "Cal. Civ. Code § 9502(a), (b)",
       "Cal. Civ. Code § 9558",
     ]);
     // A first-tier sub (in contract with the direct contractor) gives no preliminary notice (§ 9300(b)(2)).
-    expect(checked("CA", "first", ACCEPTED).steps.map((s) => s.citation)).not.toContain(
-      "Cal. Civ. Code §§ 9300, 9304",
-    );
+    const first = checked("CA", "first", ACCEPTED).steps.map((s) => s.citation);
+    expect(first).not.toContain("Cal. Civ. Code §§ 9300, 9304");
+    expect(first).not.toContain("Cal. Civ. Code § 9560(b), (c)");
     // Accepted Friday 11 December: day 30 is Sunday 10 January, moved back to Friday the 8th; the suits
     // count from the statute's own day, Saturday 10 April and Saturday 10 July, each moved to the Friday.
     const fri = checked("CA", "second", "2026-12-11");
     expect(dueOf(fri, "Cal. Civ. Code § 9356")).toBe("2027-01-08");
-    expect(fri.steps[1]?.statutoryOn).toBe("2027-01-10");
+    expect(fri.steps[2]?.statutoryOn).toBe("2027-01-10");
     expect(dueOf(fri, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-09");
     expect(dueOf(fri, "Cal. Civ. Code § 9558")).toBe("2027-07-09");
     // With no acceptance entered, nothing is dated, and the notes say how the earliest date is chosen.
     const open = checked("CA", null);
     expect(open.dated).toEqual([]);
-    expect(open.steps[3]?.waitsFor).toMatch(/stop payment notice period/);
+    expect(open.steps[4]?.waitsFor).toMatch(/stop payment notice period/);
     expect(open.notes.join(" ")).toMatch(/earliest the deadlines can fall/);
+  });
+
+  it("California: a recorded notice of completion dates the stop payment notice, the § 9560 notice and both suits", () => {
+    const noc = (acceptedOn: string | null, noticeOfCompletionOn: string) => {
+      const r = stateBondClaim("CA", {
+        tier: "second",
+        lastFurnishedOn: LAST,
+        acceptedOn,
+        noticeOfCompletionOn,
+      });
+      if (r?.kind !== "checked") throw new Error("expected CA to be checked");
+      return r;
+    };
+    // Accepted Monday 14 December 2026, notice recorded Tuesday 22 December (8 days later, § 9204(a)):
+    // § 9560(b) + 15 = Wednesday 6 January 2027; § 9356(a) + 30 = Thursday 21 January; § 9502(b) + 90
+    // = Wednesday 21 April; § 9558 + six months = Wednesday 21 July.
+    const on = noc(ACCEPTED, "2026-12-22");
+    expect(dueOf(on, "Cal. Civ. Code § 9560(b), (c)")).toBe("2027-01-06");
+    expect(dueOf(on, "Cal. Civ. Code § 9356")).toBe("2027-01-21");
+    expect(dueOf(on, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-04-21");
+    expect(dueOf(on, "Cal. Civ. Code § 9558")).toBe("2027-07-21");
+    expect(on.steps.find((s) => s.citation === "Cal. Civ. Code § 9356")?.rule).toMatch(
+      /dated from the recording entered/,
+    );
+    expect(on.notes.join(" ")).not.toMatch(/may not count/);
+    // A recording with no acceptance entered still dates every step.
+    expect(dueOf(noc(null, "2026-12-22"), "Cal. Civ. Code § 9356")).toBe("2027-01-21");
+    // Recorded Friday 15 January 2027, 32 days after acceptance: it may not count (§ 9204(a)), so
+    // each date is the earlier of the recording's and the no-recording date. § 9560: 15 Jan + 15 =
+    // Saturday 30 January vs 14 Dec + 75 = Saturday 27 February: 30 January, moved to Friday the 29th.
+    // § 9356: 15 Jan + 30 = Sunday 14 February vs 14 Dec + 90 = Sunday 14 March: 14 February, moved
+    // to Friday the 12th; the suits count from the statute's 14 February.
+    const late = noc(ACCEPTED, "2027-01-15");
+    expect(dueOf(late, "Cal. Civ. Code § 9560(b), (c)")).toBe("2027-01-29");
+    expect(dueOf(late, "Cal. Civ. Code § 9356")).toBe("2027-02-12");
+    expect(dueOf(late, "Cal. Civ. Code § 9502(a), (b)")).toBe("2027-05-14");
+    expect(dueOf(late, "Cal. Civ. Code § 9558")).toBe("2027-08-13");
+    expect(late.notes[0]).toMatch(/more than 15 days after the acceptance/);
+    // Recorded 150 days after acceptance: the no-recording dates are earlier and win.
+    const veryLate = noc(ACCEPTED, "2027-05-13");
+    // 14 Dec + 90 = Sunday 14 March 2027, moved to Friday the 12th; 14 Dec + 75 = Saturday 27 Feb -> 26th.
+    expect(dueOf(veryLate, "Cal. Civ. Code § 9356")).toBe("2027-03-12");
+    expect(dueOf(veryLate, "Cal. Civ. Code § 9560(b), (c)")).toBe("2027-02-26");
+    // Other states ignore the field.
+    const va = stateBondClaim("VA", {
+      tier: "second",
+      lastFurnishedOn: LAST,
+      acceptedOn: ACCEPTED,
+      noticeOfCompletionOn: "2026-12-22",
+    });
+    expect(va).toEqual(checked("VA", "second", ACCEPTED));
   });
 
   it("Colorado: both steps wait on the published final settlement date, so none is dated", () => {

@@ -258,4 +258,46 @@ describe("lien deadline", () => {
     row = r.projects.find((x) => x.id === job.id);
     expect(row?.actions.some((a) => a.includes("payment bond"))).toBe(false);
   });
+
+  it("a California public job dates its stop payment notice from the recorded notice of completion", async () => {
+    const { orgId, userId: as } = await setupTenant("owner");
+    await grantPlan(orgId);
+    const from = addDays(today(), -80);
+    const job = await finishedJob(orgId, as, from, addDays(from, 20));
+    // Accepted 20 days ago: the stop payment notice counts from acceptance, 10 days ahead.
+    let p = await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: {
+        lienState: "CA",
+        publicOwner: "state_local",
+        millerTier: "first",
+        lastFurnishedOn: addDays(today(), -25),
+        workCompletedOn: addDays(today(), -20),
+      },
+    });
+    expect(p.noticeOfCompletionOn).toBeNull();
+    let r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    let text =
+      r.projects
+        .find((x) => x.id === job.id)
+        ?.actions.find((a) => a.startsWith("California payment bond claim in")) ?? "";
+    expect(text).toContain("Give the public body a stop payment notice");
+    expect(text).toContain("the earliest");
+
+    // The notice of completion was recorded 10 days after acceptance: the period runs 30 days from it.
+    p = await call<ProjectDetailDto>(job.base, {
+      method: "PATCH",
+      as,
+      json: { noticeOfCompletionOn: addDays(today(), -10) },
+    });
+    expect(p.noticeOfCompletionOn).toBe(addDays(today(), -10));
+    expect(p.lienDeadline).toEqual({ kind: "public", state: "CA" });
+    r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
+    text =
+      r.projects
+        .find((x) => x.id === job.id)
+        ?.actions.find((a) => a.startsWith("California payment bond claim in")) ?? "";
+    expect(text).toContain("dated from the recording entered");
+  });
 });

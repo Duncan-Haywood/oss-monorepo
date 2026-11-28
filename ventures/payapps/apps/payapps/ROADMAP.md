@@ -2770,9 +2770,21 @@ nothing to copy. No customers yet. Paid plans are dark
   `ventures/pay-app-guides/sources/state-bond-claims.txt`). Thirty-three states in `STATE_BOND_RULES` with Alaska, Wyoming and Alabama.
   Worked dates in `src/shared/state-bond.test.ts` (a Monday acceptance; a Friday one whose day 30
   is a Sunday); the public guide and the customer post gain the row. Next, if contractors mark
-  California public jobs: date from the recorded notice of completion when the job has one (the
-  `notice_of_completion_on` column the private-job panel already keeps, today cleared on public
-  jobs), and re-read the sections on leginfo once it answers.
+  California public jobs: re-read the sections on leginfo once it answers (dating from the recorded
+  notice of completion is done, below).
+- State bond claims, California, the recorded notice of completion (2026-11-28,
+  ca-public-notice-of-completion, every plan): a California public job's panel asks for the day the
+  notice of completion, acceptance or cessation was recorded (the `notice_of_completion_on` column
+  the private-job panel already keeps, no longer cleared on California public jobs), and the stop
+  payment notice (§ 9356(a), 30 days), its suit (§ 9502(b)) and the bond suit (§ 9558) count from it.
+  A new dated step for those not in contract with the prime: the § 9560(b), (c) written notice to
+  the surety and the bond principal for a claimant who missed the preliminary notice, 15 days after
+  the recording (from acceptance, the earliest, when none is entered). A recording more than 15 days
+  after the acceptance entered may not be effective (§ 9204(a)), so each date is the earlier of the
+  recording's and the no-recording one (90 days after completion, § 9356(b); 75 days, § 9560(b)),
+  with a note saying so. The cash page and the weekly email read the same date
+  (`src/worker/services/payapps/cash.ts`). `caPeriods` in `src/shared/public-jobs.ts`; worked dates
+  in `src/shared/state-bond.test.ts`, the round trip in `test/worker/lien-deadline.test.ts`.
 - State bond claims, Oklahoma and the District of Columbia (2026-11-28, state-bond-claims-ok-in-vt,
   every plan). 61 O.S. §§ 1, 2 read on oscn.net (it answered a plain fetch this time, no Turnstile
   challenge) and D.C. Code §§ 2-201.01 to 2-201.03 on code.dccouncil.gov that day; excerpts appended
@@ -3082,7 +3094,7 @@ nothing to copy. No customers yet. Paid plans are dark
   Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
-  California's stop payment notice and bond claim done 2026-11-28 (dated from acceptance; the recorded
-  notice of completion as its own date next, if contractors mark California public jobs);
+  California's stop payment notice and bond claim done 2026-11-28 (dated from acceptance, and from
+  the recorded notice of completion when entered, done 2026-11-28);
   more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28; Alabama 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

@@ -227,6 +227,20 @@ recorded later, or never, you have longer, and the panel says so. The statute si
 our connection, so this one was read from california.public.law's copy of the official text, which
 the guide says.
 
+**Updated 2026-11-28: enter the recording date.** The county recorder keeps the notice of
+completion, and the public body can tell you the day it was recorded. On a California public job
+in PayApps, enter that day next to the acceptance and every date moves to it: accepted Monday
+14 December 2026 and recorded Tuesday 22 December, the § 9560 notice to the surety (for a sub who
+missed the preliminary notice) is due Wednesday 6 January 2027, the stop payment notice Thursday
+21 January, its suit Wednesday 21 April and the bond suit Wednesday 21 July, eight days later
+than the acceptance-day dates. One check stays on the safe side. The statute lets a public body
+record on or within 15 days after completion (§ 9204(a)), so a recording dated more than 15 days
+after the acceptance you entered may not count, and with no valid recording the stop payment
+notice is due 90 days after completion (§ 9356(b)). PayApps then uses whichever date comes first
+and says why: recorded Friday 15 January 2027 on that same job, the stop payment notice is due
+Friday 12 February (day 30 from the recording, a Sunday, moved back), not 14 March. Ask the
+public body which day it treats as completion before relying on the later date.
+
 **Added 2026-11-28: Oklahoma and the District of Columbia.** Oklahoma's statute (61 O.S. § 2) is
 the one in this list that says outright how far down the chain it reaches: anyone in contract
 with a subcontractor, "regardless of tier", gets a right of action on the payment bond by giving

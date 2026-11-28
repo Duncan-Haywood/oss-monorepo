@@ -78,7 +78,9 @@ it("fills the opening balance from a continuation sheet, then saves only what th
       { sovLineId: "l2", completedCents: 10_000 },
     ],
   });
-});
+  // Two waits of up to 5 s each above: the test's own limit must cover both (CI runners under
+  // load read the file slower than the 5 s default, PR #20144's first run).
+}, 15_000);
 
 it("puts a row that did not match on the line the contractor chooses, moves it, and saves the sum", async () => {
   const fetchMock = vi.fn(async () => new Response(JSON.stringify(project), { status: 200 }));
