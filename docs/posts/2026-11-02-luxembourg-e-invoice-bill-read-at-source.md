@@ -4,6 +4,7 @@ seo_title: "Luxembourg draft law 8815 e-invoicing: usage fee, dates, no penalty"
 date: 2026-11-02
 tags: [einvoice-preflight, luxembourg, e-invoicing, primary-sources]
 description: "For a week our Luxembourg page rested on law-firm summaries. Today the Chamber's site answered, and the bill text adds a usage fee we had not seen."
+folded_into: einvoice-preflight/luxembourg-e-invoice-mandate
 ---
 
 Our Luxembourg e-invoice page had been built from search excerpts of advisory

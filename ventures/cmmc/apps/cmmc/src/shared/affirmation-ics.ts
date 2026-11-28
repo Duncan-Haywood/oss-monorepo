@@ -28,6 +28,7 @@
 
 import { type AffirmationSchedule, addDays, DUE_SOON_DAYS } from "./affirmation";
 import type { DocumentReviewDate } from "./document-control";
+import type { IncidentDueDate } from "./incidents";
 import type { QualityDueDate, QualityDueKind } from "./internal-audits";
 import { TRAINING_INFO, type TrainingDueDate } from "./personnel";
 import type { SupplierDueDate } from "./suppliers";
@@ -119,6 +120,9 @@ const QUALITY_NOTE: Record<QualityDueKind, string> = {
     "The date set to check that corrective actions worked (ISO 9001 clause 10.2). Record what was checked and whether the action was effective on the Audits tab, which lists which actions.",
 };
 
+const INCIDENT_HOLD_NOTE =
+  "The earliest day the images of the affected systems and the monitoring/packet capture data for these incidents may be released: DFARS 252.204-7012(e) asks for them to be kept for at least 90 days from submitting the cyber incident report, computed from the report times on the Incidents tab. Keep them longer if DoD has asked for them or your contract or counsel says so.";
+
 const qualitySummary = (kind: QualityDueKind, n: number) => {
   if (kind === "audit") return `Internal audit planned: ${n} ${n === 1 ? "audit" : "audits"}`;
   const what = `${n} corrective ${n === 1 ? "action" : "actions"}`;
@@ -139,6 +143,8 @@ export interface CalendarInput {
   documentReviews?: readonly DocumentReviewDate[];
   /** Planned audits and corrective-action dates, grouped (internal-audits.qualityDueDates). */
   qualityDue?: readonly QualityDueDate[];
+  /** Days incident image holds end (incidents.incidentHoldDates); omitted adds none. */
+  incidentHolds?: readonly IncidentDueDate[];
   now: Date;
 }
 
@@ -152,6 +158,7 @@ export function renderAffirmationCalendar({
   supplierDue = [],
   documentReviews = [],
   qualityDue = [],
+  incidentHolds = [],
   now,
 }: CalendarInput): string {
   const stamp = icsStamp(now);
@@ -240,6 +247,15 @@ export function renderAffirmationCalendar({
       q.due,
       qualitySummary(q.kind, q.count),
       QUALITY_NOTE[q.kind],
+    );
+  }
+  for (const h of incidentHolds) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(h.date) || h.count < 1) continue;
+    event(
+      `cmmc-${uidPart(orgId)}-incident-hold-${icsDate(h.date)}`,
+      h.date,
+      `Incident image hold ends: ${h.count} ${h.count === 1 ? "incident" : "incidents"}`,
+      INCIDENT_HOLD_NOTE,
     );
   }
   lines.push("END:VCALENDAR");

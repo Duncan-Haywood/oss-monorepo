@@ -134,6 +134,13 @@
       "when": 1795855306914,
       "tag": "0018_lot_split_by_value",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1795862622939,
+      "tag": "0019_purchase_receipts",
+      "breakpoints": true
     }
   ]
 }

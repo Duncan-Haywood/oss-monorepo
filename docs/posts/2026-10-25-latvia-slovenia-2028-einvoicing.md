@@ -3,6 +3,7 @@ title: "Latvia and Slovenia both landed on 1 January 2028 for B2B e-invoicing"
 date: 2026-10-25
 description: "Two EU countries set domestic B2B e-invoicing for 1 January 2028. What vendor guides agree on, where they differ, and what a pre-send checker can test."
 tags: [einvoice-preflight, latvia, slovenia, e-invoicing]
+folded_into: einvoice-preflight/e-invoicing-mandates-by-country
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has

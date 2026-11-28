@@ -62,7 +62,7 @@ export const MODULE_PAGES: readonly ModulePage[] = [
     "pay-application-software",
     "Pay application software",
     "Pay application software for subcontractors · PayApps",
-    "Hosted pay application software for subcontractors: the summary page and continuation sheet from your schedule of values, as PDF and CSV, every month.",
+    "Hosted pay application software for subcontractors: the summary page and continuation sheet from your schedule of values, as PDF, Excel and CSV, every month.",
     {
       h1: "Pay application software for subcontractors",
       intro:

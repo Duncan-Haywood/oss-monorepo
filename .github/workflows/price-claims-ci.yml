@@ -41,12 +41,17 @@ jobs:
         with:
           persist-credentials: false
           filter: blob:none
-          # Reads only text under ventures/, docs/posts/ and platform/ci/.
+          # The checker reads text in three places: platform/ci/ (itself and
+          # repo_files.py), docs/posts/, and the ventures that carry a plan
+          # catalog (ventures/<v>/apps/*/src/shared/plans.ts). This first pass
+          # fetches only the first two plus every catalog; the next step widens
+          # it to those ventures. 583 MB of blobs became about 73 MB on
+          # 2026-11-28, same findings (docs/history/ci-perf-2026-11-28-price-claims-sparse.md).
           sparse-checkout-cone-mode: false
           sparse-checkout: |
-            /*
-            !/research/
-            !/prompts/
+            /platform/ci/
+            /docs/posts/
+            /ventures/*/apps/*/src/shared/plans.ts
             !*.mp3
             !*.mp4
             !*.gz
@@ -60,6 +65,19 @@ jobs:
             !*.ttf
             !*.wasm
             !*.pdf
+      # Widen to every venture with a catalog, found from the tree itself, so a
+      # new paid product is scanned with nothing to wire up. Fails when it finds
+      # none, so a broken glob cannot turn the gate into a silent pass.
+      - name: Check out each venture with a plan catalog
+        run: |
+          set -euo pipefail
+          ventures=$(git ls-files 'ventures/*/apps/*/src/shared/plans.ts' | cut -d/ -f2 | sort -u)
+          if [ -z "$ventures" ]; then echo "no plans.ts found under ventures/" >&2; exit 1; fi
+          echo "ventures with a catalog:" $ventures
+          patterns=(/platform/ci/ /docs/posts/)
+          for v in $ventures; do patterns+=("/ventures/$v/"); done
+          for e in mp3 mp4 gz zip png jpg webp gif ico woff2 ttf wasm pdf; do patterns+=("!*.$e"); done
+          git sparse-checkout set --no-cone "${patterns[@]}"
       - name: Checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_price_claims
