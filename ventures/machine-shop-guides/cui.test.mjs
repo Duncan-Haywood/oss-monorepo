@@ -152,7 +152,7 @@ test("long hostile input stays fast (no catastrophic backtracking)", () => {
 test("the page quotes only strings from QUOTES and builds its DOM without innerHTML", () => {
   const html = readFileSync(new URL("./cui-markings.html", import.meta.url), "utf8");
   const quotes = new Set(Object.values(QUOTES).map(([, s]) => s));
-  const found = [...html.matchAll(/<q>([\s\S]*?)<\/q>/g)].map((m) => m[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"'));
+  const found = [...html.matchAll(/<q>([\s\S]*?)<\/q>/g)].map((m) => m[1].replace(/&(amp|quot);/g, (_, e) => (e === "amp" ? "&" : '"')));
   assert.ok(found.length >= 5, "the page should quote its sources");
   for (const s of found) assert.ok(quotes.has(s), `not a checked quote: ${s}`);
   assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);

@@ -2927,7 +2927,7 @@ class DeferHeavyOnProse(unittest.TestCase):
             kept, deferred = runner.defer_heavy(self.SEL, changed, self.args(**kw))
             self.assertEqual((kept, deferred), (self.SEL, []), (changed, kw))
 
-    def _sweep(self, selected, run_rc=0, **kw):
+    def _sweep(self, selected, run_rc=0, page_rc=0, **kw):
         args = argparse.Namespace(for_changes="origin/main", list=False, workflow_timeout=0,
                                   no_post_check=True, no_browser_sweeps=True,
                                   no_research_tests=True, full=False, only=None, **kw)
@@ -2936,9 +2936,49 @@ class DeferHeavyOnProse(unittest.TestCase):
              mock.patch.object(runner, "pick_workflows", return_value=(selected, [])), \
              mock.patch.object(runner, "uncommitted_note", return_value=None), \
              mock.patch.object(runner, "_run_selected", return_value=run_rc) as run, \
+             mock.patch.object(runner, "page_checks", return_value=page_rc) as pages, \
              contextlib.redirect_stdout(out):
             code = runner.run_for_changes(args)
+        self.pages = pages
         return code, out.getvalue(), run
+
+    def test_deferred_portfolio_pages_still_runs_the_page_checks(self):
+        # Five doc-friction reports, 2026-11-25 to 28: a venture page's long
+        # meta description or stale llms.txt Answers passed the deferred sweep.
+        code, _, _ = self._sweep(self.SEL)
+        self.pages.assert_called_once()
+        self.assertEqual(code, runner.NO_VERDICT)
+
+    def test_a_page_check_failure_fails_the_sweep(self):
+        code, _, _ = self._sweep(self.SEL, page_rc=1)
+        self.assertEqual(code, 1)
+        code, _, _ = self._sweep(self.SEL[:2], page_rc=1)
+        self.assertEqual(code, 1)
+
+    def test_page_checks_skip_when_flagged_or_pages_not_deferred(self):
+        self._sweep(self.SEL, no_page_checks=True)
+        self.pages.assert_not_called()
+        self._sweep([("portfolio-validate.yml", {}, {"v"}), ("pages.yml", {}, {"b"})])
+        self.pages.assert_not_called()
+
+    def test_page_checks_leave_out_only_the_whole_site_builds(self):
+        with tempfile.TemporaryDirectory() as d:
+            pages = os.path.join(d, "platform", "pages")
+            os.makedirs(pages)
+            for name in ("build.test.mjs", "custom-domain.test.mjs", "a.test.mjs", "b.mjs"):
+                open(os.path.join(pages, name), "w").close()
+            done = subprocess.CompletedProcess([], 0, stdout="# pass 1\n# fail 0\n")
+            with mock.patch.object(runner.subprocess, "run", return_value=done) as run, \
+                 mock.patch.object(runner.shutil, "which", return_value="/usr/bin/node"), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.page_checks(d), 0)
+            self.assertEqual(run.call_args[0][0], ["node", "--test", "a.test.mjs"])
+            run.return_value = subprocess.CompletedProcess([], 1, stdout="not ok 1 - x\n")
+            with mock.patch.object(runner.subprocess, "run", return_value=run.return_value), \
+                 mock.patch.object(runner.shutil, "which", return_value="/usr/bin/node"), \
+                 contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(runner.page_checks(d), 1)
+            self.assertIn("not ok 1 - x", out.getvalue())
 
     def test_a_clean_deferred_sweep_is_no_verdict_and_says_why(self):
         code, out, run = self._sweep(self.SEL)
