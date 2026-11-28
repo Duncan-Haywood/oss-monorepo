@@ -7,10 +7,9 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Scanned commit: `aba5b8a35480` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat aba5b8a35480 origin/main -- <path>` before fixing (each alert file says how).
+Scanned commit: `5257ad561789` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 5257ad561789 origin/main -- <path>` before fixing (each alert file says how).
 
 - [high] #1525 `js/double-escaping` in `ventures/machine-shop-guides/cui.test.mjs:155`: alerts/1525.md
-- [high] #1526 `js/incomplete-sanitization` in `ventures/machine-shop-guides/page.test.mjs:246`: alerts/1526.md
 
 ## Triaged, awaiting dismissal
 
