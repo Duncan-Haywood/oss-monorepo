@@ -17,6 +17,7 @@ import {
 import { MAX_UPLOAD_REQUEST_BYTES, purgeFiles } from "../../services/payapps/attachments";
 import { getProjectRow } from "../../services/payapps/bundle";
 import { recordJobEvents } from "../../services/payapps/job-history";
+import { buildPunchListPacket, packetResponse } from "../../services/payapps/packet";
 import {
   addPunchItemFile,
   deletePunchItemFile,
@@ -77,6 +78,18 @@ routes.get("/punch-list.pdf", async (c) => {
     },
   });
 });
+
+// The punch list PDF, an index, then each printed item's photos (before, after, the marked-up sheet).
+routes.get("/punch-list-with-photos.pdf", async (c) =>
+  packetResponse(
+    await buildPunchListPacket(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId(c),
+      scopeOf(c.req.query("only")),
+    ),
+  ),
+);
 
 routes.post("/bulk", editor, validate("json", punchItemsBulkSchema), async (c) =>
   c.json(

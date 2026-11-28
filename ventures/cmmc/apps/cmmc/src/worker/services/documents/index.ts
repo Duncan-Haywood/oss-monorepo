@@ -17,9 +17,9 @@ import {
   validateDocumentFields,
   validateRelease,
 } from "@shared/document-control";
-import { and, asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { controlledDocument, controlledDocumentEvent, user } from "../../db/schema";
+import { controlledDocument, controlledDocumentEvent, evidence, user } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { audit } from "../audit";
@@ -44,6 +44,58 @@ export interface DocumentInput {
 
 const today = (ctx: AppContext) => ctx.now().toISOString().slice(0, 10);
 
+/** Evidence ids per lookup: under D1's 100 bound parameters, with room for the org id. */
+const LINKED_FILE_CHUNK = 90;
+
+export interface ControlledCopyFile {
+  id: string;
+  title: string;
+  fileName: string;
+  sha256: string;
+}
+
+/** This org's evidence files the documents link to as controlled copies, by id. */
+export async function controlledCopyFiles(
+  ctx: AppContext,
+  orgId: string,
+  rows: Pick<DocumentRow, "evidenceId">[],
+): Promise<Map<string, ControlledCopyFile>> {
+  const ids = [...new Set(rows.map((r) => r.evidenceId))].filter((id): id is string => Boolean(id));
+  const out = new Map<string, ControlledCopyFile>();
+  for (let i = 0; i < ids.length; i += LINKED_FILE_CHUNK) {
+    const files = await ctx.db
+      .select({
+        id: evidence.id,
+        title: evidence.title,
+        fileName: evidence.fileName,
+        sha256: evidence.sha256,
+      })
+      .from(evidence)
+      .where(
+        and(eq(evidence.orgId, orgId), inArray(evidence.id, ids.slice(i, i + LINKED_FILE_CHUNK))),
+      )
+      .all();
+    for (const f of files) out.set(f.id, f);
+  }
+  return out;
+}
+
+/** One of this org's evidence files, or a 400: another org's id never links. */
+async function orgFile(ctx: AppContext, orgId: string, id: string): Promise<ControlledCopyFile> {
+  const row = await ctx.db
+    .select({
+      id: evidence.id,
+      title: evidence.title,
+      fileName: evidence.fileName,
+      sha256: evidence.sha256,
+    })
+    .from(evidence)
+    .where(and(eq(evidence.id, id), eq(evidence.orgId, orgId)))
+    .get();
+  if (!row) throw badRequest("Link an evidence file this organization holds.");
+  return row;
+}
+
 export async function listDocuments(ctx: AppContext, orgId: string): Promise<DocumentRow[]> {
   return ctx.db
     .select()
@@ -55,11 +107,13 @@ export async function listDocuments(ctx: AppContext, orgId: string): Promise<Doc
 
 export async function documentList(ctx: AppContext, orgId: string) {
   const rows = await listDocuments(ctx, orgId);
+  const files = await controlledCopyFiles(ctx, orgId, rows);
   const on = today(ctx);
   return {
     today: on,
     items: rows.map((r) => ({
       ...r,
+      file: r.evidenceId ? (files.get(r.evidenceId) ?? null) : null,
       review: docReviewState(r, on),
       suggestedNextRevision: nextRevision(r.releasedRevision ?? r.revision),
       issues: documentIssues(r, on),
@@ -241,6 +295,11 @@ export interface ReleaseInput {
   approvedOn: string;
   effectiveOn?: string | null;
   changeSummary?: string;
+  /**
+   * The evidence file that is this revision's controlled copy. Omitted or null, none is linked: the
+   * last revision's file is not carried over, since it is not this revision.
+   */
+  evidenceId?: string | null;
 }
 
 /** Releases the draft revision: it becomes the one in force, and the history gets a row. */
@@ -274,6 +333,7 @@ export async function releaseDocument(
     );
   if (!input.changeSummary?.trim() && row.releasedRevision !== null)
     throw badRequest("Say what changed in this revision.");
+  const file = input.evidenceId ? await orgFile(ctx, orgId, input.evidenceId) : null;
   await ctx.db.insert(controlledDocumentEvent).values({
     id: newId("dev"),
     orgId,
@@ -285,10 +345,14 @@ export async function releaseDocument(
     byName: await nameOf(ctx, approver),
     on: input.approvedOn,
     effectiveOn: effectiveOn ?? input.approvedOn,
+    fileEvidenceId: file?.id ?? null,
+    fileName: file?.fileName ?? null,
+    fileSha256: file?.sha256 ?? null,
   });
   await ctx.db
     .update(controlledDocument)
     .set({
+      evidenceId: file?.id ?? null,
       status: "released",
       releasedRevision: row.revision,
       approvedBy: approver,
@@ -428,4 +492,65 @@ export async function deleteDocument(
     .delete(controlledDocument)
     .where(and(eq(controlledDocument.id, id), eq(controlledDocument.orgId, orgId)));
   await record(ctx, orgId, actorUserId, "delete", id);
+}
+
+/**
+ * Links an evidence file as the controlled copy of the revision in force, or unlinks it (null): for
+ * a revision released before its file was uploaded, or a wrong file picked at release. The release's
+ * history row takes the file's name and SHA-256 too, so the history names the file of each revision.
+ */
+export async function setDocumentFile(
+  ctx: AppContext,
+  orgId: string,
+  actorUserId: string,
+  id: string,
+  evidenceId: string | null,
+) {
+  await assertQualityPlan(ctx, orgId);
+  const row = await getDocument(ctx, orgId, id);
+  if (row.status === "obsolete")
+    throw conflict("An obsolete document is kept as it was withdrawn.");
+  if (row.releasedRevision === null)
+    throw conflict("Link the file when you release the revision it holds.");
+  const file = evidenceId ? await orgFile(ctx, orgId, evidenceId) : null;
+  const release = (await documentHistory(ctx, orgId, id)).find(
+    (e) => e.kind === "released" && e.revision === row.releasedRevision,
+  );
+  if (release)
+    await ctx.db
+      .update(controlledDocumentEvent)
+      .set({
+        fileEvidenceId: file?.id ?? null,
+        fileName: file?.fileName ?? null,
+        fileSha256: file?.sha256 ?? null,
+      })
+      .where(
+        and(eq(controlledDocumentEvent.id, release.id), eq(controlledDocumentEvent.orgId, orgId)),
+      );
+  await ctx.db
+    .update(controlledDocument)
+    .set({ evidenceId: file?.id ?? null })
+    .where(and(eq(controlledDocument.id, id), eq(controlledDocument.orgId, orgId)));
+  await record(ctx, orgId, actorUserId, file ? "file_link" : "file_unlink", id);
+  return getDocument(ctx, orgId, id);
+}
+
+/**
+ * Called before an evidence file is deleted: documents that held it as their controlled copy go back
+ * to none, and history rows drop the id but keep the file's name and SHA-256 as released.
+ */
+export async function unlinkDocumentEvidence(ctx: AppContext, orgId: string, evidenceId: string) {
+  await ctx.db
+    .update(controlledDocument)
+    .set({ evidenceId: null })
+    .where(and(eq(controlledDocument.orgId, orgId), eq(controlledDocument.evidenceId, evidenceId)));
+  await ctx.db
+    .update(controlledDocumentEvent)
+    .set({ fileEvidenceId: null })
+    .where(
+      and(
+        eq(controlledDocumentEvent.orgId, orgId),
+        eq(controlledDocumentEvent.fileEvidenceId, evidenceId),
+      ),
+    );
 }

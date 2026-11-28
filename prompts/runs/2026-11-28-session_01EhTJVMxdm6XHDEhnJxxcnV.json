@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVMxdm6XHDEhnJxxcnV",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:56:03Z",
+  "ended": "2026-11-28T08:57:20Z",
+  "wall_minutes": 1.41,
+  "tokens_in": 951631,
+  "tokens_out": 4063,
+  "cost_usd": 0.5717,
+  "tool_calls": 15,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20057",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "--claim claimed only #1523; a second --claim found #1524 already claimed by another run moments later, so the 'batch' wording in alerts/<n>.md only covers same-file alerts"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Security alert step 0 is the whole run; a security fix has no customer audience, so no post",
+      "did": "Fixed #1523 only, no blog post",
+      "result": "Small, verified fix landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test test/site.test.mjs: 67 pass 0 fail. Track 'process' chosen for the trailer since security fixes fit no track.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4db53368-728e-5d8f-9c2d-9a29e6f9c312",
+    "transcripts": 1,
+    "first": "2026-11-28T08:56:03Z",
+    "last": "2026-11-28T08:57:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 15,
+        "input": 31,
+        "output": 4063,
+        "thinking": 630,
+        "cache_read": 913142,
+        "cache_write_5m": 0,
+        "cache_write_1h": 38458,
+        "api_equivalent_usd": 0.5717,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 31,
+      "output": 4063,
+      "thinking": 630,
+      "cache_read": 913142,
+      "cache_write_5m": 0,
+      "cache_write_1h": 38458,
+      "api_equivalent_usd": 0.5717,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 15,
+    "tools": {
+      "Bash": 13,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.41,
+      "active_minutes": 1.41,
+      "model_minutes": 0.86,
+      "tool_minutes": 0.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 0.3,
+      "basis": "read alert, one-line regex fix, run tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 30.0
+    },
+    "leverage": 52.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

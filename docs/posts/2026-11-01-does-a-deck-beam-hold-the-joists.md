@@ -4,6 +4,7 @@ seo_title: "Does a 2-2x10 deck beam hold the joists?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, deck, construction]
 description: The framing takeoff's deck module now checks the built-up beam in bending, shear and live deflection from typed allowable stresses, completing the set.
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The deck module already checked joists and posts. The beam between them was the gap: it carries every joist's reaction, including the cantilever's share, and it is where a sagging deck usually starts.

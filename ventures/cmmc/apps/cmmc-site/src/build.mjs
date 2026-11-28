@@ -13,8 +13,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildWorkbook, SHEET_FILE } from "./assessment-sheet.mjs";
 import { launchFromEnv, launchState, signinUrl, signupUrl } from "./launch.mjs";
-import { buildPages, humanDate, statusBox } from "./pages.mjs";
+import { buildPages, humanDate, SHOTS, statusBox } from "./pages.mjs";
 import { publicPlans } from "./plans.mjs";
+import { buildPoamWorkbook, TEMPLATE_FILE } from "./poam-template.mjs";
 import { CROSSWALK_FILE, crosswalkCsv } from "./rev2-vs-rev3.mjs";
 import {
   DEFAULT_BASE_PATH,
@@ -69,9 +70,9 @@ const escapeHtml = (s) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-/** Prefix site-relative href/action values with the base path ("/x" -> "/cmmc/x"). */
+/** Prefix site-relative href/src/action values with the base path ("/x" -> "/cmmc/x"). */
 export function withBase(html, base) {
-  return html.replace(/\b(href|action)="\/(?!\/)/g, `$1="${base}/`);
+  return html.replace(/\b(href|src|action)="\/(?!\/)/g, `$1="${base}/`);
 }
 
 /** "/" -> "index.html", "/a/b" -> "a/b.html" (Workers assets serves /a/b from a/b.html). */
@@ -368,6 +369,11 @@ export function build({
   files["styles.css"] = readFileSync(join(HERE, "styles.css"), "utf8");
   files["og.svg"] = readFileSync(join(HERE, "og.svg"), "utf8");
   files[SHEET_FILE] = buildWorkbook();
+  // Stills of the app (apps/cmmc/scripts/stills.mjs), flat beside the pages: the catalogue copies
+  // one directory. Only the open build shows them.
+  if (launch.open)
+    for (const s of Object.values(SHOTS)) files[s.file] = readFileSync(join(APP, "assets", s.file));
+  files[TEMPLATE_FILE] = buildPoamWorkbook();
   files[CROSSWALK_FILE] = crosswalkCsv();
   for (const [name, content] of Object.entries(files)) {
     const target = join(outDir, name);

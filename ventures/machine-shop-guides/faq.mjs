@@ -100,6 +100,16 @@ export const FAQ = {
     ["When is the next CMMC assessment due?",
       "A year after the CMMC Status Date for Level 1 (Self), and three years after it for Level 2, by yourself or by a C3PAO. A POA&M closeout does not restart the three years: they count from the original status date."],
   ],
+  "how-to-submit-sprs-score.html": [
+    ["How do I submit my SPRS score?",
+      "Log in to PIEE with the SPRS Cyber Vendor User role, open SPRS, then Cyber Reports, pick your CAGE hierarchy and run it. For a NIST SP 800-171 Basic Assessment, choose Add New Assessment on the NIST SP 800-171 Assessments tab and enter the date, score, scope, plan of action completion date, CAGE codes and the SSP's name, version and date. SPRS stores the result; it does not perform the assessment."],
+    ["What PIEE role do I need to enter an SPRS score?",
+      "SPRS Cyber Vendor User. It lets you enter, edit or delete NIST SP 800-171 and CMMC information for every CAGE in your company hierarchy. The Contractor/Vendor (Support Role) is view only. Your company's Contractor Account Administrator (CAM) approves the request; until then the SPRS tile can show but not work."],
+    ["What CMMC Level 2 self-assessment score can be affirmed in SPRS?",
+      "Only 110, which gives a Final Level 2 Self-Assessment valid three years with annual affirmations, and 88 to 109, which gives a Conditional status valid 180 days. If an open requirement is one that may not go on a POA&M, SPRS gives No CMMC Status whatever the score."],
+    ["Who affirms a CMMC self-assessment in SPRS?",
+      "The Affirming Official: the senior person responsible for the company's CMMC compliance, with their own PIEE account and the Cyber Vendor User role. Whoever entered the assessment can send it to them with Transfer to AO; the AO reviews it, ticks the affirmation statement and chooses Affirm."],
+  ],
   "cmmc-cost.html": [
     ["How much does CMMC certification cost a small business?",
       "DoD's own estimate in the CMMC final rule (89 FR 83092) is $104,670 over three years for a small business at Level 2 (C3PAO): $101,752 for the assessment and its affirmation, of which $31,234 is the C3PAO, plus two annual affirmations of $1,459. Level 2 (Self) is $37,196 over three years and Level 1 (Self) $5,977 a year. This page recomputes those lines with your own rates."],
@@ -187,6 +197,14 @@ export const FAQ = {
       "It sets the tolerance for every dimension with none of its own, usually by decimal places, plus angles and sometimes fractions; an ISO 2768 class uses that standard's tables instead. It often decides the machine and the inspection, because it covers most of the part."],
     ["What do distribution statements on a drawing mean?",
       "Statement A means approved for public release; B to F limit distribution, so check before forwarding the drawing to a plating or heat-treat house. A CUI marking means the systems holding the file must meet NIST SP 800-171."],
+  ],
+  "cui-markings.html": [
+    ["What does CUI//SP-CTI mean on a drawing?",
+      "CUI is the control marking, so the drawing is Controlled Unclassified Information. SP-CTI is the category: Controlled Technical Information, and SP- means CUI Specified, where the law behind it sets its own handling rules. Under DFARS 252.204-7012 the systems that hold it are in scope for NIST SP 800-171, which is CMMC Level 2."],
+    ["What do NOFORN and FEDCON mean in a CUI banner?",
+      "They are limited dissemination controls, after the second double slash. NOFORN means no foreign nationals or non-US citizens may receive it. FEDCON means federal employees and contractors only, for work on the contract. NOCON and FED ONLY leave contractors out, so a shop holding one should ask the sender."],
+    ["Is a drawing marked FOUO CUI?",
+      "Not by that marking alone: FOUO is a legacy marking from before the CUI Program, and 32 CFR 2002.20 says legacy markings are void. But unmarked CUI is still CUI, so ask the buyer whether the file is CUI and for a properly marked copy."],
   ],
   "first-article-inspection.html": [
     ["What is a first article inspection?",

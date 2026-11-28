@@ -22,8 +22,9 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the twenty-nine states read, each with a statute link on its legislature's site", () => {
+  it("covers the thirty-one states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
+      "AK",
       "AZ",
       "CO",
       "DE",
@@ -53,6 +54,7 @@ describe("state bond claims", () => {
       "UT",
       "VA",
       "WA",
+      "WY",
     ]);
     for (const s of STATE_BOND_STATES) {
       const rule = STATE_BOND_RULES[s];
@@ -255,6 +257,33 @@ describe("state bond claims", () => {
     expect(sd.steps.map((s) => s.citation)).toEqual(["S.D. Codified Laws § 5-21-6"]);
     expect(sd.dated).toEqual([]);
     expect(sd.steps[0]?.waitsFor).toMatch(/final settlement/);
+  });
+
+  it("Alaska: 90-day notice by registered mail for a sub's sub; the suit waits on final settlement", () => {
+    const ak = checked("AK", "second", ACCEPTED);
+    // 10 July + 90 days = Thursday 8 October 2026.
+    expect(dueOf(ak, "AS 36.25.020(b)")).toBe("2026-10-08");
+    const suit = ak.steps.find((s) => s.citation === "AS 36.25.020(c)");
+    expect(suit?.dueOn).toBeNull();
+    expect(suit?.waitsFor).toMatch(/final settlement/);
+    expect(ak.dated.map((s) => s.citation)).toEqual(["AS 36.25.020(b)"]);
+    // A first-tier sub gives no notice; a remote supplier counts as not in contract with the prime.
+    expect(checked("AK", "first").steps.map((s) => s.citation)).toEqual(["AS 36.25.020(c)"]);
+    expect(checked("AK", "remote").steps.map((s) => s.citation)).toEqual([
+      "AS 36.25.020(b)",
+      "AS 36.25.020(c)",
+    ]);
+    expect(ak.notes.join(" ")).toMatch(/one-half of a contract up to \$1,000,000/);
+  });
+
+  it("Wyoming: no notice from any tier; the suit counts from the posted final completion date", () => {
+    for (const tier of ["first", "second", "remote", null] as const) {
+      const wy = checked("WY", tier, ACCEPTED);
+      expect(wy.steps.map((s) => s.citation)).toEqual(["W.S. 16-6-113, 16-6-115"]);
+      expect(wy.dated).toEqual([]);
+      expect(wy.steps[0]?.waitsFor).toMatch(/final completion/);
+    }
+    expect(checked("WY", "second").notes.join(" ")).toMatch(/forty-first day/);
   });
 
   it("Rhode Island: 90-day notice for a sub's sub, two years to sue", () => {

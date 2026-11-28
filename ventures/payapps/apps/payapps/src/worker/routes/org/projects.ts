@@ -49,6 +49,7 @@ import {
 import { rfiLabel } from "@shared/rfi";
 import {
   computeSwornStatement,
+  swornDraftSchema,
   swornHasErrors,
   swornStatementFileName,
   swornStatementSchema,
@@ -122,6 +123,11 @@ import {
 import { getRfi, updateRfi } from "../../services/payapps/rfis";
 import { createSampleProject } from "../../services/payapps/sample";
 import { loadDelayLogDocument } from "../../services/payapps/schedule-delays";
+import {
+  clearSwornDraft,
+  getSwornDraft,
+  saveSwornDraft,
+} from "../../services/payapps/sworn-drafts";
 import { certifiedPayrollHours } from "../../services/payapps/timesheets";
 import {
   deleteTxNoticeSend,
@@ -962,7 +968,8 @@ routes.get("/:projectId/certified-payroll/timesheet-hours", async (c) => {
 });
 
 // Contractor's sworn statement (Illinois, Michigan, a lender's or title company's) to go with a pay
-// application (src/shared/sworn-statement.ts): posted, checked and printed; nothing is stored. Every
+// application (src/shared/sworn-statement.ts): posted, checked and printed; the PDF is not stored (the
+// draft below is, when an editor saves it). Every
 // plan, viewers too: it reads only the job, to check it is this org's.
 routes.post(
   "/:projectId/sworn-statement.pdf",
@@ -989,6 +996,33 @@ routes.post(
     });
   },
 );
+
+// The job's sworn statement draft, kept between months so next month starts from this month's
+// parties and paid column on any computer: everyone reads it, editors save and clear it.
+routes.get("/:projectId/sworn-statement/draft", async (c) =>
+  c.json(await getSwornDraft(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"))),
+);
+
+routes.put(
+  "/:projectId/sworn-statement/draft",
+  editor,
+  validate("json", swornDraftSchema),
+  async (c) =>
+    c.json(
+      await saveSwornDraft(
+        c.var.ctx,
+        c.var.tenant.orgId,
+        c.req.param("projectId"),
+        c.var.tenant.userId,
+        c.req.valid("json"),
+      ),
+    ),
+);
+
+routes.delete("/:projectId/sworn-statement/draft", editor, async (c) => {
+  await clearSwornDraft(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  return c.json({ ok: true });
+});
 
 // The change order request to send the GC, as a PDF download (viewers too: it reads only).
 routes.get("/:projectId/change-orders/:coId/request.pdf", async (c) => {

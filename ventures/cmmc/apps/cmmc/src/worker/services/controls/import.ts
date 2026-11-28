@@ -17,6 +17,9 @@ import { audit } from "../audit";
 import { listMembers } from "../orgs";
 import { recordsFor } from "./index";
 
+/** Rows per insert of new control records (7 bound values each; D1 allows 100 a statement). */
+export const INSERT_ROWS = 14;
+
 export interface ImportChange {
   line: number;
   controlId: string;
@@ -97,14 +100,16 @@ export async function applyImport(
   const missing = preview.changes.filter((c) => !existing.has(c.controlId));
   const now = ctx.now();
   const statements = [];
-  // Three bound values a row; D1 allows 100 per statement.
-  for (let i = 0; i < missing.length; i += 30) {
+  // Seven bound values a row: the three given, plus the status, notes and statement defaults and
+  // updated_at, which Drizzle binds too. D1 allows 100 per statement, so 14 rows; 30 (the old figure,
+  // which counted three) failed every import of more than 14 new requirements with a 500.
+  for (let i = 0; i < missing.length; i += INSERT_ROWS) {
     statements.push(
       ctx.db
         .insert(controlRecord)
         .values(
           missing
-            .slice(i, i + 30)
+            .slice(i, i + INSERT_ROWS)
             .map((c) => ({ id: newId("ctl"), orgId, controlId: c.controlId })),
         )
         .onConflictDoNothing(),

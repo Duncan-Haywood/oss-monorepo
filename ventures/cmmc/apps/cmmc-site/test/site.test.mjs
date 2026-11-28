@@ -2,18 +2,32 @@
 // or testimonial claims; the dated CMMC status on every page; every external number sourced.
 
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { test as nodeTest } from "node:test";
+import { fileURLToPath } from "node:url";
 import { SHEET_FILE } from "../src/assessment-sheet.mjs";
 import { build, fileFor, htmlToText, normalizeBasePath, withBase } from "../src/build.mjs";
 import { APP_URL, launchState } from "../src/launch.mjs";
-import { buildPages } from "../src/pages.mjs";
+import { buildPages, SHOTS } from "../src/pages.mjs";
+import { TEMPLATE_FILE } from "../src/poam-template.mjs";
 import { CROSSWALK_FILE } from "../src/rev2-vs-rev3.mjs";
 import { JOBSHOP, SOURCES, STATUS_CHECKED } from "../src/site.mjs";
 
 const SITE = "https://marisstella.app/cmmc";
+const APP_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+/** A WebP's canvas size: extended (VP8X, 24-bit size minus one) or simple lossy (VP8, 14-bit). */
+function webpSize(buf) {
+  assert.equal(buf.toString("latin1", 0, 4), "RIFF");
+  assert.equal(buf.toString("latin1", 8, 12), "WEBP");
+  const chunk = buf.toString("latin1", 12, 16);
+  if (chunk === "VP8X")
+    return { width: buf.readUIntLE(24, 3) + 1, height: buf.readUIntLE(27, 3) + 1 };
+  assert.equal(chunk, "VP8 ");
+  return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+}
 
 // Every check runs on both states of src/launch.mjs: the early-access copy (served by this site's
 // own Worker) and the open copy (the catalogue's static copy, sign-up links into the app).
@@ -92,6 +106,34 @@ for (const [mode, launch] of MODES) {
     }
   });
 
+  test("app stills: shipped only when open, sized to the files, with alt text and base-path src", () => {
+    const home = read("index.html");
+    for (const s of Object.values(SHOTS)) {
+      if (!launch.open) {
+        assert.ok(!files[s.file], `${s.file} not shipped before launch`);
+        assert.ok(!home.includes(s.file), `${s.file} not on the early-access home page`);
+        continue;
+      }
+      const buf = files[s.file];
+      assert.ok(Buffer.isBuffer(buf), s.file);
+      assert.deepEqual(webpSize(buf), { width: s.width, height: s.height }, s.file);
+      assert.ok(buf.length < 150_000, `${s.file} is ${buf.length} bytes`);
+      assert.ok(s.alt.length > 60, `${s.file} alt text`);
+      assert.ok(
+        home.includes(`<img src="/cmmc/${s.file}" width="${s.width}" height="${s.height}" alt="`),
+        `${s.file} img on the home page`,
+      );
+    }
+    // Every still in assets/ is listed (an unlisted file would ship nowhere or be stale).
+    const listed = new Set(Object.values(SHOTS).map((s) => s.file));
+    for (const f of readdirSync(join(APP_DIR, "assets")))
+      assert.ok(listed.has(f), `${f} not in SHOTS`);
+    if (launch.open) {
+      assert.match(home, /The shop, its gaps and its dates are invented/);
+      assert.match(home, /not on sale yet|billed through Paddle/);
+    }
+  });
+
   test("internal links carry the base path and point at real pages", () => {
     const known = new Set([
       ...PAGES.map((p) => p.path),
@@ -99,6 +141,8 @@ for (const [mode, launch] of MODES) {
       "/llms.txt",
       "/api/early-access",
       `/${SHEET_FILE}`,
+      ...(launch.open ? Object.values(SHOTS).map((s) => `/${s.file}`) : []),
+      `/${TEMPLATE_FILE}`,
       `/${CROSSWALK_FILE}`,
     ]);
     if (launch.open)

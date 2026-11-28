@@ -163,6 +163,8 @@
       <button type="button" class="secondary" id="addStock">Add a board</button>
       <button type="button" class="secondary" id="resetStock">Reset to defaults</button>
     </details>
+    <p><label for="priceListFile">Or load your lumberyard's price list: a CSV with a description and a price column (an optional unit column takes EA, LF or MBF). Boards like <code>2x4-8'</code> or <code>2X6X16</code> reprice the table, sheets that say wall, roof or subfloor and roofing by name fill the budget's prices, and every row not read is listed. The file stays in your browser.</label> <input type="file" id="priceListFile" accept=".csv,text/csv,text/plain"></p>
+    <div id="priceListOut" role="status"></div>
   </section>
 
   <section class="card" aria-labelledby="h-run">
@@ -613,7 +615,7 @@
     <p><strong>No warranty.</strong> This tool is provided as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>material_list_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>dxf_roof_layer</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_pdf</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan and any price list you load are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>material_list_downloaded</code>, <code>budget_csv_downloaded</code>, <code>price_list_loaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>dxf_roof_layer</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_pdf</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Before you submit a building permit packet, the <a href="../permit-packet-preflight/">permit packet preflight</a> checks your files against the city's own checklist. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/residential-takeoff" rel="noopener">residential-takeoff on GitHub</a>; the MIT free edition is <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff</a>.</p>
     <p class="support">Source visible. The <a href="LICENSE" rel="noopener">code is all rights reserved</a>; the free edition it grew from stays MIT. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsoring</a> is optional and never changes what the tool does.</p>
@@ -627,6 +629,7 @@
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
+    import { readPriceList, applyPriceList } from "./pricelist.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
     import { checkLicence } from "./licence.mjs";
@@ -1696,6 +1699,22 @@
     $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
+    $("#priceListFile").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      const out = $("#priceListOut");
+      if (!file) return;
+      if (file.size > 2_000_000) { out.innerHTML = `<div class="err">The price list is over 2 MB; keep only the products this job uses.</div>`; return; }
+      const list = readPriceList(await file.text());
+      if (!list.ok) { out.innerHTML = `<div class="err"><ul>${list.errors.concat(list.skipped.slice(0, 10).map((x) => `line ${x.line} "${x.text.slice(0, 60)}": ${x.why}`)).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`; return; }
+      const current = { stock: ui.stock.map((x) => ({ size: x.size, length: parseLength(String(x.length)), price: Number(x.price), ...(x.label ? { label: x.label } : {}) })).filter((x) => x.length > 0) };
+      const ap = applyPriceList(current, list);
+      ui.stock = ap.plan.stock.map((x) => ({ size: x.size, length: formatLength(x.length), price: x.price, label: x.label || "" }));
+      renderStock();
+      for (const [k, v] of Object.entries(ap.prices)) setPriceLine(k, String(v));
+      out.innerHTML = `<ul class="note">${ap.notes.map((n) => `<li>${esc(n.replace(/^Price list: /, ""))}</li>`).join("")}</ul>`;
+      record("price_list_loaded");
+      later(run, 0);
+    });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
     $("#sheath").addEventListener("change", () => run());
     $("#sheathH").addEventListener("change", () => run());

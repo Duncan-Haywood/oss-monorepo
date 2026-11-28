@@ -11,6 +11,7 @@ import { badRequest, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
+import { LOT_SPLITS } from "../../services/books/lots";
 import { reallocateLot } from "../../services/books/service";
 import { importInventorySheet } from "../../services/importers/inventory-store";
 import type { AppEnv } from "../../types";
@@ -28,6 +29,8 @@ const lotInput = z.object({
   acquiredDate: isoDate,
   vendor: text(200).nullish(),
   totalCostCents: positiveCents,
+  /** "even" (default) or "value": items without a typed-in cost share it by their expected price. */
+  splitBy: z.enum(LOT_SPLITS).optional(),
   notes: text(2000).nullish(),
   /** Optional items to create in the lot right away. */
   items: z
@@ -38,6 +41,8 @@ const lotInput = z.object({
         costCents: positiveCents.nullish(),
         /** Where this item came from when not the lot's vendor. */
         source: text(200).nullish(),
+        /** What the seller expects it to sell for (the "value" split). */
+        estimatedValueCents: positiveCents.nullish(),
       }),
     )
     .max(500)
@@ -55,6 +60,8 @@ routes.get("/lots", async (c) => {
     .select({
       lotId: inventoryItem.lotId,
       costCents: inventoryItem.costCents,
+      costIsManual: inventoryItem.costIsManual,
+      estimatedValueCents: inventoryItem.estimatedValueCents,
       status: inventoryItem.status,
     })
     .from(inventoryItem)
@@ -63,11 +70,14 @@ routes.get("/lots", async (c) => {
     items: lots.map((l) => {
       const mine = items.filter((i) => i.lotId === l.id);
       const carried = mine.reduce((s, i) => s + i.costCents, 0);
+      const shared = mine.filter((i) => !i.costIsManual);
       return {
         ...l,
         itemCount: mine.length,
         soldCount: mine.filter((i) => i.status === "sold").length,
         unallocatedCents: Math.max(0, l.totalCostCents - carried),
+        /** Items sharing the cost with no expected price: a "value" lot is split evenly while any. */
+        missingValueCount: shared.filter((i) => !i.estimatedValueCents).length,
       };
     }),
   });
@@ -84,6 +94,7 @@ routes.post("/lots", requireRole("editor"), validate("json", lotInput), async (c
     acquiredDate: body.acquiredDate,
     vendor: body.vendor ?? null,
     totalCostCents: body.totalCostCents,
+    splitBy: body.splitBy ?? "even",
     notes: body.notes ?? null,
   });
   const rows = (body.items ?? []).map((i) => ({
@@ -96,6 +107,7 @@ routes.post("/lots", requireRole("editor"), validate("json", lotInput), async (c
     costCents: i.costCents ?? 0,
     costIsManual: i.costCents != null,
     source: i.source || null,
+    estimatedValueCents: i.estimatedValueCents || null,
   }));
   const chunk = rowsPerInsert(inventoryItem);
   for (let i = 0; i < rows.length; i += chunk)
@@ -107,6 +119,7 @@ routes.post("/lots", requireRole("editor"), validate("json", lotInput), async (c
       itemCount: result.itemCount,
       unallocatedCents: result.unallocatedCents,
       warnings: result.warnings,
+      splitUsed: result.splitUsed,
     },
     201,
   );
@@ -147,6 +160,7 @@ routes.patch(
       ok: true,
       unallocatedCents: result.unallocatedCents,
       warnings: result.warnings,
+      splitUsed: result.splitUsed,
     });
   },
 );
@@ -182,6 +196,8 @@ const itemInput = z.object({
   lotId: z.string().nullish(),
   /** Where it was bought (a store, a sale, a supplier); an item in a lot falls back to the lot's vendor. */
   source: text(200).nullish(),
+  /** What the seller expects it to sell for (weights its share of a lot split by value). */
+  estimatedValueCents: positiveCents.nullish(),
 });
 
 routes.get(
@@ -237,6 +253,7 @@ routes.post("/items", requireRole("editor"), validate("json", itemInput), async 
     costCents: body.costCents ?? 0,
     costIsManual: body.costCents != null,
     source: body.source || null,
+    estimatedValueCents: body.estimatedValueCents || null,
   });
   if (body.lotId) await reallocateLot(c.var.ctx, orgId, body.lotId);
   const row = await c.var.ctx.db
@@ -284,6 +301,8 @@ routes.patch(
       costCents: positiveCents.nullable().optional(),
       status: z.enum(["in_stock", "written_off", "personal_use"]).optional(),
       disposedDate: isoDate.nullish(),
+      /** Expected price; null clears it. */
+      estimatedValueCents: positiveCents.nullish(),
     }),
   ),
   async (c) => {
@@ -304,6 +323,8 @@ routes.patch(
     if (body.sku !== undefined) patch.sku = body.sku || null;
     if (body.source !== undefined) patch.source = body.source || null;
     if (body.acquiredDate !== undefined) patch.acquiredDate = body.acquiredDate;
+    if (body.estimatedValueCents !== undefined)
+      patch.estimatedValueCents = body.estimatedValueCents || null;
     if (body.costCents !== undefined) {
       if (body.costCents === null && !item.lotId)
         throw badRequest("An item outside a lot needs its cost.");
@@ -323,7 +344,7 @@ routes.patch(
       .update(inventoryItem)
       .set(patch)
       .where(and(eq(inventoryItem.id, item.id), eq(inventoryItem.orgId, orgId)));
-    if (item.lotId && body.costCents !== undefined)
+    if (item.lotId && (body.costCents !== undefined || body.estimatedValueCents !== undefined))
       await reallocateLot(c.var.ctx, orgId, item.lotId);
     return c.json(
       await db
