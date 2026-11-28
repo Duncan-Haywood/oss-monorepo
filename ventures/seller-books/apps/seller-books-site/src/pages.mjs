@@ -83,6 +83,12 @@ export const SHOTS = {
     height: 860,
     alt: "The Stock report: 2 items in stock costing $20.00, 33% sell-through, 133 median days to sell, and an estate-sale lot that cost $30.00, sold 1 of 3 items for $39.23 after fees and so has recovered 131% of its cost.",
   },
+  stockPhone: {
+    file: "shot-stock-phone.webp",
+    width: 358,
+    height: 243,
+    alt: "The Stock report's lot table on a phone, one line per figure: the estate-sale haul cost $30.00, 1 of 3 items sold, $39.23 proceeds, 131% recovered, $20.00 still in stock.",
+  },
 };
 
 const shotImg = (s, cls = "") =>
@@ -106,8 +112,8 @@ function shotsSection() {
       <div class="shot-frame">${shotPicture(SHOTS.scheduleC, SHOTS.scheduleCPhone)}</div>
       <figcaption>The Schedule C worksheet, line by line, with a PDF, a CSV and a ZIP of the records behind it for your tax preparer.</figcaption>
     </figure>
-    <figure class="shot-wide">
-      <div class="shot-frame">${shotLink(SHOTS.stock)}</div>
+    <figure>
+      <div class="shot-frame">${shotPicture(SHOTS.stock, SHOTS.stockPhone)}</div>
       <figcaption>The stock report: how long unsold items have sat, days to sell by platform, and whether each lot has paid for itself.</figcaption>
     </figure>
   </div>
