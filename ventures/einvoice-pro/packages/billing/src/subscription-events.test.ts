@@ -118,6 +118,29 @@ describe("decideSubscriptionUpdate", () => {
     );
   });
 
+  it("applies an event stamped at the watermark itself (Paddle sends siblings at one instant)", () => {
+    const d = decideSubscriptionUpdate(
+      row(),
+      { subscription: s({ status: "past_due" }), occurredAt: t("2026-11-20T00:00:00Z") },
+      opts,
+    );
+    assert.equal(d.apply, true);
+  });
+
+  it("a cancel reaching a row with no subscription bound is not treated as another sub's", () => {
+    const unbound = row({
+      status: "canceled",
+      providerSubscriptionId: null,
+      providerUpdatedAt: null,
+    });
+    const d = decideSubscriptionUpdate(
+      unbound,
+      { subscription: s({ status: "canceled" }), occurredAt: now },
+      opts,
+    );
+    assert.equal(d.apply, true);
+  });
+
   it("an event without a timestamp keeps the watermark; past_due grace starts once", () => {
     const d1 = decideSubscriptionUpdate(
       row(),
