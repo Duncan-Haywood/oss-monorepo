@@ -4,7 +4,7 @@
 // before the last day of work (California, Arizona, Utah), a date later than the free tool's, so
 // the paid product was the less safe of the two. This grid catches the next drift of either copy.
 import { describe, expect, it } from "vitest";
-import { addDays, isLienDeadlineState, lienDeadline } from "./lien-deadline";
+import { addDays, isLienDeadlineState, LIEN_DEADLINE_STATES, lienDeadline } from "./lien-deadline";
 
 // calc.mjs is plain JavaScript with no types; this is the slice of it the grid reads.
 interface FreeCalc {
@@ -19,8 +19,9 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 describe("lien deadline parity with the free calculator", () => {
   const shared = Object.keys(STATE_RULES).filter(isLienDeadlineState);
-  it("shares every state PayApps carries (all sixteen since 2026-11-28)", () => {
-    expect(shared.length).toBeGreaterThanOrEqual(16);
+  it("shares every state PayApps carries (all twenty-five since 2026-11-28)", () => {
+    expect(shared.length).toBe(LIEN_DEADLINE_STATES.length);
+    expect(shared.length).toBeGreaterThanOrEqual(25);
   });
   for (const state of shared) {
     it(`${state}: same statutory and act-by dates on a grid of inputs`, () => {

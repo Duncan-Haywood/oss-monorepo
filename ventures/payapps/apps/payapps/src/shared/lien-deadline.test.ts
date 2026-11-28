@@ -138,6 +138,48 @@ describe("lienDeadline: completion states (California, Arizona)", () => {
   });
 });
 
+describe("lienDeadline: the nine states added 2026-11-28 (statute text read that day)", () => {
+  // 2026-09-01 is a Tuesday. +90 = 2026-11-30 (Mon), +120 = 2026-12-30 (Wed), +180 = 2027-02-28
+  // (Sun, so the act-by date is Fri 2027-02-26), +3 months = 2026-12-01 (Tue).
+  const cases: [string, string, string, string][] = [
+    ["DE", "2026-12-30", "2026-12-30", "Del. Code tit. 25, § 2711(b)"],
+    ["ID", "2026-11-30", "2026-11-30", "Idaho Code § 45-507(2)"],
+    ["KS", "2026-12-01", "2026-12-01", "Kan. Stat. §§ 60-1102, 60-1103(a)"],
+    ["MD", "2027-02-28", "2027-02-26", "Md. Code, Real Prop. §§ 9-104, 9-105(a)"],
+    ["MT", "2026-11-30", "2026-11-30", "Mont. Code § 71-3-535(1)"],
+    ["NE", "2026-12-30", "2026-12-30", "Neb. Rev. Stat. § 52-137(1)"],
+    ["ND", "2026-11-30", "2026-11-30", "N.D. Cent. Code § 35-27-13"],
+    ["SC", "2026-11-30", "2026-11-30", "S.C. Code § 29-5-90"],
+    ["SD", "2026-12-30", "2026-12-30", "S.D. Codified Laws § 44-9-15"],
+  ];
+  for (const [state, statutoryOn, dueOn, citation] of cases) {
+    it(`${state}: counted from the last day furnished`, () => {
+      const d = deadline({ state, lastFurnishedOn: "2026-09-01" });
+      expect(d.statutoryOn).toBe(statutoryOn);
+      expect(d.dueOn).toBe(dueOn);
+      expect(d.citation).toBe(citation);
+    });
+  }
+  it("none of them asks for a completion date, and a residential job keeps the same clock", () => {
+    for (const [state] of cases) {
+      expect(lienDateFields(state)).toEqual({ completion: false, noticeOfCompletion: false });
+      expect(
+        deadline({ state, lastFurnishedOn: "2026-09-01", residential: true }).statutoryOn,
+      ).toBe(deadline({ state, lastFurnishedOn: "2026-09-01" }).statutoryOn);
+    }
+  });
+  it("Kansas counts calendar months, clamped at a short month", () => {
+    expect(deadline({ state: "KS", lastFurnishedOn: "2026-11-30" }).statutoryOn).toBe("2027-02-28");
+  });
+  it("Maryland names the 120-day notice of intention before the 180-day petition", () => {
+    const d = deadline({ state: "MD", lastFurnishedOn: "2026-09-01" });
+    expect(d.notes.join(" ")).toMatch(/within 120 days/);
+  });
+  it("Iowa is still not carried", () => {
+    expect(lienDeadline({ state: "IA", lastFurnishedOn: "2026-09-01" }).kind).toBe("unsupported");
+  });
+});
+
 describe("lienDeadline: the states added 2026-11-27 (statute text read that day)", () => {
   it("Michigan 90 days and Minnesota 120 days after last furnishing", () => {
     const mi = deadline({ state: "MI", lastFurnishedOn: "2026-09-01" });
