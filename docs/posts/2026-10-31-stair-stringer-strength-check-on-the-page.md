@@ -4,6 +4,7 @@ seo_title: "Stair stringer strength check: bending, shear, deflection, throat"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, stairs]
 description: "The framing takeoff page now checks the worst stair stringer for bending, shear and deflection in the throat under the notches, using stresses you type."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

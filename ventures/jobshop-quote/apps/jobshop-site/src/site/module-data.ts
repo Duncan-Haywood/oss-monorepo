@@ -416,6 +416,7 @@ export const MODULES: readonly ModuleData[] = [
       'A machine with no hours a day or a line with no cycle time is listed as "can\'t plan" with the reason',
     ],
     guides: [
+      { label: "How to price a rush job", path: "/how-to-price-a-rush-job" },
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
       {
         label: "How to quote outside processing (heat treat, plating)",

@@ -3,6 +3,7 @@ title: "A deck's stairs start from one number: how high the deck is"
 date: 2026-10-30
 tags: [wall-framing-takeoff, deck, stairs]
 description: "The wall-framing takeoff now sizes a deck's stair from the deck's own height: a 36 in deck gets five equal risers of 7.2 in."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already laid out a deck (joists, beam, posts, footings, boards, guard) and, separately, stairs. Until now you had to type the deck's height twice, once for each, and the two could drift apart.

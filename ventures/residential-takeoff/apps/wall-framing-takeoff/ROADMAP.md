@@ -220,6 +220,12 @@ Ticked items are on `main`.
       roofs: **done 2026-11-28** (roof-sheathing-sheets: `roof-sheathing-bench.mjs`, `roof-sheathing-sheets.html`
       in the free edition, 20 generated gable roofs counted against area / 32 + 10%, with a pitch factor
       table). Hip roofs wait on offcut reuse in the hip course count (today an upper bound).
+      Siding count fix, 2026-11-28 (siding-waste-factor): measuring siding waste showed boards below the net
+      wall area on some houses: a lap course a window only partly covered (its head or sill course) was split at
+      the opening instead of notched and run on, and a vertical column the same. Fixed here and in the free
+      edition (`siding.mjs`); 176 to 178 boards on the calculator's example house, 3 to 8 more boards on the three
+      test houses; `siding.test.mjs` checks run x exposure >= net area on 200 random walls. The waste page
+      itself waits until butt joints land on studs, so its figures would not understate waste.
 - [x] **How to do a framing takeoff, worked** (2026-11-28, free edition: `takeoff-example.mjs`,
       `how-to-do-a-framing-takeoff.html`, a front-door guide for the "framing takeoff" searches):
       Open House Plans 1 taken off in six steps, 436 pieces to a 276-board order; every count pinned

@@ -4,6 +4,7 @@ seo_title: "Spiral stair calculator: clear width, tread depth, riser"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, calculators]
 description: "Type a spiral stair's rise, diameter, pole and treads per turn; see which model-code rule it fails and the most treads per turn that pass."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Spiral stairs get a looser rule set than straight ones in the model residential code: 26 in clear width, a tread at least 6-3/4 in deep measured 12 in from the narrow edge, risers up to 9-1/2 in. The stair page now checks a spiral against those typed limits.

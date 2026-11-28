@@ -226,6 +226,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: "2026-11-28",
     },
     {
+      path: "/how-to-price-a-rush-job",
+      label: "How to price a rush job",
+      title: `How to price a rush job in a machine shop · ${SITE_NAME}`,
+      description:
+        "Cost a rush or expedite order line by line: overtime rate, the bumped job's setup, same-day material, expedited finishing, and why a flat fee misprices it.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/faq",
       label: "FAQ",
       title: `Frequently asked questions · ${SITE_NAME}`,

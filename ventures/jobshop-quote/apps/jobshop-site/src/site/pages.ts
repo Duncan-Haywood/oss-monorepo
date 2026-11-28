@@ -40,6 +40,7 @@ import { BREAK_QUANTITIES, EXAMPLE as BREAKS_EXAMPLE, quantityBreaks } from "./q
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { RFQ_CHECKS, RFQ_CSV_COLUMNS, RFQ_CSV_FILE, RFQ_SECTIONS } from "./rfq-checklist";
+import { compareRush, RUSH, rushLine } from "./rush-example";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
 import {
   EMPLOYER_FICA,
@@ -1396,7 +1397,8 @@ export function quoteGuidePage(ctx: RenderContext): Html {
     quote sheet metal and laser cut parts</a>; welded frames and fabrications:
     <a class="link" href="${href(ctx, "/how-to-quote-welding")}">how to quote welding jobs</a>. What to put on the quote you send, with a template to
     download: <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote
-    template</a>.</p>
+    template</a>. A customer who needs the parts sooner:
+    <a class="link" href="${href(ctx, "/how-to-price-a-rush-job")}">how to price a rush job</a>.</p>
     <p class="fineprint">This page explains a common costing method. It is not accounting, tax or
     financial advice, and the prices, times and rates in it are made up. Check every quote before you send
     it.</p>
@@ -3091,6 +3093,171 @@ export function quantityBreaksGuidePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Quote every break from your own rates", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches shops make when a customer needs parts sooner than the normal lead
+ * time ("how to price a rush job", "expedite fee machine shop", "rush charge CNC", "how much to charge
+ * for rush orders"). The CNC guide's made-up bracket quoted twice, normal and rush, with the rush costs
+ * as their own lines (overtime rate, the bumped job, same-day material, the anodizer's expedite),
+ * priced in ./rush-example to the cent the app's costing engine gives
+ * (apps/jobshop-quote/test/unit/site-rush-example.test.ts), and set against a flat surcharge.
+ */
+export function rushGuidePage(ctx: RenderContext): Html {
+  const r = RUSH;
+  const rows = compareRush(r);
+  const [one, ten, hundred] = rows;
+  if (!one || !ten || !hundred) throw new Error("the rush guide example quotes three quantities");
+  const line = rushLine(r);
+  const normalRate = line.machines[0]?.hourlyRateCents ?? 0;
+  const overtimeRate = line.machines[1]?.hourlyRateCents ?? 0;
+  const otOps = r.overtimeOperations
+    .map((i) => line.operations[i]?.label ?? "")
+    .filter(Boolean)
+    .map((l) => `“${l}”`);
+  const pctBps = (bps: number) =>
+    `${(bps / 100).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`;
+  const qty = (q: number) => `${q.toLocaleString("en-US")} ${q === 1 ? "part" : "parts"}`;
+  const bumpedCents = Math.round((r.bumpedJobMinutes / 60) * normalRate);
+  const under = rows.filter((c) => c.flatMinusRushCents < 0);
+  const over = rows.filter((c) => c.flatMinusRushCents > 0);
+  const lines: [string, (c: (typeof rows)[number]) => string][] = [
+    ["Normal lead time: line total", (c) => usdCents(c.normal.totalCents)],
+    ["Rush: setups (incl. the bumped job)", (c) => usdCents(c.rush.setupCents)],
+    ["Rush: run time", (c) => usdCents(c.rush.runCents)],
+    ["Rush: anodize, expedited", (c) => usdCents(c.rush.finishingCents)],
+    ["Rush: same-day plate delivery", (c) => usdCents(c.rush.extrasCents)],
+    ["Rush: line total", (c) => usdCents(c.rush.totalCents)],
+    ["What the rush adds", (c) => `${usdCents(c.premiumCents)} (${pctBps(c.premiumBps)})`],
+    [`Normal + flat ${pctBps(r.flatSurchargeBps)}`, (c) => usdCents(c.flatCents)],
+    [
+      "Flat surcharge vs the costed rush",
+      (c) =>
+        c.flatMinusRushCents < 0
+          ? `${usdCents(-c.flatMinusRushCents)} short`
+          : `${usdCents(c.flatMinusRushCents)} over`,
+    ],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to price a rush job in a machine shop</h1>
+    <p class="lead">A rush costs the shop real money: overtime, the job it pushes aside, material and
+    outside processing bought fast. A flat expedite fee guesses at that. Here is how to cost a rush the
+    way you cost any job, a worked example at ${one.quantity}, ${ten.quantity} and ${hundred.quantity}
+    parts, and why one percentage cannot be right at every quantity.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>What a rush actually costs</h2>
+    <ol>
+      <li><strong>Hours at a higher rate.</strong> Work done on overtime, a second shift or a weekend
+      costs the operator's premium and the payroll costs on it. Price those hours at a second rate for
+      the same machine, not by stretching the cycle time.</li>
+      <li><strong>The job it bumps.</strong> If another customer's job is set up on the machine you
+      need, pulling it off means tearing it down now and setting it up again later. That setup is paid
+      twice, and the rush is what causes it.</li>
+      <li><strong>Material bought fast.</strong> Same-day or next-day delivery, a cut-to-size charge
+      from a distributor's counter, or a price above your usual supplier's for stock that is on a shelf
+      today.</li>
+      <li><strong>Outside processing expedited.</strong> Platers, anodizers, heat treaters and coaters
+      often run an expedited service at a higher price or a higher lot minimum. Ask them; their quote
+      is the number to use.</li>
+      <li><strong>Inspection and paperwork on the same clock.</strong> A first article, certs or a
+      customer's source inspection still have to happen, now inside the shorter window.</li>
+      <li><strong>The promises you move.</strong> Other jobs ship later. That is not a line on this
+      quote, but it is a reason to decide whether to take the rush at all, and what lead time you can
+      actually promise without breaking the others.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>The ${QUOTE_EXAMPLE.partName} from the <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">CNC
+    quoting guide</a>, quoted at its normal lead time there, and here again as a rush.
+    <strong>Every number is made up to show the arithmetic</strong>; none is a typical overtime premium,
+    expedite price or surcharge for any region or trade. Use your own.</p>
+    <ul>
+      <li><strong>Overtime:</strong> ${otOps.join(", ")} run on overtime, at the mill's
+      ${usdCents(normalRate)} an hour plus a ${usdCents(r.overtimePremiumCents)} premium =
+      ${usdCents(overtimeRate)} an hour. Programming and the first-article check stay on the normal shift
+      at ${usdCents(normalRate)}.</li>
+      <li><strong>The bumped job:</strong> ${r.bumpedJobMinutes} min to tear down the job that was on the
+      mill and set it up again later, at the normal rate: ${usdCents(bumpedCents)}, once per order.</li>
+      <li><strong>Material:</strong> the same plate and price per pound, plus
+      ${usdCents(r.materialDeliveryCents)} for same-day delivery, once per order.</li>
+      <li><strong>${r.finishing.name}:</strong> ${usdCents(r.finishing.perPartCents)} a part, minimum
+      ${usdCents(r.finishing.lotChargeCents)} a lot (the normal service in the CNC guide is cheaper).</li>
+      <li><strong>Markups:</strong> as in the CNC guide; the delivery charge is a purchased item, so it
+      takes the material markup.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket, normal and rush, at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${rows.map((c) => html`<th scope="col">${qty(c.quantity)}</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${rows.map((c) => html`<td>${cell(c)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>The rush adds a different share at every quantity.</strong> Costed line by line it
+      adds ${pctBps(one.premiumBps)} at ${qty(one.quantity)}, ${pctBps(ten.premiumBps)} at
+      ${qty(ten.quantity)} and ${pctBps(hundred.premiumBps)} at ${qty(hundred.quantity)}. The bumped
+      setup, the delivery and the anodizer's higher minimum are fixed per order, so they weigh most on a
+      small lot; the overtime premium grows with the hours, so it is most of the rush on a large one.</li>
+      <li><strong>A flat ${pctBps(r.flatSurchargeBps)} is wrong both ways.</strong> It comes up
+      ${under.map((c) => `${usdCents(-c.flatMinusRushCents)} short at ${qty(c.quantity)}`).join(" and ")}${
+        over.length
+          ? html`, and charges ${over.map((c) => `${usdCents(c.flatMinusRushCents)} more than the rush costs at ${qty(c.quantity)}`).join(" and ")}`
+          : ""
+      }. Short means the shop pays for the customer's deadline; over means the shop is easier to beat
+      on the next rush.</li>
+      <li><strong>If you want a margin for the disruption, add it on purpose.</strong> Cost the rush,
+      then add a premium you choose for the promises it moves. Then you know what the premium is and
+      what is just cost.</li>
+    </ul>
+
+    <h2>Before you say yes</h2>
+    <ul>
+      <li><strong>Check the machines, not your memory.</strong> Which jobs are on the machines this
+      operation needs, and when do they finish? A rush that only fits by making two other jobs late is
+      a decision, not a quote.</li>
+      <li><strong>Call the outside vendors first.</strong> An anodizer or heat treater who cannot do it
+      in time sets the lead time, whatever your own shop can do.</li>
+      <li><strong>Quote the rush and the normal lead time side by side.</strong> Two lines, two dates,
+      two prices. The customer picks, and the rush price reads as a choice, not a penalty.</li>
+      <li><strong>Write the date as a condition.</strong> "Ships N working days after the order and the
+      approved drawing" protects the date from a purchase order that arrives two days late.</li>
+      <li><strong>Keep the rush in its own lines.</strong> Priced as separate lines, or as its own
+      revision of the quote, the rush can be taken off again: when the same part comes back on a normal
+      lead time, it is the normal price that gets reused, not last time's expedite.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} has no rush switch: a rush is priced like any other line, with the rush costs typed
+    in. Add the overtime rate as a second machine on your rate card ("${line.machines[1]?.name ?? ""}"),
+    put the operations that run on overtime on it, add the bumped job as an operation with setup only,
+    the expedited service as its own finishing operation with its lot minimum, and the delivery as an
+    extra per order. Every quantity break then follows, each figure showing the rate it came from. The
+    example above is priced to the cent the app gives for the same inputs, checked by a test in its code.
+    To see whether a date needs a rush at all, the app's
+    <a class="link" href="${href(ctx, "/machine-shop-lead-time")}">shop load and lead time</a> page
+    places your open jobs on the machines and gives each quantity break a lead time behind them. Revise a
+    sent quote to offer the rush as a second version.</p>
+    <p>The rest of the price: <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a>, <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how
+    to work out a machine shop hourly rate</a>, and what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, it does not say what overtime pay the law requires, and the rates, premiums,
+    prices and times in it are made up. Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next rush with every cost on it", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -3110,6 +3277,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/machine-shop-quote-template": quoteTemplatePage,
   "/machining-material-cost": materialCostGuidePage,
   "/rfq-review-checklist": rfqChecklistPage,
+  "/how-to-price-a-rush-job": rushGuidePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

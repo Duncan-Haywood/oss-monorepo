@@ -3,6 +3,7 @@ title: "A deck's stair now comes from the deck height on the page too"
 date: 2026-10-30
 description: "The wall-framing takeoff page can now size a deck stair from the deck height, as the CLI did."
 tags: [wall-framing-takeoff, deck]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The wall-framing takeoff could already size a deck's stair from the deck

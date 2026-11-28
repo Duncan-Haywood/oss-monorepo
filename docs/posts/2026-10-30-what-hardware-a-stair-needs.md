@@ -3,6 +3,7 @@ title: "A stair order forgot the hardware that holds the stringers up"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs]
 description: "The stair takeoff bought stringers, treads and rails but never listed what attaches the stringers; it now counts one top connector and one foot anchor each."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) laid out stairs down to the notch geometry, the tread boards and the guard posts, but its output never mentioned how a stringer gets fastened at either end. A framer reading the order would find lumber and no hanger.

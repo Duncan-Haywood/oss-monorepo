@@ -3,6 +3,7 @@ title: "Can a stair guard post take 200 pounds at the top rail?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff's stair module now checks a guard post's bending under a typed 200 lb load at guard height, and says the bolted attachment is not checked.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 After the stringer and the tread, the stair part people actually lean on is the guard post. The model residential code asks a guard to resist a concentrated load at the top in any direction, and `postCheck: {point, Fb}` on a stair now runs that sum for the posts the rail layout already counted.

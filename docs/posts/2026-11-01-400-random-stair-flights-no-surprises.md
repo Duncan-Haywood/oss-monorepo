@@ -4,6 +4,7 @@ seo_title: "400 random stair flights thrown at the framing takeoff"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, testing, construction]
 description: A seeded property test lays out 400 random stair flights and checks the riser, tread, stringer and mark arithmetic each time. It found nothing wrong.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Stairs are where a takeoff error turns into a trip hazard, so the stair engine in the wall-framing takeoff now has the same seeded fuzz test the wall, floor, roof, deck and sheathing engines already had.
