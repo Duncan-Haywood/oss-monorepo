@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed Portfolio Pages 'Test the site builder': the new page's meta description was 174 characters (limit 160, platform/pages/description-length.test.mjs). Shortened to 146; the full platform/pages suite was rerun locally and that was its only failure."
+  ],
   "integrity_issues": [
     "Two wall-framing-takeoff pages (roof-sheathing-sheets.html, lumber-waste-factor.html, both added 2026-11-28) said 'MIT licence' while the venture LICENSE is all rights reserved; fixed in this PR with a guarding test."
   ],
@@ -41,6 +43,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets says 'no git clone at /home/user/private-monorepo' although every bet but grants now lives in ventures/; the notice is noise."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "A venture-only run passes while platform/pages/description-length.test.mjs (the 160-char meta description limit) fails in CI; the venture's own page test never checks description length."
     }
   ],
   "deviations": [],
