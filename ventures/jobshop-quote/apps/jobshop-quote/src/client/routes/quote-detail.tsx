@@ -62,6 +62,7 @@ import {
 } from "../lib/api";
 import { canEstimate, useOrg, useOrgId, useShopDay } from "./layout";
 import { QuoteQuickBooksCard } from "./quickbooks";
+import { ShipmentCard } from "./shipment";
 import { JobCard, LeadTimeCard } from "./shop-load";
 
 export function QuoteDetailPage() {
@@ -231,6 +232,7 @@ export function QuoteDetailPage() {
       )}
       {q.status === "won" && <JobCard quote={q} />}
       {q.status === "won" && <Traveler orgId={orgId} quote={q} />}
+      {q.status === "won" && <ShipmentCard orgId={orgId} quote={q} />}
       {q.status === "won" && (
         <QuoteQuickBooksCard orgId={orgId} quote={q} canSend={canEstimate(org.data?.role)} />
       )}

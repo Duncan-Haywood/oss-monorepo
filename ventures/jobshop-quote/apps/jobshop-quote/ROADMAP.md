@@ -718,6 +718,28 @@ checks the pair. No customers yet.
   before), viewers may print. Logic in `src/shared/traveler.ts`, PDF in
   `services/quotes/traveler-pdf.ts`. Next, if shops ask: a saved job (work order) with its own
   number and status, and a barcode per operation for shop-floor time tracking.
+- Packing slip and certificate of conformance (2026-11-28, every plan, shipment-packing-slip-coc): a
+  won quote's "Packing slip and certificate of conformance" card prints what goes in the box
+  (`GET /quotes/:id/shipment.pdf?ship=YYYY-MM-DD&qty.<lineId>=N&lot.<lineId>=H123&signer=...&to=...&coc=0`).
+  The packing slip: the shop's name, address and contact, customer, PO, quote and ship date, the
+  ship-to (typed, up to 5 lines, else the customer and "Attn:" contact), per part the quantity ordered
+  and shipped with "Partial shipment" when fewer, the piece count, and packed-by, received-by and
+  boxes lines. The certificate (next page, `coc=0` leaves it out): per part the revision ("not given"
+  when the quote has none), quantity shipped, material (or "Customer-supplied", or the rate card's
+  "no longer on" name), outside processing by name (finishing marked as an outside service only), and
+  the heat/lot typed (else a line to write on); then the shop's conformance statement to the PO,
+  drawings and revisions over a blank signature line, with the signer's name and title if typed. No
+  price, rate or markup on either. Quantities: the one typed (partial shipments), else the saved
+  job's PO quantity, else the break accepted online (a part not accepted is left off), else the only
+  break; a multi-break line with none is a 400 naming the part. The ship date: typed, else the job's
+  shipped day, else today in the shop's zone. Bad values (a non-day, quantity 0, a lot over 60 or a
+  signer over 80 characters, more than 5 address lines, `coc` other than 0/1, a line not on the
+  quote) are 400s, never defaults; won quotes only (409), viewers may print, scoped by org. Logic in
+  `src/shared/shipment.ts`, PDF in `services/quotes/shipment-pdf.ts`; `src/shared/shipment.test.ts`,
+  `test/worker/shipment.test.ts`. A marketing page, `/certificate-of-conformance-software`, says
+  what it does and does not do. Next, if shops ask: saved shipments (a slip number, partial shipments
+  totalled against the order, and the job marked shipped when the last part goes), the material
+  cert PDF attached behind the certificate, and a customer's own CoC wording per customer.
 - QuickBooks Online, part 1 (2026-11-26, every plan; docs/QUICKBOOKS.md): an admin connects the
   shop's QuickBooks Online company on the rate card page (Intuit OAuth through `packages/qbo-sync`,
   single-use state bound to the admin, tokens sealed per shop, disconnect revokes), and an estimator

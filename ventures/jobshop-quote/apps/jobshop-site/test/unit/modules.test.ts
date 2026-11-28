@@ -113,6 +113,7 @@ describe("module pages", () => {
       "follow-up": ["Quote follow-up", "Quotes about to expire, by email"],
       "win-loss": ["Win/loss analytics, part 3", "Win/loss analytics, part 2"],
       traveler: ["Job traveler"],
+      "certificate-of-conformance": ["Packing slip and certificate of conformance"],
       "shop-load": ["Shop load and lead time"],
       "quickbooks-import": ["QuickBooks Online import file"],
     };
