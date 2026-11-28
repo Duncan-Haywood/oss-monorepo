@@ -65,7 +65,7 @@
     "docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md (extended)"
   ],
   "goal": null,
-  "notes": "Local checks: validate_workflows.py all 153 valid; scan.py repo --tools zizmor,trivy-config,osv-scanner: github-app 0, blocking left 4 dangerous-triggers + AZU-0012 (to be accepted in a separate baseline.yaml PR); osv ERROR (proxy).",
+  "notes": "Local checks: validate_workflows.py all 153 valid; scan.py repo --tools zizmor,trivy-config,osv-scanner: github-app 0, blocking left 4 dangerous-triggers + AZU-0012 (to be accepted in a separate baseline.yaml PR); osv ERROR (proxy). Second PR (same session): baseline.yaml accepts the 4 dangerous-triggers and AZU-0012 with path+fingerprint; scan.py repo --tools zizmor,trivy-config then reports 0 blocking (Security scan: passed). PR #20073 merged after all required checks were green (adversarial-llm included).",
   "corrections": [],
   "redteam": null,
   "usage": {

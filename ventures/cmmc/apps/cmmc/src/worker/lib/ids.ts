@@ -26,6 +26,7 @@ export type IdPrefix =
   | "iau"
   | "afn"
   | "cap"
+  | "inc"
   | "gau"
   | "gca";
 

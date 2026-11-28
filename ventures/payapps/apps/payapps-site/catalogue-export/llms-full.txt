@@ -90,7 +90,7 @@ Then the same amounts go into your accounting system as invoices, with retainage
 
 - **Update progress each month.** Work this period and stored materials per line; the continuation-sheet math, retainage and "less previous certificates" are calculated for you.
 
-- **Send it with its backup.** The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.
+- **Send it with its backup.** The application and continuation sheet as PDF, Excel (with live formulas) or CSV for the GC's portal or email, the waiver it needs, and the backup attached.
 
 - **Get paid and keep the books straight.** Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.
 
@@ -108,7 +108,7 @@ Subcontractors and specialty trades who bill general contractors every month wit
 
 ### Does it replace my GC's billing portal?
 
-No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.
+No. Your GC decides how pay apps are submitted. It keeps your numbers and backup in one place and gives you the PDF, Excel and CSV, so the portal step is copying finished figures, not redoing them. For Procore, Oracle Textura, GCPay and Trimble Pay it also fills the SOV and billing files those portals take; you still submit them in the portal yourself.
 
 ### Is it an AIA G702/G703 form?
 
@@ -501,7 +501,7 @@ $0 / month
 Try it on one real job, start to finish.
 
 - Schedule of values, change orders and retainage
-- Pay application summary and continuation sheet as PDF and CSV
+- Pay application summary and continuation sheet as PDF, Excel and CSV
 - 250 MB of attached backup and photos
 
 ## Solo

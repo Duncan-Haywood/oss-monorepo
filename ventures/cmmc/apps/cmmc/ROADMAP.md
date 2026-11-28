@@ -13,6 +13,23 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Done
 
+- Cyber incident register (2026-11-28, incident-register, every plan): an Incidents tab and a dashboard card for
+  NIST SP 800-171 3.6.1 and 3.6.2 (5 points each in the SPRS score) and the two DFARS 252.204-7012 clocks: the
+  report to DIBNet within 72 hours of discovery (paragraph (a)) and images kept at least 90 days from the report
+  (paragraph (e)). Each incident records whether the clause is in the contract and what it affected (which says
+  whether paragraph (c) applies), role and higher tier, discovery and report times (instants in UTC; the browser
+  shows its own time zone), the DoD report number and when the higher tier got it, a paragraph-cited checklist
+  (steps drop out by role, malware and cloud answers), a timeline, the close date and lessons learned. The
+  stage (report due, no 7012 report owed, keep images, open, closed) and the checks (report overdue or late, no
+  report number, a sub's higher tier untold, closed inside the hold, closed with steps unticked) are read from
+  the row. CSV of the register, a Markdown record per incident (the 3.6.2 evidence), and the day each image
+  hold ends in the calendar file and link (a count per day, no titles). On every plan on purpose: the 72-hour
+  clock is not a paid feature. Editors record; only admins delete (an incident is evidence). Quotes re-read
+  2026-11-28 from GSA's DITA source and pinned by hash; the logic is the front door's
+  (`ventures/machine-shop-guides/incident.mjs`) ported to instants. `src/shared/incidents.ts`,
+  `services/incidents`, migration 0020, `src/client/views/Incidents.tsx`. Privacy and Terms updated
+  (POLICY_VERSION 2026-11-28.2).
+
 - Visits counted (2026-11-28, cmmc-web-analytics): the app's CSP (`public/_headers`) refused the Cloudflare
   Web Analytics beacon the zone injects (a "violates script-src 'self'" console error on every page), so the
   live app's visits went uncounted while PayApps, Seller Books and Job Shop Quote reported theirs. It now allows
@@ -566,9 +583,9 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   and SHA-256 kept); due dates in calendar months; a removed gauge goes out of service and a repaired one
   comes back. Checks: never calibrated, overdue, due in 30 days, every out-of-tolerance result with no impact
   record (the window since the previous calibration named), no certificate or traceability on the last lab
-  calibration. Recall list, counts, gauge list CSV. Kept, never deleted once calibrated. Migration 0020;
+  calibration. Recall list, counts, gauge list CSV. Kept, never deleted once calibrated. Migration 0021;
   `src/shared/calibration.ts`, `services/calibration`, `/gauges` routes, `Gauges.tsx`; unit, component and
-  worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.2); docs/SOURCES.md,
+  worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.3); docs/SOURCES.md,
   "Calibration".
 
 ## Next
@@ -578,6 +595,10 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   audits have); an existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a
   corrective action" button that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer
   flow-down asks (gauge R&R records) if shops ask
+- Incidents, part 2 (part 1 done 2026-11-28): an incident-response plan and test record for 3.6.1 and 3.6.3
+  (who files on DIBNet, who holds the medium assurance certificate, a tabletop exercise logged with its date),
+  evidence files linked to an incident, and the SSP's 3.6.x statements naming the register, if shops ask
+
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the

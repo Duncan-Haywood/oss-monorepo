@@ -23,6 +23,9 @@ const Dashboard = lazy(() => import("./views/Dashboard").then((m) => ({ default:
 const DocumentsView = lazy(() =>
   import("./views/Documents").then((m) => ({ default: m.DocumentsView })),
 );
+const IncidentsView = lazy(() =>
+  import("./views/Incidents").then((m) => ({ default: m.IncidentsView })),
+);
 const PeopleView = lazy(() => import("./views/People").then((m) => ({ default: m.PeopleView })));
 const PoamView = lazy(() => import("./views/Poam").then((m) => ({ default: m.PoamView })));
 const PoliciesView = lazy(() =>
@@ -49,6 +52,7 @@ type Tab =
   | "providers"
   | "people"
   | "suppliers"
+  | "incidents"
   | "policies"
   | "ssp"
   | "affirmations"
@@ -66,6 +70,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "providers", label: "Providers" },
   { key: "people", label: "People" },
   { key: "suppliers", label: "Suppliers" },
+  { key: "incidents", label: "Incidents" },
   { key: "policies", label: "Policies" },
   { key: "ssp", label: "SSP" },
   { key: "affirmations", label: "Affirmations" },
@@ -377,6 +382,7 @@ function Workspace({ me }: { me: Me }) {
                 onOpenPolicies={() => setTab("policies")}
                 onOpenPeople={() => setTab("people")}
                 onOpenSuppliers={() => setTab("suppliers")}
+                onOpenIncidents={() => setTab("incidents")}
                 onOpenDocuments={() => setTab("documents")}
                 onOpenAudits={() => setTab("audits")}
               />
@@ -412,6 +418,7 @@ function Workspace({ me }: { me: Me }) {
             {tab === "suppliers" && (
               <SuppliersView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
             )}
+            {tab === "incidents" && <IncidentsView orgId={orgId} info={org.data} />}
             {tab === "policies" && (
               <PoliciesView orgId={orgId} info={org.data} onUpgrade={() => setTab("billing")} />
             )}

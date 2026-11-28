@@ -62,6 +62,22 @@ nothing to copy. No customers yet. Paid plans are dark
   CSV instead; nothing is guessed. The opening-balance fill takes the same PDFs. Tested on PDFs
   printed by Chromium and LibreOffice (`test/fixtures/README.md`). The reader moved from
   `services/export/pdf-merge/` to `src/shared/pdf/` so the browser can use it.
+- Pay application as an Excel workbook (2026-11-28, pay-app-xlsx, every plan). "Excel" on the pay
+  application page downloads `<job>-payapp-<n>.xlsx` (`GET .../pay-apps/:id/application.xlsx`): an
+  "Application summary" sheet (the job's header, lines 1 to 9, the retainage rates, the change order
+  summary, the not-an-AIA-document notice) and a "Continuation sheet" (columns A to I lettered as on the
+  standard form, the release column, quantities on a unit-price job, totals), for GCs who ask for the
+  pay app "in Excel" and subs who keep their own copy in a spreadsheet. Amounts are numbers; G = D + E +
+  F, % = G / C, H = C - G, every total, and summary lines 3, 4 (pointing at the continuation sheet's G
+  total), 5, 6, 8 and 9 are live formulas saved with PayApps' own figure, and a formula is written only
+  where PayApps' figure equals it to the cent (else the figure alone), so the workbook never disagrees
+  with the PDF. Checked: LibreOffice opens it and recalculates to the same figures; the app's own
+  "Fill from your last continuation sheet" import reads it back (application number, period, work to
+  date per line), so a job billed here can move to another account. Writer: `writeXlsxBook` in
+  `src/shared/gc-export/xlsx-write.ts` (several sheets, formula cells, bold and percent styles, no
+  library); export `src/worker/services/export/xlsx.ts`, tests beside it. Not done: the GC's own
+  Excel template filled cell by cell (Trimble Pay's is, under GC portal exports); a signature or
+  notary block (the PDF has them).
 - Mid-job start (2026-11-25): a job already billed elsewhere (a spreadsheet, other software)
   records its last application as the opening balance: its number (the first one here is the next
   number), its period end, its line 6 (carried into line 7), optional line 5a, and work completed
@@ -2875,9 +2891,10 @@ nothing to copy. No customers yet. Paid plans are dark
 ## Next (suite, by promise)
 
 - Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
-  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
-  ask.
+  2026-11-28; the weekly email's totals of interest accrued on past-due applications and earned on
+  those paid late and not billed or waived yet, done 2026-11-28, late-interest-weekly-email):
+  "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it as a line on
+  the next pay application, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
