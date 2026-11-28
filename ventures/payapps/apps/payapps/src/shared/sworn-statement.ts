@@ -16,8 +16,10 @@
 // own heading and a generic jurat with blanks, the same as the application's notary block, and says
 // so. Nothing decides what the law requires of a particular job.
 //
-// The PDF is not stored: the form is posted, the PDF comes back. The draft between months is, per job
-// (swornDraftSchema, db/schema/sworn-statements.ts). The rows can be prefilled from the job's
+// The PDF itself is not stored: the form is posted, the PDF comes back. The draft between months is
+// kept per job (swornDraftSchema), and each statement an editor prints is kept as given with its pay
+// application (one per pay application and date; a reprint replaces it), so last month's can be
+// printed again and this month's is checked against it (compareWithPrevious). The rows can be prefilled from the job's
 // purchase orders and subcontracts (job costing), with what each vendor has invoiced to date as a
 // cross-check on paid + owing + retainage.
 
@@ -111,6 +113,29 @@ export interface SwornDraftDto {
   updatedAt: string | null;
   updatedByName: string | null;
 }
+
+/** A statement kept as given with its pay application (db/schema/sworn-statements.ts). */
+export interface SwornGivenSummaryDto {
+  id: string;
+  payApp: string;
+  statementDate: string;
+  state: SwornState;
+  givenTo: string;
+  parties: number;
+  adjustedCents: number;
+  paidCents: number;
+  owingCents: number;
+  /** ISO timestamp it was kept. */
+  createdAt: string;
+  createdByName: string | null;
+}
+
+export interface SwornGivenDto extends SwornGivenSummaryDto {
+  statement: SwornStatement;
+}
+
+/** At most this many statements kept per job (four years of monthly draws, with reprints replaced). */
+export const MAX_SWORN_GIVEN = 60;
 
 export interface SwornIssue {
   level: "error" | "warning" | "note";
@@ -390,3 +415,65 @@ export function swornAffirmation(s: Pick<SwornStatement, "contractorName">): str
 
 export const SWORN_STATEMENT_NOTICE =
   "Prepared with PayApps from the figures entered. The columns follow what Illinois (770 ILCS 60/5) and Michigan (MCL 570.1110) ask a sworn statement to list; the heading, affirmation and notary block are our own words, not either statute's form. Where the owner, lender, title company or statute prescribes a form, copy these figures onto it. Not legal advice. Sign only what you know to be true: a knowingly false sworn statement can be a crime.";
+
+/**
+ * This statement against the last one given on the job. Amounts paid to date and earned to date
+ * (paid + owing + retainage) only go up from one draw to the next, and a party listed once stays
+ * listed: an owner, lender or title company reads the statements side by side, and a party that
+ * drops off or a paid figure that falls is the first thing they ask about. Own forces is left out
+ * (its figures are the contractor's own). Parties are matched by name, ignoring case and spacing;
+ * several rows for one party are added together.
+ */
+export function compareWithPrevious(
+  current: Pick<SwornStatement, "rows" | "statementDate">,
+  previous: Pick<SwornStatement, "rows" | "statementDate" | "payApp">,
+): SwornIssue[] {
+  const issues: SwornIssue[] = [];
+  const label = `the statement given ${previous.statementDate}${previous.payApp ? ` (${previous.payApp})` : ""}`;
+  const byParty = (rows: readonly SwornRow[]) => {
+    const m = new Map<string, { name: string; paid: number; earned: number }>();
+    for (const r of rows) {
+      const k = norm(r.name);
+      if (!k || isOwnForces(r.name)) continue;
+      const e = m.get(k) ?? { name: r.name.trim(), paid: 0, earned: 0 };
+      e.paid += r.paidCents;
+      e.earned += r.paidCents + r.owingCents + r.retainageCents;
+      m.set(k, e);
+    }
+    return m;
+  };
+  if (current.statementDate && current.statementDate < previous.statementDate) {
+    issues.push({
+      level: "warning",
+      where: "Statement date",
+      message: `Dated before ${label}. Check the date, or whether this is meant to replace that one`,
+    });
+  }
+  const now = byParty(current.rows);
+  for (const [k, was] of byParty(previous.rows)) {
+    const is = now.get(k);
+    if (!is) {
+      issues.push({
+        level: "warning",
+        where: was.name,
+        message: `On ${label} but not on this one. Keep a party listed with what it has been paid even when nothing more is owed; one that drops off between statements will be asked about`,
+      });
+      continue;
+    }
+    if (is.paid < was.paid) {
+      issues.push({
+        level: "warning",
+        where: was.name,
+        message: `Already paid is ${formatCents(is.paid)}, less than the ${formatCents(was.paid)} on ${label}. Paid to date only goes up; check the figure, or explain a refund or back-charge with the statement`,
+      });
+    }
+    if (is.earned < was.earned) {
+      issues.push({
+        level: "warning",
+        where: was.name,
+        message: `Paid, owing and retainage come to ${formatCents(is.earned)}, less than the ${formatCents(was.earned)} on ${label}. Work billed last time is still earned; an amount owing then is paid or still owing now`,
+      });
+    }
+  }
+  return issues;
+}

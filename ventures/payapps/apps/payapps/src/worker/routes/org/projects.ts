@@ -128,6 +128,12 @@ import {
   getSwornDraft,
   saveSwornDraft,
 } from "../../services/payapps/sworn-drafts";
+import {
+  deleteSwornGiven,
+  getSwornGiven,
+  keepSwornGiven,
+  listSwornGiven,
+} from "../../services/payapps/sworn-given";
 import { certifiedPayrollHours } from "../../services/payapps/timesheets";
 import {
   deleteTxNoticeSend,
@@ -1021,6 +1027,80 @@ routes.put(
 
 routes.delete("/:projectId/sworn-statement/draft", editor, async (c) => {
   await clearSwornDraft(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  return c.json({ ok: true });
+});
+
+// Sworn statements kept as given with their pay applications: an editor's print is kept (the same
+// pay application and date replaces the copy kept before), everyone lists and reprints them, and an
+// editor deletes one kept in error. Every plan.
+routes.get("/:projectId/sworn-statements", async (c) =>
+  c.json(await listSwornGiven(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"))),
+);
+
+routes.post(
+  "/:projectId/sworn-statements",
+  editor,
+  validate("json", swornStatementSchema),
+  async (c) => {
+    const input = c.req.valid("json");
+    const computed = computeSwornStatement(input);
+    if (swornHasErrors(computed)) {
+      throw badRequest(
+        computed.issues
+          .filter((i) => i.level === "error")
+          .map((i) => `${i.where}: ${i.message}`)
+          .join("; "),
+      );
+    }
+    const kept = await keepSwornGiven(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("projectId"),
+      c.var.tenant.userId,
+      input,
+    );
+    return c.json(kept, 201);
+  },
+);
+
+routes.get("/:projectId/sworn-statements/:statementId", async (c) =>
+  c.json(
+    await getSwornGiven(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("projectId"),
+      c.req.param("statementId"),
+    ),
+  ),
+);
+
+routes.get("/:projectId/sworn-statements/:statementId/statement.pdf", async (c) => {
+  const project = await getProjectRow(c.var.ctx, c.var.tenant.orgId, c.req.param("projectId"));
+  const given = await getSwornGiven(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    project.id,
+    c.req.param("statementId"),
+  );
+  const pdf = swornStatementPdf(computeSwornStatement(given.statement), {
+    sample: project.isSample,
+  });
+  return new Response(pdf.slice().buffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${swornStatementFileName(given.statement)}"`,
+      "Cache-Control": "no-store",
+    },
+  });
+});
+
+routes.delete("/:projectId/sworn-statements/:statementId", editor, async (c) => {
+  await deleteSwornGiven(
+    c.var.ctx,
+    c.var.tenant.orgId,
+    c.req.param("projectId"),
+    c.req.param("statementId"),
+  );
   return c.json({ ok: true });
 });
 

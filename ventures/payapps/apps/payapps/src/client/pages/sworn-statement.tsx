@@ -3,17 +3,22 @@
 // subcontracts, typed here, checked live, printed by the Worker. The draft is saved with the job
 // (GET/PUT .../sworn-statement/draft) as an editor types, so next month starts from this month's
 // parties and paid column on any computer; a viewer's changes stay in their browser. A draft kept in
-// this browser before drafts were saved with the job is picked up once and saved.
+// this browser before drafts were saved with the job is picked up once and saved. Each PDF an editor
+// downloads is kept as given with its pay application (.../sworn-statements), listed at the foot of
+// the page to print again, and the statement being typed is checked against the last one given.
 import type { JobCostDto, ProjectDetailDto } from "@shared/api/types";
 import { type MemberRole, ROLE_RANK } from "@shared/enums";
 import { formatCents } from "@shared/money";
 import {
+  compareWithPrevious,
   computeSwornStatement,
   OWN_FORCES_NAME,
   SWORN_STATE_LABELS,
   SWORN_STATEMENT_NOTICE,
   SWORN_STATES,
   type SwornDraftDto,
+  type SwornGivenDto,
+  type SwornGivenSummaryDto,
   type SwornRowInput,
   type SwornStatementInput,
   swornHasErrors,
@@ -119,6 +124,10 @@ export function SwornStatementPage() {
     staleTime: Number.POSITIVE_INFINITY,
     refetchOnWindowFocus: false,
   });
+  const given = useQuery({
+    queryKey: ["sworn-given", orgId, projectId],
+    queryFn: () => api<SwornGivenSummaryDto[]>(projectPath(orgId, projectId, "/sworn-statements")),
+  });
   const key = storageKey(orgId, projectId);
   const [draft, setDraft] = useState<Draft | null>(null);
   /** The last draft the server holds, as JSON, so an unchanged draft is not saved again. */
@@ -203,15 +212,55 @@ export function SwornStatementPage() {
     [parsed],
   );
 
+  // The last statement given before this one: a reprint of the same pay application and date is
+  // this statement, not the one before it.
+  const previousId = useMemo(() => {
+    if (!draft || !given.data) return null;
+    const same = (g: SwornGivenSummaryDto) =>
+      g.payApp === (draft.payApp ?? "").trim() && g.statementDate === draft.statementDate;
+    return given.data.find((g) => !same(g))?.id ?? null;
+  }, [draft, given.data]);
+  const previous = useQuery({
+    queryKey: ["sworn-given", orgId, projectId, previousId],
+    queryFn: () =>
+      api<SwornGivenDto>(
+        projectPath(orgId, projectId, `/sworn-statements/${encodeURIComponent(previousId ?? "")}`),
+      ),
+    enabled: previousId !== null,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  const againstPrevious = useMemo(
+    () =>
+      parsed?.success && previous.data && previousId === previous.data.id
+        ? compareWithPrevious(parsed.data, previous.data.statement)
+        : [],
+    [parsed, previous.data, previousId],
+  );
+
   const print = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!parsed?.success) throw new Error("Fill in the fields marked below first");
-      return downloadPost(
+      await downloadPost(
         projectPath(orgId, projectId, "/sworn-statement.pdf"),
         parsed.data,
         "sworn-statement.pdf",
       );
+      // Kept as given with its pay application (a viewer's print is not kept).
+      if (canSave) {
+        await api(projectPath(orgId, projectId, "/sworn-statements"), {
+          method: "POST",
+          body: parsed.data,
+        });
+      }
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["sworn-given", orgId, projectId] }),
+  });
+  const removeGiven = useMutation({
+    mutationFn: (id: string) =>
+      api(projectPath(orgId, projectId, `/sworn-statements/${encodeURIComponent(id)}`), {
+        method: "DELETE",
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sworn-given", orgId, projectId] }),
   });
 
   if (q.error) return <ErrorText error={q.error} />;
@@ -545,6 +594,22 @@ export function SwornStatementPage() {
             ))}
           </ul>
         )}
+        {againstPrevious.length > 0 && previous.data && (
+          <div className="text-sm">
+            <p className="font-medium">
+              Against the statement given {previous.data.statementDate}
+              {previous.data.payApp ? ` (${previous.data.payApp})` : ""}
+            </p>
+            <ul className="list-disc pl-5">
+              {againstPrevious.map((i, k) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list; the position is the identity
+                <li key={k} className={ISSUE_CLASS[i.level]}>
+                  <strong>{i.where}:</strong> {i.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {computed && computed.waivers.length > 0 && (
           <div className="text-sm">
             <p className="font-medium">Lien waivers to collect with this statement</p>
@@ -607,7 +672,90 @@ export function SwornStatementPage() {
                     ).toLocaleString()}.`
                   : "Not saved with the job yet."}
         </p>
+        <p className="text-xs text-slate-500">
+          {canSave
+            ? "Each PDF you download is kept below as given with its pay application; downloading again for the same pay application and date replaces that copy."
+            : "Your downloads are not kept with the job; an editor's are."}
+        </p>
         <p className="text-xs text-slate-500">{SWORN_STATEMENT_NOTICE}</p>
+      </section>
+
+      <section className="card grid gap-2">
+        <h2 className="font-semibold">Statements given on this job</h2>
+        {given.error ? (
+          <ErrorText error={given.error} />
+        ) : !given.data ? (
+          <p className="text-sm text-slate-500">Loading…</p>
+        ) : given.data.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            None yet. The first PDF an editor downloads is kept here, and next month's statement is
+            checked against it: a party dropped from the list, or paid to date going down.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-600">
+                  <th className="p-1">Pay application</th>
+                  <th className="p-1">Statement date</th>
+                  <th className="p-1">Given to</th>
+                  <th className="p-1 text-right">Parties</th>
+                  <th className="p-1 text-right">Paid to date</th>
+                  <th className="p-1 text-right">Owing</th>
+                  <th className="p-1">Kept</th>
+                  <th className="p-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {given.data.map((g) => (
+                  <tr key={g.id} className="border-t">
+                    <td className="p-1">{g.payApp || "—"}</td>
+                    <td className="p-1">{g.statementDate}</td>
+                    <td className="p-1">{g.givenTo || "—"}</td>
+                    <td className="p-1 text-right">{g.parties}</td>
+                    <td className="p-1 text-right">{formatCents(g.paidCents)}</td>
+                    <td className="p-1 text-right">{formatCents(g.owingCents)}</td>
+                    <td className="p-1 text-xs text-slate-500">
+                      {new Date(g.createdAt).toLocaleDateString()}
+                      {g.createdByName ? ` by ${g.createdByName}` : ""}
+                    </td>
+                    <td className="p-1 whitespace-nowrap">
+                      <a
+                        className="text-xs underline"
+                        href={projectPath(
+                          orgId,
+                          projectId,
+                          `/sworn-statements/${encodeURIComponent(g.id)}/statement.pdf`,
+                        )}
+                      >
+                        PDF
+                      </a>
+                      {canSave && (
+                        <button
+                          type="button"
+                          className="ml-2 text-xs text-slate-500 underline"
+                          disabled={removeGiven.isPending}
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Delete the statement kept for ${g.payApp || "this job"}, ${g.statementDate}?`,
+                              )
+                            ) {
+                              removeGiven.mutate(g.id);
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <ErrorText error={removeGiven.error} />
       </section>
     </div>
   );
