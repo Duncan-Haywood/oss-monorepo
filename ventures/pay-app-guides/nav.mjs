@@ -24,6 +24,7 @@ export const GROUPS = [
     ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
     ["punch-list.html", "Punch list tracker and back-check email"],
     ["daily-report-template.html", "Daily report template (print, email, CSV)"],
+    ["submittal-log-template.html", "Submittal log template and tracker"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],

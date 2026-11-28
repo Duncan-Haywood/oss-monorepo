@@ -30,7 +30,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "punch.mjs", "daily.mjs", "progress.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "punch.mjs", "daily.mjs", "submittals.mjs", "progress.mjs", "usage.mjs", "sumview.mjs", "gcportal.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -347,7 +347,7 @@ const FAQ_PAGES = [
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
   "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
   "schedule-of-values-template.html", "construction-invoice-template.html", "change-order-template.html", "stored-materials-billing.html",
-  "sworn-statement.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html",
+  "sworn-statement.html", "tm-tickets.html", "punch-list.html", "daily-report-template.html", "submittal-log-template.html",
   "es-como-llenar-una-solicitud-de-pago.html",
   // state-forms.mjs: one page per state with statutory waiver forms
   ...["arizona", "california", "florida", "georgia", "massachusetts", "michigan", "mississippi", "missouri", "nevada", "texas", "utah", "wyoming"].map((s) => `${s}-lien-waiver-forms.html`),
@@ -415,6 +415,17 @@ test("daily report page: inputs labelled, wired to daily.mjs, not a notice, link
   assert.match(html, /Do not backdate it/);
   assert.match(page("tm-tickets.html"), /href="daily-report-template\.html"/);
   assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/daily-report-template\.html/);
+});
+
+test("submittal log page: inputs labelled, wired to submittals.mjs, not a notice, linked from the RFI page and the construction page", () => {
+  const html = page("submittal-log-template.html");
+  for (const id of ["sl-text", "sl-file", "sl-asof", "em-gc", "em-pm", "em-project", "em-sub"]) assert.match(html, new RegExp(`<label for="${id}"`), id);
+  assert.match(html, /from "\.\/submittals\.mjs"/);
+  assert.match(html, /record\("guide_submittal_log_viewed"\)/);
+  assert.match(html, /It is not a notice of delay or a claim/);
+  assert.match(html, /href="https:\/\/marisstella\.app\/payapps\/submittal-log-software"/);
+  assert.match(page("how-to-write-an-rfi.html"), /href="submittal-log-template\.html"/);
+  assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/submittal-log-template\.html/);
 });
 
 test("the state bond claim table links each of its twenty states to the legislature's own site, with the read date", () => {
