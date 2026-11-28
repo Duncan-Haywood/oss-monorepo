@@ -49,7 +49,7 @@
     "docs/posts/2026-11-23-saints-by-candlelight-elisha-pot-at-gilgal.md (extended)"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight. Piece: episode 185, the-shunammite-and-the-field-given-back (2 Kings 8:1-6), text only (audio 581 MB > 400 MB cap). 7,308 words; check-script ok; venture node --test 20/21 (the numbering gap waits on PR #20072, episode 184); og-description test 4/4; check_posts ok. Security queue: none workable (exit 3). Ideas inbox empty.",
+  "notes": "Project: saints-by-candlelight. Piece: episode 185, the-shunammite-and-the-field-given-back (2 Kings 8:1-6), text only (audio 581 MB > 400 MB cap). 7,308 words; check-script ok; venture node --test 21/21 after waiting for PR #20072 (episode 184) to merge and merging main in (DONE.md conflict resolved by hand, generated pages regenerated); og-description test 4/4; check_posts ok. Security queue: none workable (exit 3). Ideas inbox empty.",
   "corrections": [],
   "redteam": null,
   "usage": {
