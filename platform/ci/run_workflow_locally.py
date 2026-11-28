@@ -2232,6 +2232,8 @@ def run_for_changes(args) -> int:
               "verdict; if CI is starved, re-run with --full.", flush=True)
         if rc == 0:
             rc = NO_VERDICT
+    if "priv-portfolio-pages.yml" in deferred and not args.list:
+        rc = deferred_page_checks(changed) or rc
     if not args.list and not getattr(args, "no_research_tests", False):
         rc = research_tests(changed) or rc
     note = quality_touched_note(changed)
@@ -2266,6 +2268,45 @@ def quality_touched_note(changed, repo: str = REPO) -> str:
 # homepage and checks programmes), so a research PR was green whatever its
 # suite did. A sweep runs the suites of the projects the diff touches, with an
 # interpreter pyenv.py finds (run_research_tests.py's docstring has the why).
+# Deferring priv-portfolio-pages.yml on a content-only diff also deferred
+# the few site checks a new venture page trips: the 160-character description
+# cap, the 70-character title cap and the stale llms-answers.txt. Five run
+# records from 2026-11-25 to 11-28 (friction_rank.py --live) report a page
+# that passed --for-changes and failed `Test the site builder` in CI. Those
+# checks are run_venture_tests.py's PAGE_CHECKS and take about 7 s here
+# (2026-11-28), so they run whenever the deferral leaves them out.
+PAGE_SUFFIXES = (".html", ".css")  # run_venture_tests.py gates PAGE_CHECKS the same way
+
+
+def deferred_page_checks(changed, repo: str = REPO) -> int:
+    """Run PAGE_CHECKS for a diff that ships pages; 0 when none apply, else node's exit code."""
+    if not any(p.endswith(PAGE_SUFFIXES) and not p.startswith("prompts/runs/")
+               for p in changed):
+        return 0
+    pages = os.path.join(repo, "platform", "pages")
+    sys.path.insert(0, os.path.join(repo, "platform", "ci"))
+    try:
+        from run_venture_tests import PAGE_CHECKS
+    except ImportError:
+        return 0
+    finally:
+        sys.path.pop(0)
+    present = [n for n in PAGE_CHECKS if os.path.isfile(os.path.join(pages, n))]
+    if not present:
+        return 0
+    print(f"site page checks ({len(present)} files, ~7 s; the cheap slice of the "
+          "deferred priv-portfolio-pages.yml):", flush=True)
+    done = subprocess.run(["node", "--test", *present], cwd=pages,
+                          capture_output=True, text=True)
+    if done.returncode:
+        print(done.stdout[-4000:] + done.stderr[-2000:], flush=True)
+        print("  FAILED: site page checks (CI's `Test the site builder` runs the same files)",
+              flush=True)
+    else:
+        print("  ok: site page checks", flush=True)
+    return done.returncode
+
+
 def research_tests(changed, repo: str = REPO) -> int:
     """Run run_research_tests.py on the diff's research projects; its exit code, 0 if none."""
     script = os.path.join(repo, "platform", "ci", "run_research_tests.py")
