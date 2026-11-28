@@ -102,7 +102,7 @@ async function show(name, bytes) {
     const { invoice, source } = await loadInvoiceForView(name, bytes);
     target.innerHTML = renderInvoiceHtml(invoice, { source });
     view.hidden = false;
-    view.scrollIntoView({ behavior: "smooth", block: "start" });
+    view.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     recordUsage(usageStorage(), optOut.checked, "xrechnung_viewed");
   } catch (error) {
     view.hidden = true;

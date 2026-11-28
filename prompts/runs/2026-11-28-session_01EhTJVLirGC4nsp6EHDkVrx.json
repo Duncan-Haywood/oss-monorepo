@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "viewer-load.mjs went in with two literal U+FEFF characters in regexes (the Write tool turned the \\uFEFF escapes into the character); run_workflow_locally's hidden-unicode check caught it and a follow-up commit restored the escapes",
-    "Meta description was 165 characters; platform/pages description-length.test.mjs (160 max) failed in CI's site-builder job. run_workflow_locally --for-changes did not run that suite for a venture-only diff. Shortened to 152."
+    "Meta description was 165 characters; platform/pages description-length.test.mjs (160 max) failed in CI's site-builder job. run_workflow_locally --for-changes did not run that suite for a venture-only diff. Shortened to 152.",
+    "Smooth scrollIntoView without the prefers-reduced-motion guard; check_smooth_scroll.py (an unwired check run by changed-ventures) failed in CI. Fixed with its --fix. unwired_checks.py then 315/318 pass, 3 skipped."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +47,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes on a diff that adds a venture page did not run platform/pages' description-length test (priv-portfolio-pages.yml 'Test the site builder'), so a 165-character meta description passed locally and failed in CI."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Its output says the unwired tree checks were not run (about 90 s); they include check_smooth_scroll.py, which caught a real a11y miss in CI. Worth running them by default for a diff that adds a venture page."
     }
   ],
   "deviations": [
