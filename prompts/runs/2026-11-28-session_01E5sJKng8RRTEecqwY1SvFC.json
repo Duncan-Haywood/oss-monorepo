@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First unit run: 4 failures, all fixed before the push. The new CSV was missing from site.test's known-links set; the word 'certified' was in copy, which the honesty test bans; my test's escaper did not escape apostrophes; the catalogue export was stale."
+    "First unit run: 4 failures, all fixed before the push. The new CSV was missing from site.test's known-links set; the word 'certified' was in copy, which the honesty test bans; my test's escaper did not escape apostrophes; the catalogue export was stale.",
+    "Preflight found main red on einvoice-preflight's stale llms.txt Answers (from PR #19965); fixed here."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "`--bets` output is very long; the useful line ('Fewest front-door PRs: bet #2') is the last one, after many lines on bets #1 and #3."
+    },
+    {
+      "file": "platform/pages/title-length.test.mjs",
+      "issue": "Failed once inside venture-preflight, passed alone and on the next preflight with no change in between: possibly order- or state-dependent; cost one ~5 min rerun."
     }
   ],
   "deviations": [],
@@ -44,7 +49,7 @@
     "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section: RFQ review checklist)"
   ],
   "goal": null,
-  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. Payapps (bet #1) had no free item; the --bets tally showed bet #2 with the fewest front-door PRs, so this run built a new jobshop-site guide, /rfq-review-checklist, with a CSV. Local checks in ventures/jobshop-quote/apps/jobshop-site: test:unit 160 passed, test:worker 13 passed, typecheck clean, biome clean. Did not run venture-preflight: this change touches only the jobshop-site static export, and the catalogue-export drift test covers the copy.",
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. Payapps (bet #1) had no free item; the --bets tally showed bet #2 with the fewest front-door PRs, so this run built a new jobshop-site guide, /rfq-review-checklist, with a CSV. Local checks in ventures/jobshop-quote/apps/jobshop-site: test:unit 160 passed, test:worker 13 passed, typecheck clean, biome clean. venture-preflight jobshop-quote: run 1 failed on llms-answers.test (ventures/einvoice-preflight/llms.txt Answers stale since PR #19965 added e-rechnung-pruefen; red on main too). Regenerated with llms-answers.mjs in a separate commit in this PR. Run 2 failed once on title-length.test; that test passed alone and run 3 was clean (exit 0).",
   "corrections": [],
   "redteam": null,
   "usage": {
