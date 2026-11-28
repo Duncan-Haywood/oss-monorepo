@@ -3,6 +3,7 @@ title: "Counting roof sheathing under a cross wing"
 date: 2026-11-01
 tags: [wall-framing-takeoff, roofing, construction]
 description: The framing takeoff now shortens the main roof's sheathing courses where a cross wing replaces them, instead of buying that plywood twice.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 An L- or T-shaped house has a cross wing whose roof planes meet the main roof at two valleys. Until today the [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) counted the wing's sheathing and left the main roof's whole, so the sheet order was an upper bound that bought the plywood under the wing twice.

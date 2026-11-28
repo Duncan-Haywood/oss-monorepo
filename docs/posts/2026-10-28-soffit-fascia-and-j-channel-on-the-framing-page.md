@@ -3,6 +3,7 @@ title: "Soffit, fascia and J-channel now count on the wall-framing page"
 date: 2026-10-28
 description: "The wall-framing page now has a soffit, fascia and J-channel card: enter overhangs and eave lengths, get panels and boards to buy, with waste."
 tags: [wall-framing-takeoff, construction, takeoff]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 # Soffit, fascia and J-channel now count on the wall-framing page

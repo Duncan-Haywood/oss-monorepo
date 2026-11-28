@@ -3,6 +3,7 @@ title: "Soffit and fascia now count the cross wing on an L-shaped roof"
 date: 2026-11-01
 tags: [wall-framing-takeoff, construction]
 description: The framing takeoff's soffit, fascia and J-channel count used to stop at the main roof; it now swaps in a cross wing's own eaves and rakes.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The wall-framing-takeoff tool counted soffit panels, fascia boards and J-channel for a plain gable or hip roof, and said plainly that a cross wing's overhangs were left out. On an L- or T-shaped house that is a real gap: the wing removes a stretch of main eave and adds two eaves and two rakes of its own.
