@@ -18,10 +18,10 @@ import { EXAMPLE as CYCLE_EXAMPLE, cycleTimeExample, DEEP_HOLE_RATIO } from "./c
 import { type Html, html } from "./html";
 import {
   LB_PER_IN3_PER_G_PER_CM3,
-  markupCents as materialMarkupCents,
-  materialCostExample,
-  METHODS,
   EXAMPLE as MATERIAL_EXAMPLE,
+  METHODS,
+  materialCostExample,
+  markupCents as materialMarkupCents,
 } from "./material-cost-example";
 import { MODULES } from "./module-data";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
@@ -2047,7 +2047,8 @@ export function materialCostGuidePage(ctx: RenderContext): Html {
   const e = MATERIAL_EXAMPLE;
   const r = materialCostExample(e);
   const [one, ten, hundred] = r.breaks;
-  if (!one || !ten || !hundred) throw new Error("the material cost example quotes three quantities");
+  if (!one || !ten || !hundred)
+    throw new Error("the material cost example quotes three quantities");
   const pctBps = (bps: number) => `${bps / 100}%`;
   const f3 = (n: number) => n.toFixed(3);
   const lbPrice = usdCents(r.pricePerLbCents);
