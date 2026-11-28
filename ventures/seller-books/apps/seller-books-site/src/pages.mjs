@@ -278,10 +278,10 @@ function platformPage(p) {
       : p.slug === "mercari"
         ? `
   <p>Taxes on Mercari sales, why the 1099-K won't match your proceeds and which year a sale counts in, with three sales worked through: <a href="${href("/mercari-taxes")}">Mercari taxes</a>.</p>`
-      : p.slug === "ebay"
-        ? `
+        : p.slug === "ebay"
+          ? `
   <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
-        : ""
+          : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
