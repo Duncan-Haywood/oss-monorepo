@@ -53,7 +53,7 @@ describe("module pages", () => {
         mainEntity: { name: string }[];
       };
       expect(faq.mainEntity.map((q) => q.name)).toEqual(moduleFaqs(OPEN, m).map((f) => f.q));
-      expect(doc).toContain('href="https://app.example.test/sign-up"');
+      expect(doc).toContain('href="https://app.example.test/sign-up?from=jobshop-site%2F');
       expect(doc).not.toMatch(/aggregateRating|testimonial|trusted by|customers love/i);
       expect(doc).toContain("has no customers, reviews or published results yet");
     }
