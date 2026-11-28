@@ -16,7 +16,7 @@ devices and browsers, and Core Web Vitals, which the first-party counter
 |---|---|
 | `site.json` | Host and the public site token. Empty token = ask the API at deploy time. |
 | `provision.mjs` | Finds or creates the Web Analytics site for the host through Cloudflare's RUM API and prints the token (to `GITHUB_OUTPUT` in CI). Never fails a deploy. |
-| `web-analytics.mjs` | The beacon tag and the pass that adds it before `</body>` on every built page; idempotent. CLI: `node platform/analytics/web-analytics.mjs <dist>`. |
+| `web-analytics.mjs` | The beacon tag and the pass that adds it before `</body>` on every built page; idempotent; adds nothing when `site.json` says `"beacon": "zone"`. CLI: `node platform/analytics/web-analytics.mjs <dist>`. |
 
 ## How it runs
 
@@ -35,12 +35,34 @@ devices and browsers, and Core Web Vitals, which the first-party counter
 
 Local builds read `site.json` (or `--web-analytics-token=`).
 
+## One beacon: the zone's (2026-11-28)
+
+marisstella.app is a Cloudflare zone with Web Analytics' automatic setup on:
+Cloudflare injects its beacon into every HTML response, apex and app
+subdomains alike, with the same site token `provision.mjs` finds. Until
+2026-11-28 the build added the manual snippet as well, and that broke the
+count on every apex page: the build's tag loaded first, the zone's copy saw a
+beacon already running and stayed quiet, and the build's POST to
+`https://cloudflareinsights.com/cdn-cgi/rum` failed (404 with no CORS
+header). The app subdomains, which carry only the zone's copy, posted 204.
+Replaying the live page in Chromium with the build's tag stripped gave 204;
+with the zone's stripped, the failure again
+([`docs/reports/2026-11-28-apex-analytics-double-beacon.md`](../../docs/reports/2026-11-28-apex-analytics-double-beacon.md)).
+
+So `site.json` says `"beacon": "zone"`: the build and the late-pages step add
+no tag, and the token still turns on the analytics wording in the legal
+pages, which stays true because the zone injects. Set `"beacon": "build"`
+only for a host Cloudflare does not inject on, and check the RUM POST in a
+browser after the deploy either way. If the zone's automatic setup is ever
+turned off, switch to `"build"` in the same change.
+
 ## Owner step
 
 > **Parked (owner, 2026-11-27):** analytics will be set up in more depth on
 > AWS after the move; the `web-analytics-token` row is gone from
-> `portfolio/ledger/asks.yaml`. Until then the pages ship without the beacon
-> and the legal pages say analytics are off.
+> `portfolio/ledger/asks.yaml`. (Stale since: by 2026-11-28 the deploy found
+> the token, the zone injects the beacon on every page and the legal pages
+> name the analytics; see "One beacon" above.)
 
 The deploy token could not read zone analytics on 2026-11-19, so it probably
 cannot create a Web Analytics site either. `portfolio/ledger/asks.yaml`,

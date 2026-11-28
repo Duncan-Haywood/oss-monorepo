@@ -1,5 +1,5 @@
-// Every page on marisstella.app and every bet's app subdomain loads Cloudflare Web Analytics: the build
-// adds the beacon (platform/analytics/web-analytics.mjs) and the zone injects it as well. So no product
+// Every page on marisstella.app and every bet's app subdomain loads Cloudflare Web Analytics: the zone
+// injects the beacon (the build no longer adds a second copy, platform/analytics/site.json). So no product
 // page may say it runs no analytics. On 2026-11-28 the PayApps, CMMC, Seller Books and Job Shop Quote
 // sites' privacy notices all did, which made a false privacy statement on live pages, and CMMC's app
 // CSP blocked the beacon, so its visits went uncounted.
