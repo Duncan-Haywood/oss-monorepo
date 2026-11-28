@@ -6,6 +6,7 @@ import type { AppContext } from "../../context";
 import {
   estimateSettings,
   expense,
+  expenseReceipt,
   filedInventory,
   homeOffice,
   importBatch,
@@ -36,6 +37,7 @@ export const TABLE_KEYS = [
   "inventoryItems",
   "mileageTrips",
   "expenses",
+  "expenseReceipts",
   "leftOutMerchants",
   "importMappings",
   "homeOffice",
@@ -96,6 +98,13 @@ export async function exportShop(ctx: AppContext, orgId: string): Promise<ShopEx
       .all(),
     mileageTrips: await db.select().from(mileageTrip).where(eq(mileageTrip.orgId, orgId)).all(),
     expenses: await db.select().from(expense).where(eq(expense.orgId, orgId)).all(),
+    // The receipts' names, types, sizes and fingerprints; the files themselves download one by one from
+    // the expense, and a year's at once in the year-end ZIP.
+    expenseReceipts: await db
+      .select()
+      .from(expenseReceipt)
+      .where(eq(expenseReceipt.orgId, orgId))
+      .all(),
     leftOutMerchants: await db
       .select()
       .from(leftOutMerchant)
@@ -142,6 +151,7 @@ export async function exportShop(ctx: AppContext, orgId: string): Promise<ShopEx
     notes: [
       "Money is in integer cents (USD). Calendar dates are YYYY-MM-DD; timestamps are ISO 8601 UTC.",
       "Bank and card statements, and the report files you imported, are not kept, so they are not here: only the records saved from them.",
+      "Receipt files are listed under expenseReceipts by name, type, size and SHA-256; the files themselves download from each expense, and a year's at once in the year-end ZIP (receipts/).",
       "This is your shop's data as stored. It is not a tax return or tax advice.",
     ],
     shop: { id: org.id, name: org.name, createdAt: iso(org.createdAt) },

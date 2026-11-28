@@ -63,8 +63,9 @@ CI: [`.github/workflows/jobshop-quote-ci.yml`](../../.github/workflows/jobshop-q
 
 ## Where the work happens
 
-Until the deploy is ported (DEPLOY.md, "Not yet"), `private-monorepo/apps/jobshop-quote` is still
-where scheduled runs build, and this copy is a snapshot of private-monorepo commit `28895f0c`
-(2026-11-27). Refresh it with [`sync-from-private.sh`](sync-from-private.sh), which runs the
-pre-publication audit first. Once the public deploy works, the private copy is removed and this
-directory becomes the one source.
+Since 2026-11-27 (PR #19594) this directory is where runs build Job Shop Quote
+(`portfolio/monetization/bets.md`, bet #2; `.github/prompts/cloud-session.md`). It started as a
+snapshot of private-monorepo commit `28895f0c`, and features and fixes have landed here since.
+[`sync-from-private.sh`](sync-from-private.sh) replaces `apps/`, `packages/` and `scripts/`
+wholesale, so running it now would undo that work: use it only to bring over a change made in
+private-monorepo, and review the diff before committing.

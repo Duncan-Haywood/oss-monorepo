@@ -63,14 +63,14 @@ async function useAllowance(orgId: string, userId: string, n: number) {
 }
 
 /** A drawing set of `pages` pages (an uncompressed PDF whose page tree says so). */
-function drawingPdf(pages: number, name = "drawings.pdf") {
+function drawingPdf(pages: number, name = "drawings.pdf", type = "application/pdf") {
   const kids = Array.from({ length: pages }, (_, i) => `${3 + i} 0 R`).join(" ");
   let body = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`;
   body += `2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pages} >>\nendobj\n`;
   for (let i = 0; i < pages; i++) {
     body += `${3 + i} 0 obj\n<< /Type /Page /Parent 2 0 R >>\nendobj\n`;
   }
-  return new File([`${body}%%EOF\n`], name, { type: "application/pdf" });
+  return new File([`${body}%%EOF\n`], name, { type });
 }
 
 async function rfqWithDrawings(t: Tenant, ...files: File[]) {
@@ -182,6 +182,19 @@ describe("plans and limits", () => {
     expect((await billing(t)).usage.rfqsThisMonth).toBe(3);
     expect((await extract(t, rfq.id)).status).toBe(200); // re-reading is free
     expect((await billing(t)).usage.rfqsThisMonth).toBe(3);
+  });
+
+  it("a PDF labelled with another type still counts by its pages", async () => {
+    // The sender picks the label: application/x-pdf from an old mail client, or text/plain on
+    // purpose. Before 2026-11-28 either made a 30-page set count as zero pages (one RFQ).
+    const t = await setupTenant();
+    const rfq = await rfqWithDrawings(
+      t,
+      drawingPdf(18, "set-a.pdf", "application/x-pdf"),
+      drawingPdf(12, "set-b.pdf", "text/plain"),
+    );
+    expect(rfq.files.map((f) => f.pageCount)).toEqual([18, 12]);
+    expect(rfq.allowance).toEqual({ pages: 30, units: 3, counted: 0 });
   });
 
   it("up to 10 pages is one RFQ; drawings added later count only past each 10 pages", async () => {

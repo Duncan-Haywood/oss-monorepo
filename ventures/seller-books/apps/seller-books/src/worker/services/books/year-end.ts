@@ -298,6 +298,8 @@ export interface YearEndReadmeInput {
     expenses: number;
     expensesCents: number;
   };
+  /** The receipts in the package's receipts/ folder; left out, the README does not mention them. */
+  receipts?: { files: number; expenses: number };
 }
 
 const usd = (cents: number | null | undefined) => {
@@ -352,6 +354,18 @@ export function yearEndReadme(r: YearEndReadmeInput): string {
     `  ${f.expenses}`,
     `    Every expense for the year with the worksheet line it lands on: ${c.expenses} expense(s), ${usd(c.expensesCents)} paid`,
     "    (meals at the full amount paid; line 24b counts half).",
+    ...(r.receipts == null
+      ? []
+      : r.receipts.files === 0
+        ? [
+            "  receipts/",
+            "    Not included: no receipt files are attached to this year's expenses in the app.",
+          ]
+        : [
+            "  receipts/",
+            `    The receipt files attached in the app: ${r.receipts.files} file(s) on ${r.receipts.expenses} of the ${c.expenses} expense(s),`,
+            "    each named by the expense's date, vendor and amount, so it lines up with the expense list.",
+          ]),
     `  ${f.journal}`,
     "    The same sales as QuickBooks Online journal entries, one per platform per month, with the default",
     "    account names (the app's QuickBooks export lets you rename them). Cost of goods is not posted.",

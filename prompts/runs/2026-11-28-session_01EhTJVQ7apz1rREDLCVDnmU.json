@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVQ7apz1rREDLCVDnmU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T23:56:01Z",
+  "ended": "2026-11-28T00:10:00Z",
+  "wall_minutes": 14.28,
+  "tokens_in": 13930087,
+  "tokens_out": 51729,
+  "cost_usd": 5.2681,
+  "tool_calls": 100,
+  "task": "Seller Books (bet #5): receipt files on expenses, in D1, in the export and the year-end ZIP",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19922",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py: I passed '--claim' with --slug; it wants --slug alone for a new topic (my misuse, the help said so)",
+    "Worker test first expected 403 for a non-member; the app answers 404 (no existence leak), test fixed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says 'seller-books: no ROADMAP.md; claim with --slug' but every other bet's free items come from its ROADMAP; seller-books' growth list lives in docs/ARCHITECTURE.md 'Gaps / next', which the tool does not read, so the bet looks empty to it"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Every Next item on bets #1-#4 and #6 is gated 'waits on demand'; with zero customers nothing will ever ungate them, so the queue gives a scheduled run no product work. Gating on demand should not apply to table-stakes features a competitor already has"
+    },
+    {
+      "file": "PR #19718 (launch-signups-open)",
+      "issue": "Open 12 h, green CI, but main redid most of it another way (business.mjs 'open-free' status, CTAs via #19884); supersede_check calls it NOT SUPERSEDED because of its post lines. Left open for its author; the residual is a few post sentences"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/ARCHITECTURE.md (seller-books, 'Gaps / next')",
+      "why": "The receipt photo was gated 'if sellers ask'; with no customers yet, and receipt capture being standard in competing bookkeeping apps and IRS Pub 583's list of supporting documents, waiting for an ask never ends",
+      "did": "Built receipts per expense now, sized to D1's free tier",
+      "result": "Shipped with unit, worker and e2e tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: The receipt, kept with the expense)"
+  ],
+  "goal": "$10k MRR: a table-stakes feature for the reseller books' paid tiers",
+  "notes": "Security queue empty (exit 3), IDEAS empty. Routed ventures/1. PayApps (#1) and Job Shop Quote (#2) Next lists all gated or claimed; took bet #5. Local checks: typecheck clean; unit 369/369, worker 171/171; e2e 17-expense-receipts 1/1; build OK; seller-books-site node --test 92/92. Privacy Policy POLICY_VERSION bumped to 2026-11-28.1 (receipts are new stored data).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ef236d8-7390-5b7e-904d-bc93de3d5fd7",
+    "transcripts": 1,
+    "first": "2026-11-27T23:56:01Z",
+    "last": "2026-11-28T00:10:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 180,
+        "output": 51729,
+        "thinking": 6674,
+        "cache_read": 13744414,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185493,
+        "api_equivalent_usd": 5.2681,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 180,
+      "output": 51729,
+      "thinking": 6674,
+      "cache_read": 13744414,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185493,
+      "api_equivalent_usd": 5.2681,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 90,
+      "Write": 5,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.28,
+      "active_minutes": 14.28,
+      "model_minutes": 8.9,
+      "tool_minutes": 5.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior full-stack dev: schema+migration, chunked storage, routes, UI, ZIP, privacy text, 3 test layers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 189.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
