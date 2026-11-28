@@ -192,7 +192,34 @@ MUTATING = [
     (re.compile(r"\brm\s+-rf\s+/(?!tmp)"), "rm -rf outside /tmp"),
 ]
 
+# Steps that only shape CI's throwaway checkout. Run against a session's own
+# clone they do harm, so they are skipped (not refused: the job still runs, and
+# the steps after them read the full tree, a superset of what CI reads).
+# price-claims-ci.yml narrows its checkout with `git sparse-checkout set`
+# (2026-11-28); run here, that hid 86% of the session's clone, `.github/`
+# included, until `git sparse-checkout disable`.
+CHECKOUT_ONLY = [
+    (re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b"),
+     "narrows CI's checkout with git sparse-checkout; here it would hide most of this clone"),
+]
+
+
+def checkout_only(step: Step) -> str | None:
+    for pattern, why in CHECKOUT_ONLY:
+        if pattern.search(step.run):
+            return why
+    return None
+
 EXPRESSION = re.compile(r"\$\{\{")
+
+# A CI job may narrow its own throwaway clone (`git sparse-checkout set` in a `run:` step). Run here,
+# the same step narrows the session's checkout, and every later step and tool call finds files
+# missing. On 2026-11-28 price-claims-ci's "Check out each venture with a plan catalog" step did
+# that to a session's whole tree (docs/history/cmmc-worker-cold-start-perf-2026-11-28.md). Such a
+# step is skipped, not refused: the job's later steps then read the full tree, a superset of what
+# the sparse clone holds, so their verdicts still count (`narrows` keeps them out of the
+# "failed after a skipped step" downgrade).
+NARROWS_CHECKOUT = re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b")
 
 # The progress line is written in two halves -- the step's label before it
 # runs, flushed, and the verdict after -- and that is a fix rather than a
@@ -719,6 +746,8 @@ class Step:
         self.workdir = workdir
         self.status = "pending"   # ok | failed | unrun | skipped | refused
         self.reason = ""
+        # True on a step skipped because it would narrow this checkout (NARROWS_CHECKOUT).
+        self.narrows = False
         # Set on an `unrun` step: the module, binary or credential that was not
         # found, so the report can name what to supply rather than only that it
         # failed. `missing_kind` decides whether the advice is "install" or
@@ -1022,6 +1051,11 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
                     or EXPRESSION.search(env_text)):
                 step.status = "skipped"
                 step.reason = "contains a ${{ }} expression this cannot evaluate"
+            elif NARROWS_CHECKOUT.search(command):
+                step.status = "skipped"
+                step.narrows = True
+                step.reason = ("would narrow this checkout (git sparse-checkout); "
+                               "later steps read the full tree instead")
             steps.append(step)
     return steps, skipped
 
@@ -1657,6 +1691,11 @@ def _decode(data) -> str:
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
+    why = checkout_only(step)
+    if why:
+        step.status = "skipped"
+        step.reason = why
+        return
     mutation = screen(step)
     if mutation:
         step.status = "refused"
@@ -1940,7 +1979,7 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
                 step.missing_kind = "after-skip"
                 step.reason = (f"failed after '{skipped_in_job[step.job]}' was skipped; "
                                f"it may only lack that step's output ({step.reason})")
-            if step.status == "skipped":
+            if step.status == "skipped" and not step.narrows:
                 skipped_in_job.setdefault(step.job, step.name)
             print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
                   flush=True)

@@ -2773,6 +2773,24 @@ nothing to copy. No customers yet. Paid plans are dark
   California public jobs: date from the recorded notice of completion when the job has one (the
   `notice_of_completion_on` column the private-job panel already keeps, today cleared on public
   jobs), and re-read the sections on leginfo once it answers.
+- State bond claims, Oklahoma and the District of Columbia (2026-11-28, state-bond-claims-ok-in-vt,
+  every plan). 61 O.S. §§ 1, 2 read on oscn.net (it answered a plain fetch this time, no Turnstile
+  challenge) and D.C. Code §§ 2-201.01 to 2-201.03 on code.dccouncil.gov that day; excerpts appended
+  to `ventures/pay-app-guides/sources/state-bond-claims.txt`. Oklahoma: anyone in contract with a
+  subcontractor "regardless of tier" gives the contractor and the surety written notice within 90
+  days of the last day (§ 2(B)(1)); everyone files a claim or sues within one year, or two years
+  once a claim was filed within the first (§ 2(A)): three dated steps. Because the statute names
+  every tier, a new optional `anyTier` on `StateBondRule` replaces the remote-tier caution ("turns on
+  how the state reads subcontractor") with the statute's own words. D.C. copies the Miller Act: a
+  sub's sub's 90-day registered-mail notice and a one-year suit, both from the last day, in the
+  District's name in the Superior Court; notes give the $25,000 threshold, the half-the-contract
+  bond amount and the Mayor's waiver. Thirty-four states and D.C. in `STATE_BOND_RULES`. Tests in
+  `src/shared/state-bond.test.ts` (worked dates, a Saturday anniversary moved to Friday, the remote
+  note); the public guide, its FAQ, llms-answers, the customer post and the construction page gain
+  the rows. Not done: Indiana (iga.in.gov serves only an empty JavaScript shell, its bundle URL
+  included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
+  chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
+  Hawaii (403), Connecticut and West Virginia (no answer).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2852,6 +2870,16 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Deadlines skip federal holidays (2026-11-28, lien-deadline-holidays): the lien deadline, the Miller
+  Act notice and suit dates and every state bond claim step now step their act-by date back past an
+  observed federal holiday (5 U.S.C. § 6103(a), OPM's weekend rule) as well as a weekend, since the
+  recorder or clerk is closed then; the earlier date is always safe whether or not a state rolls a
+  deadline forward. The job panel and the cash page say which holiday moved it ("the statute's date,
+  2026-11-26, is Thanksgiving Day, a federal holiday"). The list moved to `src/shared/federal-holidays.ts`
+  (no imports; the job schedule re-exports it), and the free mechanics lien deadline calculator got the
+  same rule, so the parity grid still holds. State-only holidays (Cesar Chavez Day, the day after
+  Thanksgiving in many counties) are not modeled. Found while checking: Texas's second bond notice
+  for a November 2026 last day falls on Washington's Birthday 2027 and was shown as that Monday.
 - Sworn statement saved with the job (2026-11-28, every plan, sworn-statement-saved): the statement's
   parties, paid and owing columns were kept in one browser's storage, so the next month's statement
   started blank on any other computer and for anyone else in the company. Now an editor's changes are
@@ -2877,6 +2905,21 @@ nothing to copy. No customers yet. Paid plans are dark
   A county's own holiday and a clerk's office closed for other reasons are not known, and can only make
   the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
   `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
+
+- Pencil draft review (2026-11-28, pencil-draft): many GCs want each sub's month as an unsigned
+  "pencil" a few days before the official application, mark it up and expect the official copy on
+  their figures. A draft's PDF and PDF with backup print as the pencil copy with `?pencil=1` (every
+  page marked "PENCIL DRAFT - FOR GC REVIEW, NOT FOR PAYMENT", file named `-pencil`; ignored once
+  submitted). The draft's "Pencil draft for the GC" panel takes the GC's figures per line (work this
+  period and stored materials), typed or pasted as a column from the GC's sheet, shows each line's
+  change before retainage against the draft as it was when the markup was opened, puts the GC's
+  figures in the continuation sheet in one step (a unit-price line the GC changed is kept in
+  dollars; retainage released untouched; Save then recomputes line 8 with per-line rates), and drafts
+  the cover note listing the revised lines (`src/shared/pencil-review.ts`,
+  `src/client/components/pencil-review.tsx`). Next, if contractors ask: the GC's markup saved with
+  the draft (it lives in the page until saved into the lines), and reading it from the GC's returned
+  spreadsheet with the SOV import's reader instead of a pasted column. Front door: the pencil draft
+  section of pay-app-guides' how-to-fill-out-a-pay-application page.
 
 ## Must do before a public launch
 

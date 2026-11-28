@@ -14,6 +14,7 @@ import { LowerTierWaiversPanel } from "../components/lower-tier-waivers";
 import { MoneyInput } from "../components/money-input";
 import { OwnerPaymentPanel } from "../components/owner-payment";
 import { PaymentsPanel } from "../components/payments";
+import { PencilReviewPanel } from "../components/pencil-review";
 import { ProcoreInvoicePanel } from "../components/procore-invoice";
 import { QuantityInput } from "../components/quantity-input";
 import { QuickBooksPanel } from "../components/quickbooks";
@@ -432,6 +433,24 @@ export function PayAppPage() {
           </tbody>
         </table>
       </section>
+
+      {a.status === "draft" && (
+        <PencilReviewPanel
+          base={base}
+          rows={rows}
+          entries={entries}
+          editable={a.editable}
+          jobName={project.data.name}
+          applicationNumber={a.number}
+          periodTo={a.periodTo}
+          gcPmName={project.data.gcPmName}
+          contractorName={orgName}
+          onApply={(next) => {
+            setEntries(next);
+            setDirty(true);
+          }}
+        />
+      )}
 
       <RetainageReleasePanel base={base} app={a} dirty={dirty} onChanged={onSaved} />
 
