@@ -1460,7 +1460,7 @@ ${NOT_TAX_ADVICE}`;
 // Marketplace sales at the Level 1 rates StockX publishes, entered through the column-mapped import
 // (apps/seller-books/docs/IMPORTERS.md, "Column-mapped CSV"). The app reads each fee from the seller's own
 // file and never applies these rates; test/site.test.mjs holds the arithmetic. StockX's help articles were
-// read 2026-11-28 through a page-reading fetch (curl from the session gets 403 from its help centre): the
+// read 2026-11-28 with a page-reading tool (a plain HTTP client gets 403 from its help centre): the
 // seller fees article and the tax and 1099 article (the 2025 tax year's). No StockX help article on sales
 // tax was found; the marketplace-collects reading is from a secondary source, linked and labelled as such.
 export const STOCKX_CHECKED_ON = "2026-11-28";
