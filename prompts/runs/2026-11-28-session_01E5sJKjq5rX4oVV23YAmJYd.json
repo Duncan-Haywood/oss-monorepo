@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKjq5rX4oVV23YAmJYd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T12:17:56Z",
+  "ended": "2026-11-28T12:31:01Z",
+  "wall_minutes": 13.29,
+  "tokens_in": 10479055,
+  "tokens_out": 50980,
+  "cost_usd": 4.5083,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20113",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git push --force-with-lease to reset my own branch was refused by the auto-mode classifier; reverted on top instead (a plain git revert silently made no commit inside a chained command, so files were restored from origin/main by hand)",
+    "roadmap_claim.py --release hit 'remote end hung up' twice (proxy)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "'shingle' showed no duplicate when I picked the task; PR #20111 (same page, same houses, same strip) was opened about an hour later by a parallel session under the slug how-many-bundles-of-shingles. roadmap_claim.py printed no live claim for it, so that session did not claim first. Two sessions built the same bench for about an hour each."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "L-email matches the bare word 'drip', so any roofing change that mentions drip edge is flagged 'Email sending or outreach changed'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The planned deliverable (a shingle bundles front-door page) duplicated PR #20111, found only at push time.",
+      "did": "Did not open a competing page. Reverted it on my branch and shipped a correctness fix found on the way (the roof notes and FAQ said nails were not counted while the output counts them; a cross-wing roof had no coverage note), plus an agent report on how the shingle result depends on the layout convention.",
+      "result": "A smaller PR than planned. No search cannibalisation."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Most PRs carry a new post; this one does not.",
+      "did": "Agent doc in docs/reports instead. The fix changes three sentences of output, which is not post material."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-28-shingle-bench-layout-sensitivity.md"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed to ventures/1. Every bet's Next list had no free, ungated item. Picked bet #6's front door (it had the fewest front-door PRs) and built shingle-bench.mjs plus a page. Its surface and rule were tested equal to roof.mjs's on all 32 roofs. Dropped it for PR #20111. Verification of the shipped fix: run_venture_tests.py wall-framing-takeoff residential-takeoff -> 2 suites run, 0 failed; roof.test.mjs free 49/49, paid 52/52.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5774f6d1-1545-5d2c-8ec4-c7f8043d3948",
+    "transcripts": 1,
+    "first": "2026-11-28T12:17:56Z",
+    "last": "2026-11-28T12:31:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 50980,
+        "thinking": 15535,
+        "cache_read": 10300405,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178515,
+        "api_equivalent_usd": 4.5083,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 50980,
+      "thinking": 15535,
+      "cache_read": 10300405,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178515,
+      "api_equivalent_usd": 4.5083,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 70,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.29,
+      "active_minutes": 13.29,
+      "model_minutes": 9.1,
+      "tool_minutes": 4.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "bench and page built then dropped (~2 h), notes fix and tests (~1 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 66.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

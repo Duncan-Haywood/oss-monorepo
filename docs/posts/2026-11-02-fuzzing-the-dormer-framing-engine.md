@@ -4,6 +4,7 @@ seo_title: "Fuzz testing a dormer framing takeoff: a zero-length cripple"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: 400 random dormers through the framing engine turned up a cut-list line with a length of 0 inches, caused by checking a length before rounding it.
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 The wall-framing takeoff turns a few typed dimensions into a cut list. Its dormer engines (gable and shed) had hand-checked tests for one sample dormer, but nobody had tried odd ones.

@@ -103,7 +103,9 @@ A bare `python3` often lacks `pytest`. Use `PY=$(python3 platform/ci/pyenv.py py
 then `"$PY" -m pytest`, and install with `"$PY" -m pip`, one at a time (`pip`
 may belong to another Python, and two at once corrupted an install). CI runs
 `python3 -m unittest discover`, so write new tests as `unittest.TestCase` or
-the job finds none. Before blaming your change for a failing test (some
+the job finds none. Run one file as `python3 -m unittest discover -s platform/ci -p test_x.py`
+(running the file directly is silent in the 17 of 215 with no `__main__` block): `python3 -m unittest platform/ci/test_x.py` fails with
+"module 'platform' has no attribute 'ci'" because the stdlib's `platform` wins (17 run records). Before blaming your change for a failing test (some
 depend on the image), run it on `origin/main`. If `pyenv.py`
 fails (PEP 668, import name differing from pip name), use
 `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>` in the background.

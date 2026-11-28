@@ -128,7 +128,7 @@ const platformLabel = (p: string) =>
 function PnlTable({ rows, first }: { rows: PnlCell[]; first: (c: PnlCell) => string }) {
   return (
     <div className="overflow-x-auto">
-      <table className="table">
+      <table className="table table-stack">
         <thead>
           <tr>
             <th />
@@ -145,7 +145,7 @@ function PnlTable({ rows, first }: { rows: PnlCell[]; first: (c: PnlCell) => str
           {rows.map((c) => (
             <tr key={`${c.platform}-${c.month}`}>
               <td>{first(c)}</td>
-              <td className="num">
+              <td data-label="Orders" className="num">
                 {c.orders}
                 {c.ordersWithoutCost > 0 && (
                   <span
@@ -156,12 +156,25 @@ function PnlTable({ rows, first }: { rows: PnlCell[]; first: (c: PnlCell) => str
                   </span>
                 )}
               </td>
-              <td className="num">{usd(c.revenueCents)}</td>
-              <td className="num">{usd(c.feesCents)}</td>
-              <td className="num">{usd(c.postageCents)}</td>
-              <td className="num">{usd(c.cogsCents)}</td>
-              <td className="num">{usd(c.expensesCents)}</td>
-              <td className={`num font-medium ${c.netProfitCents < 0 ? "text-red-700" : ""}`}>
+              <td data-label="Revenue" className="num">
+                {usd(c.revenueCents)}
+              </td>
+              <td data-label="Fees" className="num">
+                {usd(c.feesCents)}
+              </td>
+              <td data-label="Postage" className="num">
+                {usd(c.postageCents)}
+              </td>
+              <td data-label="COGS" className="num">
+                {usd(c.cogsCents)}
+              </td>
+              <td data-label="Expenses" className="num">
+                {usd(c.expensesCents)}
+              </td>
+              <td
+                data-label="Net profit"
+                className={`num font-medium ${c.netProfitCents < 0 ? "text-red-700" : ""}`}
+              >
                 {usd(c.netProfitCents)}
               </td>
             </tr>

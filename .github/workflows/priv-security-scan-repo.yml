@@ -17,15 +17,17 @@ name: Security scan (full repository)
 # repository code, only the pinned upload action on the scan job's SARIF.
 # Free for a public repository; nothing paid is called; nothing is pushed.
 
-# Manual only for now. The first reading, from a cloud session on 2026-11-27
-# (gitleaks and semgrep only), found 121 blocking findings on main, 97 of
-# them gitleaks matches in test fixtures and sample pages. Uploaded as they
-# are, they would sit at the top of the queue that every session works first
-# and spend the fleet on false positives. The weekly schedule
-# (cron "29 7 * * 1") goes in once baseline.yaml accepts those with reasons
-# (portfolio/work/tasks.yaml, scan-repo-baseline;
-# docs/reports/2026-11-27-full-repo-security-scan.md).
+# Weekly since 2026-11-28, and by hand. The first reading, from a cloud session
+# on 2026-11-27, found 121 blocking findings on main, 97 of them gitleaks
+# matches in test fixtures and sample pages; uploaded as they were, they would
+# have sat at the top of the queue every session works first. baseline.yaml
+# now accepts those with reasons, and the real ones are fixed, so a reading is
+# 0 blocking for every tool (portfolio/work/tasks.yaml, scan-repo-baseline;
+# docs/reports/2026-11-27-full-repo-security-scan.md and
+# docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md).
 on:
+  schedule:
+    - cron: "29 7 * * 1"
   workflow_dispatch:
 
 permissions: {}

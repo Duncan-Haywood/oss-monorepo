@@ -143,8 +143,17 @@ application or a separate invoice, with a note such as the invoice number) or wa
 you signed, a clause that rules it out, or a GC you would rather keep), with the day. A marked
 application leaves the list and the job's next steps, so what remains is only the money nobody
 has decided about yet; the marked ones sit under "Billed or waived", with an undo, and the
-application's history and the cash report's CSV keep the decision. PayApps records it; it does
-not bill anything itself.
+application's history and the cash report's CSV keep the decision.
+
+If you bill the interest as its own invoice and keep your books in QuickBooks Online (Crew plan
+and up), the same row has an "Invoice in QuickBooks" button since 2026-11-28. It creates one
+invoice to the GC with one line on a "Late Payment Interest" item, numbered after the
+application's own invoice (LI24-117-03 next to PA24-117-03), and the line spells out what the
+GC's payables clerk needs to check it: the balance, the day it was due, the day it was paid,
+the days late and the rate with where it comes from ("1.5% a month (Subcontract § 7.2)"). Sending
+it marks the interest billed. If your bookkeeper already typed the invoice, "Already in
+QuickBooks" records that and sends nothing. PayApps never emails the GC; you send the invoice from
+QuickBooks when you choose to.
 
 The weekly email that lists what to chase (Monday by default) now carries both figures at the top (also
 2026-11-28): the interest still running on past-due applications, and the interest earned on
