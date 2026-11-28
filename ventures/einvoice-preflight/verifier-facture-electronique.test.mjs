@@ -13,9 +13,18 @@ test("French page with the disclaimer and the licence line", () => {
   assert.match(html, /FSL-1\.1-MIT/);
 });
 
-test("states the DGFiP dates the einvoice-site deadline file checked, with the same sources", () => {
+const DEADLINES = new URL("../einvoice-pro/apps/einvoice-site/content/deadlines.mjs", import.meta.url);
+
+test("states the DGFiP dates, with their sources", () => {
   for (const d of ["1er septembre 2026", "1er septembre 2027 au plus tard", "plateforme agréée", "Quatre nouvelles mentions"]) assert.ok(html.includes(d), d);
-  const deadlines = read("../einvoice-pro/apps/einvoice-site/content/deadlines.mjs");
+  assert.match(html, /impots\.gouv\.fr\/professionnel\/je-decouvre-la-facturation-electronique/);
+  assert.match(html, /faq---fe_je-decouvre-la-facturation-electronique\.pdf/);
+});
+
+// einvoice-preflight-ci checks out this venture alone (sparse), so the cross-check runs where the
+// whole tree is present: locally and in ventures-tests.
+test("matches the einvoice-site deadline file the sentences were checked in", { skip: !fs.existsSync(DEADLINES) && "einvoice-site not in this checkout" }, () => {
+  const deadlines = fs.readFileSync(DEADLINES, "utf8");
   for (const url of [
     "https://www.impots.gouv.fr/professionnel/je-decouvre-la-facturation-electronique",
     "https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq---fe_je-decouvre-la-facturation-electronique.pdf",
