@@ -599,17 +599,30 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.3); docs/SOURCES.md,
   "Calibration".
 
+- Gauges and calibration, part 2 (2026-11-28, gauges-and-calibration-part-2-part-1-the): calibration due
+  dates in the calendar. The downloaded `.ics` and the subscribable link carry one event per date for gauges
+  in use falling due ("Calibration due: 3 gauges", UID per org and date, the same 60- and 7-day alarms),
+  never a gauge's id, description or location; reference-only, out-of-service and retired gauges and gauges
+  never calibrated add no event (the last show on the recall list). A "Gauge calibration" dashboard card on
+  Level 2 + Quality: in use / overdue / due within 30 days / never calibrated counts, the recall list's first
+  8 lines in its order (overdue oldest first, due soon, never), and the out-of-tolerance results with no
+  impact record. The Affirmations tab, the Privacy Policy (POLICY_VERSION 2026-11-28.4) and docs/SECURITY.md
+  say what the file and link now carry. `calibrationDueDates` in `src/shared/calibration.ts`,
+  `calibrationDueDatesFor` in `services/calibration`, `renderAffirmationCalendar({ calibrationDue })`,
+  `CalibrationCard`; unit, component and worker tests (grouping, skipped states, no gauge ids in the file
+  or link, cross-tenant).
+
 ## Next
 
 - Enduring exceptions, part 2: re-read 32 CFR 170.24(b)(1) and 170.4 on eCFR (unreachable on
   2026-11-28) and pin the quoted text in `official-text.json`; decide whether an exception on 3.12.4
   (the SSP itself) should be refused, since the exception has to be described in the SSP; carry
   temporary deficiencies into a dated operational-plan-of-action list with review dates if shops ask
-- Gauges and calibration, part 2 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
-  2026-11-28): due dates in the calendar file and subscribable link and a dashboard card (as documents and
-  audits have); an existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a
-  corrective action" button that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer
-  flow-down asks (gauge R&R records) if shops ask
+- Gauges and calibration, part 3 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
+  2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28): an
+  existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a corrective action" button
+  that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer flow-down asks (gauge R&R
+  records) if shops ask
 - Incidents, part 2 (part 1 done 2026-11-28): an incident-response plan and test record for 3.6.1 and 3.6.3
   (who files on DIBNet, who holds the medium assurance certificate, a tabletop exercise logged with its date),
   evidence files linked to an incident, and the SSP's 3.6.x statements naming the register, if shops ask

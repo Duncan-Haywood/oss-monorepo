@@ -283,6 +283,41 @@ describe("ISO 9001 dates in the calendar", () => {
   });
 });
 
+describe("gauge calibration due dates in the calendar", () => {
+  const ics = renderAffirmationCalendar({
+    orgId: "org_abc123",
+    orgName: "Acme",
+    schedules: [],
+    calibrationDue: [
+      { due: "2027-01-04", gauges: 5 },
+      { due: "2027-02-01", gauges: 1 },
+      { due: "2027-02-31x", gauges: 1 },
+      { due: "2027-03-01", gauges: 0 },
+    ],
+    now,
+  });
+  const lines = unfold(ics);
+
+  it("adds one event per date with a count of gauges and a UID per org and date", () => {
+    expect(lines.filter((l) => l.startsWith("UID:"))).toEqual([
+      "UID:cmmc-org_abc123-calibration-20270104@cmmc-workspace",
+      "UID:cmmc-org_abc123-calibration-20270201@cmmc-workspace",
+    ]);
+    expect(lines).toContain("SUMMARY:Calibration due: 5 gauges");
+    expect(lines).toContain("SUMMARY:Calibration due: 1 gauge");
+    expect(lines.filter((l) => l.startsWith("TRIGGER"))).toHaveLength(4);
+    expect(ics).not.toContain("20270301");
+  });
+
+  it("names clause 7.1.5 and the Gauges tab, and keeps lines within 75 octets", () => {
+    const d = lines.find((l) => l.startsWith("DESCRIPTION:The calibration due date"));
+    expect(d).toContain("clause 7.1.5");
+    expect(d).toContain("Gauges tab");
+    const enc = new TextEncoder();
+    for (const l of ics.split("\r\n")) expect(enc.encode(l).length).toBeLessThanOrEqual(75);
+  });
+});
+
 describe("calendar feed tokens", () => {
   it("accepts only the prefix and 43 base64url characters", () => {
     const good = `cmcal_${"A".repeat(40)}-_9`;

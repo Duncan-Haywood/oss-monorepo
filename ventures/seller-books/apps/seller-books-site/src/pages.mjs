@@ -275,13 +275,16 @@ function platformPage(p) {
     p.slug === "poshmark"
       ? `
   <p>Taxes on Poshmark sales, the 1099-K and the sales tax Poshmark collects, with one month worked through: <a href="${href("/poshmark-taxes")}">Poshmark taxes</a>.</p>`
-      : p.slug === "ebay"
+      : p.slug === "mercari"
         ? `
-  <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
-        : p.slug === "whatnot"
+  <p>Taxes on Mercari sales, why the 1099-K won't match your proceeds and which year a sale counts in, with three sales worked through: <a href="${href("/mercari-taxes")}">Mercari taxes</a>.</p>`
+        : p.slug === "ebay"
           ? `
+  <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
+          : p.slug === "whatnot"
+            ? `
   <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
-          : ""
+            : ""
   }
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
@@ -1269,6 +1272,40 @@ export const WHATNOT_FEE_TAX_QUOTE =
 export const WHATNOT_GIVEAWAY_URL = `${WN_HELP}11329417780365-About-giveaways-on-Whatnot`;
 export const WHATNOT_GIVEAWAY_QUOTE =
   "Giveaway shipping costs are deducted directly from the Seller's Whatnot balance when the Giveaway is run.";
+// Whatnot's seller fees page (4847069165965, read 2026-11-28 through the same article API): in the US the
+// standard-tier commission is 8% of the sale price (shipping and buyer tax not included; tiered by four-week
+// sales and category since 21 September 2026) and payment processing is 2.9% + $0.30 of everything the buyer
+// paid. The fixture's two sales follow those rates to the cent; test/site.test.mjs checks it.
+export const WHATNOT_FEES_URL = `${WN_HELP}4847069165965-Whatnot-seller-fees`;
+export const WHATNOT_FEE = {
+  commissionRate: 0.08,
+  processingRate: 0.029,
+  processingFixedCents: 30,
+};
+/** The fixture's two sales with their fee columns split out, and what the buyer paid (Buyer Paid). */
+export const WHATNOT_FEE_CHECK = [
+  {
+    title: "Pokemon booster pack",
+    priceCents: 2500,
+    buyerPaidCents: 3205,
+    commissionCents: 200,
+    processingCents: 123,
+  },
+  {
+    title: "Vintage Starter jacket",
+    priceCents: 7500,
+    buyerPaidCents: 9118,
+    commissionCents: 600,
+    processingCents: 294,
+  },
+];
+/** Whatnot's published US fees on one sale: [commission, processing], rounded to the cent. */
+export function whatnotPublishedFeesCents(r, fee = WHATNOT_FEE) {
+  return [
+    Math.round(r.priceCents * fee.commissionRate),
+    Math.round(r.buyerPaidCents * fee.processingRate + fee.processingFixedCents),
+  ];
+}
 /**
  * The USD rows of the app's Whatnot fixture, in file order (the seventh, in CAD, is skipped as the importer
  * skips it). kind: sale (Order Earnings), tip, giveaway (Order Earnings with Buy Format Giveaway), refund,
@@ -1388,6 +1425,14 @@ ${exRows}
     </table></div>
     <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (two sales and the tip; the giveaway adds nothing); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the partial refund); line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; line 27a, postage, <strong>${cents(L.line27a)}</strong> (the giveaway's shipping and the label adjustment). Line 1 less those three is ${cents(L.line1 - L.line2 - L.line10 - L.line27a)}, exactly the week's Transaction Amounts added up; the items' cost comes off after that.</p>
     <p class="muted">The jacket's $5 coupon is not an expense: the sale is the price after it, which is also the price Whatnot charges commission on. The ${cents(13)} in the jacket's fees is tax on Whatnot's commission, which Whatnot charges sellers in some states (<a href="${WHATNOT_FEE_TAX_URL}">its article</a>: &ldquo;${esc(WHATNOT_FEE_TAX_QUOTE)}&rdquo;). It is a cost of selling, filed with the fee.</p>
+    <p class="muted">The two sales' fees follow <a href="${WHATNOT_FEES_URL}">Whatnot's seller fees page</a> (read ${esc(WHATNOT_CHECKED_ON)}): in the US the standard commission is 8% of the sale price, not counting shipping and the buyer's tax, and payment processing is 2.9% + $0.30 of everything the buyer paid. ${WHATNOT_FEE_CHECK.map(
+      (r) => {
+        const [c, pr] = whatnotPublishedFeesCents(r);
+        return `${esc(r.title)}: ${cents(c)} commission on ${cents(r.priceCents)}, ${cents(pr)} processing on the buyer's ${cents(r.buyerPaidCents)}`;
+      },
+    ).join(
+      "; ",
+    )}. Since 21 September 2026 the commission falls by tier as your four-week sales grow and differs by category, so your report's fee columns, not a published rate, are what you deduct.</p>
   </div>
   <h2>Giveaways</h2>
   <p>Whatnot's <a href="${WHATNOT_GIVEAWAY_URL}">giveaway article</a>: &ldquo;${esc(WHATNOT_GIVEAWAY_QUOTE)}&rdquo; A show with ten giveaways can cost more in shipping than one sale earns, and none of it shows as a fee. In ${esc(SITE_NAME)} each giveaway row is a zero sale with its shipping as postage, so the show's real profit includes it; link the item given away and its cost leaves your stock with it.</p>
@@ -1438,6 +1483,189 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Whatnot taxes", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// /mercari-taxes: the search Mercari sellers make ("do I have to pay taxes on Mercari", "Mercari 1099-K").
+// The worked example is the app's own Mercari fixture (apps/seller-books/test/fixtures/mercari-sales-report.csv,
+// an invented Gross Sales Report with Mercari's own column names) taken through the importer's rules
+// (importers/mercari.ts): cancelled and not-yet-completed rows are skipped, a sale is dated by Completed Date,
+// the selling, payment processing and shipping adjustment fees are line 10, and the label (seller-paid plus
+// buyer-paid shipping) is postage, line 27a, with the buyer's shipping also in gross receipts
+// (services/books/schedule-c.ts). test/site.test.mjs re-reads the fixture and checks every figure. Mercari's
+// rules are quoted from its help centre, read 2026-11-28: "1099-K related FAQs" (article 163) and "Sales Tax
+// Policy" (article 465). No Mercari fee rate is stated: the report's charged amounts are what count.
+export const MERCARI_CHECKED_ON = "2026-11-28";
+export const MERCARI_1099K_URL = "https://www.mercari.com/us/help_center/article/163";
+export const MERCARI_COMPLETED_QUOTE = "Only completed transactions are reported on the 1099-K.";
+export const MERCARI_GROSS_QUOTE = "Payments are calculated based on unadjusted gross payments";
+export const MERCARI_SALES_TAX_URL = "https://www.mercari.com/us/help_center/article/465";
+export const MERCARI_SALES_TAX_QUOTE =
+  "Mercari began calculating, collecting, reporting, and remitting applicable sales tax on behalf of our third-party sellers";
+/** The three completed rows of the app's Mercari fixture, in the importer's order (the bad-date row is skipped). */
+export const MERCARI_EXAMPLE = [
+  {
+    title: "Nintendo DS Lite (pink)",
+    sold: "2026-02-01",
+    completed: "2026-02-05",
+    itemCents: 4500,
+    buyerShipCents: 0,
+    sellerShipCents: 750,
+    feeCents: 450,
+    adjustmentCents: 0,
+    salesTaxCents: 360,
+    netCents: 3300,
+  },
+  {
+    title: "Lego minifig lot",
+    sold: "2026-02-03",
+    completed: "2026-02-08",
+    itemCents: 2000,
+    buyerShipCents: 599,
+    sellerShipCents: 0,
+    feeCents: 260,
+    adjustmentCents: 125,
+    salesTaxCents: 160,
+    netCents: 1615,
+  },
+  {
+    title: "Vintage tee, sold over New Year",
+    sold: "2025-12-30",
+    completed: "2026-01-03",
+    itemCents: 1500,
+    buyerShipCents: 0,
+    sellerShipCents: 500,
+    feeCents: 150,
+    adjustmentCents: 0,
+    salesTaxCents: 120,
+    netCents: 850,
+  },
+];
+/** The example's Schedule C lines as the worksheet adds them: 1 gross receipts, 10 fees, 27a postage. */
+export function mercariLines(rows = MERCARI_EXAMPLE) {
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  const items = sum((r) => r.itemCents);
+  const buyerShip = sum((r) => r.buyerShipCents);
+  return {
+    items,
+    buyerShip,
+    line1: items + buyerShip,
+    line10: sum((r) => r.feeCents + r.adjustmentCents),
+    line27a: sum((r) => r.sellerShipCents + r.buyerShipCents),
+    salesTax: sum((r) => r.salesTaxCents),
+    net: sum((r) => r.netCents),
+  };
+}
+
+function mercariTaxes() {
+  const path = "/mercari-taxes";
+  const title = "Mercari taxes for resellers";
+  const description =
+    "Do you pay taxes on Mercari sales? When Mercari sends a 1099-K, why it won't match your proceeds, which year a sale counts in, and Mercari's sales tax.";
+  const cents = (c) => `$${(c / 100).toFixed(2)}`;
+  const L = mercariLines();
+  const tee = MERCARI_EXAMPLE[2];
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on Mercari sales?",
+      a: "It depends on what you sold. Your own things sold for less than you paid for them are not income. Things you bought to resell are business (or hobby) income, whether or not Mercari sends you a form.",
+    },
+    {
+      q: "Does Mercari send a 1099-K?",
+      a: "For federal reporting, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states require one at lower amounts. Business income is reportable either way.",
+    },
+    {
+      q: "Why is my Mercari 1099-K higher than what I was paid?",
+      a: `Mercari says ${MERCARI_GROSS_QUOTE.toLowerCase()}: its help page counts the item price, the shipping the buyer paid and the sales tax the buyer paid, before Mercari's fees and the labels you paid for. Your proceeds are after all of those. In the example on this page, ${cents(L.net)} reached the seller's balance, while the same three sales come to ${cents(L.line1 + L.salesTax)} as that help page describes the count.`,
+    },
+    {
+      q: "Which year does a Mercari sale count in?",
+      a: `Mercari's 1099-K help page says: “${MERCARI_COMPLETED_QUOTE}” ${SITE_NAME} dates each sale by its Completed Date, so an item sold on 30 December and completed on 3 January counts in the new year, the same year Mercari's form counts it.`,
+    },
+    {
+      q: "Do I collect sales tax on Mercari?",
+      a: `No, for sales Mercari handles. Its Sales Tax Policy says “${MERCARI_SALES_TAX_QUOTE}”, so the tax the buyer paid is not your income and not yours to send in. A sale you make off Mercari is your own, and follows your state's rule.`,
+    },
+  ];
+  const exRows = MERCARI_EXAMPLE.map(
+    (r) =>
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${esc(r.completed)}</td><td>${cents(r.itemCents)}</td><td>${cents(r.buyerShipCents)}</td><td>${cents(r.sellerShipCents)}</td><td>${cents(r.feeCents + r.adjustmentCents)}</td><td>${cents(r.netCents)}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Mercari's 1099-K counts more than you were paid, and your proceeds count less than you earned. Here is what is taxable, which year a sale lands in, and how three sales from a Mercari report become Schedule C lines.</p>
+  <h2>Is it taxable?</h2>
+  <p>Selling your own things for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying to resell is business or hobby income, whatever the forms say. A business reports its gross sales on Schedule C and deducts what made them: Mercari's fees, the shipping labels, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold and <a href="${href("/mileage-deduction")}">the miles</a> to source them.</p>
+  <h2>When Mercari sends a 1099-K, and why it won't match</h2>
+  <p>Under the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>, a platform files a Form 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions; some states are lower. No form does not mean no income.</p>
+  <p>Mercari's <a href="${MERCARI_1099K_URL}">1099-K FAQs</a> say two things that shape your books. First, &ldquo;${esc(MERCARI_GROSS_QUOTE)}&rdquo;: the item price, the shipping the buyer paid and the sales tax the buyer paid, before fees and labels. Second, &ldquo;${esc(MERCARI_COMPLETED_QUOTE)}&rdquo; So the form is gross of everything, and it follows the date a sale completed, not the date it sold. More on reading the form in <a href="${href("/1099-k")}">Form 1099-K for resellers</a>.</p>
+  <h2>Three sales, worked to the worksheet</h2>
+  <p>Mercari's Gross Sales Report lists each fee in its own column, so nothing needs working out. ${esc(SITE_NAME)} books only completed orders, because Mercari's fees are estimates until then and an order in progress can still be cancelled, and it dates each one by its Completed Date.</p>
+  <div class="worked">
+    <p class="muted">Invented sales: the three completed rows of the sample report ${esc(SITE_NAME)}'s Mercari importer is tested on (a cancelled order, one still in transit and a row with an impossible date are skipped and named on import):</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th scope="col">Item</th><th scope="col">Completed</th><th scope="col">Item price</th><th scope="col">Buyer paid shipping</th><th scope="col">Seller paid shipping</th><th scope="col">Mercari fees</th><th scope="col">Net proceeds</th></tr></thead>
+      <tbody>
+${exRows}
+      </tbody>
+    </table></div>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (${cents(L.items)} of items and the ${cents(L.buyerShip)} of shipping the buyer paid); line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (selling fees and a shipping adjustment); line 27a, postage, <strong>${cents(L.line27a)}</strong> (every label, the buyer-paid one included, since Mercari bought it with that money). Line 1 less those two is ${cents(L.line1 - L.line10 - L.line27a)}, exactly the proceeds Mercari paid out; the items' cost comes off after that. The buyers' ${cents(L.salesTax)} of sales tax is on the report but in none of these lines.</p>
+    <p>The tee sold on ${esc(tee.sold)} and completed on ${esc(tee.completed)}, so it is a ${esc(tee.completed.slice(0, 4))} sale in ${esc(SITE_NAME)}, as on Mercari's form. Booked by sold date it would land a year early, in the wrong year's return.</p>
+    <p class="muted">We state no Mercari fee rate: Mercari has changed its fees several times, and the charged amounts on your report are what counts. Mercari's help pages were read ${esc(MERCARI_CHECKED_ON)}.</p>
+  </div>
+  <h2>Sales tax</h2>
+  <p>Mercari's <a href="${MERCARI_SALES_TAX_URL}">Sales Tax Policy</a> says that under marketplace facilitator laws &ldquo;${esc(MERCARI_SALES_TAX_QUOTE)}&rdquo;. The Sales Tax Charged to Buyer column is the buyer's tax, already handled: ${esc(SITE_NAME)} keeps it out of income and out of the sales tax you collected. Columns ending &ldquo;Charged to Buyer&rdquo; are the buyer's too, and are never read as your fees. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
+  <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
+  <p>Download the Gross Sales Report from your Mercari account, import the CSV, and each completed row becomes a sale with its fees and label beside it. Link items to your stock and their cost moves to cost of goods sold. Sell on eBay, Poshmark or Depop too? They go in the same books (see the <a href="${href("/platforms/mercari")}">Mercari page</a> and the others), and the worksheet adds them up.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "mercari-tax" })}</div>`;
+  const text = `# ${title}
+
+Mercari's 1099-K counts more than you were paid, and your proceeds count less than you earned.
+
+## Is it taxable?
+
+Personal items sold at a loss are not income. Items bought to resell are business or hobby income. A business reports gross sales on Schedule C and deducts Mercari's fees, shipping labels, cost of goods and mileage.
+
+## When Mercari sends a 1099-K
+
+Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Mercari (${MERCARI_1099K_URL}): "${MERCARI_GROSS_QUOTE}" (item price, buyer-paid shipping and buyer-paid sales tax), and "${MERCARI_COMPLETED_QUOTE}"
+
+## Three sales, worked
+
+Invented example (the importer's sample report, completed rows only, dated by Completed Date): ${MERCARI_EXAMPLE.map((r) => `${r.title}: completed ${r.completed}, item ${cents(r.itemCents)}, fees ${cents(r.feeCents + r.adjustmentCents)}, net ${cents(r.netCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; proceeds ${cents(L.net)}. The tee sold ${tee.sold} and completed ${tee.completed}, so it counts in ${tee.completed.slice(0, 4)}. No Mercari fee rate is stated; help pages read ${MERCARI_CHECKED_ON}.
+
+## Sales tax
+
+Mercari (${MERCARI_SALES_TAX_URL}): "${MERCARI_SALES_TAX_QUOTE}".
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Mercari taxes", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -3810,6 +4038,7 @@ export function allPages() {
     poshmarkTaxes(),
     ebayTaxes(),
     whatnotTaxes(),
+    mercariTaxes(),
     costOfGoodsSold(),
     inventorySpreadsheet(),
     sellThrough(),

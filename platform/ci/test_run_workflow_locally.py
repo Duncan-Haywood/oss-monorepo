@@ -265,6 +265,20 @@ class Collect(unittest.TestCase):
         self.assertEqual(steps[0].status, "skipped")
         self.assertIn("expression", steps[0].reason)
 
+    def test_a_step_that_narrows_the_checkout_is_skipped_and_later_steps_still_run(self):
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: narrow
+                    run: git sparse-checkout set --no-cone /platform/ci/
+                  - name: check
+                    run: echo checked
+        """)
+        self.assertEqual([s.status for s in steps], ["skipped", "pending"])
+        self.assertTrue(steps[0].narrows)
+        self.assertIn("full tree", steps[0].reason)
+
     def test_a_step_whose_env_needs_an_expression_is_skipped(self):
         """`priv-portfolio-pages.yml`'s post-deploy check: the command is plain
         bash, but PAGE_URL comes from the deploy action's output, so locally
@@ -404,11 +418,26 @@ class Screen(unittest.TestCase):
     def test_branch_deletion_is_refused(self):
         self.assertIsNotNone(self.screened("git push origin --delete stale"))
 
+    def test_sparse_checkout_of_the_local_clone_is_skipped_not_run(self):
+        step = runner.Step("j", "n", 'git sparse-checkout set --no-cone "${patterns[@]}"', ".")
+        self.assertIsNone(runner.screen(step))  # the job is not held
+        runner.execute(step, 5)
+        self.assertEqual(step.status, "skipped")
+        self.assertIn("sparse-checkout", step.reason)
+        self.assertIsNone(runner.checkout_only(runner.Step("j", "n", "git sparse-checkout list", ".")))
+
     def test_infra_apply_is_refused(self):
         self.assertEqual(self.screened("tofu apply -auto-approve"), "infra apply")
 
     def test_a_github_api_write_is_refused(self):
         self.assertIsNotNone(self.screened("gh api repos/x/y -X DELETE"))
+
+    def test_narrowing_the_checkout_is_caught_and_listing_is_not(self):
+        # Skipped at parse time (NARROWS_CHECKOUT), not refused: the job's other steps still run.
+        self.assertIsNone(self.screened("git sparse-checkout set --no-cone a b"))
+        self.assertTrue(runner.NARROWS_CHECKOUT.search('git sparse-checkout set --no-cone "${p[@]}"'))
+        self.assertTrue(runner.NARROWS_CHECKOUT.search("git sparse-checkout add ventures/x"))
+        self.assertIsNone(runner.NARROWS_CHECKOUT.search("git sparse-checkout list"))
 
     def test_a_github_api_read_is_allowed(self):
         self.assertIsNone(self.screened("gh api repos/x/y/commits"))

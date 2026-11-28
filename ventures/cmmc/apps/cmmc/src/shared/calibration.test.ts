@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   type CalibrationLike,
+  calibrationDueDates,
   calState,
   checkGauges,
   type GaugeLike,
@@ -211,5 +212,31 @@ describe("gaugeListCsv", () => {
     expect(lines[1]).toBe(
       `CAL-014,'=HYPERLINK(1),Caliper,"SN 1, 2",Employee's own,Cell 3,In use,12,2026-03-02,Acme Lab,C-88121,2027-03-02,Current`,
     );
+  });
+});
+
+describe("calibrationDueDates", () => {
+  it("counts gauges in use per due date, oldest first, and skips gauges with no date", () => {
+    expect(
+      calibrationDueDates([
+        { status: "active", dueOn: "2027-03-01" },
+        { status: "active", dueOn: "2027-01-15" },
+        { status: "active", dueOn: "2027-03-01" },
+        { status: "active", dueOn: null },
+        { status: "reference_only", dueOn: "2027-01-15" },
+        { status: "out_of_service", dueOn: "2027-01-15" },
+        { status: "retired", dueOn: "2027-01-15" },
+        { status: "active", dueOn: "not-a-date" },
+      ]),
+    ).toEqual([
+      { due: "2027-01-15", gauges: 1 },
+      { due: "2027-03-01", gauges: 2 },
+    ]);
+  });
+
+  it("keeps an overdue date, so the calendar still shows it", () => {
+    expect(calibrationDueDates([{ status: "active", dueOn: "2020-01-01" }])).toEqual([
+      { due: "2020-01-01", gauges: 1 },
+    ]);
   });
 });

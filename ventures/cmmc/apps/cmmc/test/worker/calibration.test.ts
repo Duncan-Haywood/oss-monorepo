@@ -215,6 +215,40 @@ describe("gauge calibration", () => {
     expect(lines[1]).toMatch(/Current$/);
   });
 
+  it("puts due dates in the calendar file and the subscribable link as counts, no gauge ids", async () => {
+    const t = await setupTenant();
+    const a = await json<Gauge>(add(t, caliper()), 201);
+    const b = await json<Gauge>(add(t, caliper({ tag: "MIC-2", description: "1-2 in mic" })), 201);
+    await json(add(t, caliper({ tag: "NEW-3", description: "Never calibrated" })), 201);
+    await json(calibrate(t, a.id, labCal({ calibratedOn: daysAgo(10) })), 201);
+    await json(calibrate(t, b.id, labCal({ calibratedOn: daysAgo(10) })), 201);
+    const due = (await list(t)).items.find((i) => i.tag === "CAL-014")?.dueOn ?? "";
+    expect(due).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const day = due.replace(/-/g, "");
+    const file = await (await api(path(t, "/affirmations/calendar.ics"), { as: t.userId })).text();
+    expect(file).toContain(`UID:cmmc-${t.orgId}-calibration-${day}@cmmc-workspace`);
+    expect(file).toContain("SUMMARY:Calibration due: 2 gauges");
+    for (const secret of ["CAL-014", "MIC-2", "NEW-3", "caliper", "Acme Calibration Lab"])
+      expect(file).not.toContain(secret);
+
+    const feed = await json<{ url: string }>(
+      api(path(t, "/affirmations/calendar-feed"), { method: "POST", as: t.userId }),
+      201,
+    );
+    const link = await api(new URL(feed.url).pathname);
+    expect(link.status).toBe(200);
+    const linked = await link.text();
+    expect(linked).toContain("SUMMARY:Calibration due: 2 gauges");
+    expect(linked).not.toContain("CAL-014");
+
+    // Another org's calendar carries none of these dates.
+    const other = await setupTenant();
+    const theirs = await (
+      await api(`/api/orgs/${other.orgId}/affirmations/calendar.ics`, { as: other.userId })
+    ).text();
+    expect(theirs).not.toContain("Calibration due");
+  });
+
   it("is readable on every plan; recording needs Level 2 + Quality", async () => {
     for (const plan of [null, "level2"]) {
       const t = await setupTenant("owner", "Shop", plan);

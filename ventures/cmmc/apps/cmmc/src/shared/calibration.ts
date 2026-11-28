@@ -420,3 +420,27 @@ export function gaugeListCsv(rows: readonly GaugeCsvRow[], today: string): strin
     );
   return `${lines.join("\r\n")}\r\n`;
 }
+
+/** Gauges falling due on one date, for the calendar file: a count, never a gauge's id or name. */
+export interface CalibrationDueDate {
+  due: string;
+  gauges: number;
+}
+
+/**
+ * The calibration due dates of gauges in use, grouped by date (oldest first): one calendar event per
+ * date with a count. Reference-only, out-of-service and retired gauges fall due on no date, and a gauge
+ * never calibrated has no date to put in a calendar (the Gauges tab and the dashboard list it).
+ */
+export function calibrationDueDates(
+  list: readonly Pick<GaugeLike, "status" | "dueOn">[],
+): CalibrationDueDate[] {
+  const byDate = new Map<string, number>();
+  for (const g of list) {
+    if (g.status !== "active" || !g.dueOn || !isIsoDate(g.dueOn)) continue;
+    byDate.set(g.dueOn, (byDate.get(g.dueOn) ?? 0) + 1);
+  }
+  return [...byDate.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([due, gauges]) => ({ due, gauges }));
+}

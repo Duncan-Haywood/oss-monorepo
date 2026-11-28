@@ -7,6 +7,7 @@ import {
   type AsLeft,
   type CalibrationLike,
   type CalPerformer,
+  calibrationDueDates,
   calState,
   checkGauges,
   type GaugeKind,
@@ -152,6 +153,12 @@ export async function gaugeList(ctx: AppContext, orgId: string) {
       on,
     ),
   };
+}
+
+/** Gauges in use falling due on each date, as counts: for the calendar file and subscribable link. */
+export async function calibrationDueDatesFor(ctx: AppContext, orgId: string) {
+  const [rows, by] = await Promise.all([listGauges(ctx, orgId), historyByGauge(ctx, orgId)]);
+  return calibrationDueDates(rows.map((g) => asLike(g, by.get(g.id) ?? [])));
 }
 
 export async function gaugeCsv(ctx: AppContext, orgId: string): Promise<string> {

@@ -5,8 +5,10 @@
 // - Prompt caching on the stable system + context blocks
 // - Adaptive thinking is on by default (claude-haiku-5-5, the default since 2026-11-24, and
 //   claude-opus-5-5); depth is controlled with output_config.effort
-import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+// - The SDK is loaded on the first model call, not at Worker startup: it is the largest dependency
+//   in the Worker bundle, and most requests never call a model. The bundler puts it in its own
+//   chunk, so a cold isolate does not parse it (docs/history/cmmc-worker-cold-start-perf-2026-11-28.md).
+import type Anthropic from "@anthropic-ai/sdk";
 import {
   type LlmClient,
   LlmOutputError,
@@ -41,13 +43,41 @@ const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 /** Haiku models have no server-side refusal fallback; every other current model does. */
 export const supportsServerFallback = (model: string) => !model.startsWith("claude-haiku-");
 
+type Sdk = {
+  Anthropic: typeof Anthropic;
+  betaZodOutputFormat: typeof import("@anthropic-ai/sdk/helpers/beta/zod").betaZodOutputFormat;
+};
+
+let sdkLoad: Promise<Sdk> | undefined;
+
+/** One import per isolate; a failed import is retried on the next call rather than cached. */
+const loadSdk = (): Promise<Sdk> => {
+  sdkLoad ??= Promise.all([
+    import("@anthropic-ai/sdk"),
+    import("@anthropic-ai/sdk/helpers/beta/zod"),
+  ]).then(
+    ([core, zod]) => ({ Anthropic: core.default, betaZodOutputFormat: zod.betaZodOutputFormat }),
+    (e) => {
+      sdkLoad = undefined;
+      throw e;
+    },
+  );
+  return sdkLoad;
+};
+
 export class AnthropicLlm implements LlmClient {
-  private client: Anthropic;
+  private client: Anthropic | undefined;
 
   constructor(private readonly opts: AnthropicLlmOptions) {
-    this.client =
-      opts.client ??
-      new Anthropic(opts.apiKey ? { apiKey: opts.apiKey, maxRetries: 3 } : { maxRetries: 3 });
+    this.client = opts.client;
+  }
+
+  private async sdkClient(): Promise<{ client: Anthropic; sdk: Sdk }> {
+    const s = await loadSdk();
+    this.client ??= new s.Anthropic(
+      this.opts.apiKey ? { apiKey: this.opts.apiKey, maxRetries: 3 } : { maxRetries: 3 },
+    );
+    return { client: this.client, sdk: s };
   }
 
   private modelFor(purpose: string) {
@@ -93,12 +123,13 @@ export class AnthropicLlm implements LlmClient {
 
   async generateStructured<T>(req: StructuredRequest<T>): Promise<{ data: T; usage: LlmUsage }> {
     const model = this.modelFor(req.purpose);
+    const { client, sdk } = await this.sdkClient();
     const started = Date.now();
-    const msg = await this.client.beta.messages.parse({
+    const msg = await client.beta.messages.parse({
       ...this.buildParams(req, model),
       output_config: {
         effort: req.effort ?? "high",
-        format: betaZodOutputFormat(req.schema as never),
+        format: sdk.betaZodOutputFormat(req.schema as never),
       },
     });
     const usage = this.usageOf(msg, model, started);
@@ -116,8 +147,9 @@ export class AnthropicLlm implements LlmClient {
 
   async generateText(req: LlmRequestBase): Promise<{ text: string; usage: LlmUsage }> {
     const model = this.modelFor(req.purpose);
+    const { client } = await this.sdkClient();
     const started = Date.now();
-    const msg = await this.client.beta.messages.create({
+    const msg = await client.beta.messages.create({
       ...this.buildParams(req, model),
       output_config: { effort: req.effort ?? "medium" },
     });
