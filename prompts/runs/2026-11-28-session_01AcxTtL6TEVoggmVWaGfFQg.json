@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtL6TEVoggmVWaGfFQg",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:07:18Z",
+  "ended": "2026-11-28T08:08:05Z",
+  "wall_minutes": 6.42,
+  "tokens_in": 5251779,
+  "tokens_out": 22176,
+  "cost_usd": 2.1727,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20047",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md / platform/ci tests",
+      "issue": "`python3 -m unittest platform/ci/test_x.py` from the repo root fails with \"module 'platform' has no attribute 'ci'\" (stdlib platform shadows the dir); run the file directly or from platform/ci."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "No customer post: the fix is input validation inside paid products with no user-facing change worth a marketing post; the PR body and the lint's docstring carry the write-up.",
+      "did": "Documented in the check's docstring and the PR.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "3 campaigns on payapps (retainage.ts 8/8, grace.ts 8/8, notices.ts 6/8). Guard added: platform/ci/check_safe_integer_cents.py (28 hits on main before the sweep, 0 after). Verification: qbo-sync 97+98, lien-waivers 289, payapps billing 150, payapps vitest 113, tsc clean, biome clean, run_venture_tests over 8 ventures exit 0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test test/**/*.test.ts  (in ventures/payapps/packages/qbo-sync)",
+        "seed": 858843598,
+        "commit": "4b7f4350b",
+        "sites": 46,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 77,
+            "col": 36,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isInteger(app) || app < 1) {",
+            "after": "if (!Number.isInteger(app) || app <= 1) {",
+            "line_text": "  if (!Number.isInteger(app) || app < 1) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 94,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length !== 0 && released === 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 94,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (input.workLines.length === 0 && released === 0) {",
+            "after": "if (input.workLines.length === 1 && released === 0) {",
+            "line_text": "  if (input.workLines.length === 0 && released === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 99,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let gross = 0;",
+            "after": "let gross = 1;",
+            "line_text": "  let gross = 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 109,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "after": "heldByRate.set(rate, (heldByRate.get(rate) ?? 0) - applyRateBps(w.amountCents, rate));",
+            "line_text": "    heldByRate.set(rate, (heldByRate.get(rate) ?? 0) + applyRateBps(w.amountCents, rate));",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 113,
+            "col": 77,
+            "operator": "minus-to-plus",
+            "before": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "after": "for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] + a[0])) {",
+            "line_text": "  for (const [rate, amount] of [...heldByRate.entries()].sort((a, b) => b[0] - a[0])) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 123,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (released > 0) {",
+            "after": "if (released > 1) {",
+            "line_text": "  if (released > 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+            "line": 176,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let balance = 0;",
+            "after": "let balance = 1;",
+            "line_text": "  let balance = 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/billing/src/grace.ts",
+        "test": "node --test src/**/*.test.ts  (in ventures/payapps/packages/billing)",
+        "seed": 760481052,
+        "commit": "4b7f4350b",
+        "sites": 21,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 7,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "after": "export const PAST_DUE_GRACE_DAYS = 8;",
+            "line_text": "export const PAST_DUE_GRACE_DAYS = 7;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 25 * 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 18,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 / 60 * 60 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 61 * 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 8,
+            "col": 28,
+            "operator": "times-to-div",
+            "before": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "after": "const DAY_MS = 24 * 60 * 60 / 1000;",
+            "line_text": "const DAY_MS = 24 * 60 * 60 * 1000;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 21,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "after": "if (status !== \"past_due\" && !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "line_text": "  if (status !== \"past_due\" || !pastDueSince || Number.isNaN(pastDueSince.getTime())) return null;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 46,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "after": "if (sameSubscription || current?.status === \"past_due\" && current.pastDueSince) {",
+            "line_text": "  if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/billing/src/grace.ts",
+            "line": 46,
+            "col": 42,
+            "operator": "eq-flip",
+            "before": "if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "after": "if (sameSubscription && current?.status !== \"past_due\" && current.pastDueSince) {",
+            "line_text": "  if (sameSubscription && current?.status === \"past_due\" && current.pastDueSince) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 449571593,
+        "commit": "4b7f4350b",
+        "sites": 44,
+        "baseline_seconds": 1.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 86,
+            "col": 10,
+            "operator": "false-to-true",
+            "before": "| { ok: false; errors: ValidationError[] };",
+            "after": "| { ok: true; errors: ValidationError[] };",
+            "line_text": "  | { ok: false; errors: ValidationError[] };",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Type-only: the NoticeRenderResult union is erased at runtime, so node --test cannot see it. Checked by hand: with the mutant, `pnpm typecheck` in lien-waivers reports 2 TS errors, and payapps-ci.yml runs that typecheck on every PR."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 279,
+            "col": 14,
+            "operator": "true-to-false",
+            "before": "required: true,",
+            "after": "required: false,",
+            "line_text": "    required: true,",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 307,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "after": "i.key !== \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "line_text": "      i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 307,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "after": "i.key === \"estimate\" && i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "line_text": "      i.key === \"estimate\" || i.key === \"demand\" ? \"text\" : \"multiline\",",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Estimate and demand inputs would render as multi-line boxes. Added a field-type test to test/ca-notice.test.ts."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 382,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (code === \"CA\") return [caPreliminaryNotice()];",
+            "after": "if (code !== \"CA\") return [caPreliminaryNotice()];",
+            "line_text": "  if (code === \"CA\") return [caPreliminaryNotice()];",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 391,
+            "col": 45,
+            "operator": "eq-flip",
+            "before": "return noticeForms(state).find((n) => n.id === id);",
+            "after": "return noticeForms(state).find((n) => n.id !== id);",
+            "line_text": "  return noticeForms(state).find((n) => n.id === id);",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 405,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "if (b?.type === \"heading\" && next?.type === \"paragraph\") {",
+            "after": "if (b?.type === \"heading\" && next?.type !== \"paragraph\") {",
+            "line_text": "    if (b?.type === \"heading\" && next?.type === \"paragraph\") {",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/notices.ts",
+            "line": 422,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (cross.length > 0) return { ok: false, errors: cross };",
+            "after": "if (cross.length > 1) return { ok: false, errors: cross };",
+            "line_text": "  if (cross.length > 0) return { ok: false, errors: cross };",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
+        "issue": "checkCents used Number.isInteger, so 1e20 cents (an integer a double cannot hold to the cent) was accepted and two MAX_SAFE_INTEGER work lines summed to an inexact gross/net with no error; port.ts invoice/payment/credit validators and money.centsToAmount had the same check, as did 27 other cents checks across 8 products (jobshop-quote's qbo-sync copy, the 5 billing/paddle-catalog copies, payapps payments/T&M/Procore, seller-books lots, ai-bookkeeper, local-site-studio Stripe webhook and catalog, retail-pilot-intel importer).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20047"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e435791f-dcc8-5cde-8e7a-d61ab781caa9",
+    "transcripts": 1,
+    "first": "2026-11-28T08:07:18Z",
+    "last": "2026-11-28T08:13:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 22176,
+        "thinking": 4518,
+        "cache_read": 5164692,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86970,
+        "api_equivalent_usd": 2.1727,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 22176,
+      "thinking": 4518,
+      "cache_read": 5164692,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86970,
+      "api_equivalent_usd": 2.1727,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.42,
+      "active_minutes": 6.42,
+      "model_minutes": 4.14,
+      "tool_minutes": 2.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, a 28-site sweep over 8 products, and a lint with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 184.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

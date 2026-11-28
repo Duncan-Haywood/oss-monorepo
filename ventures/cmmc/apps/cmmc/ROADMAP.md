@@ -514,13 +514,59 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   and `planImport` (110 rows, each column on its field). Linked from the SPRS calculator and the Level 2 page.
   Next: read whether its `from=` sign-ups lead to Level 2 once checkout is on; a Level 1 version if asked.
 
+- POA&M template (2026-11-28, cmmc-site): `/cmmc-poam-template` gives away `cmmc-poam-template.xlsx`, built
+  with the site (`src/poam-template.mjs`, nothing committed): 60 item rows with the columns the POA&M
+  "Import spreadsheet" reads (Requirement, Weakness, Remediation plan, Milestones, Responsible, Scheduled
+  completion, Status), and worked out per row: points while open (3.13.11 at 3), "On a POA&M?" from
+  `poamVerdict` and a Check (not allowed, missing weakness or date, after the 180-day close-out). A Summary
+  sheet takes the conditional status date and gives the deadline, open items, points, score with them open
+  and the verdict. The requirement lists sit on a Rules sheet as `|3.1.1|...|` strings so the importer's
+  most-ids sheet choice always lands on the POA&M sheet. `test/poam-template.test.mjs` recalculates seven
+  cases in LibreOffice, every one of the 110 ids among them; `test/unit/poam-template-import.test.ts` here
+  imports it with `readWorkbookForImport` and `planPoamImport` (text and Excel-number dates). Linked from
+  the POA&M rules page. Next: the same `from=` read once checkout is on.
+
+- Document control, part 3b: master list import (2026-11-28, document-master-list-import). "Import a
+  master list" on the Documents tab reads the list a shop keeps now (.xlsx, read in the browser with only
+  the chosen sheet sent, or CSV, this register's own export included): number and title required; type
+  (its cell, else the title's own words such as "Work Instruction", else Other), origin and issuer,
+  revision, status, approver and approval date, effective date, last review, next review or interval
+  (12/24/36 months only), owner, location, notes. A revision counts as released only with its approval
+  date; otherwise the row is a draft, which the register shows as never released. Approvers and owners
+  are matched to members by name or email when exactly one matches; an unmatched approver's name stays in
+  the history and the approver is blank (the existing "no approver" gap). Each release, last review and
+  withdrawal gets its history row, marked as recorded from the import; an obsolete row with no withdrawal
+  date is dated the import day and says so. Numbers already listed are left alone, so re-importing the
+  list or the export changes nothing. Preview on every plan (a free shop sees its own list ready to
+  import), adding on Level 2 + Quality; one audit entry. `src/shared/documents-import.ts`,
+  `services/documents/import.ts`, `POST /documents/import`, `DocumentImport.tsx`; unit, component and
+  worker tests. Header words are this app's reading of common shop lists, not checked against real files.
+
+- Document control, part 3c: the controlled copy of a revision (2026-11-28,
+  document-controlled-copy-evidence). Releasing a revision can link one of the org's evidence files
+  (picked or uploaded in the release form) as its controlled copy; "Link file" / "Change file" does it
+  later for the revision in force (an imported list, a file uploaded after approval). The release's
+  history row keeps the file's name and SHA-256, so the history says which file was approved for each
+  revision; deleting the evidence file unlinks the document and drops the id from the history but keeps
+  the name and hash. The next revision starts with no file (the old file is not that revision). The
+  master list CSV gains "Controlled copy (evidence)" and "Controlled copy SHA-256" (named so the import
+  does not read them as the location, and re-importing the export still changes nothing). The "no
+  location" note is raised only when neither a location nor a file is given. Only this org's files
+  link (400 otherwise), editors on Level 2 + Quality; audited as `document.file_link` /
+  `document.file_unlink`. Migration 0019; `services/documents` (`setDocumentFile`,
+  `unlinkDocumentEvidence`), `PUT /documents/:id/file`, `Documents.tsx`; unit and worker tests.
+  Privacy policy wording updated to say the files can now be held as evidence (no version bump: evidence
+  files were already covered).
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
-- Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27): linking
-  an evidence file as the controlled copy of a revision, and an import of an existing master list
-  (CSV/.xlsx) once shops send theirs
+- Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
+  master list import done 2026-11-28; the controlled copy file per revision done 2026-11-28): check the
+  import's header words against real master lists once shops send theirs; a "file changed since
+  release" warning if shops replace files in place (today a new upload is a new evidence row, so the
+  recorded SHA-256 already pins the released bytes)
 - ISO 9001, part 3 (the headings checked against the 2015 contents page done 2026-11-26): AS9100D's
   aerospace additions once a source is in hand; filter the clause list to "mine" once shops with
   several owners ask

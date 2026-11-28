@@ -131,6 +131,7 @@ import {
 } from "../../services/controls";
 import { applyImport, previewImport } from "../../services/controls/import";
 import {
+  controlledCopyFiles,
   createDocument,
   deleteDocument,
   documentHistory,
@@ -141,8 +142,10 @@ import {
   releaseDocument,
   reviewDocument,
   reviseDocument,
+  setDocumentFile,
   updateDocument,
 } from "../../services/documents";
+import { applyDocumentImport, previewDocumentImport } from "../../services/documents/import";
 import { draftStatement } from "../../services/drafting";
 import {
   discardProcedureDraft,
@@ -1266,10 +1269,12 @@ routes.get("/documents/export.csv", async (c) => {
     listMembers(ctx, tenant.orgId),
   ]);
   const names = new Map(members.map((m) => [m.userId, m.name]));
+  const files = await controlledCopyFiles(ctx, tenant.orgId, docs);
   const csv = masterListCsv(
     docs,
     (id) => (id ? (names.get(id) ?? "") : ""),
     ctx.now().toISOString().slice(0, 10),
+    (id) => files.get(id) ?? null,
   );
   return new Response(csv, {
     headers: {
@@ -1279,6 +1284,27 @@ routes.get("/documents/export.csv", async (c) => {
     },
   });
 });
+// Import an existing master list (CSV, or an .xlsx sheet sent as CSV by the browser): `apply: false`
+// previews (any editor, any plan), `apply: true` adds the documents not already listed, on the
+// quality plan as the form. `dateOrder` reads numeric dates like 03/04/2026.
+routes.post(
+  "/documents/import",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      csv: z.string().min(1).max(IMPORT_MAX_BYTES),
+      apply: z.boolean().default(false),
+      dateOrder: z.enum(["mdy", "dmy"]).optional(),
+    }),
+  ),
+  async (c) => {
+    const t = c.var.tenant;
+    const { csv, apply, dateOrder } = c.req.valid("json");
+    if (!apply) return c.json(await previewDocumentImport(c.var.ctx, t.orgId, csv, dateOrder));
+    return c.json(await applyDocumentImport(c.var.ctx, t.orgId, t.userId, csv, dateOrder));
+  },
+);
 routes.get("/documents/:id/history", async (c) =>
   c.json({
     items: await documentHistory(c.var.ctx, c.var.tenant.orgId, c.req.param("id")),
@@ -1309,6 +1335,7 @@ routes.post(
       approvedOn: docDay,
       effectiveOn: docDay.nullable().optional(),
       changeSummary: text(2000).optional(),
+      evidenceId: z.string().max(64).nullable().optional(),
     }),
   ),
   async (c) => {
@@ -1348,6 +1375,24 @@ routes.post(
     const t = c.var.tenant;
     return c.json(
       await obsoleteDocument(c.var.ctx, t.orgId, t.userId, c.req.param("id"), c.req.valid("json")),
+    );
+  },
+);
+// The evidence file that is the controlled copy of the revision in force (null unlinks).
+routes.put(
+  "/documents/:id/file",
+  requireRole("editor"),
+  validate("json", z.object({ evidenceId: z.string().max(64).nullable() })),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await setDocumentFile(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("id"),
+        c.req.valid("json").evidenceId,
+      ),
     );
   },
 );

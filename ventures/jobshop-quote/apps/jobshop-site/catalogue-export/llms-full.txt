@@ -3080,12 +3080,13 @@ Start free
 - A first follow-up day set when the quote is sent, a number of days after sending that the shop chooses (3 by default; a weekend moves to Monday)
 - A "Follow up" card on the quote log: quotes due today, longest overdue first, with contact, total, sent day, valid-until, estimator and the last note
 - "Log follow-up" records what happened and the next day: in 1 to 14 days, a date, or no more follow-ups
+- "Email a follow-up" drafts a short note to the customer from the quote; you edit it and send it as a reply in the quote email's thread, with the PDF again if you like, and it is logged with the next day
 - One email each morning to each estimator listing their own quotes due, and another listing quotes that expire today or tomorrow
 - Quotes expire the day after their valid-until day, and Revise starts the next revision
 
 ### What it does not do yet
 
-- The follow-up itself is yours: the app reminds and logs, it does not email the customer for you
+- Nothing goes to a customer on its own: a follow-up email is sent only when an estimator clicks Send
 - Each member can turn the reminder emails off for themselves
 
 ### Free guides on this

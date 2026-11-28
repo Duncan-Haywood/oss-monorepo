@@ -177,3 +177,34 @@ page is not found word for word in them.
 - The rate tables (TR15OC24.010, .011) are images in the rule; the rates used are the ones printed
   inline on each line.
 - The Cyber AB marketplace link (`https://cyberab.org/Catalog`) answered 200 on 27 Nov 2026.
+
+## SPRS submission guide (`how-to-submit-sprs-score.html`), 28 Nov 2026
+
+Every step on the page comes from SPRS's own public pages and PDFs, fetched directly from
+`www.sprs.csd.disa.mil` on 28 Nov 2026 (the proxy let them through; dodcio.defense.gov and ecfr.gov
+were refused the same day). Text was read with `pdftotext -layout`; button and status names are
+copied as printed. The files are not committed (DoD publications, but no need to mirror them);
+their sha256 (first 16 hex) are recorded so a later run can tell whether a guide changed.
+
+| Fact on the page | Source (sha256, first 16 hex) |
+|---|---|
+| PIEE needs SAM registration with an EBPOC, the CAGE in the PIEE vendor group structure, at least one CAM per CAGE ("typically" the EBPOC or a designee); no PKI certificate for vendors; SPRS tile "visible, but not active" until the CAM approves; status under My Account → Manage Roles; the Support Role request is also reviewed by the SPRS program office and "can take multiple business days" | Access Instructions, <https://www.sprs.csd.disa.mil/access.htm> (`56384e0c45830fe9`) |
+| Cyber Vendor User (view/enter/edit/delete NIST and CMMC, all CAGEs in the hierarchy) vs Contractor/Vendor (Support Role) (view only); existing-user steps (My Account → Add Additional Roles … Location Code / CAGE … Justification, Summary, Agreement); new-user steps (New User → Getting Started Help → Register → Vendor → authentication method …); a sole CAM asking for their own access emails the DISA service desk address quoted on the page | SPRS Vendor Cyber Reports Access, Release V4.0, Dec 2024, <https://www.sprs.csd.disa.mil/pdf/SPRS_Access_CyberReports.pdf> (`98c73b0ef4b0fe81`) |
+| SPRS stores the NIST module's fields (assessment date, score, scope, plan of action completion date, included CAGEs, SSP name, version, date, confidence level); "The NIST SP 800-171 Basic Assessment cannot be performed in SPRS …" (quoted); assessment-method questions to the program office, contracts representative or DCMA | SPRS NIST SP 800-171 page, <https://www.sprs.csd.disa.mil/nistsp.htm> (`215a36654cd8e296`) |
+| Run Cyber Reports; first CAGE is the profile's, bracketed one the HLO; asterisk = Cyber Vendor User; Add New Assessment; hierarchy from SAM, fixed by the EBPOC, "typically flow to SPRS within 48 hours"; 10-character DoD UID, SB/SM/SH; methodology and SSP "should be completed prior"; pencil icon edits; only Basic is vendor-maintained; red after three years | NIST SP 800-171 Quick Entry Guide, Version 4.0, May 2024, <https://www.sprs.csd.disa.mil/pdf/NISTSP800-171QuickEntryGuide.pdf> (`23d7f1b7446fe480`) |
+| Level 1: Add New Level 1 CMMC Self-Assessment; Continue to Affirmation; FAR 52.204-21 compliance required for a "Final Level 1 Self-Assessment"; Transfer to AO; Affirm; expires to "No CMMC Status (Expired Assessment)" after 1 year; Final is "the only CMMC Status Type that will be visible to Government Personnel" | CMMC Level 1 Self-Assessment Quick Entry Guide, Version 4.0, Dec 2024, <https://www.sprs.csd.disa.mil/pdf/CMMCQuickEntryGuide.pdf> (`99876f9d3cb41fca`) |
+| Level 2: CMMC Level 2 (Self) tab; Requirement Objectives; compliance status per requirement; Save and Continue by family; answers complete before continuing; scope, employee count, CAGEs (Open CAGE Hierarchy or comma list); only 88–109 (Conditional) and 110 (Final) can be affirmed; non-POA&M requirement → "No CMMC Status regardless of score" (quoted); Conditional valid 180 days, Final valid 3 years with annual affirmations | CMMC Level 2 Self-Assessment Quick Entry Guide, Version 4.0, Feb 2025, <https://www.sprs.csd.disa.mil/pdf/CMMCL2SelfQuickEntryGuide.pdf> (`e43f4b6457fcfd47`) |
+| AO definition quoted from 32 CFR 170 (as the tutorial quotes it); AO needs PIEE with Cyber Vendor User; Pending Affirmation; details pulled from PIEE; Continue to Affirmation → certify → Affirm; CMMC UID assigned; Level 2 annual affirmation from the Affirm button in the Affirmation Expiration Date column; "60-days prior" stated for C3PAO/DIBCAC records (the page says so and no more) | Affirming Official for CMMC tutorial transcript, <https://www.sprs.csd.disa.mil/pdf/training/AffirmingOfficialTutorialforCMMC-Transcript.pdf> (`8ccf392aac3ce96a`) |
+| CMMC questions to the DoD CIO mailbox; SPRS stores CMMC Level 1 and Level 2 results | SPRS CMMC page, <https://www.sprs.csd.disa.mil/cmmc.htm> (`8bdb055d241eecb9`) |
+| -7019(b) current assessment "not more than 3 years old unless a lesser time is specified in the solicitation" as a condition of award; -7020(g)(2) no covered subcontract unless the sub completed at least a Basic assessment within the last 3 years | The eCFR extracts in `ventures/cmmc/apps/cmmc-site/fixtures/dfars/dfars-252.204-7019.txt` and `-7020.txt` (2026-11-01 point in time; hashes pinned there) |
+
+Our own wording, not from SPRS: the order of the steps, the "short list", and the advice to request the role weeks ahead.
+
+## ISO 9001 internal audit checklist (2026-11-28)
+
+| Claim | Source and status |
+|---|---|
+| The 47 clause numbers and headings of ISO 9001:2015, clauses 4 to 10 | CMMC Workspace's clause library (`ventures/cmmc/apps/cmmc/src/shared/quality/iso9001.ts`), checked there on 2026-11-26 against the contents page of ISO 9001:2015(E), fifth edition, in the publisher-licensed preview (that app's docs/SOURCES.md, "ISO 9001"). No requirement text is reproduced. |
+| Clause 9.2 asks for an audit programme at planned intervals and auditors chosen for objectivity and impartiality; nonconformities lead to corrective action under 10.2 | Paraphrased in our words from the clause structure as commonly cited; the standard is paywalled and was not re-read in the building session. Re-check against a licensed copy. |
+| Major / minor / observation / opportunity for improvement | Not in the standard: registrar and customer practice, and the four grades CMMC Workspace's Audits tab records (`internal-audits.ts`, pinned by `audit.test.mjs`). The page says the standard does not grade findings. |
+| "Four audits a year" | Offered as one workable pattern, not as a requirement or a measured norm; ISO 9001 sets no interval. |

@@ -12,8 +12,18 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../lib/api";
-import type { Member, OrgInfo } from "../lib/types";
+import type { Evidence, Member, OrgInfo } from "../lib/types";
 import { btnCls, btnGhostCls, Card, ErrorText, Field, inputCls } from "../ui";
+import { DocumentImport } from "./DocumentImport";
+import { EvidenceUpload } from "./EvidenceUpload";
+
+/** An evidence file linked as a document's controlled copy. */
+export interface ControlledCopy {
+  id: string;
+  title: string;
+  fileName: string;
+  sha256: string;
+}
 
 export interface DocumentItem {
   id: string;
@@ -33,6 +43,8 @@ export interface DocumentItem {
   reviewMonths: number | null;
   reviewDue: string | null;
   notes: string;
+  evidenceId: string | null;
+  file: ControlledCopy | null;
   review: DocReviewState;
   suggestedNextRevision: string | null;
   issues: DocIssue[];
@@ -56,6 +68,9 @@ interface DocEvent {
   byName: string;
   on: string;
   effectiveOn: string | null;
+  fileEvidenceId: string | null;
+  fileName: string | null;
+  fileSha256: string | null;
 }
 
 const EMPTY = {
@@ -92,6 +107,7 @@ type Action =
   | { kind: "release"; doc: DocumentItem }
   | { kind: "review"; doc: DocumentItem }
   | { kind: "obsolete"; doc: DocumentItem }
+  | { kind: "file"; doc: DocumentItem }
   | { kind: "history"; doc: DocumentItem };
 
 export function DocumentsView({
@@ -121,6 +137,8 @@ export function DocumentsView({
   const [editing, setEditing] = useState<DocumentItem | null>(null);
   const [action, setAction] = useState<Action | null>(null);
   const [showObsolete, setShowObsolete] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const canImport = info.role !== "viewer";
   const reset = () => {
     setForm(EMPTY);
     setEditing(null);
@@ -184,14 +202,30 @@ export function DocumentsView({
           </p>
         </Card>
       )}
+      {importing && data && (
+        <DocumentImport
+          orgId={orgId}
+          today={data.today}
+          canAdd={info.plan.quality}
+          onUpgrade={isAdmin ? onUpgrade : undefined}
+          onClose={() => setImporting(false)}
+        />
+      )}
       <Card
         title="Controlled documents (ISO 9001 7.5)"
         actions={
-          data && data.items.length > 0 ? (
-            <a className={btnGhostCls} href={`/api/orgs/${orgId}/documents/export.csv`}>
-              Download master list (CSV)
-            </a>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            {canImport && !importing && (
+              <button type="button" className={btnGhostCls} onClick={() => setImporting(true)}>
+                Import a master list
+              </button>
+            )}
+            {data && data.items.length > 0 && (
+              <a className={btnGhostCls} href={`/api/orgs/${orgId}/documents/export.csv`}>
+                Download master list (CSV)
+              </a>
+            )}
+          </div>
         }
       >
         <ErrorText error={list.error} />
@@ -204,7 +238,8 @@ export function DocumentsView({
         </p>
         <p className="mb-3 text-xs text-stone-500">
           A record-keeping aid, not a certification: it does not make a quality system conform to
-          ISO 9001 or AS9100. The files themselves stay where you keep them.
+          ISO 9001 or AS9100. Link each released revision's file as its controlled copy, or say
+          where it is kept.
         </p>
         {data && data.check.active > 0 && (
           <p className="mb-2 text-sm font-medium text-stone-800">
@@ -264,6 +299,17 @@ export function DocumentsView({
                         {d.origin === "external" && ` · from ${d.issuer}`}
                         {d.location && ` · ${d.location}`}
                       </p>
+                      {d.file && (
+                        <p className="text-xs">
+                          Controlled copy:{" "}
+                          <a
+                            className="text-brand-600 underline"
+                            href={`/api/orgs/${orgId}/evidence/${d.file.id}/download`}
+                          >
+                            {d.file.fileName}
+                          </a>
+                        </p>
+                      )}
                     </td>
                     <td className="pr-2 text-xs">{d.releasedRevision ?? "—"}</td>
                     <td className="pr-2 text-xs">
@@ -320,6 +366,15 @@ export function DocumentsView({
                           onClick={() => setAction({ kind: "review", doc: d })}
                         >
                           Reviewed
+                        </button>
+                      )}
+                      {canRecord && d.releasedRevision !== null && d.status !== "obsolete" && (
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() => setAction({ kind: "file", doc: d })}
+                        >
+                          {d.file ? "Change file" : "Link file"}
                         </button>
                       )}
                       {canRecord && d.releasedRevision !== null && d.status !== "obsolete" && (
@@ -536,6 +591,14 @@ function ActionCard({
   const [effectiveOn, setEffectiveOn] = useState("");
   const [approvedBy, setApprovedBy] = useState("");
   const [text, setText] = useState("");
+  const [evidenceId, setEvidenceId] = useState<string | null>(
+    action.kind === "file" ? d.evidenceId : null,
+  );
+  const files = useQuery({
+    queryKey: ["evidence", orgId],
+    queryFn: () => api<{ items: Evidence[] }>(`/api/orgs/${orgId}/evidence`),
+    enabled: action.kind === "release" || action.kind === "file",
+  });
   const history = useQuery({
     queryKey: ["document-history", orgId, d.id],
     queryFn: () => api<{ items: DocEvent[] }>(`/api/orgs/${orgId}/documents/${d.id}/history`),
@@ -552,8 +615,11 @@ function ActionCard({
             effectiveOn: effectiveOn || null,
             approvedBy: approvedBy || undefined,
             changeSummary: text || undefined,
+            evidenceId,
           },
         });
+      if (action.kind === "file")
+        return api(`${base}/file`, { method: "PUT", json: { evidenceId } });
       if (action.kind === "review")
         return api(`${base}/review`, {
           method: "POST",
@@ -570,7 +636,9 @@ function ActionCard({
         ? `Record a review of ${d.docNumber} rev ${d.releasedRevision}`
         : action.kind === "obsolete"
           ? `Withdraw ${d.docNumber}`
-          : `History of ${d.docNumber}`;
+          : action.kind === "file"
+            ? `Controlled copy of ${d.docNumber} rev ${d.releasedRevision}`
+            : `History of ${d.docNumber}`;
   return (
     <Card
       title={title}
@@ -597,10 +665,51 @@ function ActionCard({
                   <span className="text-stone-500"> · effective {e.effectiveOn}</span>
                 )}
                 <p className="text-stone-700">{e.summary}</p>
+                {e.fileName && (
+                  <p className="text-xs text-stone-500">
+                    Controlled copy:{" "}
+                    {e.fileEvidenceId ? (
+                      <a
+                        className="text-brand-600 underline"
+                        href={`/api/orgs/${orgId}/evidence/${e.fileEvidenceId}/download`}
+                      >
+                        {e.fileName}
+                      </a>
+                    ) : (
+                      `${e.fileName} (file since deleted)`
+                    )}{" "}
+                    · SHA-256 <span className="font-mono">{e.fileSha256?.slice(0, 12)}…</span>
+                  </p>
+                )}
               </li>
             ))}
           </ul>
         </>
+      ) : action.kind === "file" ? (
+        <form
+          className="space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit.mutate();
+          }}
+        >
+          <p className="text-sm text-stone-700">
+            The file people work to for rev {d.releasedRevision}. Its name and SHA-256 go on the
+            release in the history and on the master list, so an auditor can see which file was
+            approved.
+          </p>
+          <ControlledCopyPicker
+            orgId={orgId}
+            files={files.data?.items ?? []}
+            evidenceId={evidenceId}
+            uploadTitle={`${d.docNumber} rev ${d.releasedRevision} ${d.title}`}
+            onChange={setEvidenceId}
+          />
+          <button type="submit" className={btnCls} disabled={submit.isPending}>
+            {evidenceId ? "Link this file" : "Unlink the file"}
+          </button>
+          <ErrorText error={submit.error ?? files.error} />
+        </form>
       ) : (
         <form
           className="grid gap-3 sm:grid-cols-2"
@@ -652,6 +761,15 @@ function ActionCard({
                   onChange={(e) => setEffectiveOn(e.target.value)}
                 />
               </Field>
+              <div className="sm:col-span-2">
+                <ControlledCopyPicker
+                  orgId={orgId}
+                  files={files.data?.items ?? []}
+                  evidenceId={evidenceId}
+                  uploadTitle={`${d.docNumber} rev ${d.revision} ${d.title}`}
+                  onChange={setEvidenceId}
+                />
+              </div>
             </>
           )}
           <Field
@@ -689,5 +807,55 @@ function ActionCard({
         </form>
       )}
     </Card>
+  );
+}
+
+/** Pick the controlled copy from the org's evidence files, or upload it here. */
+function ControlledCopyPicker({
+  orgId,
+  files,
+  evidenceId,
+  uploadTitle,
+  onChange,
+}: {
+  orgId: string;
+  files: Evidence[];
+  evidenceId: string | null;
+  uploadTitle: string;
+  onChange: (id: string | null) => void;
+}) {
+  return (
+    <fieldset className="block text-sm">
+      <legend className="mb-1 block font-medium text-stone-800">Controlled copy (optional)</legend>
+      <select
+        className={inputCls}
+        value={evidenceId ?? ""}
+        onChange={(e) => onChange(e.target.value || null)}
+        aria-label="Controlled copy: evidence file"
+      >
+        <option value="">No file linked (kept where the location says)</option>
+        {evidenceId && !files.some((f) => f.id === evidenceId) && (
+          <option value={evidenceId}>(linked file)</option>
+        )}
+        {files.map((f) => (
+          <option key={f.id} value={f.id}>
+            {f.title}
+            {f.title !== f.fileName ? ` (${f.fileName})` : ""}
+          </option>
+        ))}
+      </select>
+      <span className="mt-1 block text-xs text-stone-500">
+        The approved PDF or Word file of this revision. Its SHA-256 is recorded with the release.
+      </span>
+      <details className="mt-1 text-xs">
+        <summary className="cursor-pointer text-brand-600 underline">Upload the file here</summary>
+        <EvidenceUpload
+          orgId={orgId}
+          label="Controlled copy"
+          defaultTitle={uploadTitle}
+          onUploaded={(ev) => onChange(ev.id)}
+        />
+      </details>
+    </fieldset>
   );
 }

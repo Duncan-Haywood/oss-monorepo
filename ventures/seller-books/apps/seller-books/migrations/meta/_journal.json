@@ -127,6 +127,13 @@
       "when": 1795830292640,
       "tag": "0017_signup_source",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1795855306914,
+      "tag": "0018_lot_split_by_value",
+      "breakpoints": true
     }
   ]
 }

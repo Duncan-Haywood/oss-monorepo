@@ -3,6 +3,7 @@ title: "Checking deck posts for column buckling without leaving the page"
 date: 2026-10-31
 tags: [wall-framing-takeoff, deck, posts, takeoff]
 description: "The deck post check (NDS column stability and beam bearing) now takes its loads from one page field. A 16 x 12 ft deck at 36 in: 4x4 posts at 19%, 6x6 at 8%."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The deck mode of the [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) could already check posts, but only from the command line. There is now a "Post check" field on the deck card: dead psf, live psf, the post's fc, its Emin, and optionally the beam's compression perpendicular to grain. Leave it blank and nothing is checked.

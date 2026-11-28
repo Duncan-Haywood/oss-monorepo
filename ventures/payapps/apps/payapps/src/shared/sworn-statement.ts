@@ -16,7 +16,8 @@
 // own heading and a generic jurat with blanks, the same as the application's notary block, and says
 // so. Nothing decides what the law requires of a particular job.
 //
-// Nothing is stored: the form is posted, the PDF comes back. The rows can be prefilled from the job's
+// The PDF is not stored: the form is posted, the PDF comes back. The draft between months is, per job
+// (swornDraftSchema, db/schema/sworn-statements.ts). The rows can be prefilled from the job's
 // purchase orders and subcontracts (job costing), with what each vendor has invoiced to date as a
 // cross-check on paid + owing + retainage.
 
@@ -88,6 +89,28 @@ export type SwornRowInput = z.input<typeof swornRowSchema>;
 export type SwornRow = z.output<typeof swornRowSchema>;
 export type SwornStatementInput = z.input<typeof swornStatementSchema>;
 export type SwornStatement = z.output<typeof swornStatementSchema>;
+
+/**
+ * A statement as saved between months: the same fields and limits, but half typed is fine (a party
+ * not named yet, a blank date), so saving never fails on what printing would refuse. Printing still
+ * runs the full schema.
+ */
+export const swornDraftSchema = swornStatementSchema.extend({
+  projectName: text(200).default(""),
+  contractorName: text(200).default(""),
+  statementDate: text(10).default(""),
+  rows: z.array(swornRowSchema.extend({ name: text(160).default("") })).max(MAX_SWORN_ROWS),
+});
+export type SwornDraftInput = z.input<typeof swornDraftSchema>;
+export type SwornDraft = z.output<typeof swornDraftSchema>;
+
+/** A job's saved draft as the API returns it; `draft` is null when none is saved. */
+export interface SwornDraftDto {
+  draft: SwornDraft | null;
+  /** ISO timestamp of the last save. */
+  updatedAt: string | null;
+  updatedByName: string | null;
+}
 
 export interface SwornIssue {
   level: "error" | "warning" | "note";
