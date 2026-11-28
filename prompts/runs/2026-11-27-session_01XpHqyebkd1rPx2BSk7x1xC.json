@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "codeql gate (javascript-typescript) failed: js/bad-tag-filter on pro/provider.test.mjs's /<script>/ assertion",
+      "fix": "made it /<script\\b/i in the same PR"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
