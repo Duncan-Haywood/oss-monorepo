@@ -11,6 +11,7 @@ import { newId } from "../../lib/ids";
 import { unlinkNetworkDiagram } from "../assets";
 import { audit } from "../audit";
 import { requireControl } from "../controls";
+import { unlinkDocumentEvidence } from "../documents";
 import { unlinkEvidenceEverywhere } from "../quality";
 import { unlinkProviderEvidence } from "../service-providers";
 
@@ -162,6 +163,8 @@ export async function deleteEvidence(
   await unlinkProviderEvidence(ctx, orgId, id);
   // And the asset inventory, if it was the network diagram.
   await unlinkNetworkDiagram(ctx, orgId, id);
+  // And any controlled document whose controlled copy it was (the history keeps its name and hash).
+  await unlinkDocumentEvidence(ctx, orgId, id);
   await ctx.files.delete(row.r2Key);
   await ctx.db.delete(evidence).where(and(eq(evidence.id, id), eq(evidence.orgId, orgId)));
   await audit(ctx, {

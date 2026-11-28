@@ -218,4 +218,33 @@ describe("masterListCsv", () => {
     expect(lines[2]).toContain("WI-2,'=HYPERLINK(1),Procedure,Internal,,B,Draft,C,Pat Quality");
     expect(lines[2]).toContain('"a, b"');
   });
+
+  it("names the linked controlled copy and its SHA-256, and empties the cells without one", () => {
+    const sha = "a".repeat(64);
+    const csv = masterListCsv(
+      [
+        { ...doc({ docNumber: "QP-1", evidenceId: "ev_1" }), notes: "" },
+        { ...doc({ docNumber: "QP-2", evidenceId: "ev_gone" }), notes: "" },
+      ],
+      () => "",
+      "2026-11-26",
+      (id) => (id === "ev_1" ? { fileName: "=QP-1 rev B.pdf", sha256: sha } : null),
+    );
+    const [head, one, two] = csv.trim().split("\r\n");
+    const cols = (head ?? "").split(",");
+    const at = cols.indexOf("Controlled copy (evidence)");
+    expect(cols[at + 1]).toBe("Controlled copy SHA-256");
+    expect((one ?? "").split(",").slice(at, at + 2)).toEqual(["'=QP-1 rev B.pdf", sha]);
+    expect((two ?? "").split(",").slice(at, at + 2)).toEqual(["", ""]);
+  });
+});
+
+describe("documentIssues and the controlled copy", () => {
+  it("asks for a location only when no file is linked either", () => {
+    const where = (d: Parameters<typeof documentIssues>[0]) =>
+      documentIssues(d, "2026-11-26").some((i) => i.message.includes("controlled copy"));
+    expect(where(doc({ location: "" }))).toBe(true);
+    expect(where(doc({ location: "", evidenceId: "ev_1" }))).toBe(false);
+    expect(where(doc({ location: "Binder 2" }))).toBe(false);
+  });
 });
