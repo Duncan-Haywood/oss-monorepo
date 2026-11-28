@@ -75,6 +75,10 @@ export const MODULES: readonly ModuleData[] = [
     guides: [
       { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
       { label: "How to quote CNC turning and lathe parts", path: "/how-to-quote-cnc-turning" },
+      {
+        label: "How to quote outside processing (heat treat, plating)",
+        path: "/how-to-quote-outside-processing",
+      },
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
       { label: "Machine shop quoting software compared", path: "/compare" },
@@ -376,6 +380,10 @@ export const MODULES: readonly ModuleData[] = [
     ],
     guides: [
       { label: "How to work out a machine shop hourly rate", path: "/machine-shop-hourly-rate" },
+      {
+        label: "How to quote outside processing (heat treat, plating)",
+        path: "/how-to-quote-outside-processing",
+      },
       { label: "Machine shop quote template (free CSV)", path: "/machine-shop-quote-template" },
     ],
     faq: {

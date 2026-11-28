@@ -1109,3 +1109,35 @@ shop's own rate card. A test runs the example through those suggestions and
 fails if any minute differs. The app does not work out speeds and feeds,
 finishing passes, tool changes or loading time; the estimator types those
 in. All the figures are made up, and the guide says so.
+
+## Update, 28 November 2026: quoting the work you send out
+
+Heat treat, anodize, plating and black oxide are the part of a quote whose
+price someone else sets. A new guide covers them: [how to quote outside
+processing](https://marisstella.app/jobshop/how-to-quote-outside-processing).
+It turns a per-pound heat-treat price into a per-part charge from the
+finished weight, takes the larger of per-part × parts sent and the vendor's
+lot minimum, counts the spares sent for fallout, adds freight and the
+certificate, and marks the outside work up. The worked example is a made-up
+4140 clamp block, hardened by one vendor and black oxided by another, at 5,
+50 and 250 pieces. It is priced twice: properly, and the common shortcut of
+multiplying each vendor's per-part price by the quantity. Three things the
+comparison shows:
+
+- **At 5 pieces the shortcut quotes less than half the job.** The vendors
+  would bill $10.74 and $7.20 by the part; their minimums are $175 and $85.
+  With freight and the certificate, outside costs are 51% of the cost, and
+  the multiplied quote is $391.45 against $810.50.
+- **The minimums still bind at 50.** 52 parts sent is below both break-even
+  counts (71 for the black oxide, 98 for the heat treat), so the outside
+  charge is the same as at 5. The shortfall is $281.50, about $5.63 a part,
+  easy to miss in a $2,371 quote.
+- **At 250 the per-part prices are right,** and what is still missing is the
+  $115 of freight and certificate and the markup: $252.50.
+
+Job Shop Quote holds each finish as a rate-card entry with a per-part charge
+and a lot minimum, marked up at its own outside-service rate, with freight
+and certificates as extras on the line. It does not price a finish by the
+pound or by area; the estimator types the per-part figure. A test prices the
+block both ways with the app's costing engine and fails if any quantity
+break differs by a cent. All the figures are made up, and the guide says so.

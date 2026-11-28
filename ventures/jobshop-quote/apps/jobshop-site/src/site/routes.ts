@@ -156,6 +156,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-quote-outside-processing",
+      label: "How to quote outside processing",
+      title: `How to quote outside processing: heat treat, anodize, plating · ${SITE_NAME}`,
+      description:
+        "Quote heat treat, anodize, plating and black oxide sent to a vendor: per-part and per-lb prices, lot minimums, freight, certs, markup and quantity breaks.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/how-to-estimate-cnc-machining-time",
       label: "How to estimate CNC machining time",
       title: `How to estimate CNC machining time for a quote · ${SITE_NAME}`,
