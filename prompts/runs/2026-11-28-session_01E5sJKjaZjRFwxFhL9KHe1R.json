@@ -27,9 +27,9 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
-  "tests_added": 20,
+  "tests_added": 21,
   "outcome": "success",
   "errors": [
     {
@@ -39,6 +39,10 @@
     {
       "what": "impots.gouv.fr and entreprendre.service-public.gouv.fr refused by the proxy (403) and by WebFetch (DNS)",
       "fix": "the page states only facts already in the checked deadline file (DGFiP, re-read 2026-11-27) and the bundled rule files; dropped two unsourced sentences (B2C e-reporting scope, SIE issuing VAT numbers)"
+    },
+    {
+      "what": "merge conflict with PR #20032 (Kleinunternehmer) in create.html; git's auto-merge also put two <loc> lines in one sitemap <url>, failing peppol-factuur-controleren.test.mjs; main's new BR-CO-26 creator check ignored legal_id (BT-30)",
+      "fix": "kept both seller id fields, split the sitemap entry, let legal_id satisfy BR-CO-26 (it is BT-30), added a test; full suite 2908 ok"
     }
   ],
   "integrity_issues": [],

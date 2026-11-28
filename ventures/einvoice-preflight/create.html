@@ -98,6 +98,7 @@
       <label>Country (ISO) <input data-k="country" maxlength="2" value="DE"></label>
       <label>VAT ID <input data-k="vat_id" placeholder="DE123456789"></label>
       <label>Tax number (if no VAT ID) <input data-k="tax_number"></label>
+      <label>Seller ID or register no. (needed if no VAT ID) <input data-k="company_id" placeholder="HRB 12345 / supplier no."></label>
       <label>SIREN / registration no. (BT-30) <input data-k="legal_id" inputmode="numeric"></label>
       <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
       <label>E-address (email / GLN / ...) <input data-k="endpoint_id"></label>
@@ -176,7 +177,7 @@
 
     function party(id) {
       const v = {}; document.querySelectorAll(`#${id} [data-k]`).forEach((el) => { v[el.dataset.k] = el.value.trim(); });
-      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number, legal_id: v.legal_id };
+      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number, company_id: v.company_id, legal_id: v.legal_id };
       if (v.endpoint_id) p.endpoint = { scheme: v.endpoint_scheme, id: v.endpoint_id };
       if (v.contact_name || v.contact_phone || v.contact_email) p.contact = { name: v.contact_name, phone: v.contact_phone, email: v.contact_email };
       return p;
@@ -337,7 +338,7 @@
     // and the VAT numbers they give have valid check digits (micro-entrepreneur-bench.mjs).
     function frenchExample() {
       const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
-      set("seller", { name: "Camille Martin EI", street: "12 rue des Lilas", postal_code: "69003", city: "Lyon", country: "FR", vat_id: "FR11123456782", tax_number: "", legal_id: "123456782", endpoint_scheme: "0225", endpoint_id: "123456782", contact_name: "", contact_phone: "", contact_email: "" });
+      set("seller", { name: "Camille Martin EI", street: "12 rue des Lilas", postal_code: "69003", city: "Lyon", country: "FR", vat_id: "FR11123456782", tax_number: "", company_id: "", legal_id: "123456782", endpoint_scheme: "0225", endpoint_id: "123456782", contact_name: "", contact_phone: "", contact_email: "" });
       set("buyer", { name: "Atelier Exemple SARL", street: "4 avenue de la République", postal_code: "75011", city: "Paris", country: "FR", vat_id: "FR14987654324", legal_id: "987654324", endpoint_scheme: "0225", endpoint_id: "987654324" });
       set("payment", { iban: "FR7630006000011234567890189", bic: "", account_name: "Camille Martin" });
       $("currency").value = "EUR"; $("number").value = "F-2026-014"; $("buyer_reference").value = ""; $("terms").value = "Paiement à 30 jours";

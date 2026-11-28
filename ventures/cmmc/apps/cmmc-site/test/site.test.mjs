@@ -224,6 +224,15 @@ for (const [mode, launch] of MODES) {
     if (!launch.open) {
       assert.match(pricing, /Early access is free/);
       assert.match(pricing, /prices we propose/);
+      // Proposed prices come from the catalog too (2026-11-28: the old $39/$149/$249 proposal
+      // survived here after the app's catalog moved to free/$249/$399).
+      assert.match(pricing, /Level 2<\/h2><p class="price">\$249/);
+      assert.match(pricing, /Level 2 \+ Quality<\/h2><p class="price">\$399/);
+      assert.doesNotMatch(
+        pricing,
+        /\$39<|\$149<|pays less than FutureFeed/,
+        "no stale proposed prices",
+      );
     } else {
       // The app's plans (src/plans.mjs, checked against plans.ts), paid ones not on sale yet.
       assert.match(pricing, /Level 1<\/h2><p class="price">\$0/);

@@ -120,3 +120,14 @@ test("Factur-X: the France profile embeds the same CII as factur-x.xml, which th
   const rep = (await preflightDocuments([{ name: "f.pdf", source: r.pdf }], { profile: "france" })).reports[0];
   assert.deepEqual(rep.errors.map((f) => f.rule), []);
 });
+
+test("BR-CO-26: a legal registration id (BT-30) identifies a seller with no VAT ID, as the rule allows", () => {
+  const d = draft();
+  delete d.seller.vat_id;
+  d.seller.tax_number = "12 345 678 901";
+  d.lines[0].tax_reason = "Exempt";
+  const r = generateInvoice(d, { format: "cii", profile: "en16931" });
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+  delete d.seller.legal_id;
+  assert.ok(paths(generateInvoice(d, { format: "cii", profile: "en16931" })).includes("seller.company_id"));
+});
