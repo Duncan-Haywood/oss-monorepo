@@ -1,9 +1,9 @@
 ---
-title: "Re-audit: Retail Pilot Intel now counts the right store on the right Rome day, and a till's local clock still fooled it"
-seo_title: "Store conversion rate by local trading day: why a POS timestamp needs a time zone"
+title: "Re-audit: Retail Pilot Intel counts the right store on the right Rome day; a till clock still fooled it"
+seo_title: "Store conversion by local day: POS timestamps need a time zone"
 date: 2026-11-28
 tags: [quality-audit, evaluation, retail, retail-pilot-intel]
-description: "A re-check of Retail Pilot Intel against its 2026-11-19 audit. The high defect is closed and seven of eleven are fixed or partly fixed; claims and fitness still miss the bar."
+description: "Retail Pilot Intel re-checked against its 2026-11-19 audit: the high defect is closed, 6 of 11 fixed, and claims and fitness still miss the bar."
 ---
 
 Retail Pilot Intel joins door counts to point-of-sale receipts so a small shop
