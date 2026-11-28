@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVPETYZZPMsh2F4hVY9",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:56:19Z",
+  "ended": "2026-11-28T05:15:29Z",
+  "wall_minutes": 19.43,
+  "tokens_in": 6800484,
+  "tokens_out": 28665,
+  "cost_usd": 2.7525,
+  "tool_calls": 76,
+  "task": "perf: money-sign check prefilter in Portfolio validate",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20003",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "security_next.py listed alert #1518 as workable; --claim then reported another run already held it (race, no harm)",
+    "build.mjs --only=payapps,jobshop-quote,cmmc fails: the bets are not catalogue ventures, so a full 2m44s build was needed to bench industry pages",
+    "live site benchmark (BASE_URL=https://marisstella.app) refused: proxy 403 on CONNECT"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 points at a bet's front door, but page-bench --only cannot build the industries/ pages (bets are not --only targets) and the live site is unreachable from cloud sessions; say a full build (~3 min) is needed"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Items 2-3: the suites and front doors of the top bets are already tight (einvoice-pro, ai-bookkeeper flat; industry pages ~650 ms); the remaining pool time is Portfolio validate's 112 serial steps and priv-* checkouts. Worth naming so runs skip the sweep"
+    },
+    {
+      "file": "platform/ci/ci_profile.py",
+      "issue": "--save writes {window, jobs:[...]}, not a list; undocumented in --help, cost two retries"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No new post in docs/posts: a 3 s CI saving is not reader-interesting and the owner asks for consolidated posts",
+      "did": "history doc only",
+      "result": "docs/history/ci-perf-2026-11-28-money-sign-prefilter.md"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-28-money-sign-prefilter.md"
+  ],
+  "goal": "CI pool time (Portfolio validate job minutes)",
+  "notes": "Metric: wall time of the two Portfolio validate steps that run check_money_sign. Before/after = median of 5 runs of each step's own command on this container, git stash for before: check step 4.95 s -> 1.85 s; unit-test step 5.39 s -> 1.97 s (~6.5 s per job, ~3% of the 216 s median job). Same answers: old vs new findings_in over 20,715 tracked html/mjs/js files, 85 findings, identical (7.73 s -> 1.97 s). Pool reading: ci_profile --runs 600 at 05:04Z, Portfolio validate 59.5 job-min / 19 jobs. Local run_workflow_locally portfolio-validate: 110/110 run steps passed, 5 not run (uses: steps, base-ref fetch, venture-regression needing refs/ci/base-main).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04d66a3c-b316-5569-8007-9231db857b41",
+    "transcripts": 1,
+    "first": "2026-11-28T04:56:19Z",
+    "last": "2026-11-28T05:15:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 28665,
+        "thinking": 7165,
+        "cache_read": 6695402,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104947,
+        "api_equivalent_usd": 2.7525,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 28665,
+      "thinking": 7165,
+      "cache_read": 6695402,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104947,
+      "api_equivalent_usd": 2.7525,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 68,
+      "Write": 4,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.43,
+      "active_minutes": 19.43,
+      "model_minutes": 5.46,
+      "tool_minutes": 13.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profiling a CI checker, prefilter, equivalence check and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 72.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

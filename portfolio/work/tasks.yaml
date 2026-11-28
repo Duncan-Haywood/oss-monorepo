@@ -413,11 +413,14 @@ tasks:
     status: open
     added: 2026-11-27
     notes: >-
-      Split by tool so each is one PR: (1) gitleaks, 97 matches in 54
-      files, nearly all test fixtures (AKIA... in the Terraform secret-check
-      tests, sample JWTs in jwt-security-check) and statistical engine code
-      gitleaks reads as keys; check each is not a live credential before
-      accepting it. (2) semgrep, 24: js-child-process-dynamic in the
+      Split by tool so each is one PR: (1) gitleaks, done 2026-11-28: all
+      97 matches in 54 files opened by hand and none is a live credential
+      (test placeholders, synthetic AKIA ids, RFC 7515/7519 and jwt.io
+      example tokens, DKIM public keys, citation keys in statistical
+      engines, file hashes, the public IndexNow key, one vendor's published
+      demo JWT in research data); 96 fingerprinted entries in baseline.yaml
+      clear them (`scan.py repo --tools gitleaks` then reports 0 blocking).
+      (2) semgrep, done (PRs 19952, 19962), 24: js-child-process-dynamic in the
       platform/ci page checkers and a few ventures, py-shell-injection in
       run_workflow_locally.py and runner_probe.py, js-tls-verify-off in
       status-keeper/certs.mjs; fix the real ones. (3) run the workflow once

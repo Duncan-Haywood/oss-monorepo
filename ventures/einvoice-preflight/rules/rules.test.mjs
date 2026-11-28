@@ -152,7 +152,7 @@ test("every rule page's title names the rule's own explanation, never a generic 
   // Before 2026-11-28 a title over 70 characters became "<id>: XRechnung explained" on 94 pages.
   for (const r of rules) for (const lang of langsOf(r)) {
     const html = fs.readFileSync(new URL(`${lang}/${slugOf(r.id)}.html`, here), "utf8");
-    const title = html.match(/<title>([^<]*)<\/title>/)[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#39;/g, "'");
+    const title = html.match(/<title>([^<]*)<\/title>/)[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
     const first = r[lang].title.split(/\s+/).slice(0, 2).join(" ");
     assert.ok(title.startsWith(`${r.id}: ${first}`), `${lang}/${slugOf(r.id)}: "${title}" does not start with its own title`);
   }

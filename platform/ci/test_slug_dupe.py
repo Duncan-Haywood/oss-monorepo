@@ -229,7 +229,7 @@ class T(unittest.TestCase):
             slug_dupe.fetch_ref.fetch_ref = lambda ref, remote, days, cwd, out, timeout=None: calls.append(days) or 0
             slug_dupe.fetch_ref.is_shallow = lambda cwd: True
             slug_dupe.repo_of = lambda remote="origin": "o/r"
-            slug_dupe.search_prs = lambda slug, days, repo, a=answer: a
+            slug_dupe.search_prs = lambda slug, days, repo, a=answer, **kw: a
             try:
                 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                     self.assertEqual(slug_dupe.main(["nope-zzz"]), 0)
@@ -266,6 +266,20 @@ class Search(unittest.TestCase):
         self.assertEqual(merged, ["#5 2026-11-20 x: Foo-Calc part 2"])
         self.assertEqual(open_, ["#6 2026-11-25 foo-calc: wip"])
         self.assertIn('q=repo:o/r is:pr in:title "foo-calc" updated:>=2026-11-12', seen["cmd"])
+
+    def test_spaced_title_is_a_possible_match_not_a_duplicate(self):
+        import datetime as dt
+        run, _ = self.fake([
+            {"number": 7, "state": "closed", "title": "foo calc loosely", "pull_request": {"merged_at": "2026-11-21"}},
+            {"number": 10, "state": "open", "title": "redteam: Foo Calc 2026-11-28", "pull_request": {"merged_at": None}},
+            {"number": 11, "state": "closed", "title": "foo calc unmerged", "pull_request": {"merged_at": None}},
+            {"number": 12, "state": "closed", "title": "food calculator", "pull_request": {"merged_at": "2026-11-21"}},
+        ])
+        loose = []
+        merged, open_ = slug_dupe.search_prs("foo-calc", 14, "o/r", run=run, today=dt.date(2026, 11, 26),
+                                             loose=loose)
+        self.assertEqual((merged, open_), ([], []))
+        self.assertEqual(loose, ["#7 2026-11-21 foo calc loosely", "#10 open redteam: Foo Calc 2026-11-28"])
 
     def test_unavailable_is_none(self):
         run, _ = self.fake([], rc=1)
