@@ -128,6 +128,36 @@ expenses that are not tied to one sale, such as ads bought separately,
 subscriptions and supplies, so a lot can show as paid back and still have
 lost money once those are counted. The page says so.
 
+## A lot split by what each piece should sell for (added 2026-11-28)
+
+Step 2 above says to split a mixed lot by expected resale value, and until
+today Seller Books could only split it evenly. Now each lot has a choice,
+"evenly over the items" or "by what each item should sell for", and each item
+in it can carry an expected price (typed on the lot's item lines as a fourth
+column, `title | SKU | cost | expected price`, or set later from the item's
+row). Items with a typed-in cost keep it; the rest of the lot's cost is shared
+in proportion to the expected prices, rounded so the shares still add up to
+the lot's cost to the cent.
+
+The guide's worked lot gives the same figures in the app (a unit test holds
+them): $120.00 over two pieces expected at $60, eight at $20 and ten at $5
+($330 expected in all) is $21.82, $7.27 and $1.82 a piece, where an even split
+puts $6.00 on each. That moves profit to where it was earned. Sell one of the
+$60 pieces for $60 and the even split shows $54.00 of profit; split by value it
+shows $38.18. And if only the cheap pieces sold by December 31, an even split
+leaves $12.00 of cost on the two premium pieces still on the shelf, where the
+value split leaves $43.64, so closing inventory on Schedule C line 41 follows what is
+actually left.
+
+Until every item sharing the cost has a price, the lot is split evenly and
+the lots table says how many still need one, so a half-priced lot never
+produces lopsided costs. Switching the method or changing a price re-spreads
+the lot, including items already sold, just as adding an item to a lot always
+has: settle the prices before you file the year those sales fall in. Pick one
+method, write it down and keep using it; which suits your records is a
+question for you and your preparer, not something the app decides, and none
+of this is tax advice.
+
 ## Which stores pay? Profit by where you buy (added 2026-11-27)
 
 Most resellers' sourcing sheets have a "where bought" column, and the

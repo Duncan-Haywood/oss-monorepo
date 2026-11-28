@@ -69,7 +69,12 @@ duplicates. Deleting an import deletes its rows and puts the items its sales had
 **Cost of goods.**
 - Every inventory item has a cost. A lot (a bin, pallet or estate-sale haul) spreads its total cost over its
   items. Typed-in costs are kept, the rest is split evenly, and leftover cents go to the first items, so the
-  shares always add back up to the lot total (`services/books/lots.ts`).
+  shares always add back up to the lot total (`services/books/lots.ts`). Since 2026-11-28 (migration 0018)
+  a lot can instead be split by value (`inventory_lot.split_by = 'value'`): each item's share is in
+  proportion to the price the seller expects it to sell for (`inventory_item.estimated_value_cents`),
+  rounded by largest remainder (ties to the first items) so it still adds up to the cent. Until every item
+  sharing the cost has a price the lot is split evenly, the response's `splitUsed` says which ran, and the
+  lots list counts the items still missing one. Changing the split or a price re-spreads the lot.
 - An order is linked to the items it sold (`services/books/units.ts`, since 2026-11-26): one item per unit, so
   an order for two of a SKU sells two items, each recording the order in `inventory_item.sold_by_sale_id`
   (migration 0006 backfills it for earlier links; `sale.inventory_item_id` stays as the order's first item).
