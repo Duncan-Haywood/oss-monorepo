@@ -160,6 +160,14 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (seller.name && !seller.vat_id && !seller.tax_number) {
     err("seller.vat_id", "The seller needs a VAT ID or a national tax number (EN 16931 rule BR-CO-9 / BT-31 or BT-32).");
   }
+  // BR-CO-26 (fatal in the CEN Schematron): a tax number (BT-32) alone does not identify the
+  // seller; with no VAT ID the invoice needs a seller identifier (BT-29) or a legal registration
+  // id (BT-30). A Kleinunternehmer with only a Steuernummer hit this (kleinunternehmer-bench.mjs,
+  // 2026-11-28): the creator wrote the file, the built-in checks passed it, the official rules
+  // rejected it. Category O already asked for this below.
+  if (seller.name && !seller.vat_id && seller.tax_number && !seller.company_id) {
+    err("seller.company_id", "With no VAT ID, a tax number alone does not identify the seller (EN 16931 rule BR-CO-26): add a seller identifier (company_id, BT-29), e.g. a trade register number or the supplier number your customer gave you.");
+  }
   if (seller.vat_id && !/^[A-Z]{2}[A-Z0-9]{2,12}$/.test(seller.vat_id)) {
     err("seller.vat_id", "VAT ID should start with a 2-letter country prefix, e.g. DE136695976.");
   }
@@ -338,7 +346,7 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (hasO && items.some((l) => l.category !== "O")) err("lines", "A line not subject to VAT (O) cannot share an invoice with lines in other VAT categories (BR-O-11, BR-O-12): put them on separate invoices.");
   if (hasO && !hr) {
     for (const p of [seller, buyer]) if (p.vat_id) err(`${p.role}.vat_id`, `An invoice whose lines are not subject to VAT (O) must not carry the ${p.role}'s VAT ID (BR-O-02).${p.role === "seller" ? " Give a company registration number (company_id) instead." : ""}`);
-    if (!seller.company_id) err("seller.company_id", "With no VAT ID (category O), identify the seller by a company registration or other seller identifier (company_id, BR-CO-26).");
+    if (!seller.company_id && !errors.some((e) => e.path === "seller.company_id")) err("seller.company_id", "With no VAT ID (category O), identify the seller by a company registration or other seller identifier (company_id, BR-CO-26).");
   }
   // Intra-community supply (K) needs the date of supply and the country the goods go to (BR-IC-11, -12).
   const hasK = lines.some((l) => l.category === "K");
