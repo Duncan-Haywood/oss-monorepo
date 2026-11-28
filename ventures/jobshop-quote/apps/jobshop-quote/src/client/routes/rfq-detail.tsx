@@ -206,6 +206,16 @@ export function RfqDetailPage() {
                   </a>
                 )}{" "}
                 {f.hasText && f.mimeType === "application/pdf" && (
+                  <Link
+                    className="text-sky-800 underline"
+                    to="/app/$orgId/rfqs/$rfqId/files/$fileId/first-article"
+                    params={{ orgId, rfqId, fileId: f.id }}
+                    title="Enter the first article results against this drawing's characteristics and see each row's accept or reject"
+                  >
+                    Inspect first article
+                  </Link>
+                )}{" "}
+                {f.hasText && f.mimeType === "application/pdf" && (
                   <a
                     className="text-sky-800 underline"
                     href={orgApi(orgId, `/rfqs/${rfqId}/files/${f.id}/ballooned.pdf`)}

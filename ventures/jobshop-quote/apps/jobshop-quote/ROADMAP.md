@@ -883,6 +883,23 @@ checks the pair. No customers yet.
   CSV's rows, scan refusal, tenancy). Why: auto-ballooning is what the first-article tools charge
   their higher tiers for (bets.md, bet #2 "First article": 1factory's $75 tier).
 
+- First article results, part 2a (2026-11-28, every plan, fai-results-screen): "Inspect first
+  article" beside the CSV link opens the drafted list as a screen
+  (`/app/:orgId/rfqs/:rfqId/files/:fileId/first-article`, `GET`/`PUT
+  /rfqs/:id/files/:fileId/first-article`, estimator to save, viewer to read). Per row the inspector
+  enters the zone, the key characteristic designator, the result (one or several readings), tooling
+  and a nonconformance number, marks a false read "not a characteristic" (kept, not counted), and adds
+  rows the text missed (requirement, limits, unit, measured or accept/reject), numbered after the
+  draft. Each row is judged as they type, by the same code the server and CSV use
+  (`src/shared/fai-results.ts`): every reading within the limits (inclusive) accepts, any one outside
+  rejects and says which limit; a checked row needs accept or reject in words; an unreadable result
+  stays open, never accepted; a reject without an NCR keeps the sheet incomplete. Saved per drawing
+  file (`fai_inspections`, migration 0045), keyed by characteristic number (the draft is re-read from
+  the file's text, which does not change). Once saved, the Form 3 CSV carries the results, a summary
+  line, and a Verdict and Why column. Why: listing was the first slow step; judging 100+ rows by eye is
+  the second, and a reject without an NCR is what gets a report sent back. Unit tests in
+  `src/shared/fai-results.test.ts`, routes in `test/worker/fai-form3.test.ts`.
+
 ## Next
 
 3. **launch** (first deploy done 2026-11-27, run 46013246899; the run on
@@ -1045,16 +1062,13 @@ checks the pair. No customers yet.
     from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
     admin can set per shop, if shops ask.
 
-17. First article list, part 2 (part 1 done 2026-11-28; balloons on a copy of the drawing PDF done
-    2026-11-28, see Done): the list as a screen on the won quote, where
-    the inspector ticks, edits and adds rows, enters results and gets an accept/reject per row
-    (`ventures/machine-shop-guides/fai.mjs` already judges results against limits), Forms 1 and 2
-    filled from the quote (part number, revision, material and finish certificates), and the drawing
-    zone from the PDF's text positions (the positions are now read, `readPdfLayout`; the zone needs
-    the border's zone letters and numbers located on the sheet), if shops use the CSV. Balloons,
-    next: a leader line to the feature when the callout is far from it, balloons for rows the
-    inspector adds by hand (placed by a click on the screen), and the same balloons from OCR text on
-    a scanned drawing.
+17. First article list, part 2b (part 1, the results screen, part 2a, and balloons on a copy of the
+    drawing PDF, done 2026-11-28): Forms 1 and 2 filled from the quote (part number, revision,
+    material and finish certificates), the drawing zone from the PDF's text positions (the positions
+    are now read, `readPdfLayout`; the zone needs the border's zone letters and numbers located on the
+    sheet), and results for more than one part per sheet, if shops use the screen. Balloons, next: a
+    leader line to the feature when the callout is far from it, balloons for rows the inspector adds
+    on the screen, and balloons from OCR text on a scanned drawing.
 
 ## Open questions for the owner
 

@@ -2773,6 +2773,24 @@ nothing to copy. No customers yet. Paid plans are dark
   California public jobs: date from the recorded notice of completion when the job has one (the
   `notice_of_completion_on` column the private-job panel already keeps, today cleared on public
   jobs), and re-read the sections on leginfo once it answers.
+- State bond claims, Oklahoma and the District of Columbia (2026-11-28, state-bond-claims-ok-in-vt,
+  every plan). 61 O.S. §§ 1, 2 read on oscn.net (it answered a plain fetch this time, no Turnstile
+  challenge) and D.C. Code §§ 2-201.01 to 2-201.03 on code.dccouncil.gov that day; excerpts appended
+  to `ventures/pay-app-guides/sources/state-bond-claims.txt`. Oklahoma: anyone in contract with a
+  subcontractor "regardless of tier" gives the contractor and the surety written notice within 90
+  days of the last day (§ 2(B)(1)); everyone files a claim or sues within one year, or two years
+  once a claim was filed within the first (§ 2(A)): three dated steps. Because the statute names
+  every tier, a new optional `anyTier` on `StateBondRule` replaces the remote-tier caution ("turns on
+  how the state reads subcontractor") with the statute's own words. D.C. copies the Miller Act: a
+  sub's sub's 90-day registered-mail notice and a one-year suit, both from the last day, in the
+  District's name in the Superior Court; notes give the $25,000 threshold, the half-the-contract
+  bond amount and the Mayor's waiver. Thirty-four states and D.C. in `STATE_BOND_RULES`. Tests in
+  `src/shared/state-bond.test.ts` (worked dates, a Saturday anniversary moved to Friday, the remote
+  note); the public guide, its FAQ, llms-answers, the customer post and the construction page gain
+  the rows. Not done: Indiana (iga.in.gov serves only an empty JavaScript shell, its bundle URL
+  included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
+  chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
+  Hawaii (403), Connecticut and West Virginia (no answer).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2792,6 +2810,13 @@ nothing to copy. No customers yet. Paid plans are dark
   paid-late list, a future day or one before the last payment; deleting a payment (the application
   reopens) clears the mark. The history logs each mark and undo; the cash CSV's last column names
   billed or waived ones.
+- Late-payment interest, part 3b (2026-11-28, late-interest-part-3b-qbo-invoice, Crew and up): on
+  the cash page's paid-late list, "Invoice in QuickBooks" sends the interest as its own invoice to
+  the GC, numbered `LI` + the application's invoice tail, one line on a "Late Payment Interest" item
+  that states the balance, due and paid dates, days late and the rate with its source, and marks the
+  interest billed if it was not ("Already in QuickBooks" records one typed by hand). Refused for
+  waived interest; a retry finds the invoice by number (`sendInterestInvoice`,
+  `src/shared/qbo-interest.ts`, migration 0094; docs/QUICKBOOKS.md, "Late-payment interest").
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2845,11 +2870,21 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Deadlines skip federal holidays (2026-11-28, lien-deadline-holidays): the lien deadline, the Miller
+  Act notice and suit dates and every state bond claim step now step their act-by date back past an
+  observed federal holiday (5 U.S.C. § 6103(a), OPM's weekend rule) as well as a weekend, since the
+  recorder or clerk is closed then; the earlier date is always safe whether or not a state rolls a
+  deadline forward. The job panel and the cash page say which holiday moved it ("the statute's date,
+  2026-11-26, is Thanksgiving Day, a federal holiday"). The list moved to `src/shared/federal-holidays.ts`
+  (no imports; the job schedule re-exports it), and the free mechanics lien deadline calculator got the
+  same rule, so the parity grid still holds. State-only holidays (Cesar Chavez Day, the day after
+  Thanksgiving in many counties) are not modeled. Found while checking: Texas's second bond notice
+  for a November 2026 last day falls on Washington's Birthday 2027 and was shown as that Monday.
 - Sworn statement saved with the job (2026-11-28, every plan, sworn-statement-saved): the statement's
   parties, paid and owing columns were kept in one browser's storage, so the next month's statement
   started blank on any other computer and for anyone else in the company. Now an editor's changes are
   saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
-  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `sworn_statement_drafts`, migration 0094, replaced whole on each save; `swornDraftSchema` in
   `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
   and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
   A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and
@@ -2922,11 +2957,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28; the weekly email's totals of interest accrued on past-due applications and earned on
-  those paid late and not billed or waived yet, done 2026-11-28, late-interest-weekly-email):
-  "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it as a line on
-  the next pay application, if contractors ask.
+- Late-payment interest, part 3c (part 3b, the interest as its own QuickBooks invoice, done
+  2026-11-28; the weekly email's totals of interest accrued and earned, done 2026-11-28,
+  late-interest-weekly-email): adding it as a line on the next pay application instead, if
+  contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if

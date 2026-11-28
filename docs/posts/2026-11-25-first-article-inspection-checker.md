@@ -64,6 +64,20 @@ The positions come from the PDF's own text layer: where each callout's text is d
 
 It shares the list's limits. Anything not written as text, and every scanned drawing, has nothing to balloon. Check the sheet against the list before it goes in the report.
 
+## Then the results, in the same list (added 28 November 2026)
+
+Beside the CSV link there is now **Inspect first article**, which opens the same list as a screen in the app. For each row, the inspector types the drawing zone, the result, the gauge and, on a reject, the nonconformance number. A row turns accept, reject or open as it's typed, using the same rules as the checker above:
+
+- a measured row accepts when every reading is inside its limits, limits included. `3.250 3.251 3.256` against `3.250 ±.005` rejects, and the row says `3.256 is over the upper limit 3.255 in`;
+- a surface finish has only a maximum, so only the maximum is checked;
+- a thread gauge, a note or a material certificate needs "accept" or "reject" written in words. A number on one of those rows stays open;
+- anything it can't read stays open. It is never accepted;
+- a reject with no nonconformance number keeps the sheet from showing as complete.
+
+A false read from the drawing's text can be marked "not a characteristic". It stays on the sheet and is left out of the counts. A characteristic the text missed, such as a boxed basic dimension or a frame drawn as lines, can be added with its own limits. It's numbered after the drafted rows. The results are saved with the drawing. From then on the Form 3 CSV carries them, with a count line at the top (accepted, rejected, open) and a verdict and reason on every row.
+
+It is still arithmetic on the limits listed, not a sign-off. The inspector checks the list against the drawing and signs the report. Forms 1 and 2 are not filled in yet; the balloons are the separate download above.
+
 ## Where it fits
 
 The [RFQ review checklist](https://marisstella.app/machine-shop-guides/rfq-review.html) flags an AS9102 requirement in the RFQ, so the inspection time can go into the [quote](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html). This page is the other end of that job. Both are free front doors to two products for small machine shops. Job Shop Quote, the RFQ-to-quote app, and CMMC Workspace, for CMMC and ISO 9001 records, are both open on a free plan, and neither one's paid plans are on sale yet. See the [manufacturing page](https://marisstella.app/industries/manufacturing/).
