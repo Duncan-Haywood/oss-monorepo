@@ -486,7 +486,7 @@ export function assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn 
     path: SHEET_PATH,
     kind: "faq",
     title: `Free CMMC Level 2 self-assessment spreadsheet (.xlsx) · ${SHORT_NAME}`,
-    description: `A free Excel workbook of all ${rows.length} NIST SP 800-171 requirements with points, the POA&M rule, an SPRS score that updates as you mark each one, and columns the workspace imports.`,
+    description: `Free Excel workbook: all ${rows.length} NIST SP 800-171 requirements with points and POA&M rule, an SPRS score that updates as you go, ready to import.`,
     changefreq: "monthly",
     priority: 0.9,
     faq,

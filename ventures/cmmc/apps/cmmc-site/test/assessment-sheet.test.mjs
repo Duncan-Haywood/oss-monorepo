@@ -85,6 +85,8 @@ test("the build serves the workbook next to its page, in the sitemap and llms.tx
     assert.equal(files[SHEET_FILE].readUInt32LE(0), 0x04034b50);
     const page = files[`${SHEET_PATH.slice(1)}.html`];
     assert.ok(page, "page built");
+    const desc = page.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "";
+    assert.ok(desc && desc.replaceAll("&amp;", "&").length <= 160, `description ${desc.length} chars`);
     assert.ok(page.includes(`href="/cmmc/${SHEET_FILE}"`), "download link");
     assert.ok(page.includes("Import from a spreadsheet"));
     assert.ok(files["sitemap.xml"].includes(SHEET_PATH));
