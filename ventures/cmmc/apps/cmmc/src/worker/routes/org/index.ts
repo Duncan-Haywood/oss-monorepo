@@ -171,6 +171,7 @@ import {
   orgPlan,
 } from "../../services/billing";
 import {
+  calibrationDueDatesFor,
   createGauge,
   deleteGauge,
   gaugeCsv,
@@ -1240,7 +1241,7 @@ routes.get("/ssp/download", validate("query", levelQuery), async (c) => {
 routes.get("/affirmations", async (c) =>
   c.json(await listAffirmations(c.var.ctx, c.var.tenant.orgId)),
 );
-// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
+// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates, gauges' calibration due dates) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
 // sending email. Every member may download it, like the list it is built from.
 routes.get("/affirmations/calendar.ics", async (c) => {
   const t = c.var.tenant;
@@ -1253,6 +1254,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviews,
     qualityDue,
     incidentHolds,
+    calibrationDue,
   ] = await Promise.all([
     getOrg(c.var.ctx, t.orgId),
     listAffirmations(c.var.ctx, t.orgId),
@@ -1262,6 +1264,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviewDatesFor(c.var.ctx, t.orgId),
     qualityDueDatesFor(c.var.ctx, t.orgId),
     incidentHoldDatesFor(c.var.ctx, t.orgId),
+    calibrationDueDatesFor(c.var.ctx, t.orgId),
   ]);
   const ics = renderAffirmationCalendar({
     orgId: t.orgId,
@@ -1273,6 +1276,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     documentReviews,
     qualityDue,
     incidentHolds,
+    calibrationDue,
     now: c.var.ctx.now(),
   });
   return new Response(ics, {

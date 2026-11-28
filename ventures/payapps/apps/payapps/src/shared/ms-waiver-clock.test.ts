@@ -296,6 +296,19 @@ describe("Mississippi's time computation, § 1-3-67 by § 85-7-425 (2026-11-28)"
       "2026-12-08",
     );
     expect(late.filing?.late).toBe(true);
+    // The period ran to Monday 7 December, not the Saturday the plain count gives (red team,
+    // 2026-11-28: the late sentence named 2026-12-05 as the day the 60 days ended).
+    expect(gaClockText(late)).toMatch(/after the 60 days ended on 2026-12-07;/);
+    expect(gaClockText(late)).not.toMatch(/ended on 2026-12-05/);
+  });
+
+  it("a stored day that is not on the calendar is skipped, not thrown (red team, 2026-11-28)", () => {
+    // Date.parse rolls 30 February over to 2 March, so the old guard let it through and
+    // msPeriodEnd threw, taking the whole cash report down with it.
+    const badFiling = sent({ gaAffidavit: { filedOn: "2026-02-30", county: "Hinds" } });
+    const c = one(app, 0, [badFiling], "2026-03-05");
+    expect(c.filing).toBeUndefined();
+    expect(gaWaiverClocks(app, 0, [sent({ sentOn: "2026-02-30" })], "2026-03-05")).toEqual([]);
   });
 
   it("the owner's copy: two days without the weekend and holidays in between", () => {
