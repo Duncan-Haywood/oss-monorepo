@@ -43,7 +43,8 @@ nothing failed but a workflow ran out of budget or stopped after a skipped
 step: not a pass, and not a failure either. On a content-only diff (nothing
 under platform/, portfolio/, .github/ or prompts/ but run records) it leaves
 portfolio-pages and portfolio-validate (~13 min here, ~4 on CI) to the pull
-request's CI and exits 5; `--full` runs them (when CI is starved).
+request's CI and exits 5, still running platform/pages' per-page tests (~1 min,
+`page_checks`); `--full` runs them (when CI is starved).
 
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
@@ -2226,6 +2227,11 @@ def run_for_changes(args) -> int:
         rc = 0  # nothing cheap was selected; the deferral below is the verdict
     else:
         rc = _run_selected(args, selected, held, changed=changed)
+    if ("priv-portfolio-pages.yml" in deferred and not args.list
+            and not getattr(args, "no_page_checks", False)):
+        pc = page_checks()
+        if pc == 1 or (pc and rc == 0):
+            rc = pc
     if deferred and not args.list:
         print(f"  Not a clean sweep: {', '.join(deferred)} deferred to the pull "
               "request's CI (content-only diff). Its green check runs are their "
@@ -2509,6 +2515,49 @@ CONTENT_PREFIXES = ("prompts/runs/", "portfolio/flagships.yaml")
 DEFER_NOTE = ("  content-only diff (no platform/, portfolio/, .github/ or prompts/ "
               "code): deferring {names} to the pull request's CI "
               "(~4-5 min there, ~13 min here); --full runs them here.")
+
+
+# Deferring portfolio-pages whole left its per-page checks unrun as well:
+# five doc-friction reports (2026-11-25 to 28; friction_rank.py --live) had a
+# venture page PR pass --for-changes and then fail in CI, or merge and turn
+# main red, on a 160-character meta description or a stale llms.txt Answers
+# section (PR #19965). Those checks are cheap. Measured 2026-11-28 on the
+# 4-core cloud container: every platform/pages test file except the two that
+# build the whole site ran 1,869 tests in 49 s; the full suite is ~334 s. So a
+# deferred sweep still runs that subset, and only the whole-site builds wait
+# for CI. A new test file joins by default (the glob is the workflow's own).
+PAGE_CHECK_SKIP = ("build.test.mjs", "custom-domain.test.mjs")
+PAGE_CHECK_TIMEOUT_S = 300
+
+
+def page_checks(repo: str = REPO, timeout: int = PAGE_CHECK_TIMEOUT_S) -> int:
+    """Run platform/pages' fast tests (all but PAGE_CHECK_SKIP); node's exit code."""
+    pages = os.path.join(repo, "platform", "pages")
+    if not os.path.isdir(pages):
+        return 0
+    files = sorted(f for f in os.listdir(pages)
+                   if f.endswith(".test.mjs") and f not in PAGE_CHECK_SKIP)
+    if not files or not shutil.which("node"):
+        print("  page checks: node or platform/pages tests not found; not run.", flush=True)
+        return 0
+    print(f"page checks ({len(files)} platform/pages test files, ~1 min; the two "
+          f"whole-site builds, {', '.join(PAGE_CHECK_SKIP)}, stay with CI; "
+          "--no-page-checks skips):", flush=True)
+    try:
+        done = subprocess.run(["node", "--test", *files], cwd=pages, capture_output=True,
+                              text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(f"  page checks: ran past {timeout} s; no verdict.", flush=True)
+        return NO_VERDICT
+    lines = done.stdout.splitlines()
+    failing = [ln for ln in lines if ln.startswith("not ok ")]
+    for ln in failing[:20]:
+        print(f"  {ln}", flush=True)
+    summary = [ln for ln in lines if ln.startswith(("# pass", "# fail"))]
+    print(f"  page checks: {'ok' if done.returncode == 0 else 'FAIL'} "
+          f"({', '.join(s[2:] for s in summary) or 'no summary'}); re-run one with "
+          "`node --test <file>` in platform/pages.", flush=True)
+    return 0 if done.returncode == 0 else 1
 
 
 def is_content(path: str) -> bool:
@@ -3151,6 +3200,10 @@ def _main(argv=None) -> int:
                          "run the heavy workflows too (portfolio-pages, "
                          "portfolio-validate) instead of deferring them to "
                          "the PR's CI; use it when CI is starved")
+    ap.add_argument("--no-page-checks", action="store_true",
+                    help="with --for-changes on a content-only diff: skip the "
+                         "fast platform/pages tests run when portfolio-pages is "
+                         "deferred (see PAGE_CHECK_SKIP)")
     ap.add_argument("--no-browser-sweeps", action="store_true",
                     help="with --for-changes: skip the venture browser sweeps "
                          "(venture_sweeps.py) run on the ventures the diff touches")
