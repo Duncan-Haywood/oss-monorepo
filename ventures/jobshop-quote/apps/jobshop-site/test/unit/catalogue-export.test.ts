@@ -50,7 +50,7 @@ describe("catalogue export", () => {
       for (const m of contents.matchAll(/href="(\/[^"#]*)"/g)) {
         expect(pages.has(m[1] ?? ""), `${rel} links ${m[1]}`).toBe(true);
       }
-      expect(contents, rel).toContain(`href="${appLink(LAUNCH, "/sign-up")}"`);
+      expect(contents, rel).toContain(`href="${appLink(LAUNCH, "/sign-up")}?from=jobshop-site%2F`);
     }
   });
 

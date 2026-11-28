@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVLedGSBeGRUvknWfnM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T02:56:16Z",
+  "ended": "2026-11-28T03:03:17Z",
+  "wall_minutes": 7.22,
+  "tokens_in": 9588636,
+  "tokens_out": 28110,
+  "cost_usd": 3.6985,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19967",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "test/worker/signup-source.test.ts first used newId('q'); jobshop-quote's IdPrefix is 'quo' (typecheck caught it)",
+    "a blanket seller-books->jobshop rename changed a unit test's expected value but not its input; biome/test caught it before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says 39 of 57 Next items wait on demand, but nothing lists which bets can't yet measure demand per front door (jobshop-quote, cmmc and einvoice-pro ignore the from= their links carry); that check would have pointed here immediately"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: the change is owner-facing measurement, not a reader-facing topic; the ROADMAP and ARCHITECTURE docs record it",
+      "did": "documented in ROADMAP Done and docs/ARCHITECTURE.md",
+      "result": "no post"
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md (Done: sign-ups by source)",
+    "ventures/jobshop-quote/apps/jobshop-quote/docs/ARCHITECTURE.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1 (draw). Bet #1 payapps has no free ungated item; took bet #2 (fewest claims), slug signup-source. Local checks: jobshop-quote typecheck, unit 687 pass, worker 300 pass, e2e 17-signup-source + 01-rfq-to-quote 2 pass; jobshop-site unit 154 pass; platform/pages jobshop-site + business tests 18 pass; biome clean. Next candidates: same port to cmmc (machine-shop-guides already link /signup?from=) and einvoice-preflight.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86413453-6136-56e2-a3b0-f26191e0b2d0",
+    "transcripts": 1,
+    "first": "2026-11-28T02:56:16Z",
+    "last": "2026-11-28T03:03:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 138,
+        "output": 28110,
+        "thinking": 3879,
+        "cache_read": 9432332,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156166,
+        "api_equivalent_usd": 3.6985,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 138,
+      "output": 28110,
+      "thinking": 3879,
+      "cache_read": 9432332,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156166,
+      "api_equivalent_usd": 3.6985,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 72,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.22,
+      "active_minutes": 7.22,
+      "model_minutes": 5.14,
+      "tool_minutes": 2.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
