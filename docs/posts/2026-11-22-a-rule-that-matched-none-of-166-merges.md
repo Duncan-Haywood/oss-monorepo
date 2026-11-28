@@ -61,3 +61,27 @@ precheck, the venture browser sweeps and the research projects' own test suites 
 
 The lesson for the next fix of this kind is the replay itself: before shipping a rule that
 classifies diffs, run it on last week's merges and count how many it would have caught.
+
+## Update, 2026-11-28: the deferral hid the quick checks too
+
+Deferring `portfolio-pages` deferred everything in it, including checks that take a
+second. Five session reports from 2026-11-25 to 28 (counted by
+`platform/ci/friction_rank.py --live`) share that cause. A venture page with a
+165-character meta description passed the local sweep and failed in CI, and PR #19965
+merged a new FAQ without regenerating its product's `llms.txt` Answers, which left `main`
+red until a later run fixed it.
+
+The whole-site builds are slow, not the per-page checks. On the same 4-core container, every
+`platform/pages` test file except `build.test.mjs` and `custom-domain.test.mjs` (the two
+that build the full site) ran 1,869 tests in 49 s. The full suite takes about 334 s. So
+a deferred sweep now runs those 154 files and leaves only the two builds to CI. A failure
+there fails the sweep (exit 1, naming the test); a pass is still `NO_VERDICT`, because
+the builds have not run. New test files join by default, since the sweep reads the same glob
+as the workflow. Before this, the local list of page checks in `run_venture_tests.py`
+gained a file after each incident: three files after PR #20062, one after PR #19965.
+
+Checked end to end in a scratch worktree. A 187-character description planted on a page
+outside the ratchet's baseline failed with `not ok … no venture page outside the baseline has a
+description over 160 characters`. On a clean page, the same sweep passed all 1,869 tests. My first
+attempt picked a page that was already on the baseline, so it passed. The planted fault has to
+be one the check is meant to catch.

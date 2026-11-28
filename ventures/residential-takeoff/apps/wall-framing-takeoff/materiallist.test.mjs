@@ -316,3 +316,62 @@ test("the band under the rake reaches the material list through the CLI (rake-ba
   assert.ok(banded.notes.some((n) => n.includes("a band 8 in tall under the rake on each (37.33 sq ft) is in the siding and wrap")));
   assert.ok(gabled.notes.some((n) => n.includes("type the siding's rakeHeel to count it")));
 });
+
+test("a dormer's pieces are bought on the material list, every piece once", async () => {
+  const { layoutDormer, layoutShedDormer } = await import("./dormer.mjs");
+  const { optimizeStock } = await import("./engine.mjs");
+  const p = samplePlan();
+  const t = /** @type {any} */ (takeoff(p));
+  const before = materialList(t, { stock: p.stock });
+  assert.equal(before.rows.filter((x) => x.section === "Dormer").length, 0, "no dormer, no section");
+  // the 6 ft gable dormer of the dormer calculator's worked example, with its window and opening
+  t.dormer = layoutDormer({ width: 72, eaveHeight: 84, pitch: 8, mainPitch: 8, window: { width: 36 }, roofOpening: true });
+  assert.equal(t.dormer.ok, true);
+  const ml = materialList(t, { stock: p.stock });
+  const rows = ml.rows.filter((x) => x.section === "Dormer");
+  const boardRows = rows.filter((x) => x.unit === "pcs");
+  // the board count is what the same solver buys for those pieces, size by size
+  let expected = 0;
+  for (const size of [...new Set(t.dormer.parts.map((x) => x.size))]) {
+    const pieces = t.dormer.parts.filter((x) => x.size === size).map((x) => ({ length: x.length, qty: x.count, ref: x.part }));
+    expected += optimizeStock(pieces, p.stock.filter((s) => s.size === size), 0.125).bars.length;
+  }
+  assert.equal(boardRows.reduce((s, x) => s + x.qty, 0), expected);
+  assert.equal(ml.totals.boards, before.totals.boards + expected, "dormer boards count in the board total");
+  // every part kind is named on some board's "used for" note
+  for (const part of new Set(t.dormer.parts.map((x) => x.part))) assert.ok(boardRows.some((x) => x.note.includes(part)), part);
+  const area = Object.fromEntries(rows.filter((x) => x.unit === "sq ft").map((x) => [x.item, x.qty]));
+  assert.equal(area["dormer roof area"], t.dormer.areas.roofSqFt);
+  assert.equal(area["dormer wall area"], t.dormer.areas.wallSqFt);
+  assert.equal(area["main-roof opening"], 63);
+  assert.ok(ml.notes.some((n) => /not reduced for the opening/.test(n)));
+  assert.match(materialListCsv(ml), /\nDormer,2x8 board,2x8,/);
+  // priced: the dormer boards add their stock prices to the total
+  const priced = materialList(t, { stock: p.stock, priced: true });
+  const dormerCost = priced.rows.filter((x) => x.section === "Dormer" && x.cost != null).reduce((s, x) => s + x.cost, 0);
+  assert.ok(dormerCost > 0);
+  assert.equal(Math.round((priced.totals.cost - materialList({ ...t, dormer: undefined }, { stock: p.stock, priced: true }).totals.cost) * 100) / 100, Math.round(dormerCost * 100) / 100);
+  // a size with no board long enough is listed as cut lengths, never as boards it cannot be cut from
+  const short = p.stock.filter((s) => !(s.size === "2x8" && s.length >= 160));
+  const ml2 = materialList(t, { stock: short });
+  const ridge = ml2.rows.find((x) => x.section === "Dormer" && x.item === "2x8 ridge");
+  assert.ok(ridge, "the 162 in ridge has no 2x8 board long enough");
+  assert.match(ridge.note, /no 2x8 board/);
+  assert.ok(ml2.notes.some((n) => /2x8 had no board long enough/.test(n)));
+  // without a stock list every piece is a cut length
+  const ml3 = materialList(t);
+  assert.equal(ml3.rows.filter((x) => x.section === "Dormer" && x.unit === "pcs").reduce((s, x) => s + x.qty, 0), t.dormer.parts.reduce((s, x) => s + x.count, 0));
+  // a shed dormer has no gable triangle in its wall note
+  t.dormer = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8 });
+  const ml4 = materialList(t, { stock: p.stock });
+  assert.ok(ml4.rows.some((x) => x.item === "dormer wall area" && !/gable/.test(x.note)));
+  assert.ok(ml4.rows.some((x) => x.note.startsWith("shed dormer: ")));
+});
+
+test("the CLI's material list carries the plan's dormer", () => {
+  const p = samplePlan();
+  /** @type {any} */ (p).dormer = { width: 72, eaveHeight: 84, pitch: 8, mainPitch: 8 };
+  const out = main(["p.json", "--material-list", "--csv"], () => JSON.stringify(p));
+  assert.equal(out.code, 0, out.out);
+  assert.match(out.out, /\nDormer,2x6 /);
+});

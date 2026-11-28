@@ -117,7 +117,7 @@ export function PriceAnItem({
         </p>
       )}
       {r && r.platforms.length > 0 && costC != null && priceC != null && targetC != null && (
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Platform</th>
@@ -143,24 +143,37 @@ export function PriceAnItem({
                       <span className="block text-xs text-stone-500">few orders: rough</span>
                     )}
                   </td>
-                  <td className="num">{m.orders}</td>
-                  <td className="num">
-                    {feeText(m)}
-                    {m.typicalMissCents > 0 && (
-                      <span className="block text-xs text-stone-500">
-                        ±{usd(m.typicalMissCents)} an order
-                      </span>
-                    )}
+                  <td data-label="Orders" className="num">
+                    {m.orders}
                   </td>
-                  <td className="num">{usd(m.netPostageCents)}</td>
-                  <td className="num">{usd(qt.netCents)}</td>
+                  <td data-label="Fees" className="num">
+                    <div>
+                      {feeText(m)}
+                      {m.typicalMissCents > 0 && (
+                        <span className="block text-xs text-stone-500">
+                          ±{usd(m.typicalMissCents)} an order
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td data-label="Net postage" className="num">
+                    {usd(m.netPostageCents)}
+                  </td>
+                  <td data-label={`Nets at ${usd(priceC)}`} className="num">
+                    {usd(qt.netCents)}
+                  </td>
                   <td
+                    data-label="Profit"
                     className={`num font-medium ${qt.profitCents < 0 ? "text-red-700" : "text-brand-700"}`}
                   >
                     {usd(qt.profitCents)}
                   </td>
-                  <td className="num">{need == null ? "fees take it all" : usd(need)}</td>
-                  <td className="num">{medianDays.get(m.platform) ?? "–"}</td>
+                  <td data-label={`Price for ${usd(targetC)} profit`} className="num">
+                    {need == null ? "fees take it all" : usd(need)}
+                  </td>
+                  <td data-label="Median days" className="num">
+                    {medianDays.get(m.platform) ?? "–"}
+                  </td>
                 </tr>
               );
             })}

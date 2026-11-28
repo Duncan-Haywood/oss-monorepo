@@ -332,7 +332,7 @@ export function EstimatedTaxPage() {
         <>
           <section className="card overflow-x-auto">
             <h2 className="mb-2 font-medium">By due date</h2>
-            <table className="table">
+            <table className="table table-stack">
               <thead>
                 <tr>
                   <th>Due</th>
@@ -348,21 +348,29 @@ export function EstimatedTaxPage() {
                 {e.rows.map((r, i) => (
                   <tr key={r.due}>
                     <td className="whitespace-nowrap">{r.due}</td>
-                    <td className="text-xs text-stone-500">
-                      {r.period}
-                      <div>{STATUS[r.status]}</div>
+                    <td data-label="Books" className="text-xs text-stone-500">
+                      <div>
+                        {r.period}
+                        <div>{STATUS[r.status]}</div>
+                      </div>
                     </td>
-                    <td className="num">
-                      {usd(r.profitToDate)}
-                      {r.homeOfficeToDate != null && r.homeOfficeToDate > 0 && (
-                        <div className="text-xs text-stone-500">
-                          after {usd(r.homeOfficeToDate)} home office
-                        </div>
-                      )}
+                    <td data-label="Profit to date" className="num">
+                      <div>
+                        {usd(r.profitToDate)}
+                        {r.homeOfficeToDate != null && r.homeOfficeToDate > 0 && (
+                          <div className="text-xs text-stone-500">
+                            after {usd(r.homeOfficeToDate)} home office
+                          </div>
+                        )}
+                      </div>
                     </td>
-                    <td className="num">{usd(r.regularInstallment)}</td>
-                    <td className="num">{usd(r.annualizedInstallment)}</td>
-                    <td className="num">
+                    <td data-label="Regular" className="num">
+                      {usd(r.regularInstallment)}
+                    </td>
+                    <td data-label="Annualized" className="num">
+                      {usd(r.annualizedInstallment)}
+                    </td>
+                    <td data-label="Paid toward it" className="num">
                       <input
                         className="input w-24 text-right"
                         disabled={!ready}
@@ -377,7 +385,9 @@ export function EstimatedTaxPage() {
                         }}
                       />
                     </td>
-                    <td className="num font-medium">{usd(r.stillToPay)}</td>
+                    <td data-label="Still to pay" className="num font-medium">
+                      {usd(r.stillToPay)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

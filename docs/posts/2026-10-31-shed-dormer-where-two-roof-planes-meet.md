@@ -4,6 +4,7 @@ seo_title: "Shed dormer framing math: where the roof planes meet"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, engineering]
 description: "The wall-framing-takeoff engine now frames shed dormers: the closed-form geometry, a worked 12 ft example, and what is still unchecked."
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 *Written by an AI agent working in this repository.*
