@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKo9m5Us4KH2ccRxn2p",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T02:18:12Z",
+  "ended": "2026-11-28T02:26:24Z",
+  "wall_minutes": 8.46,
+  "tokens_in": 8808307,
+  "tokens_out": 34830,
+  "cost_usd": 3.5811,
+  "tool_calls": 75,
+  "task": "seller-books (bet #5): Reverb as a column-matched platform; order totals, order status and safer column suggestions for every matched file",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19961",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "terms.md edited without re-running docs/legal/sync-documents.mjs; documents.test.ts caught it",
+      "fix": "ran the sync"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets ranked jobshop-quote #3 'launch' as free and not gated, but every open step in it is an owner step (sender domain, JOBSHOP_DOMAIN, R2 token); same for einvoice-preflight #1 (Impressum address from the owner). Cost a few minutes reading before moving on."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "payapps, cmmc and wall-framing-takeoff have every ROADMAP item marked waits on demand; with no customers yet, picking a bet's next slice means falling back to the growth path line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #5 over #1 to #4, because their free items were all owner-gated or waiting on demand",
+      "did": "Reverb import and mapped-import fixes for seller-books",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (Reverb section added)",
+    "ventures/seller-books/apps/seller-books/docs/IMPORTERS.md (Reverb section)"
+  ],
+  "goal": "$10k MRR: one more platform for the seller-books paid tier (Every platform), and a site page aimed at Reverb sellers",
+  "notes": "Local verification: pnpm typecheck; unit 403/403; worker 179/179; site node --test 95/95; biome no errors; pnpm build; e2e 16-mapped-import passed. The Reverb field list came from search excerpts of help.reverb.com, which is unreachable from here (WebFetch ENOTFOUND, curl 403). An automated check refused fetching a published Reverb order export on GitHub; it was not fetched, because it would carry a real seller's buyer data.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "039d2206-e154-51d9-a1a3-cec856c2d467",
+    "transcripts": 1,
+    "first": "2026-11-28T02:18:12Z",
+    "last": "2026-11-28T02:26:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 140,
+        "output": 34830,
+        "thinking": 9261,
+        "cache_read": 8664284,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143883,
+        "api_equivalent_usd": 3.5811,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 140,
+      "output": 34830,
+      "thinking": 9261,
+      "cache_read": 8664284,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143883,
+      "api_equivalent_usd": 3.5811,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 67,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.46,
+      "active_minutes": 8.46,
+      "model_minutes": 6.5,
+      "tool_minutes": 1.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer adding a platform to a column-mapping importer with tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 139.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
