@@ -176,6 +176,7 @@ export const PROBLEMS = [
       ['pay-app-guides/texas-lien-waiver-forms.html', 'Texas lien waiver forms', 'The statutory forms (Prop. Code § 53.284) word for word, blank and ready to print.'],
       ['pay-app-guides/utah-lien-waiver-forms.html', 'Utah lien waiver forms', 'The statutory forms (Utah Code § 38-1a-802) word for word, blank and ready to print.'],
       ['pay-app-guides/wyoming-lien-waiver-forms.html', 'Wyoming lien waiver form', 'The statutory form (W.S. 29-10-101(b)) word for word, blank and ready to print.'],
+      ['pay-app-guides/final-payment-affidavit.html', 'Final payment affidavit (G706)', 'The exceptions, final lien waivers and attachments for a G706 close-out package, from your subs and suppliers.'],
       ['pay-app-guides/sworn-statement.html', 'Contractor’s sworn statement', 'The Illinois and Michigan sworn statement table from your subs and suppliers, with the totals checked.'],
     ],
   },
