@@ -19,6 +19,7 @@ import { type Html, html } from "./html";
 import { MODULES } from "./module-data";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
+import { RFQ_CHECKS, RFQ_CSV_COLUMNS, RFQ_CSV_FILE, RFQ_SECTIONS } from "./rfq-checklist";
 import { flatBlank, priceSheetExample, EXAMPLE as SHEET_EXAMPLE } from "./sheet-metal-example";
 import {
   EMPLOYER_FICA,
@@ -2211,6 +2212,9 @@ export function quoteTemplatePage(ctx: RenderContext): Html {
       ${q.notes.map((n) => html`<li>${n}</li>`)}
     </ul>
 
+    <p>What to check on the RFQ before you price it, so the notes catch every assumption:
+    the <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a>.</p>
+
     <h2>Terms to decide once</h2>
     <p>Each of these is a question your terms should answer. Decide them for your shop, put them in one
     paragraph and print it on every quote. They are prompts, not wording to copy: have your own terms
@@ -2247,6 +2251,86 @@ export function quoteTemplatePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Send your next quote from your own rate card", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+/**
+ * A guide aimed at the searches estimators and quality managers make before pricing
+ * ("RFQ review checklist", "contract review checklist machine shop"): the checks in ./rfq-checklist,
+ * grouped, each with why it matters and, where the hosted app helps, what it does. Names ISO 9001 /
+ * AS9100 clause 8.2.3 without claiming the list meets it; export control and flowdowns say to ask
+ * someone qualified. Not legal advice.
+ */
+export function rfqChecklistPage(ctx: RenderContext): Html {
+  const helped = RFQ_CHECKS.filter((c) => c.inApp);
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>RFQ review checklist for machine shops</h1>
+    <p class="lead">${RFQ_CHECKS.length} things to check on a request for quote before you price it: the
+    documents, the part, the quantities and dates, the paperwork and the terms. Most costly quoting
+    mistakes are not arithmetic; they are a revision, a callout or a clause nobody read. A free checklist to
+    download and fill in per RFQ is at the end.</p>
+    <p class="actions"><a class="btn btn-secondary" href="${href(ctx, `/${RFQ_CSV_FILE}`)}" download>Download the checklist (CSV)</a></p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Why review an RFQ before quoting it</h2>
+    <p>A quote is an offer: once the buyer sends a purchase order against it, you have agreed to make that
+    revision, in that material, to those callouts, by that date, at that price. Reviewing the request first
+    is where you find what the price must cover and whether you can deliver it at all. ISO 9001:2015 and
+    AS9100D both ask for this step under clause 8.2.3, “review of the requirements for products and
+    services”, before a shop commits to supply. This list is a practical start for that review; it does not
+    by itself meet either standard, and your own quality manual decides what your review records.</p>
+    <p>In short: <a class="link" href="#documents">documents</a>, <a class="link" href="#part">the part</a>,
+    <a class="link" href="#quantity">quantity and timing</a>, <a class="link" href="#quality">quality and
+    paperwork</a>, <a class="link" href="#terms">commercial terms and restrictions</a>.</p>
+    ${RFQ_SECTIONS.map(
+      (sec) => html`<h2 id="${sec.id}">${sec.title}</h2>
+    <div class="table-wrap">
+      <table class="compare">
+        <thead><tr><th scope="col">Check</th><th scope="col">Ask</th><th scope="col">Why it matters</th></tr></thead>
+        <tbody>
+          ${sec.checks.map((c) => html`<tr><th scope="row">${c.check}</th><td>${c.question}</td><td>${c.why}</td></tr>`)}
+        </tbody>
+      </table>
+    </div>`,
+    )}
+
+    <h2>When the answer is “I don't know”</h2>
+    <p>Ask the buyer before you quote, in one email listing every open question, rather than one question at
+    a time. Where the buyer will not answer in time, quote with the assumption written in the quote's notes
+    (“quoted to Rev B; drawing governs; material certs included, first-article report not included”), so
+    the PO accepts your reading or the buyer corrects it before work starts. The
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a> has a
+    notes field for exactly this, and the terms worth deciding once.</p>
+
+    <h2>The checklist</h2>
+    <p><a class="link" href="${href(ctx, `/${RFQ_CSV_FILE}`)}" download>${RFQ_CSV_FILE}</a> opens in Excel,
+    Google Sheets or LibreOffice: a line at the top for the RFQ, who reviewed it and when, then one row per
+    check with the columns ${RFQ_CSV_COLUMNS.join(", ")}. Save one copy per RFQ with the quote. It holds plain
+    values, no formulas. Drop the rows that never apply to your work and add your own.</p>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} does not replace the review; it puts the facts in front of the estimator and keeps the
+    record. For ${helped.length} of the checks above, the hosted app does this today:</p>
+    <ul>
+      ${helped.map((c) => html`<li><strong>${c.check}.</strong> ${c.inApp}</li>`)}
+    </ul>
+    <p>${
+      ctx.launch.aiReading
+        ? "The AI read and the rule reader both show"
+        : "Reading is by rules today (AI reading is not switched on yet), and shows"
+    } each value it took next to the RFQ text it came from, unconfirmed until the estimator confirms the
+    part. When something a price needs is missing, the quote shows a blocking issue instead of a guess. The
+    pricing then follows your rate card:
+    <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how a machining quote is built</a>.</p>
+    <p class="fineprint">This page describes common practice for reviewing job-shop RFQs. It is not legal,
+    export-control, tax or quality-certification advice; the standards and regulations named are for you to
+    read in their current text. Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Review and quote your next RFQ in one place", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -2261,6 +2345,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-turning": turningGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
+  "/rfq-review-checklist": rfqChecklistPage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

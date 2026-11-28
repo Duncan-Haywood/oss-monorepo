@@ -16,6 +16,10 @@ checks the pair. No customers yet.
 
 ## Done (v0.1, this core)
 
+- RFQ review checklist (2026-11-28, `rfq-review-checklist`): https://marisstella.app/jobshop/rfq-review-checklist,
+  21 checks before pricing an RFQ with a free CSV (`apps/jobshop-site/src/site/rfq-checklist.ts`), each
+  check's "in the app" line taken from this Done list. When a check gains app support (AI reading, inbound
+  email, certs or first-article flags on a quote line), add its `inApp` there and re-export the site.
 - Sign-ups by source (2026-11-28, `signup-source`): the `from=` that the marketing site (now tagged
   `jobshop-site/<page>` on every Start free link), the machine-shop guides and the catalogue's products and
   manufacturing pages put on `/sign-up` is kept in the browser until sign-in (not under Do Not Track or GPC),
