@@ -30,6 +30,8 @@ Screenshots of Job Shop Quote itself. The shop, customer and part are made up; t
 
 #### What your customer gets
 
+#### After it's sent
+
 How the price is built, step by step →
 
 ### The quoting pile is the bottleneck nobody hired for
