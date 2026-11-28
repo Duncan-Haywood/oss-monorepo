@@ -207,7 +207,7 @@ export function layoutSiding(d, plan) {
         const x0 = k * bw, x1 = Math.min(w.length, x0 + bw);
         let top = wh;
         if (g) { const px = w.gable.peak ?? w.length / 2; top += px < x0 ? g.s2 * (w.length - x0) : px > x1 ? g.s1 * x1 : g.rise; } // the taller edge of the column
-        const holes = ops.filter((o) => o.x0 < x1 - 1e-9 && o.x1 > x0 + 1e-9 && o.y1 > o.y0).sort((a, b) => a.y0 - b.y0);
+        const holes = ops.filter((o) => o.x0 <= x0 + 1e-9 && o.x1 >= x1 - 1e-9 && o.y1 > o.y0).sort((a, b) => a.y0 - b.y0); // a column the opening only partly covers is a notched board, full length
         let y = 0;
         for (const o of holes) { if (o.y0 > y + 1e-9) runs.push(o.y0 - y); y = Math.max(y, o.y1); }
         if (top > y + 1e-9) runs.push(top - y);
@@ -230,14 +230,16 @@ export function layoutSiding(d, plan) {
       if (y0 >= wh - 1e-9) { // wholly in the triangle: the width at the lower edge, less any opening that rises into it
         const up = y0 - wh, left = up / g.s1, right = w.length - up / g.s2;
         if (right - left <= 1e-9) continue;
-        const tcuts = ops.filter((o) => o.y0 < y1 - 1e-9 && o.y1 > y0 + 1e-9 && o.x1 > left + 1e-9 && o.x0 < right - 1e-9).sort((a, b) => a.x0 - b.x0);
+        const tcuts = ops.filter((o) => o.y0 <= y0 + 1e-9 && o.y1 >= y1 - 1e-9 && o.x1 > left + 1e-9 && o.x0 < right - 1e-9).sort((a, b) => a.x0 - b.x0);
         let tx = left;
         for (const o of tcuts) { if (o.x0 > tx + 1e-9) runs.push(o.x0 - tx); tx = Math.max(tx, o.x1); }
         if (right > tx + 1e-9) runs.push(right - tx);
         continue;
       }
-      // openings that cut this course, left to right; overlapping ones merge into one gap
-      const cuts = ops.filter((o) => o.y0 < y1 - 1e-9 && o.y1 > y0 + 1e-9 && o.x1 > o.x0).sort((a, b) => a.x0 - b.x0);
+      // openings that cut this course, left to right; overlapping ones merge into one gap. Only an opening the
+      // course's whole height clears splits the run: the courses at a window's head and sill are notched around it
+      // and run on across it (2026-11-28; before, any overlap split the course and the boards fell below the net area).
+      const cuts = ops.filter((o) => o.y0 <= y0 + 1e-9 && o.y1 >= y1 - 1e-9 && o.x1 > o.x0).sort((a, b) => a.x0 - b.x0);
       let x = 0;
       for (const o of cuts) { if (o.x0 > x + 1e-9) runs.push(o.x0 - x); x = Math.max(x, o.x1); }
       if (w.length > x + 1e-9) runs.push(w.length - x);

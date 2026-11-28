@@ -493,7 +493,7 @@ test("the schedule page: FAQ matches its data, the sample schedule runs and has 
   assert.ok(s.criticalPath.length > 0);
 });
 
-test("the siding calculator page: FAQ matches its data, default inputs give the 40 x 30 house's 176 boards", async () => {
+test("the siding calculator page: FAQ matches its data, default inputs give the 40 x 30 house's 178 boards", async () => {
   const html = page("siding-calculator.html");
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) {
@@ -507,10 +507,10 @@ test("the siding calculator page: FAQ matches its data, default inputs give the 
   const plan = { studLength: 91.5, defaultHeaderHeight: 80, walls: [wall("A", 480, [{ kind: "door", offset: 60, width: 36, height: 80 }, { kind: "window", offset: 200, width: 36, height: 48, headerHeight: 80 }, { kind: "window", offset: 300, width: 36, height: 48, headerHeight: 80 }]), wall("B", 360), wall("C", 480), wall("D", 360)] };
   const s = layoutSiding({ exposure: 7, stock: 144, waste: 0.1, height: 96 }, plan);
   assert.equal(s.courses, 56);
-  assert.equal(s.boards, 176);
+  assert.equal(s.boards, 178);
   assert.equal(s.wrapRolls, 1);
   assert.equal(s.cornerBoards, 9);
-  assert.match(html, /56 courses, 176 boards with 10% waste, 1 roll of house wrap and 9 corner boards/);
+  assert.match(html, /56 courses, 178 boards with 10% waste, 1 roll of house wrap and 9 corner boards/);
 });
 
 test("the insulation calculator page: FAQ matches its data, the 40 x 30 house gives 890 sq ft of cavity, 11 bags and R-13.1", async () => {
