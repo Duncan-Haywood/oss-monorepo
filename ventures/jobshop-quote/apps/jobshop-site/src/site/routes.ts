@@ -236,6 +236,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: "2026-11-28",
     },
     {
+      path: "/machine-shop-minimum-charge",
+      label: "How to set a minimum charge",
+      title: `Machine shop minimum charge: how to set one · ${SITE_NAME}`,
+      description:
+        "Material minimums, vendor lot charges and a line minimum: which sets the price of a 1-part order, and how to work out your minimum from per-order office time.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/how-to-quote-first-article-inspection",
       label: "How to quote first article inspection",
       title: `How to quote first article inspection (AS9102) · ${SITE_NAME}`,

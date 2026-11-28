@@ -3,6 +3,7 @@ title: "Denmark has no e-invoicing deadline, and that is the hard part"
 date: 2026-10-25
 description: "Denmark's e-invoicing mandate runs through the Bookkeeping Act, NemHandel and SAF-T, with no single date. Sources conflict; here is what we could confirm."
 tags: [einvoice-preflight, denmark, e-invoicing]
+folded_into: einvoice-preflight/denmark-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has a

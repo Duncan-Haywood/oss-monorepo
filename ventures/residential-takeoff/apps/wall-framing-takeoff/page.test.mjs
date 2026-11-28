@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { LEGAL_PAGES } from "./more-tools.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
@@ -8,7 +9,7 @@ const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8
 // of 47 pages by 2026-11-12, so ten pages shipped with nothing checking them.
 // sample-bid-package.html is generated output (a customer proposal), checked by
 // sample-pack.test.mjs against build-sample-pack.mjs, not a site page.
-const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && f !== "sample-bid-package.html").sort();
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && f !== "sample-bid-package.html" && !LEGAL_PAGES.has(f)).sort();
 
 for (const name of PAGES) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {

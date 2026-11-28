@@ -4,6 +4,7 @@ seo_title: "Non-bearing wall headers: single ply framing takeoff"
 date: 2026-11-03
 tags: [construction, framing, open-source, lumber]
 description: "Interior partitions that carry no roof or floor don't need a doubled header. The wall framing takeoff can now price them with one ply, and says it did."
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 A doubled 2x header over every door is the default in framing takeoffs, including ours. On a partition that holds up nothing, that is lumber and time spent on a load that isn't there.

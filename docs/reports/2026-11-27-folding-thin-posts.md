@@ -71,3 +71,40 @@ docs/posts/*.md` lists them.
 - Other ventures with dozens of one-change posts: count with
   `ls docs/posts | grep -c <slug>`, fold announcements into the venture page,
   and fold change notes into the venture's consolidated post.
+
+## Second pass, 2026-11-28: 46 more e-invoice country posts
+
+The first pass stopped at 2026-11-05 and left the multi-country posts. This
+pass folded the remaining country-status posts (2026-10-24 to 2026-11-13, 97 to
+241 words each, tagged `einvoice-preflight`): 36 single-country posts into
+their country mandate pages (Luxembourg four, the UK three, Poland's penalty
+deferral two, Estonia, Latvia, Slovenia and Bulgaria two each, and one each
+for 21 others), and 10 posts announcing several pages at once into the hub,
+`einvoice-preflight/e-invoicing-mandates-by-country`, which links every one of
+those country pages.
+
+The fact check was a script (dates as "D Month YYYY" or "Month YYYY",
+amounts and percentages pulled from each post, looked for on the target page
+or pages after normalising month abbreviations, ISO dates and thousands
+separators). The misses, all read by hand:
+
+- page counts in the announcement posts ("now 53 country pages", "grows from
+  79 to 80 rows"): the post's own news, not a fact about the country;
+- Spain: the post's BOE publication date for Real Decreto-ley 15/2025
+  (3 December 2025); the page names the decree and dates its reading of it
+  (2 November 2026), and is newer;
+- Denmark: the post's consultation deadline (17 August 2026); the page has
+  since recorded the outcome (the consultation draft's date is gone);
+- Poland: "before 31 December 2026" is the post's inference (the bill must
+  pass before the old penalty date); the page carries the bill, print 3245.
+
+Left alone, as before: posts about a rule, check or bug (ZATCA credit notes,
+NLCIUS, Portuguese VAT codes, KSeF schema and transport block, India payload
+checks, the Kazakhstan BIN check digit, the calendar feed). Those are change
+notes for one consolidated "what the checker checks" post, the next candidate
+here, written first and then folded into with `writing/<slug>/`.
+
+Script, for the next pass: the fact check is short enough to rewrite, but its
+rules are above; check the target with `foldTargetProblem` from
+`platform/pages/writing.mjs` (a `writing/` target needs the live post set, so
+call it with `live`, or run `node platform/pages/writing.mjs --out=<dir>`).

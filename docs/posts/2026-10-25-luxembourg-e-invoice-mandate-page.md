@@ -3,6 +3,7 @@ title: "Luxembourg's draft e-invoicing law: receive in 2028, issue by 2029"
 date: 2026-10-25
 description: "einvoice-preflight now has a Luxembourg page: a draft bill with Peppol and EN 16931 for domestic B2B, and what is still unconfirmed."
 tags: [einvoice-preflight, luxembourg, peppol, e-invoicing]
+folded_into: einvoice-preflight/luxembourg-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) had 30 country pages

@@ -4,6 +4,7 @@ seo_title: "E-invoicing in Ghana, Zambia (Smart Invoice) and Tanzania (EFD/VFD)"
 date: 2026-11-02
 tags: [einvoice-preflight, e-invoicing, ghana, zambia, tanzania]
 description: "E-invoice Preflight now covers 72 countries: Ghana's E-VAT is phasing in, Zambia's Smart Invoice is mandatory as reported, Tanzania uses EFD and VFD receipts."
+folded_into: einvoice-preflight/e-invoicing-mandates-by-country
 ---
 
 The mandates-by-country table grows from 69 to 72 rows.

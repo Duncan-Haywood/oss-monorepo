@@ -1379,6 +1379,16 @@ const CATEGORY_RULES = [
     ].includes(slug),
   },
   {
+    // Split out of `services` on 2026-11-28, the way `uk-tax` left `backoffice`: the machine-shop guides (bet #2 and #4's front door)
+    // took the `services` offline bundle to 4.20 MB, over build.test.mjs's 4 MiB line. These five are one buyer, a small CNC,
+    // laser or fabrication job shop pricing a customer's part; listed before `services`, whose slug list still names them.
+    id: 'job-shops',
+    title: 'Machine & fabrication shops',
+    accent: '#3d4f5c',
+    blurb: 'Quote a machined, laser-cut or coated part, nest a DXF, and the shop guides behind the quote — for small CNC and fabrication job shops.',
+    test: (slug) => /^(cnc-machining-quote|machine-shop-guides|dxf-nesting|laser-cutting-engraving-job-price|powder-coating-job-price)/.test(slug),
+  },
+  {
     // `water-well-drilling-bid-calculator` joined 2026-10-09 on its first commit: a small driller bidding a well is a trade bid like the ones in
     // `trades`, but that bundle is at the 3 MB ceiling (build.test.mjs) and its slug would match `bid-calculator$` there, so `trades` excludes it by name.
     id: 'services',
@@ -13347,9 +13357,16 @@ const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 // category: einvoice-preflight alone carried about 150 KB of them gzipped, enough to push
 // `evidence` past its 4 MiB bound in build.test.mjs. They stay published (a page may link
 // one as source); they are just not part of the offline download.
+// Since 2026-11-28 also test files (`*.test.mjs`, node:test suites) and a venture's root
+// `server.mjs` (the self-host Node server; every one imports `node:` modules and no page
+// imports one): `services` reached 4.20 MB, 9.5 KB over the bound, and league-schedule-
+// generator's server.mjs alone was 21 KB of it gzipped.
 export const isNodeOnlyScript = (relToVenture) => {
   const parts = relToVenture.split(/[\\/]/);
-  if (!/\.(mjs|js|cjs)$/.test(parts[parts.length - 1])) return false;
+  const name = parts[parts.length - 1];
+  if (!/\.(mjs|js|cjs)$/.test(name)) return false;
+  if (/\.test\.(mjs|js|cjs)$/.test(name)) return true;
+  if (parts.length === 1 && name === 'server.mjs') return true;
   return parts[0] === 'eval' || (parts.length === 1 && /^build-[\w.-]+\.(mjs|js|cjs)$/.test(parts[0]));
 };
 

@@ -327,8 +327,8 @@ and the payments recorded on its pay application do not cover it, the waiver lis
 nonpayment in the statute's wording, filled from the waiver. Once you record it as filed, PayApps
 counts the two days for the owner's copy, and then marks the waiver as suspended until you are paid.
 Mississippi's affidavit names no copy to a contractor, so PayApps never asks about one. It counts
-calendar days from the day you marked the waiver sent and does not move the date for a weekend or
-holiday, so do not wait for the last day. The free guide,
+from the day you marked the waiver sent; since 2026-11-28 it also applies Mississippi's rule for a
+last day on a weekend or holiday (see the update below). Do not wait for the last day. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Mississippi row and section. PayApps is in development, and nothing is for sale yet. Not
 legal advice: ask a Mississippi lawyer before relying on a waiver.
@@ -483,3 +483,36 @@ against the text we fetched. PayApps now prints the notice from the job page on 
 up. The GC is filled in as the other contracting party. The designee is left for you to copy from
 the notice of commencement, because PayApps doesn't hold that document. It does not count the 20
 days or keep a log of the notices you served yet (California and Florida have both).
+
+## Update, 2026-11-28: Mississippi's 60 days and two days, on a weekend or holiday
+
+Mississippi's lien article says how to count its days: "the computation of time under this article
+shall be determined pursuant to Section 1-3-67" (§ 85-7-425). We had not read § 1-3-67, so PayApps
+counted plain calendar days and said so. We have now read it (FindLaw's copy of the Code; the
+official LexisNexis edition is still out of reach), with the state's list of legal holidays in
+§ 3-3-7(1). Two things change for a sub holding an unpaid Mississippi waiver:
+
+- **A 60th day on a weekend or holiday moves.** The last day counts "unless it is a Saturday, a
+  Sunday or a legal holiday, or any other day when the courthouse or the clerk's office is in fact
+  closed", and then "the period runs until the end of the next day" that is none of those. A waiver
+  signed on Tuesday 6 October 2026 reaches day 60 on Saturday 5 December, so the period runs to the
+  end of Monday 7 December. One signed on 26 October reaches day 60 on Christmas Day, a Friday, and
+  runs to Monday 28 December.
+- **The two days for the owner's copy skip weekends and holidays.** For a period "less than seven
+  (7) days, intermediate Saturdays, Sundays and legal holidays shall be excluded". File the affidavit
+  on a Friday and the copy is due by Tuesday, not Sunday. File on the Wednesday before Thanksgiving
+  and it is due the next Monday.
+
+Mississippi's legal holidays are its own: Confederate Memorial Day (the last Monday of April) is one,
+and so are the third Mondays of January and February. The Friday after Thanksgiving, Christmas Eve
+and Juneteenth are not, and a holiday that falls on a Saturday does not move to the Friday. A county
+or city may also swap one holiday for Mardi Gras or another day (§ 3-3-7(2)), and a clerk's office
+closed for any other reason counts too. PayApps cannot know those; each can only make your last day
+later than the one it shows, never earlier.
+
+PayApps now shows both days on a Mississippi waiver: the 60th day, which it still counts down to, and
+the day the period actually runs to when the 60th falls on a closed day. On the Sunday after a
+Saturday 60th day it no longer says the period has ended; it says you have until the end of Monday.
+The owner's copy date follows the two-business-day count. Georgia, whose own counting rule (O.C.G.A.
+§ 1-3-1) we have not read, still counts calendar days. The safest course is unchanged: file before
+the 60th day, and mail the copy the day you file.

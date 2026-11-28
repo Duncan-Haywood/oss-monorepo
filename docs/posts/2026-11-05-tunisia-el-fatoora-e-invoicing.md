@@ -4,6 +4,7 @@ seo_title: "Tunisia El Fatoora e-invoicing: services from 2026"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, tunisia]
 description: "E-invoice Preflight now covers 86 countries: Tunisia's El Fatoora on the TTN platform, with VAT-liable services added from 1 January 2026 in the guides."
+folded_into: einvoice-preflight/tunisia-el-fatoora-e-invoice-mandate
 ---
 
 The mandates-by-country table grows from 85 to 86 rows.

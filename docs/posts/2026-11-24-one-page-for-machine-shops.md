@@ -1345,3 +1345,41 @@ four the workspace's Audits tab records. That tab keeps the whole programme:
 an owner per clause, audits planned and done, and a flag for any clause not
 audited in 12 months. It is part of the Level 2 + Quality plan, which is not
 on sale yet.
+
+## Update, 28 November 2026: a register for cyber incidents, with the 72-hour clock
+
+If a defense PO carries DFARS 252.204-7012 and an incident touches a system
+holding covered defense information, two clocks start. The clause defines
+"rapidly report" as "within 72 hours of discovery of any cyber incident", and
+the report goes to dibnet.dod.mil. Then images of the affected systems and the
+monitoring and packet capture data are kept "for at least 90 days from the
+submission of the cyber incident report". The
+[free checklist](https://marisstella.app/machine-shop-guides/dfars-7012-incident-reporting.html)
+works out both dates for one incident in the browser. A shop being assessed
+needs more than that: NIST SP 800-171 3.6.2 asks for incidents to be tracked,
+documented and reported, and 3.6.1 and 3.6.2 are worth 5 points each in the
+SPRS score.
+
+So [CMMC Workspace](https://cmmc.marisstella.app/signup?from=blog%2Fincident-register)
+now has an Incidents tab. You record an incident the moment you find it. The
+page counts down to the report deadline in your own time zone and says whether
+paragraph (c) applies, going by whether the clause is in the contract and what
+the incident touched. If you don't know yet, it keeps the clock running, since
+a late report can't be filed on time afterwards. It also keeps the checklist
+with each step's paragraph: review (c)(1)(i), the medium assurance certificate
+(c)(3), malware to DC3 (d), images (e), and for a subcontractor, the report
+number passed up to the prime (m)(2)(ii). Each incident gets a timeline you
+fill in as things happen.
+
+Once you enter the report time, the 90-day hold starts. The day each hold ends
+goes into the workspace calendar as a count, with no incident titles. The
+register flags a report that is overdue or went in late, a missing DoD report
+number, a higher tier nobody has told yet, and an incident closed before its
+hold ends. You can download it as a CSV, and each incident as a Markdown
+record for the assessor. Only an admin can delete an incident, because the
+record is your evidence.
+
+It's on every plan, including the free Level 1 plan. A 72-hour clock shouldn't
+sit behind a paywall. The quotes were re-read from GSA's published text of the
+clause (MAY 2024) on 28 November 2026. The register files nothing with DoD and
+isn't legal advice: the version of the clause in your contract governs.
