@@ -19,8 +19,8 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 describe("lien deadline parity with the free calculator", () => {
   const shared = Object.keys(STATE_RULES).filter(isLienDeadlineState);
-  it("shares at least the ten states the free calculator had", () => {
-    expect(shared.length).toBeGreaterThanOrEqual(10);
+  it("shares every state PayApps carries (all sixteen since 2026-11-28)", () => {
+    expect(shared.length).toBeGreaterThanOrEqual(16);
   });
   for (const state of shared) {
     it(`${state}: same statutory and act-by dates on a grid of inputs`, () => {
