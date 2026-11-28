@@ -3,6 +3,7 @@ title: "Gutters and downspouts join the framing takeoff page"
 date: 2026-10-28
 description: "The wall-framing takeoff page can now count gutter sections, downspouts, hangers, caps and elbows from the roof's eaves, and price them into the budget."
 tags: [construction, wall-framing-takeoff, takeoff]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The wall-framing takeoff page already counts studs, rafters, siding, soffit and

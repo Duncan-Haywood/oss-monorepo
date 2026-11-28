@@ -16,6 +16,7 @@ import { launchFromEnv, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { buildPages, humanDate, statusBox } from "./pages.mjs";
 import { publicPlans } from "./plans.mjs";
 import { buildPoamWorkbook, TEMPLATE_FILE } from "./poam-template.mjs";
+import { CROSSWALK_FILE, crosswalkCsv } from "./rev2-vs-rev3.mjs";
 import {
   DEFAULT_BASE_PATH,
   DEFAULT_SITE_URL,
@@ -369,6 +370,7 @@ export function build({
   files["og.svg"] = readFileSync(join(HERE, "og.svg"), "utf8");
   files[SHEET_FILE] = buildWorkbook();
   files[TEMPLATE_FILE] = buildPoamWorkbook();
+  files[CROSSWALK_FILE] = crosswalkCsv();
   for (const [name, content] of Object.entries(files)) {
     const target = join(outDir, name);
     mkdirSync(dirname(target), { recursive: true });

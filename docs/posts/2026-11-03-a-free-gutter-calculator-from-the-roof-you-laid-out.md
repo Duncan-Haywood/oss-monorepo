@@ -3,6 +3,7 @@ title: A free gutter calculator that starts from the roof's eaves
 date: 2026-11-03
 description: A new browser page counts gutter sections, downspouts, hangers and fittings for a gable or hip roof from the same engine as the framing CLI.
 tags: [wall-framing, gutters, calculators, construction]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 Gutters hang on eaves, not rakes, so a gable roof needs two runs and a hip roof four. The new [gutter calculator](../../ventures/wall-framing-takeoff/gutter-calculator.html) lays out the roof first, takes the eave runs from it, packs them into your section length and counts downspouts, hangers, end caps, elbows, straps and hip corners.
 

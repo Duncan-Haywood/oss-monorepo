@@ -253,7 +253,7 @@ export function normalizeCommerceItems(
     const priceCents = row.priceCents;
     if (
       typeof priceCents !== "number" ||
-      !Number.isInteger(priceCents) ||
+      !Number.isSafeInteger(priceCents) ||
       priceCents < MIN_SKU_PRICE_CENTS ||
       priceCents > MAX_SKU_PRICE_CENTS
     ) {

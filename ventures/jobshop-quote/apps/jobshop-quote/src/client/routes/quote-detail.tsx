@@ -1886,7 +1886,12 @@ function EmailQuote({
                 <td className="py-1 pr-2 whitespace-nowrap">
                   {e.createdAt.slice(0, 16).replace("T", " ")}
                 </td>
-                <td className="py-1 pr-2 break-all">{e.to.join(", ")}</td>
+                <td className="py-1 pr-2 break-all">
+                  {e.kind === "follow_up" && (
+                    <span className="mr-1 text-xs text-stone-500">Follow-up ·</span>
+                  )}
+                  {e.to.join(", ")}
+                </td>
                 <td className="py-1 pr-2">{e.sentByName ?? "a former member"}</td>
                 <td className="py-1">
                   <Badge tone={e.status === "sent" ? (e.delivered ? "green" : "amber") : "red"}>

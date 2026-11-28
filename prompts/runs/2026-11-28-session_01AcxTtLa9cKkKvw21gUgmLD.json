@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLa9cKkKvw21gUgmLD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:05:56Z",
+  "ended": "2026-11-28T08:13:05Z",
+  "wall_minutes": 7.33,
+  "tokens_in": 6024344,
+  "tokens_out": 26963,
+  "cost_usd": 2.7263,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20046",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First insertion of the four STATE_BOND_RULES entries landed in the retainage-cap map (its first 'VA: { name: \"Virginia\"' match); caught by the unit test, moved."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/src/shared/public-jobs.ts",
+      "issue": "Two Record<string,...> maps keyed by state with identical 'VA: { name: \"Virginia\"' openings (retainage caps and bond rules); a text-anchored insert hits the wrong one silently, since tsc accepts the extra fields."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/posts",
+      "why": "No new post: extended the existing consolidated little-Miller-Act post per the 2026-11-24 consolidation direction.",
+      "did": "Added rows and a dated paragraph to docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md",
+      "result": "post covers 29 states"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. Route: ventures/1, bet #1 payapps item #25. Probed statute hosts: mca.legmt.gov, ndlegis.gov, scstatehouse.gov, sdlegislature.gov answered; cga.ct.gov, gc.nh.gov, code.wvlegislature.gov timed out; capitol.hawaii.gov 403. Verification: payapps vitest unit 92 files / 1253 passed, tsc clean, biome clean; run_venture_tests --changed: 4 suites, 0 failed (payapps own-workflow worker/e2e steps not run; change is in pure shared functions covered by unit tests); platform/pages site checks ok; risk_review: nothing blocked (hosts are statute links, not calls; no personal data; every claim backed by sources/state-bond-claims.txt).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9cd1ea20-5a7f-5a74-9ac0-76d19c154ff3",
+    "transcripts": 1,
+    "first": "2026-11-28T08:05:56Z",
+    "last": "2026-11-28T08:13:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 110,
+        "output": 26963,
+        "thinking": 4772,
+        "cache_read": 5898369,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125865,
+        "api_equivalent_usd": 2.7263,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 110,
+      "output": 26963,
+      "thinking": 4772,
+      "cache_read": 5898369,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125865,
+      "api_equivalent_usd": 2.7263,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.33,
+      "active_minutes": 7.33,
+      "model_minutes": 4.55,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading four statutes, coding and testing the rules, updating guide and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 146.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

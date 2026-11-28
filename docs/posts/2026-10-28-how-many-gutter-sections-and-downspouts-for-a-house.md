@@ -3,6 +3,7 @@ title: "How many gutter sections and downspouts does a 40 by 24 ft house need?"
 date: 2026-10-28
 description: "On a gable roof with 12 in overhangs: 84 ft of gutter, 9 ten-foot sections, 4 downspouts, 44 hangers and 8 end caps, from the free wall-framing takeoff."
 tags: [wall-framing-takeoff, construction, estimating]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 # How many gutter sections and downspouts does a 40 by 24 ft house need?

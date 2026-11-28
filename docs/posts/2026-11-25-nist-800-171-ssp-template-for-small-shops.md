@@ -101,6 +101,20 @@ Plenty of shops start the POA&M in Excel. The free [CMMC POA&M template](https:/
 
 Type in the conditional status date and the Summary sheet gives the close-out deadline, the points the open items cost, the score with them open (assuming everything else is met) and whether the list could support a Conditional Level 2 (Self) status. The cut-off is 88 of 110, so at most 22 one-point items can be open. Our tests recalculate the workbook in LibreOffice and check every one of the 110 requirements against the same rules the SPRS calculator uses. The Compliance Workspace's POA&M page imports the file as it is, with a preview before anything changes.
 
+## Which revision the plan is written to: Rev. 2, not Rev. 3
+
+Every requirement number above is from NIST SP 800-171 Rev. 2, and that is deliberate. NIST published Rev. 3, and shops keep asking whether the plan should move to it. For CMMC it should not: 32 CFR 170.14(c)(3) says "The security requirements in CMMC Level 2 are identical to the requirements in NIST SP 800-171 R2", so the SSP, the SPRS score and the POA&M rules are all Rev. 2.
+
+Rev. 3 is still worth reading, so we mapped it from NIST's own machine-readable catalog (the OSCAL file in usnistgov/oscal-content, version 1.1.0, read 28 Nov 2026). Counted from that file, not from memory:
+
+- Rev. 3 has 97 requirements in 17 families; Rev. 2 has 110 in 14.
+- 77 Rev. 2 requirements keep their number in Rev. 3, often reworded and split into lettered parts.
+- 33 are withdrawn: 22 incorporated into another requirement (3.1.14 and 3.1.15 into 03.01.12, remote access; the SSP itself, 3.12.4, into the new 03.15.02), 5 "addressed by" others, and 6 with no requirement named in their place.
+- 20 numbers are new, including three new families: Planning, System and Services Acquisition, and Supply Chain Risk Management.
+- Rev. 3 has 88 organization-defined parameters in 50 requirements (how often, how long, which list), where Rev. 2 has none, and 422 determination statements against Rev. 2's 320 objectives.
+
+The whole mapping, each Rev. 2 requirement with what happened to it and the text of every new one, is on the [NIST 800-171 Rev. 2 vs Rev. 3 page](https://marisstella.app/cmmc/nist-800-171-rev-2-vs-rev-3), with a free CSV crosswalk. Where Rev. 3 splits one of your Rev. 2 requirements into parts, the parts make a fair checklist for the "how it is done" field above.
+
 ## What it is not
 
 It isn't an assessment, a certification or an SPRS submission. Requirement titles on the page are short paraphrases. The session that built it couldn't reach nist.gov to copy the Rev. 2 text, and NIST's machine-readable catalog covers Rev. 3 only, while CMMC Level 2 is assessed against Rev. 2. So decide each status against the full text of NIST SP 800-171 Rev. 2 and its 800-171A objectives. The page links both.

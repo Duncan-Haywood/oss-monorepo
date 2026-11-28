@@ -116,6 +116,22 @@ export const SOURCES = [
     note: "Level 2 (Self): assessed against NIST SP 800-171A every three years, results in SPRS, affirmed at each assessment and annually; a POA&M closed out within 180 days. Read on the LII copy of the eCFR.",
   },
   {
+    id: "cfr-170-14",
+    title: "32 CFR 170.14, CMMC model",
+    url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.14",
+    publisher: "eCFR",
+    checked: "2026-11-25",
+    note: 'Paragraph (c)(3): "The security requirements in CMMC Level 2 are identical to the requirements in NIST SP 800-171 R2." Read on eCFR 2026-11-25 (apps/cmmc/docs/SOURCES.md).',
+  },
+  {
+    id: "nist-800-171r3-oscal",
+    title: "NIST SP 800-171 Rev. 3 catalog in OSCAL (usnistgov/oscal-content)",
+    url: "https://github.com/usnistgov/oscal-content/blob/main/nist.gov/SP800-171/rev3/json/NIST_SP800-171_rev3_catalog.json",
+    publisher: "NIST",
+    checked: "2026-11-28",
+    note: "NIST's machine-readable copy of SP 800-171 Rev. 3 (https://csrc.nist.gov/pubs/sp/800/171/r3/final): requirements, withdrawn ones with their incorporated-into and addressed-by links, parameters and determination statements. Catalog version 1.1.0; file hash pinned in test/rev2-vs-rev3.test.mjs.",
+  },
+  {
     id: "cfr-170-24",
     title: "32 CFR 170.24, CMMC Scoring Methodology",
     url: "https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.24",

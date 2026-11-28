@@ -2,7 +2,7 @@ import type { Cents } from "./port.ts";
 
 /** Integer cents to the decimal amount QuickBooks Online expects (e.g. 123456 -> 1234.56). */
 export function centsToAmount(cents: Cents): number {
-  if (!Number.isInteger(cents)) throw new RangeError(`cents must be an integer, got ${cents}`);
+  if (!Number.isSafeInteger(cents)) throw new RangeError(`cents must be an integer, got ${cents}`);
   return cents / 100;
 }
 

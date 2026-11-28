@@ -3,6 +3,7 @@
 import {
   copyLineFromSchema,
   createQuoteSchema,
+  emailFollowUpSchema,
   emailQuoteSchema,
   fileUnitsSchema,
   followUpSettingsSchema,
@@ -50,7 +51,12 @@ import {
   listCustomerLinks,
   revokeCustomerLinks,
 } from "../../services/quotes/customer-link";
-import { emailQuote, listQuoteEmails } from "../../services/quotes/email";
+import {
+  emailFollowUp,
+  emailQuote,
+  followUpEmailForm,
+  listQuoteEmails,
+} from "../../services/quotes/email";
 import {
   followUpQueue,
   logFollowUp,
@@ -351,6 +357,24 @@ export const quoteRoutes = new Hono<AppEnv>()
     const t = c.var.tenant;
     return c.json(
       await logFollowUp(c.var.ctx, t.orgId, t.userId, c.req.param("quoteId"), c.req.valid("json")),
+      201,
+    );
+  })
+  // A follow-up email to the customer about the sent quote, logged as a follow-up once it is sent.
+  .get("/:quoteId/follow-up-email", async (c) => {
+    const t = c.var.tenant;
+    return c.json(await followUpEmailForm(c.var.ctx, t.orgId, t.userId, c.req.param("quoteId")));
+  })
+  .post("/:quoteId/follow-up-email", est, validate("json", emailFollowUpSchema), async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await emailFollowUp(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("quoteId"),
+        c.req.valid("json"),
+      ),
       201,
     );
   })
