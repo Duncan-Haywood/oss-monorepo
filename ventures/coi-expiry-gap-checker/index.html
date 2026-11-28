@@ -66,7 +66,7 @@
 
   <section class="card">
     <h2>1. Your vendor policy list</h2>
-    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns recognised: vendor, coverage (general liability, auto, umbrella, workers comp, professional), carrier, policy number, each occurrence / limit, aggregate, effective, expiration, additional insured, waiver of subrogation, primary non-contributory.</p>
+    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns recognised: vendor, coverage (general liability, auto, umbrella, workers comp, professional), carrier, policy number, each occurrence / limit, aggregate, effective, expiration, additional insured, waiver of subrogation, primary non-contributory, and the headings printed on an ACORD 25 (TYPE OF INSURANCE, ADDL INSD, SUBR WVD, POLICY EFF, POLICY EXP).</p>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the list</label>
@@ -151,7 +151,7 @@
   </footer>
 
   <script type="module">
-    import { check, sampleList, sampleBrokenList, SAMPLE_AS_OF, parseDate, isoDay, parseMoney, findingsCsv, chaseListCsv, expiryCalendar } from "./calc.mjs";
+    import { check, sampleList, sampleBrokenList, SAMPLE_AS_OF, parseDate, isoDay, readRequirements, findingsCsv, chaseListCsv, expiryCalendar } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -166,18 +166,18 @@
       a.download = name;
       a.click();
     }
-    const money = (id) => { const v = parseMoney($(id).value); return Number.isFinite(v) ? v : 0; };
-    const reqs = () => ({
-      GL: { limit: money("#gl-occ"), aggregate: money("#gl-agg") }, AUTO: { limit: money("#auto-csl") }, WC: { limit: money("#wc-el") },
-      UMB: { limit: money("#umb") }, PRO: { limit: money("#pro") },
-      leadDays: Math.max(0, parseInt($("#lead").value, 10) || 0), additionalInsured: $("#req-ai").checked, waiver: $("#req-waiver").checked,
-      pnc: $("#req-pnc").checked, umbrellaCounts: $("#umb-counts").checked,
+    const reqs = () => readRequirements({
+      glOcc: $("#gl-occ").value, glAgg: $("#gl-agg").value, autoCsl: $("#auto-csl").value, wcEl: $("#wc-el").value,
+      umb: $("#umb").value, pro: $("#pro").value, lead: $("#lead").value,
+      additionalInsured: $("#req-ai").checked, waiver: $("#req-waiver").checked, pnc: $("#req-pnc").checked, umbrellaCounts: $("#umb-counts").checked,
     });
 
     function run(text) {
       const asOf = parseDate($("#as-of").value);
       if (!Number.isFinite(asOf)) { status.textContent = "Choose the date to check as of."; return; }
-      const r = check(text, reqs(), asOf);
+      const { req, problems } = reqs();
+      if (problems.length) { status.textContent = problems.join(" "); report.hidden = true; return false; }
+      const r = check(text, req, asOf);
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `<strong>${s.fail} to fix</strong>, ${s.watch} to watch, ${s.ok} clear · ${s.vendors} vendor${s.vendors === 1 ? "" : "s"}, ${s.policies} polic${s.policies === 1 ? "y" : "ies"} · as of ${isoDay(asOf)}`;
@@ -186,17 +186,18 @@
       report.hidden = false;
       status.textContent = `${s.fail} vendor${s.fail === 1 ? "" : "s"} to fix.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
     }
 
     $("#validate").addEventListener("click", async () => {
       const f = $("#file").files[0];
       const text = f ? await f.text() : $("#paste").value;
       if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
-      run(text); record("list_checked");
+      if (run(text)) record("list_checked");
     });
     const example = (id, make, note) => $(id).addEventListener("click", () => {
       $("#paste").value = make(); $("#file").value = ""; $("#as-of").value = SAMPLE_AS_OF;
-      run($("#paste").value); record("example_loaded"); status.textContent = note;
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = note; }
     });
     example("#load-ok", sampleList, "Worked example: made-up vendors, checked as of 2026-10-05.");
     example("#load-broken", sampleBrokenList, "Worked example: a list with a lapse, a swapped date and missing coverage.");

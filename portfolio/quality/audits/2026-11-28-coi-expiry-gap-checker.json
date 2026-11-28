@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-28",
+  "subject": "ventures/coi-expiry-gap-checker",
+  "stratum": "venture",
+  "seed": "2026-11-28-bc71",
+  "drawn_by": "reaudit",
+  "auditor": "agent session (Claude), see run record prompts/runs/ for 2026-11-28 quality/0",
+  "status": "audited",
+  "professional": "a construction risk manager or GC compliance coordinator who tracks subcontractor certificates of insurance (ACORD 25) against contract insurance requirements",
+  "prior_audit": "portfolio/quality/audits/2026-11-12-coi-expiry-gap-checker.json",
+  "scores": {"correctness": 2, "completeness": 3, "verification": 2, "craft": 2, "claims": 3, "fitness": 2, "domain": 2},
+  "evidence": {
+    "correctness": "On arrival: renewal gaps now follow the 12:01 a.m. policy period (expires 2026-06-01, renewal effective 2026-06-02 -> '1-day gap'; Delta sample 2026-06-01 -> 2026-06-20 -> 19 days, counted by hand). Pollution, liquor and garage liability no longer satisfy GL. New high: normalizeCoverage('GL incl. products/completed ops') returned 'WC' and 'Products-completed operations' returned 'WC' because /comp/ matched 'completed' (calc.mjs:67 before the fix), so a GL row could satisfy the workers' comp requirement and leave GL 'nothing on file'. Renewal-on-file still produced a lead-time warning and a chase-list row (probe in run notes).",
+    "completeness": "Claimed features checked by probe and Playwright: paste/CSV read, limits, umbrella offset, endorsements, lead time, renewal gaps, chase-list CSV, .ics export, both examples. All work end to end; ACORD 25 column headings were rejected ('No \"coverage\" column', 'No \"expiration\" column').",
+    "verification": "node --test '*.test.mjs': 29 pass on arrival. Re-ran the four mutants that survived on 2026-11-12 with quality_mutate.py: all four still survived (umbrella >= shortfall boundary, 7-day error boundary, WC waiver, WC umbrella exclusion). Two others (gap > 0 -> > 1, dropping 'garage' exclusion) were caught.",
+    "craft": "calc.mjs read in full. One pure module, tested separately from the page; .ics escape and folding now correct. Unhandled input remained in index.html: parseMoney failure -> 0 for every requirement and parseInt('')||0 for lead time, which silently switched checks off. Substring regexes in normalizeCoverage caused the WC misclassification.",
+    "claims": "README 'Known gaps' listed the five open 2026-11-12 defects honestly; page FAQ renewal-gap wording matches the code (12:01 a.m. periods, verified by probe); page says WC waiver is checked and the code does check it (only untested). Disclaimer, privacy and 'no network' claims backed by page.test.mjs. No unbacked claim found.",
+    "fitness": "Walked the coordinator's weekly job: load the list, check, send the chase list. A vendor whose renewal certificate is already on file still landed on the chase list as 'renewal soon', and a list typed with ACORD 25 headings was refused, both first-hour friction for this user.",
+    "domain": "Compared with ACORD 25 (2016/03) layout and standard CGL/WC policy periods. Gap arithmetic and endorsement scoping (AI not on WC, waiver on WC) match practice. Departs: employers' liability disease limits (each employee, policy limit) not compared; coverage names matched by substring."
+  },
+  "checks": [
+    {"dimension": "correctness", "what": "renewal effective the day after expiration is a one-day lapse", "method": "standard policy period 12:01 a.m. effective to 12:01 a.m. expiration (ISO CG 00 01 declarations, Section II policy period); hand count", "command": "node probe.mjs (gap1)", "expected": "1-day gap", "observed": "1-day gap", "result": "pass"},
+    {"dimension": "correctness", "what": "Delta Drywall sample gap 2026-06-01 -> 2026-06-20", "method": "hand count of uncovered days June 1..19", "command": "node probe.mjs (delta)", "expected": "19", "observed": "19-day gap", "result": "pass"},
+    {"dimension": "correctness", "what": "contractors pollution / liquor / garage liability do not satisfy GL", "method": "these are separate coverage forms from CGL (ACORD 25 lists them as 'other' lines)", "command": "node probe.mjs (normalizeCoverage)", "expected": "null", "observed": "null", "result": "pass"},
+    {"dimension": "correctness", "what": "a GL row naming products-completed operations is GL, not WC", "method": "products-completed operations is a CGL coverage part (CG 00 01 Coverage A)", "command": "normalizeCoverage('GL incl. products/completed ops')", "expected": "GL", "observed": "WC", "result": "fail"},
+    {"dimension": "correctness", "what": "umbrella exactly equal to the shortfall makes it up", "method": "hand arithmetic: $500k primary + $500k umbrella = $1M required", "command": "node probe.mjs (umb eq)", "expected": "info, made up by the umbrella", "observed": "info, made up by the umbrella", "result": "pass"},
+    {"dimension": "fitness", "what": "renewal already on file clears the lead-time chase", "method": "coordinator practice: a received renewal certificate closes the request", "command": "node probe.mjs (renewal on file)", "expected": "status ok, empty chase list", "observed": "watch, chase list row 'renewal soon'", "result": "fail"},
+    {"dimension": "completeness", "what": "ACORD 25 column headings accepted", "method": "ACORD 25 (2016/03) headings TYPE OF INSURANCE, ADDL INSD, SUBR WVD, POLICY EFF, POLICY EXP", "command": "readList('INSURED,TYPE OF INSURANCE,...')", "expected": "no findings", "observed": "No \"coverage\" column; No \"expiration\" column", "result": "fail"},
+    {"dimension": "craft", "what": "unreadable requirement '1 million' is reported", "method": "read index.html:169-174", "command": "sed -n 156,200p index.html", "expected": "an error", "observed": "parseMoney NaN -> 0, check switched off", "result": "fail"},
+    {"dimension": "claims", "what": ".ics semicolons escaped (prior low defect)", "method": "RFC 5545 3.3.11", "command": "expiryCalendar on vendor 'C; Sons'", "expected": "SUMMARY with C\\; Sons", "observed": "SUMMARY:Renew COI: C\\; Sons\\, ...", "result": "pass"},
+    {"dimension": "claims", "what": "README test command runs on Node 22", "method": "run it", "command": "cd ventures/coi-expiry-gap-checker && node --test '*.test.mjs'", "expected": "pass", "observed": "29 pass", "result": "pass"},
+    {"dimension": "craft", "what": "default as-of date is the local date", "method": "read index.html:161", "command": "sed -n 161p index.html", "expected": "local date", "observed": "toISOString of Date.now() minus timezone offset (local date)", "result": "pass"},
+    {"dimension": "completeness", "what": "page runs both examples without script errors", "method": "Playwright with page.route serving the files", "command": "node pw.cjs", "expected": "reports render, no pageerror", "observed": "'2 to fix' broken example, '1 to fix, 1 to watch, 1 clear' ok example, no errors", "result": "pass"}
+  ],
+  "mutations": [
+    {"where": "calc.mjs:223", "change": "umb.p.limit >= short -> umb.p.limit > short", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+    {"where": "calc.mjs:216", "change": "left <= 7 ? \"error\" -> left < 7 ? \"error\"", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+    {"where": "calc.mjs:238", "change": "[\"GL\", \"AUTO\", \"WC\", \"UMB\"]); -> [\"GL\", \"AUTO\", \"UMB\"]);", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+    {"where": "calc.mjs:223", "change": "c !== \"WC\" && c !== \"UMB\" && umbOk -> c !== \"UMB\" && umbOk", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+    {"where": "calc.mjs:249", "change": "if (gap > 0) -> if (gap > 1)", "caught": true, "test_cmd": "node --test calc.test.mjs"},
+    {"where": "calc.mjs:72", "change": "|garage|recall -> |recall", "caught": true, "test_cmd": "node --test calc.test.mjs"}
+  ],
+  "defects": [
+    {"severity": "high", "what": "normalizeCoverage matched /comp/ and /work/ as substrings, so 'GL incl. products/completed ops' and 'Products-completed operations' were read as workers' comp (a GL row could satisfy the WC requirement) and 'Network security liability' as general liability.", "where": "ventures/coi-expiry-gap-checker/calc.mjs:67", "category": "input-handling", "origin": "implementation", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"severity": "medium", "what": "A renewal certificate already on the list did not clear the lead-time warning (carried from 2026-11-12 defect 2).", "where": "ventures/coi-expiry-gap-checker/calc.mjs:216", "category": "scope-gap", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"severity": "medium", "what": "ACORD 25 column headings not recognised (carried from 2026-11-12 defect 3).", "where": "ventures/coi-expiry-gap-checker/calc.mjs:27", "category": "input-handling", "origin": "implementation", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"severity": "medium", "what": "Unreadable requirement or blank lead time silently became 0 (carried from 2026-11-12 defect 4).", "where": "ventures/coi-expiry-gap-checker/index.html:169", "category": "input-handling", "origin": "implementation", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"severity": "medium", "what": "Four seeded mutations in core logic still survived (carried from 2026-11-12 defect 5).", "where": "ventures/coi-expiry-gap-checker/calc.test.mjs:66", "category": "untested-core", "origin": "tests", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"severity": "low", "what": "Employers' liability disease limits (each employee, policy limit) not compared (carried from 2026-11-12 defect 8); listed in README Known gaps.", "where": "ventures/coi-expiry-gap-checker/calc.mjs:229", "category": "scope-gap", "origin": "spec"}
+  ],
+  "prior_defects": [
+    {"index": 0, "severity": "high", "basis": "assumed", "status": "closed", "what": "renewal gap off by one against the 12:01 a.m. policy period", "evidence": "gap = effective - expiry (calc.mjs:248); 1-day and 19-day probes match hand counts; gap > 1 mutant caught"},
+    {"index": 1, "severity": "high", "basis": "assumed", "status": "closed", "what": "bare 'liability' (pollution, liquor, cyber, garage) satisfied GL", "evidence": "exclusion regex calc.mjs:72; probe returns null; dropping 'garage' mutant caught"},
+    {"index": 2, "severity": "medium", "basis": "assumed", "status": "open", "what": "renewal on file does not clear the lead-time warning", "evidence": "probe: status watch, chase-list row; README listed it as not fixed", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"index": 3, "severity": "medium", "basis": "assumed", "status": "open", "what": "ACORD 25 headings not aliases", "evidence": "readList rejected the ACORD header row", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"index": 4, "severity": "medium", "basis": "assumed", "status": "open", "what": "unparseable requirement / blank lead time become 0", "evidence": "index.html money() and parseInt||0 unchanged", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"index": 5, "severity": "medium", "basis": "assumed", "status": "open", "what": "4 of 9 seeded mutations survive", "evidence": "all four re-run, all survived", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"},
+    {"index": 6, "severity": "low", "basis": "assumed", "status": "closed", "what": ".ics semicolons not escaped", "evidence": "esc() at calc.mjs:301 puts a backslash before each semicolon; probe SUMMARY shows C\\; Sons"},
+    {"index": 7, "severity": "low", "basis": "assumed", "status": "closed", "what": "README test command fails on Node 22", "evidence": "README now says node --test '*.test.mjs'; it runs"},
+    {"index": 8, "severity": "low", "basis": "assumed", "status": "open", "what": "employers' liability disease limits not modelled", "evidence": "only each-accident compared; still in README Known gaps"},
+    {"index": 9, "severity": "low", "basis": "assumed", "status": "closed", "what": "default as-of date is the UTC date", "evidence": "index.html:161 subtracts the timezone offset"}
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19931"],
+  "verdict": "Not at the bar on arrival. PR #15051 closed 5 of the 10 defects from 2026-11-12 (both highs, the .ics escape, the README command and the UTC date) and wrote the other five down honestly; the blanket fix_prs reading had counted all 10 fixed. The re-audit found a new high: coverage names matched by substring, so a GL row mentioning completed operations was read as workers' comp. Correctness 2 and verification 2 (all four earlier surviving mutants still survived) bind. PR #19931 fixes the new high and four of the five open defects with tests that catch those mutants; employers' liability disease limits remain a known gap. Scores are before that fix; a later round re-audits."
+}
