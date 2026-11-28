@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First draft's 'no line minimum' policy was identical to the base card because the $250 minimum never binds on the bracket; replaced with a rate-at-cost + 25% labor markup policy."
+    "First draft's 'no line minimum' policy was identical to the base card because the $250 minimum never binds on the bracket; replaced with a rate-at-cost + 25% labor markup policy.",
+    "CI pages 'test' job failed title-length.test.mjs: the new page's title was over 70 characters; shortened to 69 and re-exported."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "`roadmap_claim.py payapps --slug` with no value errors; the CLAUDE.md wording ('--slug') reads as a flag. Minor."
+    },
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-site/test",
+      "issue": "The site's own unit tests do not check the 70-character title limit that platform/pages/title-length.test.mjs enforces; found only in CI."
     }
   ],
   "deviations": [
