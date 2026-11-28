@@ -329,7 +329,7 @@ test("California cites ยง 8414 (claimants other than a direct contractor), not ย
 });
 
 test("every state links its statute on an official or code-copy host", () => {
-  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|law\.lis\.virginia\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.ksrevisor\.gov|mgaleg\.maryland\.gov|archive\.legmt\.gov|nebraskalegislature\.gov|ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov)\//;
+  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|law\.lis\.virginia\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.ksrevisor\.gov|mgaleg\.maryland\.gov|archive\.legmt\.gov|nebraskalegislature\.gov|ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov|alison\.legislature\.state\.al\.us|www\.akleg\.gov|legislature\.maine\.gov|webserver\.rilegislature\.gov|wyoleg\.gov)\//;
   for (const state of Object.keys(STATE_RULES)) {
     const r = run({ state });
     assert.ok(r.sources.length >= 1, state);
@@ -398,4 +398,21 @@ test("the nine states added 2026-11-28 count from the last day furnished", () =>
   assert.equal(md.lien.safeDate.toISOString().slice(0, 10), "2027-02-26");
   // The notice of intention: 60 days before the petition's safe date, so never after 120 days.
   assert.ok(md.prelim.date <= new Date(Date.UTC(2026, 11, 30)), "Maryland notice within 120 days");
+});
+
+test("the five states added later on 2026-11-28 (AL, AK, ME, RI, WY)", () => {
+  // 2026-09-01 is a Tuesday: +4 months is Fri 2027-01-01, +120 days Wed 2026-12-30, +200 days
+  // Sat 2027-03-20 (safe date Fri 2027-03-19).
+  const want = { AL: ["2027-01-01", "2027-01-01"], AK: ["2026-12-30", "2026-12-30"], ME: ["2026-12-30", "2026-12-30"], RI: ["2027-03-20", "2027-03-19"], WY: ["2026-12-30", "2026-12-30"] };
+  for (const [state, [date, safe]] of Object.entries(want)) {
+    const r = lienDeadlines({ state, firstFurnishing: "2026-06-01", lastFurnishing: "2026-09-01", today: "2026-09-02" });
+    assert.equal(r.lien.date.toISOString().slice(0, 10), date, state);
+    assert.equal(r.lien.safeDate.toISOString().slice(0, 10), safe, `${state} safe date`);
+  }
+  // Wyoming: substantial completion before the last day of work moves the date earlier.
+  const wy = lienDeadlines({ state: "WY", firstFurnishing: "2026-06-01", lastFurnishing: "2026-09-01", completionDate: "2026-08-01", today: "2026-08-02" });
+  assert.equal(wy.lien.date.toISOString().slice(0, 10), "2026-11-29");
+  assert.equal(wy.lien.safeDate.toISOString().slice(0, 10), "2026-11-27");
+  // Its notice of intention is 20 days before the lien's safe date.
+  assert.equal(wy.prelim.date.toISOString().slice(0, 10), "2026-11-07");
 });

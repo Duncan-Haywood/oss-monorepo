@@ -552,6 +552,91 @@ STATE_RULES.SD = {
   prelimLabel: "preliminary notice",
 };
 
+// Added 2026-11-28 (second batch): five more states, each read on the
+// state's own code site that day (excerpts and URLs in
+// sources/2026-11-28-five-states.md). PayApps carries the same rules
+// (lien-deadline.ts) and its parity test holds the two equal.
+//   - Alabama, Ala. Code § 35-11-215: every person other than the original
+//     contractor (6 months) and a journeyman or day laborer (30 days) files
+//     within four months after the last item of work or material.
+//   - Alaska, AS 34.35.068(a): 120 days after the claimant completes its
+//     contract or stops furnishing, when the owner recorded no notice of
+//     completion (15 days after one, for some claimants, (b)(1)).
+//   - Maine, 10 M.R.S. § 3255(1): the lien is preserved by an action filed
+//     in court within 120 days after the last labor, materials or services.
+//   - Rhode Island, R.I. Gen. Laws § 34-28-4(a): the notice of intention
+//     mailed and a copy filed in the land evidence records within 200 days
+//     after the work; it reaches only work in the 200 days before filing.
+//   - Wyoming, W.S. 29-2-106(a): everyone but the contractor (150 days) files
+//     within 120 days of the earlier of the last day of work and substantial
+//     completion of the project; a notice of intention 20 days before (29-2-107).
+STATE_RULES.AL = {
+  name: "Alabama",
+  citation: "Ala. Code § 35-11-215",
+  sources: [
+    { label: "Code of Alabama § 35-11-215 (verified statement, time for filing)", url: "https://alison.legislature.state.al.us/code-of-alabama?section=35-11-215" },
+    { label: "Code of Alabama § 35-11-218 (notice by persons other than the original contractor)", url: "https://alison.legislature.state.al.us/code-of-alabama?section=35-11-218" },
+  ],
+  prelim: { type: "not_modeled", reason: "Alabama's notice to the owner (§ 35-11-218) must come before the statement is filed but has no date of its own in the statute, so none is shown. Only the verified statement below is dated." },
+  lien: { type: "months_after_last", months: 4 },
+  lienLabel: "file a verified statement with the judge of probate",
+  prelimLabel: "notice of lien to the owner",
+  lienExtra: "This is the clock for subcontractors and suppliers. An original contractor has six months, and a journeyman or day laborer 30 days (§ 35-11-215). Before filing, a subcontractor or supplier gives the owner written notice of the lien claimed, the amount, for what and from whom it is owed (§ 35-11-218). The action to enforce is due within six months after the whole debt matures (§ 35-11-221).",
+};
+
+STATE_RULES.AK = {
+  name: "Alaska",
+  citation: "Alaska Stat. § 34.35.068",
+  sources: [
+    { label: "AS 34.35.068 (time periods for claiming liens)", url: "https://www.akleg.gov/basis/statutes.asp?media=print&secStart=34.35.068&secEnd=34.35.068" },
+  ],
+  prelim: { type: "not_modeled", reason: "Alaska's notice of right to lien (AS 34.35.064) is optional and was not dated for this tool. Only the claim of lien below is dated." },
+  lien: { type: "days_after_last", days: 120 },
+  lienLabel: "record a claim of lien",
+  prelimLabel: "notice of right to lien",
+  lienExtra: "This is the clock when the owner has recorded no notice of completion: 120 days after you complete your contract or stop furnishing (§ 34.35.068(a)). If the owner records one, a claimant who gave no notice of right to lien, or who was told in advance the date it would be recorded, has only 15 days after the recording (§ 34.35.068(b)(1)). Ask the owner whether one was recorded.",
+};
+
+STATE_RULES.ME = {
+  name: "Maine",
+  citation: "Me. Rev. Stat. tit. 10, § 3255(1)",
+  sources: [
+    { label: "10 M.R.S. § 3255 (liens preserved and enforced by action)", url: "https://legislature.maine.gov/statutes/10/title10sec3255.html" },
+  ],
+  prelim: { type: "not_modeled", reason: "Maine's notices before the action were not checked against the statute for this tool, so no date is shown for them. Only the court filing below is dated." },
+  lien: { type: "days_after_last", days: 120 },
+  lienLabel: "file an action to enforce the lien in the Superior Court or District Court",
+  prelimLabel: "notice",
+  lienExtra: "Maine preserves the lien by suing: the action is filed in the county where the property is within 120 days after your last labor, materials or services (§ 3255(1)). If you had no contract with the owner, the complaint may not be served on the owner until 30 days after it is filed. A buyer for value takes free of the lien unless a notice was recorded first (§ 3255(2)).",
+};
+
+STATE_RULES.RI = {
+  name: "Rhode Island",
+  citation: "R.I. Gen. Laws § 34-28-4(a)",
+  sources: [
+    { label: "R.I. Gen. Laws § 34-28-4 (notice of intention to claim lien)", url: "https://webserver.rilegislature.gov/Statutes/TITLE34/34-28/34-28-4.htm" },
+  ],
+  prelim: { type: "not_modeled", reason: "In Rhode Island the notice of intention is the lien step itself, dated below; no earlier notice is dated." },
+  lien: { type: "days_after_last", days: 200 },
+  lienLabel: "mail the notice of intention to the owner and file a copy in the land evidence records",
+  prelimLabel: "notice of intention",
+  lienExtra: "Both are due within 200 days after the work: the notice mailed by registered or certified mail, return receipt requested, to the owner of record, and a copy filed in the land evidence records of the city or town (§ 34-28-4(a)). The lien reaches only the work done and materials furnished in the 200 days before the filing, so on a long job file earlier than this date to keep the early work covered.",
+};
+
+STATE_RULES.WY = {
+  name: "Wyoming",
+  citation: "Wyo. Stat. § 29-2-106(a)",
+  sources: [
+    { label: "W.S. 29-2-106 and 29-2-107, Title 29 (Wyoming Legislature PDF)", url: "https://wyoleg.gov/statutes/compress/title29.pdf" },
+  ],
+  prelim: { type: "days_before_lien", days: 20 },
+  lien: { type: "earlier_of_own_and_completion", days: 120, monthEnd: false, completionDays: 120, completionWhat: "substantial completion of the project" },
+  lienLabel: "file a lien statement",
+  prelimLabel: "notice of intention to file a lien",
+  prelimExtra: "The notice to the record owner, stating the amount and from whom it is due, is sent no later than 20 days before the lien statement is filed (W.S. 29-2-107), so the date shown is 20 days before the lien deadline.",
+  lienExtra: "This is the clock for everyone but the contractor with the owner (150 days): 120 days after the earlier of your last day of work and substantial completion of the project (W.S. 29-2-106(a)). If the owner recorded a notice of substantial completion, the recording date is presumed to be substantial completion: enter it as the completion date.",
+};
+
 export const PROJECT_TYPES = ["commercial", "residential"];
 // "first": you contract with the general (original) contractor.
 // "second": you contract with a subcontractor or a supplier (sub-sub or

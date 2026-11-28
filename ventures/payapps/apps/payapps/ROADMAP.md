@@ -1089,6 +1089,20 @@ nothing to copy. No customers yet. Paid plans are dark
   Illinois, Pennsylvania, New Jersey, Massachusetts, Tennessee, Indiana and Wisconsin, each from
   statute text (`python3 portfolio/smb/cbp_counts.py 238 --by-state` ranks the states by specialty
   contractors).
+
+  Five more 2026-11-28 (lien-deadline-five-states), thirty in all, in this app and the free
+  calculator together: Alabama (Ala. Code § 35-11-215, subs 4 months; notice to the owner before
+  filing, § 35-11-218), Alaska (AS 34.35.068(a), 120 days; the 15-day clock after a recorded notice
+  of completion in the notes), Maine (10 M.R.S. § 3255(1), the court action within 120 days),
+  Rhode Island (§ 34-28-4(a), the notice of intention mailed and filed within 200 days; the notes
+  say it reaches only the last 200 days' work) and Wyoming (W.S. 29-2-106(a), 120 days after the
+  earlier of the last day and substantial completion, `earlier_of_completion` like Oregon, so the
+  panel asks for completion; the 20-day notice of intention, 29-2-107, in the notes and dated in
+  the calculator). Excerpts in `ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-five-states.md`.
+  Vermont read and left out (9 V.S.A. § 1921(c) counts from when payment became due). Not served to
+  the session: Kentucky, Indiana (script-only, nothing rendered headless), Oklahoma (bot check),
+  Louisiana and New Mexico (no section index reached); Alabama's site is script-rendered and was
+  read with headless Chromium.
 - Notices of claim: Texas, part 3, retainage (2026-11-27, Crew and up;
   texas-notices-of-claim-part-3-retainage). Under the Texas log, "Retainage (§ 53.057)" saves the day
   this company's contract was completed, terminated or abandoned and the day the original contract

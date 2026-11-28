@@ -1,5 +1,5 @@
 // The last day to record (or file) a mechanics lien on a job, for a subcontractor or supplier, in the
-// twenty-five states whose filing clock PayApps carries. The money a sub is owed is only as safe as
+// thirty states whose filing clock PayApps carries. The money a sub is owed is only as safe as
 // its lien rights, and those end on a date most subs never write down: the job page shows it and the
 // cash page and weekly email name it when money is still owed and the date is near.
 //
@@ -16,7 +16,11 @@
 // N.D.C.C. 35-27-13, S.C. Code § 29-5-90, SDCL 44-9-15); excerpts and URLs are in
 // ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-nine-states.md. Iowa was read and
 // left out: § 572.9 gives two years and ninety days to post, and what a lien posted that late still
-// reaches is set by other sections not read here. Only the lien-filing clock is here; preliminary notices have their own panels
+// reaches is set by other sections not read here. Alabama, Alaska, Maine, Rhode Island and Wyoming
+// were added later the same day, the same way (Ala. Code § 35-11-215, AS 34.35.068, 10 M.R.S.
+// § 3255, R.I. Gen. Laws § 34-28-4, W.S. 29-2-106; excerpts in sources/2026-11-28-five-states.md
+// of the same calculator); Vermont was read and left out, since 9 V.S.A. § 1921(c) counts from when
+// payment for the last work became due, a date PayApps does not hold. Only the lien-filing clock is here; preliminary notices have their own panels
 // (California, Florida, Texas, packages/lien-waivers).
 //
 // Safe side, always. Where a statute counts from completion of the whole project (California,
@@ -51,6 +55,8 @@ export function daysUntil(from: string, to: string): number {
 }
 
 export const LIEN_DEADLINE_STATES = [
+  "AK",
+  "AL",
   "AZ",
   "CA",
   "CO",
@@ -60,6 +66,7 @@ export const LIEN_DEADLINE_STATES = [
   "ID",
   "KS",
   "MD",
+  "ME",
   "MI",
   "MN",
   "MT",
@@ -70,12 +77,14 @@ export const LIEN_DEADLINE_STATES = [
   "NY",
   "OH",
   "OR",
+  "RI",
   "SC",
   "SD",
   "TX",
   "UT",
   "VA",
   "WA",
+  "WY",
 ] as const;
 export type LienDeadlineState = (typeof LIEN_DEADLINE_STATES)[number];
 
@@ -371,6 +380,57 @@ export const LIEN_DEADLINE_RULES: Record<LienDeadlineState, StateRule> = {
     commercial: { type: "days_after_last", days: 90 },
     notes: [
       "The recorded claim must be served on the owner within 14 days after recording, and suit brought within 8 calendar months after recording (§§ 60.04.091, 60.04.141).",
+    ],
+  },
+  AL: {
+    name: "Alabama",
+    citation: "Ala. Code § 35-11-215",
+    act: "file a verified statement with the judge of probate",
+    commercial: { type: "months_after_last", months: 4 },
+    notes: [
+      "This is the clock for subcontractors and suppliers: four months after your last work or material (§ 35-11-215); an original contractor has six months, a journeyman or day laborer 30 days. Before filing, give the owner written notice of the lien claimed, the amount, for what and from whom it is owed (§ 35-11-218). The action to enforce is due within six months after the whole debt matures (§ 35-11-221).",
+    ],
+  },
+  AK: {
+    name: "Alaska",
+    citation: "Alaska Stat. § 34.35.068",
+    act: "record a claim of lien",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "This is the clock when the owner has recorded no notice of completion: 120 days after you complete your contract or stop furnishing (§ 34.35.068(a)). If the owner records one, a claimant who gave no notice of right to lien, or who was told in advance the date it would be recorded, has only 15 days after the recording (§ 34.35.068(b)(1)). Ask the owner whether one was recorded.",
+    ],
+  },
+  ME: {
+    name: "Maine",
+    citation: "Me. Rev. Stat. tit. 10, § 3255(1)",
+    act: "file an action to enforce the lien in the Superior Court or District Court",
+    commercial: { type: "days_after_last", days: 120 },
+    notes: [
+      "Maine preserves the lien by suing: the action is filed in the county where the property is within 120 days after your last labor, materials or services (§ 3255(1)). Without a contract with the owner, the complaint may not be served on the owner until 30 days after it is filed. A buyer for value takes free of the lien unless a notice was recorded first (§ 3255(2)).",
+    ],
+  },
+  RI: {
+    name: "Rhode Island",
+    citation: "R.I. Gen. Laws § 34-28-4(a)",
+    act: "mail the notice of intention to the owner and file a copy in the land evidence records",
+    commercial: { type: "days_after_last", days: 200 },
+    notes: [
+      "Both are due within 200 days after the work: the notice mailed by registered or certified mail, return receipt requested, to the owner of record, and a copy filed in the land evidence records of the city or town (§ 34-28-4(a)). The lien reaches only the work and materials of the 200 days before the filing, so on a long job file earlier than this date to keep the early work covered.",
+    ],
+  },
+  WY: {
+    name: "Wyoming",
+    citation: "Wyo. Stat. § 29-2-106(a)",
+    act: "file a lien statement",
+    commercial: {
+      type: "earlier_of_completion",
+      days: 120,
+      monthEnd: false,
+      completionDays: 120,
+      completionWhat: "substantial completion of the project",
+    },
+    notes: [
+      "This is the clock for everyone but the contractor with the owner (150 days): 120 days after the earlier of your last day of work and substantial completion of the project (W.S. 29-2-106(a)). If the owner recorded a notice of substantial completion, its recording date is presumed to be substantial completion: enter it as the completion date. Send the record owner a notice of intention, with the amount and who owes it, at least 20 days before filing (W.S. 29-2-107).",
     ],
   },
 };
