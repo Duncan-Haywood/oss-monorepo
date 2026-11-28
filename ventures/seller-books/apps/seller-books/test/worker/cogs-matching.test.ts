@@ -224,7 +224,12 @@ describe("cost of goods: which in-stock items, in what order", () => {
   it("takes the two oldest items still in stock, not the newest one added first or one written off", async () => {
     const t = await setupTenant();
     const pyrex = (acquiredDate: string, costCents: number) =>
-      addItem(t.userId, t.orgId, { title: "Pyrex bowl", sku: "SKU-PYREX-2", acquiredDate, costCents });
+      addItem(t.userId, t.orgId, {
+        title: "Pyrex bowl",
+        sku: "SKU-PYREX-2",
+        acquiredDate,
+        costCents,
+      });
     const newest = await pyrex("2025-12-01", 1500); // added first, bought last
     const oldest = await pyrex("2025-11-01", 1000);
     const middle = await pyrex("2025-11-15", 1200);
