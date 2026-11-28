@@ -81,7 +81,7 @@ export const SHOTS = {
     file: "shot-stock-desktop.webp",
     width: 1280,
     height: 860,
-    alt: "The Stock report: 2 items in stock costing $20.00, 33% sell-through, 133 median days to sell, and an estate-sale lot that cost $30.00, sold 1 of 3 items for $40.70 and so has recovered 136% of its cost.",
+    alt: "The Stock report: 2 items in stock costing $20.00, 33% sell-through, 133 median days to sell, and an estate-sale lot that cost $30.00, sold 1 of 3 items for $39.23 after fees and so has recovered 131% of its cost.",
   },
 };
 

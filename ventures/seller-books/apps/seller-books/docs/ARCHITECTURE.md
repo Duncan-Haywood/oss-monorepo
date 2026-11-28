@@ -217,6 +217,33 @@ of their inventory that the P&L does not answer. All of it is the seller's own r
   source last. Like lot payback it is before expenses not tied to a sale, mileage to the store included.
 - Items marked gone with no date, and sales dated before their purchase, are left out with a warning that
   says how many and where to fix them.
+- **Fees in proceeds, fixed 2026-11-28:** the per-row fee sum is a correlated subquery
+  (`feesOfSale` in `services/books/service.ts`). Written with drizzle's `${sale.id}` it rendered as a bare
+  `"id"`, which inside the subquery bound to `sale_fee.id`, so every row's fees summed to 0 and proceeds,
+  lot payback and profit by source were overstated by the platforms' fees (the Etsy test lot read $40.70
+  instead of its Order Net, $39.23). The columns are now written with their tables; the same mistake in
+  deleting an item of a multi-unit order (`routes/org/inventory.ts`), which unlinked the order instead of
+  moving it to the other item, is fixed the same way. Inside a correlated subquery, write the outer column
+  as `"table"."column"`.
+
+**Price an item, from your own fees** (`shared/pricing.ts`, `GET /reports/pricing?from&to`, 2026-11-28; the
+last section of the Stock report page, `client/components/price-an-item.tsx`). What a reseller asks before
+listing: what will this net on each platform, and what do I have to ask to clear $15? Free fee calculators
+answer from a platform's published rate card; this answers from what each platform actually took from the
+seller's own orders over the last year, so promoted listings, a store subscription tier's discount, or a
+category's rate show up without anyone typing them in.
+- **Orders:** order rows in the window with an item price above zero; refunds left out.
+- **Fee model:** fees ≈ fixed + percent × item price. With 5 or more orders at different prices the two are
+  fitted by least squares; when the fit is unusable (fixed below 0, percent outside 0–100%) or there are
+  fewer orders, fixed is 0 and percent is the total fees ÷ total item price. The page shows the model, the
+  typical miss per order (mean absolute residual) and marks platforms with under 10 orders "rough".
+- **Ads and other charges** (platform charges not tied to an order, subscriptions excluded) as a share of
+  item sales; **net postage** per order = (labels on the orders + label charges − shipping buyers paid) ÷
+  orders, negative when buyers' shipping more than covered the labels.
+- **Quote:** net = price − (fixed + percent × price) − other rate × price − net postage; profit = net − cost.
+  **Price for a target profit** = (target + cost + fixed + net postage) ÷ (1 − percent − other rate),
+  rounded up to the cent and nudged so it is the lowest cent that clears the target; none when fees take
+  99.5% or more. Worked in the browser as the seller types; nothing is saved. Sales tax is never in a price.
 
 ## Tenancy & security
 

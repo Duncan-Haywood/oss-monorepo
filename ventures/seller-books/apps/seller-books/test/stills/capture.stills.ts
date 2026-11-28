@@ -162,8 +162,8 @@ test("stills of a made-up reseller's books", async ({ page }) => {
     name: /Estate sale haul/,
   });
   await expect(lotRow).toContainText("1 / 3");
-  await expect(lotRow).toContainText("$40.70");
-  await expect(lotRow).toContainText("136%");
+  await expect(lotRow).toContainText("$39.23");
+  await expect(lotRow).toContainText("131%");
   // One of three sold in the window (the vase, bought 2025-12-20, sold in May 2026).
   await expect(tile(page, "Sell-through")).toContainText("33%");
   await shot(page, "stock-desktop");
