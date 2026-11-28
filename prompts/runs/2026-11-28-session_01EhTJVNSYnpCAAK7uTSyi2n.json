@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNSYnpCAAK7uTSyi2n",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T13:56:21Z",
+  "ended": "2026-11-28T14:05:11Z",
+  "wall_minutes": 9.12,
+  "tokens_in": 8868636,
+  "tokens_out": 33287,
+  "cost_usd": 3.4861,
+  "tool_calls": 81,
+  "task": "payapps (bet #1): carry subs' quotes on a won estimate to the job as subcontract commitments [estimate-sub-quote-commitments]",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20134",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First full unit run had test/unit/opening-balance.test.tsx time out at 5 s under load (ECONNREFUSED 127.0.0.1:3000 in its log); it passes alone and in the second full run (1644 passed): a timing flake, not touched here."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "The one free payapps item (#25, more states' bond claims) needs statute pages; this session's network policy refused every legislature host probed (cga.ct.gov, capitol.hawaii.gov, code.wvlegislature.gov, oscn.net, legislature.vermont.gov, gencourt.state.nh.us, law.justia.com) and the live app/site too. A host probe before suggesting a source-gated item would save the detour."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "Almost every Next item is gated 'if people ask' while no customer exists yet, so the gate stops nearly all product work; the runner has to override it by judgment."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "why": "Took an 'if people ask' item (sub quote to subcontract commitment) because the only ungated item needed blocked statute hosts, and this closes a gap a first Crew customer hits on every won bid (cost to come starting empty).",
+      "did": "Built it end to end with migration, API, UI, tests and marketing copy.",
+      "result": "Merged with full suite green."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification: pnpm typecheck clean; payapps test:unit 1644 passed/4 skipped, test:worker 629 passed; payapps-site tests 55+11 passed; catalogue export regenerated. No post written: a feature increment to an existing module, covered by the module marketing page and llms-full.txt update; the blog has no estimating post to extend and writing one without customer data would be thin.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8d504879-b163-5a54-8fd4-6747dbc64d4c",
+    "transcripts": 1,
+    "first": "2026-11-28T13:56:21Z",
+    "last": "2026-11-28T14:05:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 150,
+        "output": 33287,
+        "thinking": 6332,
+        "cache_read": 8734378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134108,
+        "api_equivalent_usd": 3.4861,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 150,
+      "output": 33287,
+      "thinking": 6332,
+      "cache_read": 8734378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134108,
+      "api_equivalent_usd": 3.4861,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 77,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.12,
+      "active_minutes": 9.12,
+      "model_minutes": 6.31,
+      "tool_minutes": 2.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "migration, service, UI and tests for one estimate-to-job feature in an existing codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 172.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
