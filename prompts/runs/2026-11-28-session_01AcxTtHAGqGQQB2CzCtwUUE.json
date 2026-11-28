@@ -61,7 +61,7 @@
     "docs/reports/polish-2026-11-28-seller-books-tables-stack-phone.md"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable. Ideas inbox empty. Probe at 390px: 10 tables on 7 pages scrolled inside cards (44-297 px) -> 0. seller-books: typecheck clean, 433 unit pass, 22/22 e2e pass, biome clean on changed files; risk_review: nothing blocked. After merging main, the platform/pages 'test' job went red on 3 tests from main (#20062 SPRS page title 80 > 70 chars and description 175 > 160; 'services' offline bundle 4.2 MB > 4 MiB). Fixed in this PR: shortened the SPRS title/description; moved machine-shop-guides (174 KB gz) from the services category to evidence. platform/pages node --test: 2234/2234 pass locally.",
+  "notes": "Security queue: 0 workable. Ideas inbox empty. Probe at 390px: 10 tables on 7 pages scrolled inside cards (44-297 px) -> 0. seller-books: typecheck clean, 433 unit pass, 22/22 e2e pass, biome clean on changed files; risk_review: nothing blocked. After merging main, the platform/pages 'test' job went red on 3 tests from main (#20062 SPRS page title 80 > 70 chars and description 175 > 160; 'services' offline bundle 4.2 MB > 4 MiB). Fixed in this PR: shortened the SPRS title/description; moved machine-shop-guides (174 KB gz) from the services category to evidence. platform/pages node --test: 2234/2234 pass locally. Main later fixed the SPRS page lengths itself (#20076); the merge took main's version, so only the offline-category move remains from this PR.",
   "corrections": [],
   "redteam": null,
   "usage": {

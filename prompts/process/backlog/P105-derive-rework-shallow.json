@@ -1,7 +1,7 @@
 {
   "id": "P105",
   "title": "derive.py measures no 14-day rework: the cloud clone is shallow",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -19,7 +19,13 @@
   "baseline": "0 rows (2026-11-28)",
   "opened": "2026-11-28",
   "source": "review run (E128)",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "helped: `derive.py build` (now deepening 21 days) then `report` on 2026-11-28: rework measured on 448 merged PRs (was 0); the 4,919 still missing are listed as 'merged before this shallow clone's history starts', not as 0. First build took 7m39s (fetch 98 s + blames); closed rows now carry over in runs.json.",
+  "history": [
+    {
+      "date": "2026-11-28",
+      "status": "done",
+      "note": "build deepens via fetch_ref, flags shallow-edge commits, blames only the window, runs in parallel, keeps closed results, report lists why rework is missing"
+    }
+  ]
 }

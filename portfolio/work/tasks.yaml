@@ -433,7 +433,10 @@ tasks:
       dangerous-triggers and 5 github-app zizmor findings, one Azure
       template) has a recommendation each in
       docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md; checkov 0
-      blocking.
+      blocking. Item 3 (github-app token scoping) done 2026-11-28;
+      items 2 and 4 accepted in baseline.yaml in a separate PR; item 1
+      (requirements pins, osv) left: osv's API was refused by this
+      session's proxy.
 
   - id: aws-org-baseline
     direction: security-first

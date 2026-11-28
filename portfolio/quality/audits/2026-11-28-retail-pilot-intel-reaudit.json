@@ -1,0 +1,378 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/retail-pilot-intel",
+ "stratum": "venture",
+ "seed": "2026-11-28-e225",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-19-retail-pilot-intel.json",
+ "auditor": "agent session (Claude), see run record prompts/runs/ for 2026-11-28 quality/0",
+ "status": "audited",
+ "professional": "a senior retail analytics consultant who installs door counters and joins them to POS data for small independent stores in Italy; first checks: conversion on the store's local trading day, one store at a time, sales net of discounts, synthetic and staff counts excluded, POS timestamps placed on the right day whatever the export format, and honest sales copy",
+ "scores": {
+  "correctness": 3,
+  "completeness": 2,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the real pipeline (pos cli --file, analytics sync, report) in a scratch dir with the shipped fixture CSV, 16 hand-written door aggregates (47 entries, 12 bounces) and an edge CSV: R-2 milano 2026-08-20T00:30+02:00, R-3 pilot 00:30+02:00 on 08-20, R-4 a 30000 bag with a -3000 discount line. report --date 2026-08-19 gives purchases 4, revenue 130800, conversion 0.0851, revenue/entrant 2783; Python csv.DictReader recompute: baskets 30300+9500+64000+27000 = 130800, 4/47 = 0.0851, 130800/47 = 2782.98 -> 2783. The 00:30 Rome sales land on 08-20 (report 08-20: 1 purchase, 5000) and --tz UTC moves R-3 back to 08-19 (5 purchases). localDayBoundsUtc for Rome 2026-03-29, 2026-10-25 and 2026-08-19 equals Python zoneinfo (23 h, 25 h, 24 h). A milano sale on 08-19 makes the store-less report exit 1 ('rows for 2 stores'), and a USD sale makes the store report exit 1 ('EUR and USD'). Pricing copy recomputed: 149/315 = 0.47, 249/99 = 2.52 -> 'about 0.5 to 2.5'; 50 x 7 x 0.003 = 1.05. New defects: an offset-less closed_at ('2026-08-19T23:30:00') is read in the importing server's zone (TZ=UTC -> 23:30Z, i.e. 01:30 Rome on 08-20; TZ=America/New_York -> 03:30Z); a lowercase or malformed currency ('usd', 'US$') silently becomes EUR and is summed into EUR revenue; in a zone whose clocks change at midnight (America/Havana 2026-03-08) the day starts at 04:00Z instead of zoneinfo's 05:00Z.",
+  "completeness": "Prior gaps re-walked. Fixed and working: per-store, local-day reports with 409/exit-1 on mixed stores or currencies; discount lines netted; a receipt with a rejected line dropped whole; refunds reported, not imported; pnpm bootstrap now prints entries 1, purchases 1, revenue 28500, labelled as a pipeline check; README says plainly the docs app is not published. Still not built: the door camera (stub), so conversion needs hand-written aggregate JSON; SKU gap, upsell and experiments are demo data; no hourly buckets; no importer for a commercial door counter's export.",
+  "verification": "pnpm test: docs 6, portal 9, edge 4, pos 21, analytics 41 = 81 pass, 0 fail; pnpm run ci passes. Seeded 10 mutants with quality_mutate.py before any fix this session: 7 caught (basket total ignoring quantity, quantity < 0, currency forced to EUR, mixed-currency guard, multi-store guard, refund threshold, store filter OR 1), 3 survived (revenue/entrant and average basket Math.round -> Math.floor, both survivors in the 2026-11-19 audit too; removing the second DST pass in localMidnightUtcMs, which is equivalent for Rome and only matters in midnight-change zones). 4 of the prior audit's 6 survivors are now caught.",
+  "craft": "Read report.ts, importer.ts, db.ts, sync-inbox.ts, both CLIs, kpi.ts and the tests. dailySummary now closes its handle in finally and throws a typed ReportScopeError instead of summing what must not be summed; julianday comparisons make offsets in stored strings safe. Remaining: openDb still runs the schema and two ALTERs on every call; syncInbox never closes its handle; a malformed inbox JSON throws out of the sync loop without naming the file (reproduced); latestDayWithActivity hard-codes synthetic = 0 instead of the shared realOnly(options); currency validation silently defaulted on bad input.",
+  "claims": "Checked 8 claims. Backed now: README 'Not published' (build.mjs EXCLUDED_SLUGS), portal FunnelPage 'one store, local day ... hourly buckets are not built yet', bootstrap claim, ROI and BusinessPlan 0.5 to 2.5 sales and 1.05 a week (guarded by apps/docs/test/pricing-claims.test.mjs), disclaimer and no-warranty on site/index.html, README Known gaps naming the camera stub and demo-only screens. Not backed: README 'What to build first' still said ranks 1-3 'typically pay back a Core subscription with one extra sale/month at pilot AOV', contradicting the docs and its own Known gaps; site/index.html meta, og and ld+json descriptions and llms.txt call it 'Open-source' with 'SKU gaps, experiments and ROI reporting', and the footer says 'Open source', while LICENSE is all rights reserved and those screens are demo data.",
+  "fitness": "The pilot owner's job (yesterday's conversion and revenue per entrant) still cannot be done end to end: there is no door counter ingest, so entries must be hand-written as aggregate JSON. The POS half is now right for a single Rome store with a comma-delimited ISO-timestamp export, but a typical Italian export (semicolon, euro decimals, local times) still imports nothing; local times without an offset were placed by the server's zone until this session's fix. The portal remains a sales demo.",
+  "domain": "Matches retail traffic practice now on: conversion = transactions / entrants per store per local trading day, net of in-basket discounts, synthetic data excluded, mixed currencies refused. Departures: later refunds not netted (documented), no staff exclusion or counter-accuracy check against a manual count, no mention on the privacy page of Statuto dei Lavoratori art. 4 (union agreement or Ispettorato authorisation for a camera that can see staff; only listed as a gap in the README)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "fixture CSV + discount receipt R-4 + 47 entries on 2026-08-19, Rome day, pilot store",
+   "method": "Python csv.DictReader recompute; conversion = transactions / entrants",
+   "command": "tsx packages/pos/src/cli.ts --file f.csv && --file edge.csv && tsx packages/analytics/src/cli.ts sync && report --date 2026-08-19 --store pilot-leather-01",
+   "expected": "purchases 4, revenue 130800, conversion 0.0851, revenue/entrant 2783",
+   "observed": "purchases 4, revenue_cents 130800, conversion_rate 0.0851, revenue_per_entrant_cents 2783",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "local day bounds for Rome on both 2026 DST days and a summer day",
+   "method": "Python zoneinfo: first instant of each local date",
+   "command": "tsx b.ts (localDayBoundsUtc) vs python3 zoneinfo",
+   "expected": "03-29: 23:00Z..22:00Z (23 h); 10-25: 22:00Z..23:00Z (25 h); 08-19: 22:00Z..22:00Z",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "00:30 CEST sale on 2026-08-20 and a second store",
+   "method": "Europe/Rome trading day, per-store reporting",
+   "command": "report --date 2026-08-20 --store pilot-leather-01; report --date 2026-08-19 --tz UTC",
+   "expected": "08-20: 1 purchase / 5000; UTC day puts it on 08-19 (5 purchases)",
+   "observed": "1 / 5000; 5 / 135800",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "two stores, or EUR and USD, on one day",
+   "method": "refuse to sum (README Known gaps)",
+   "command": "report --date 2026-08-19 (after mix.csv); report --date 2026-08-19 --store pilot-leather-01",
+   "expected": "exit 1 with a reason each time",
+   "observed": "'has rows for 2 stores (milano, pilot-leather-01)'; 'has sales in EUR and USD'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "offset-less closed_at 2026-08-19T23:30:00 from a Rome till",
+   "method": "Python zoneinfo: 23:30 CEST = 21:30Z, Rome day 08-19",
+   "command": "TZ=UTC and TZ=America/New_York tsx -e 'new Date(\"2026-08-19T23:30:00\").toISOString()' (the importer's parse)",
+   "expected": "2026-08-19T21:30:00Z whatever the server zone",
+   "observed": "23:30Z on a UTC host (Rome 08-20 01:30), 03:30Z next day on a New York host",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "currency 'usd' and 'US$' in the CSV",
+   "method": "ISO 4217 codes; never relabel money",
+   "command": "importSaleEventsFromCsv on a currency column with usd / US$",
+   "expected": "USD, or the row rejected",
+   "observed": "both stored as EUR",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pricing copy: Core EUR 149-249 at EUR 99-315 gross profit per sale",
+   "method": "hand arithmetic",
+   "command": "grep -n '0.5 to 2.5' apps/docs/src/pages/RoiPage.tsx apps/docs/src/pages/BusinessPlanPage.tsx",
+   "expected": "149/315 = 0.47 -> 0.5; 249/99 = 2.52 -> 2.5",
+   "observed": "'about 0.5 to 2.5 extra sales a month' on both pages",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "day bounds in a zone with a midnight DST change (America/Havana 2026-03-08)",
+   "method": "Python zoneinfo",
+   "command": "tsx b.ts vs python3 zoneinfo",
+   "expected": "05:00Z .. 04:00Z (23 h)",
+   "observed": "04:00Z .. 04:00Z (24 h): the previous day's last hour is included",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "pnpm bootstrap produces a non-zero report",
+   "method": "run in a clean copy",
+   "command": "rm -rf data/pilot.db data/pos data/aggregates && pnpm bootstrap",
+   "expected": "the sample entry and sale, labelled synthetic",
+   "observed": "entries 1, purchases 1, revenue_cents 28500, '(includes synthetic --sample events ...)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'What to build first' payback line",
+   "method": "compare with RoiPage and README Known gaps",
+   "command": "sed -n 88,92p README.md",
+   "expected": "about 0.5 to 2.5 extra sales a month",
+   "observed": "'typically pay back a Core subscription with one extra sale/month at pilot AOV'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Open-source' in site/index.html and llms.txt",
+   "method": "LICENSE",
+   "command": "head -3 LICENSE; grep -n -i 'open.source' site/index.html llms.txt",
+   "expected": "source-visible, all rights reserved",
+   "observed": "LICENSE all rights reserved; page says 'Open-source' (meta, og, ld+json, footer) and llms.txt the same",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "semicolon-delimited export",
+   "method": "run importer",
+   "command": "tsx packages/pos/src/cli.ts --file semi.csv",
+   "expected": "1 basket, or a delimiter error",
+   "observed": "0 events, row 2 'missing one of: ...'",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "malformed JSON in the POS inbox",
+   "method": "run sync",
+   "command": "echo '{bad' > data/pos/inbox/sale_bad.json && tsx packages/analytics/src/cli.ts sync",
+   "expected": "the bad file named and skipped",
+   "observed": "uncaught SyntaxError stack, sync aborted, file not named",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite and CI",
+   "method": "run",
+   "command": "pnpm install --frozen-lockfile && pnpm test && pnpm run ci",
+   "expected": "all pass",
+   "observed": "81 pass, 0 fail; CI pipeline passed; 3 of 10 seeded mutants survive",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "packages/pos/src/importer.ts:165",
+   "change": "sum + item.quantity * item.unit_price_cents -> sum + item.unit_price_cents",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/pos/src/importer.ts:114",
+   "change": "quantity < 1) -> quantity < 0)",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/report.ts:187",
+   "change": "Math.round(revenueCents / entryCount) -> Math.floor(...)",
+   "caught": false,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/pos/src/importer.ts:139",
+   "change": "valid currency kept -> always EUR",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/report.ts:165",
+   "change": "sales.length > 1 -> > 2 (mixed-currency guard)",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/report.ts:137",
+   "change": "stores.length > 1 -> > 2 (multi-store guard)",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/pos/src/importer.ts:166",
+   "change": "totalCents < 0 -> < -100000000 (refund threshold)",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/report.ts:81",
+   "change": "drop the second DST pass in localMidnightUtcMs",
+   "caught": false,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/report.ts:114",
+   "change": "STORE filter -> '... OR 1'",
+   "caught": true,
+   "test_cmd": "pnpm -r --if-present run test"
+  },
+  {
+   "where": "packages/analytics/src/kpi.ts:61",
+   "change": "Math.round(revenue_cents / purchases) -> Math.floor(...)",
+   "caught": false,
+   "test_cmd": "pnpm -r --if-present run test"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "UTC days, no store filter, mixed currencies summed",
+   "evidence": "check rows 1-4: Rome day bounds match zoneinfo, 00:30 CEST sale on 08-20, two stores and EUR+USD both exit 1"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "README live page false",
+   "evidence": "README line 5 now says not published; llms.txt says run from source"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "portal claims Europe/Rome hourly buckets",
+   "evidence": "FunnelPage.tsx:58 says daily, one store, local day, hourly not built; Overview label gone"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "partial",
+   "what": "sales arithmetic overstated",
+   "evidence": "ROI and BusinessPlan pages fixed and test-guarded; README 'What to build first' still said one extra sale a month pays back Core",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "open",
+   "status": "partial",
+   "what": "tests miss core revenue logic",
+   "evidence": "4 of the 6 prior survivors now caught; both rounding mutants still survive",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "index": 5,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "discount line dropped, basket kept at gross",
+   "evidence": "R-4 stored at 27000; recompute matches"
+  },
+  {
+   "index": 6,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "bootstrap report all zeros",
+   "evidence": "clean-copy pnpm bootstrap prints 1 entry, 1 purchase, 28500, labelled synthetic"
+  },
+  {
+   "index": 7,
+   "severity": "medium",
+   "basis": "open",
+   "status": "partial",
+   "what": "SKU gap, experiments presented as what it does",
+   "evidence": "README Known gaps says demo data; site meta/og/ld+json and llms.txt still describe 'SKU gaps, experiments and ROI reporting'",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "index": 8,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "no Statuto dei Lavoratori art. 4 on the privacy page",
+   "evidence": "grep finds it only in README Known gaps"
+  },
+  {
+   "index": 9,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "semicolon export imports nothing with a misleading error",
+   "evidence": "semi.csv: 0 events, 'missing one of'"
+  },
+  {
+   "index": 10,
+   "severity": "low",
+   "basis": "open",
+   "status": "partial",
+   "what": "openDb re-runs schema per call, handles never closed",
+   "evidence": "dailySummary and latestDayWithActivity now close in finally; schema still runs on every open; syncInbox never closes"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A POS closed_at without a UTC offset is parsed by new Date() in the importing server's zone, so the same Rome till export lands on different days on a UTC host (23:30 local -> 23:30Z, Rome 08-20) and a New York host (03:30Z next day)",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/importer.ts:105",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "severity": "medium",
+   "what": "A currency that is not an upper-case three-letter code ('usd', 'US$') silently becomes EUR and is summed into EUR revenue",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/importer.ts:139",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "severity": "medium",
+   "what": "site/index.html (meta, og, ld+json, footer) and llms.txt say 'Open-source' while LICENSE is all rights reserved, and describe 'SKU gaps, experiments and ROI reporting' that are demo data; README 'What to build first' still says one extra sale a month pays back Core, against the 0.5 to 2.5 the docs compute",
+   "where": "ventures/retail-pilot-intel/site/index.html:6",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "severity": "low",
+   "what": "Revenue per entrant and average basket rounding untested: Math.round -> Math.floor survives in both (second audit running)",
+   "where": "ventures/retail-pilot-intel/packages/analytics/src/__tests__/report.test.ts:38",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+  },
+  {
+   "severity": "low",
+   "what": "In a zone whose clocks change at midnight (America/Havana 2026-03-08) localDayBoundsUtc starts the day an hour early (04:00Z, zoneinfo 05:00Z); Rome is unaffected",
+   "where": "ventures/retail-pilot-intel/packages/analytics/src/report.ts:76",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No Statuto dei Lavoratori art. 4 (union agreement or Ispettorato authorisation for cameras that can see staff) on the privacy page; carried from the 2026-11-19 audit",
+   "where": "ventures/retail-pilot-intel/apps/docs/src/pages/PrivacyPage.tsx:17",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "CSV import needs comma delimiter, English headers and integer cents; a semicolon export imports 0 baskets with every row 'missing'; carried from 2026-11-19",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/csv.ts:42",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "One malformed JSON file in the inbox throws out of syncInbox and aborts the sync without naming the file; syncInbox never closes its database handle; openDb re-runs schema and ALTERs on every call",
+   "where": "ventures/retail-pilot-intel/packages/analytics/src/sync-inbox.ts:32",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/20051"
+ ],
+ "verdict": "The 2026-11-19 high defect is closed: on my recompute the Rome trading day, per-store scope and netted discount give 4 purchases, 130800 cents, conversion 0.0851, 2783 per entrant, exactly as Python's csv module and zoneinfo say, and mixed stores or currencies now refuse to sum. Bootstrap, the live-page claim, the portal bucket claim and the ROI arithmetic are fixed. It still misses the bar on claims (the page and llms.txt called an all-rights-reserved prototype 'open-source' with SKU-gap and experiment reporting it does not compute, and the README kept the old payback line) and is not finished: there is no door-counter ingest, so a pilot owner cannot get conversion without hand-written JSON. New this round: offset-less POS times were placed by the server's zone and bad currency codes became EUR. 7 of 10 seeded mutants caught, up from 5 of 11. Scores are before this session's fixes."
+}
