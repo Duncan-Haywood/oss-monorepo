@@ -613,7 +613,15 @@ test('parseArgs refuses unknown flags and a flag with no value', () => {
   assert.throws(() => parseArgs(['--sumbit']), /unknown argument "--sumbit"/);
   assert.throws(() => parseArgs(['--ref']), /--ref needs a value/);
   assert.throws(() => parseArgs(['--dir', '--submit']), /--dir needs a value/);
-  assert.deepEqual(parseArgs(['--submit', '--ref', 'x']), { submit: true, ref: 'x', dir: null, baseUrl: null });
+  assert.deepEqual(parseArgs(['--submit', '--ref', 'x']), {
+    submit: true,
+    ref: 'x',
+    dir: null,
+    baseUrl: null,
+    previous: null,
+    manifestOut: null,
+  });
+  assert.equal(parseArgs(['--previous', 'p.json', '--manifest-out', 'm.json']).previous, 'p.json');
 });
 
 test('the CLI exits 2 on a typo rather than doing a dry run', () => {
@@ -632,4 +640,59 @@ test('the CLI prints one line, not a stack trace, for a bad --base-url or an unr
     assert.equal(ref.status, 1);
     assert.match(ref.stderr, /^indexnow: could not read 'catalog\.json'/);
     assert.doesNotMatch(ref.stderr, /\n\s+at /);
+  }));
+
+// --previous / --manifest-out: announce only what changed since the last
+// deploy (indexnow-changes.mjs, 2026-11-28). The fixture gets a file for each
+// page its sitemaps list, so every URL has something to hash.
+async function writePages(dir) {
+  const all = new Set(Object.values(CHILD_SITEMAPS).flat());
+  for (const url of all) {
+    let rel = url.slice(BASE.length);
+    if (rel === '' || rel.endsWith('/')) rel += 'index.html';
+    await fs.mkdir(path.join(dir, path.dirname(rel)), { recursive: true });
+    await fs.writeFile(path.join(dir, rel), `<html>${url}</html>`);
+  }
+}
+
+test('the CLI writes a manifest, then announces only the page that changed', () =>
+  withFixtureDir(async (dir) => {
+    await writePages(dir);
+    const manifest = path.join(dir, 'previous.json');
+    const first = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--manifest-out', manifest], { encoding: 'utf8' });
+    assert.equal(first.status, 0, first.stderr);
+    assert.match(first.stdout, /wrote \d+ page hash\(es\)/);
+    const saved = JSON.parse(await fs.readFile(manifest, 'utf8'));
+    assert.equal(saved.pages[`${BASE}gutter-guard-bid-calculator/guide.html`].length, 16);
+
+    await fs.writeFile(path.join(dir, 'gutter-guard-bid-calculator/guide.html'), '<html>edited</html>');
+    const second = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--previous', manifest], { encoding: 'utf8' });
+    assert.equal(second.status, 0, second.stderr);
+    assert.match(second.stdout, /indexnow: 1 URL\(s\)/);
+    assert.match(second.stdout, /0 added, 1 changed, 0 removed/);
+    assert.match(second.stdout, /guide\.html/);
+  }));
+
+test('the CLI says there is nothing to announce when no page changed', () =>
+  withFixtureDir(async (dir) => {
+    await writePages(dir);
+    const manifest = path.join(dir, 'previous.json');
+    execFileSync(process.execPath, [SCRIPT, '--dir', dir, '--manifest-out', manifest], { stdio: 'pipe' });
+    const res = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--previous', manifest, '--submit'], { encoding: 'utf8' });
+    assert.equal(res.status, 0, res.stderr);
+    assert.match(res.stdout, /nothing to announce/);
+    assert.doesNotMatch(res.stdout, /POST /);
+  }));
+
+test('the CLI falls back to every URL when the previous manifest is missing or junk', () =>
+  withFixtureDir(async (dir) => {
+    await writePages(dir);
+    const all = spawnSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    const count = all.stdout.match(/indexnow: (\d+) URL\(s\)/)[1];
+    for (const previous of [path.join(dir, 'absent.json'), path.join(dir, 'catalog.json')]) {
+      const res = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--previous', previous], { encoding: 'utf8' });
+      assert.equal(res.status, 0, res.stderr);
+      assert.match(res.stdout, new RegExp(`indexnow: ${count} URL\\(s\\)`));
+      assert.match(res.stdout, /missing or not a manifest/);
+    }
   }));

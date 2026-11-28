@@ -82,6 +82,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { INDEXNOW_KEY, indexNowKeyFileName, REPO_ROOT } from '../pages/build.mjs';
+import { buildManifest, diffManifests, parseManifest } from './indexnow-changes.mjs';
 import { publishedBaseUrl, SERVING_BRANCH } from '../pages/published-base-url.mjs';
 
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
@@ -558,8 +559,14 @@ export async function submit(payload) {
  * like success (quality audit 2026-11-07, defect 2).
  */
 export function parseArgs(argv) {
-  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
-  const valued = { '--ref': 'ref', '--dir': 'dir', '--base-url': 'baseUrl' };
+  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null, previous: null, manifestOut: null };
+  const valued = {
+    '--ref': 'ref',
+    '--dir': 'dir',
+    '--base-url': 'baseUrl',
+    '--previous': 'previous',
+    '--manifest-out': 'manifestOut',
+  };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     if (flag === '--submit') args.submit = true;
@@ -568,7 +575,7 @@ export function parseArgs(argv) {
       if (value === undefined || value.startsWith('--')) throw new Error(`${flag} needs a value`);
       args[valued[flag]] = value;
       i += 1;
-    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url)`);
+    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url, --previous, --manifest-out)`);
   }
   return args;
 }
@@ -641,7 +648,7 @@ if (isMain) {
         `  ${err?.message || err}`,
     );
   }
-  const { kept: urls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
+  const { kept: allUrls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
   if (dropped.length) {
     console.error(
       `indexnow: warning — ${dropped.length} URL(s) are not under ${baseUrl} and were left out ` +
@@ -650,9 +657,44 @@ if (isMain) {
     );
   }
 
-  if (urls.length === 0) {
+  if (allUrls.length === 0) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
     process.exit(1);
+  }
+
+  // Only what changed since the last deploy (indexnow-changes.mjs says why).
+  // The manifest is built only when asked for: it reads every page.
+  let urls = allUrls;
+  let changeNote = 'every URL (no --previous manifest given)';
+  if (args.previous || args.manifestOut) {
+    const current = await buildManifest(readFile, allUrls, baseUrl);
+    if (args.manifestOut) {
+      await fs.writeFile(args.manifestOut, `${JSON.stringify(current)}\n`);
+      console.log(`indexnow: wrote ${Object.keys(current.pages).length} page hash(es) to ${args.manifestOut}`);
+    }
+    if (args.previous) {
+      let text = null;
+      try {
+        text = await fs.readFile(args.previous, 'utf8');
+      } catch {
+        // Missing: the first deploy, or the live manifest could not be fetched.
+      }
+      const previous = parseManifest(text);
+      if (!previous) {
+        changeNote = `every URL (${args.previous} is missing or not a manifest)`;
+      } else {
+        const diff = diffManifests(previous, current);
+        const { kept } = scopeToSite(diff.urls, baseUrl);
+        urls = kept;
+        changeNote =
+          `changed since the last deploy: ${diff.added.length} added, ${diff.changed.length} changed, ` +
+          `${diff.removed.length} removed, ${diff.unchanged} unchanged and left out`;
+      }
+    }
+  }
+  if (urls.length === 0) {
+    console.log(`indexnow: nothing to announce; ${changeNote}.`);
+    process.exit(0);
   }
   const payload = buildPayload({ baseUrl, urls });
   const planned = batches(urls);
@@ -662,6 +704,7 @@ if (isMain) {
     console.log(`  batches:     ${planned.length} requests (${planned.map((b) => b.length).join(' + ')}; at most ${MAX_URLS_PER_REQUEST} each)`);
   }
   console.log(`  sources:     ${fromCatalog.length} from catalog.json, ${sitemapNote}`);
+  console.log(`  submitting:  ${changeNote}`);
   console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
   console.log(`  keyLocation: ${payload.keyLocation}`);

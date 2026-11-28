@@ -27,7 +27,11 @@ that did nothing is worth knowing. Readings are in
 - **Should move:** `brand` and `name` queries on Bing-backed engines. A plain
   web-search tool sample may not show it if its backend isn't Bing.
 - **Earliest read:** 2026-11-10.
-- **Result:** pending.
+- **Result:** no change by 2026-11-28. 0 of 10 `claude-websearch` queries
+  found any marisstella.app page (2 brand, 3 name, 5 intent; `history/observations.jsonl`,
+  note `reading-2026-11-28`), and `site:marisstella.app` returned nothing from the domain.
+  By then every deploy was resubmitting the whole site (13,349 URLs on run 46086136040),
+  which is what E3 changes.
 
 ## E2. GitHub links repointed to marisstella.app (2026-11-03)
 
@@ -43,6 +47,26 @@ that did nothing is worth knowing. Readings are in
 - **Should move:** `name` queries first, since GitHub READMEs are crawled
   often and now link straight to the product pages, then `brand`.
 - **Earliest read:** 2026-11-17 (GitHub recrawl plus a crawl of ours).
+- **Result:** no change by 2026-11-28, same reading as E1. A reading from a search
+  tool whose backend is not Google cannot rule out a Google-only effect; Search Console
+  (still not verified, `search-engine-verification` in the decision queue) can.
+
+## E3. IndexNow announces only what changed (2026-11-28)
+
+- **Change:** every finished deploy used to submit every URL the sitemaps
+  list, 13,349 of them in two requests, many times a day. The IndexNow FAQ
+  (https://www.indexnow.org/faq) asks for URLs whose content was added,
+  updated or deleted, and for the whole site only after a migration; the
+  documentation lists 429 as "Too Many Requests (potential Spam)". The deploy
+  now keeps the live `indexnow-manifest.json` (a 16-hex hash per URL), writes
+  the new build's one, and submits only added, changed and removed URLs
+  (`platform/marketing/indexnow-changes.mjs`, `indexnow.mjs --previous`).
+  With no previous manifest it still submits everything.
+- **Should move:** `name` and `intent` queries on Bing-backed engines, once
+  Bing stops seeing the site as a firehose. Unmeasurable without Bing
+  Webmaster Tools; the deploy log's `submitting:` line shows how many URLs
+  each deploy now sends.
+- **Earliest read:** 2026-12-12.
 - **Result:** pending.
 
 ## Next candidates (not done)
