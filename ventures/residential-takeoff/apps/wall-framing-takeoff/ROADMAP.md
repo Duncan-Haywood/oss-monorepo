@@ -226,6 +226,10 @@ Ticked items are on `main`.
       edition (`siding.mjs`); 176 to 178 boards on the calculator's example house, 3 to 8 more boards on the three
       test houses; `siding.test.mjs` checks run x exposure >= net area on 200 random walls. The waste page
       itself waits until butt joints land on studs, so its figures would not understate waste.
+- [x] **How to do a framing takeoff, worked** (2026-11-28, free edition: `takeoff-example.mjs`,
+      `how-to-do-a-framing-takeoff.html`, a front-door guide for the "framing takeoff" searches):
+      Open House Plans 1 taken off in six steps, 436 pieces to a 276-board order; every count pinned
+      to the engine by `takeoff-example.test.mjs`.
 
 ### 2. Getting the house in without typing
 

@@ -338,6 +338,17 @@ Culls, mistakes and theft are not measured (they are the typed `culls` allowance
 `lumber-waste-factor.html` shows the tables; `waste-bench.test.mjs` fails if a figure on it drifts
 from the bench. Invented and generated plans, flat prices per foot, not a builder's real order.
 
+## A worked takeoff, step by step (2026-11-28)
+
+`node takeoff-example.mjs` takes Open House Plans 1 (CC0, generated; 14 walls, 220 ft, 8 doors, 10
+windows) through the six steps of a framing takeoff and prints each step's figures: the wall
+schedule, plate lineal feet, layout studs, the members of every opening, corner and tee backing,
+and the board order. At 16 in: 436 pieces (130 studs, 35 kings, 36 jacks, 36 header plies, 87
+cripples, 10 sills, 32 backing, 70 plates) bought as 276 boards with 0.35% cutting waste. The guide
+`how-to-do-a-framing-takeoff.html` quotes them; `takeoff-example.test.mjs` fails if a figure on it
+drifts from the engine. Header sizes are the plan's default 2x10, not checked; a generated plan,
+not a permit set.
+
 ## Roof sheathing, counted against area / 32 + 10% (measured 2026-11-28)
 
 `node roof-sheathing-bench.mjs` lays 4x8 sheets on 20 generated gable roofs (24 x 40, 28 x 48,
