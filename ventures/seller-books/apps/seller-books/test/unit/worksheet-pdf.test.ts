@@ -21,6 +21,7 @@ const ws = (over: Partial<ScWorksheet> = {}): ScWorksheet & { businessMiles: num
   unlinkedSales: null,
   mileagePricing: null,
   equipment: null,
+  depreciation: null,
   businessMiles: 25,
   ...over,
 });

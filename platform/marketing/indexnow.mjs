@@ -77,6 +77,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -558,8 +559,14 @@ export async function submit(payload) {
  * like success (quality audit 2026-11-07, defect 2).
  */
 export function parseArgs(argv) {
-  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
-  const valued = { '--ref': 'ref', '--dir': 'dir', '--base-url': 'baseUrl' };
+  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null, previous: null, manifestOut: null };
+  const valued = {
+    '--ref': 'ref',
+    '--dir': 'dir',
+    '--base-url': 'baseUrl',
+    '--previous': 'previous',
+    '--manifest-out': 'manifestOut',
+  };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     if (flag === '--submit') args.submit = true;
@@ -568,9 +575,143 @@ export function parseArgs(argv) {
       if (value === undefined || value.startsWith('--')) throw new Error(`${flag} needs a value`);
       args[valued[flag]] = value;
       i += 1;
-    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url)`);
+    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url, --previous, --manifest-out)`);
   }
   return args;
+}
+
+// ---------------------------------------------------------------------------
+// Changed URLs only (2026-11-28). Kept in this file, not a module of its own,
+// because the deploy job runs it with secrets and .github/ci-policy.yaml
+// accepts this file (privileged_code_accepted), not a new one.
+
+/**
+ * Which URLs changed since the last deploy, so IndexNow hears about those and
+ * not about the whole site again.
+ *
+ * ## Why this exists
+ *
+ * Until 2026-11-28 every finished deploy of marisstella.app submitted every
+ * URL the sitemaps list: 13,349 of them in two requests on run 46086136040,
+ * and main deploys many times a day. The protocol asks for the opposite. The
+ * IndexNow FAQ (https://www.indexnow.org/faq, read through a search on
+ * 2026-11-28) says to submit URLs when content is added, updated or deleted,
+ * to submit only content that has actually changed, and to submit every URL
+ * only after a migration or redesign. Bing's getting-started page
+ * (https://www.bing.com/indexnow/getstarted) says the same: publish the URLs
+ * that changed. The documentation lists 429 as "Too Many Requests (potential
+ * Spam)". Resending 13,000 unchanged URLs dozens of times a day looks like
+ * that, and four weeks after the domain went live no search sampled from a
+ * session finds a single page of it (platform/seo/STATUS.md).
+ *
+ * ## How
+ *
+ * The deploy writes `indexnow-manifest.json` at the site root: for each URL
+ * it announces, a short hash of the file that serves it. Before the next
+ * deploy replaces the site, the workflow downloads the live manifest; after
+ * the deploy, `--previous <that file>` submits only the URLs
+ * whose hash differs, the new ones, and the removed ones (the FAQ asks for
+ * 404s too, so engines drop them). With no readable previous manifest (the
+ * first deploy, or a fetch that failed) it submits everything, as before.
+ *
+ * Pure functions apart from the reads `readFile` does; no network.
+ */
+
+export const MANIFEST_FILE = 'indexnow-manifest.json';
+/** With `--dir` and no `--previous`, a previous manifest saved here in the dir is used. */
+export const PREVIOUS_FILE = 'indexnow-previous.json';
+export const MANIFEST_VERSION = 1;
+
+/** A short content hash: 16 hex characters of SHA-256, plenty for change detection. */
+export function pageHash(text) {
+  return createHash('sha256').update(String(text)).digest('hex').slice(0, 16);
+}
+
+/**
+ * The files that might serve a URL, most likely first, as paths relative to
+ * the site root. `/x/` is `x/index.html`; an extensionless `/x/page` is
+ * `x/page.html` (the Workers static-asset pretty URL) or `x/page/index.html`;
+ * anything with an extension is itself. Null for a URL outside `baseUrl`.
+ */
+export function candidateFiles(url, baseUrl) {
+  if (!url.startsWith(baseUrl)) return null;
+  let rel = url.slice(baseUrl.length).split('#')[0].split('?')[0];
+  try {
+    rel = decodeURIComponent(rel);
+  } catch {
+    return null;
+  }
+  if (rel.split('/').includes('..')) return null;
+  if (rel === '' || rel.endsWith('/')) return [`${rel}index.html`];
+  const last = rel.slice(rel.lastIndexOf('/') + 1);
+  if (last.includes('.')) return [rel];
+  return [`${rel}.html`, `${rel}/index.html`, rel];
+}
+
+/**
+ * The manifest for these URLs: `{ version, pages: { url: hash } }`. A URL
+ * whose file cannot be read is left out, so it counts as new next time
+ * rather than as unchanged.
+ */
+export async function buildManifest(readFile, urls, baseUrl) {
+  const pages = {};
+  for (const url of urls) {
+    const files = candidateFiles(url, baseUrl);
+    if (!files) continue;
+    for (const file of files) {
+      let text;
+      try {
+        text = await readFile(file);
+      } catch {
+        continue;
+      }
+      pages[url] = pageHash(text);
+      break;
+    }
+  }
+  return { version: MANIFEST_VERSION, pages };
+}
+
+/**
+ * A previous manifest from its JSON text, or null when it is missing, not
+ * JSON, another version, or the wrong shape. Null means "submit everything".
+ */
+export function parseManifest(text) {
+  if (typeof text !== 'string' || text.trim() === '') return null;
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (!data || data.version !== MANIFEST_VERSION) return null;
+  const { pages } = data;
+  if (!pages || typeof pages !== 'object' || Array.isArray(pages)) return null;
+  for (const value of Object.values(pages)) if (typeof value !== 'string') return null;
+  return data;
+}
+
+/**
+ * What to announce, comparing the previous manifest with the current one:
+ * `added` (no previous hash), `changed` (a different hash), `removed` (in the
+ * previous manifest, gone now), and `unchanged`, a count. `urls` is the three
+ * lists together, sorted, which is what gets submitted.
+ */
+export function diffManifests(previous, current) {
+  const before = previous.pages;
+  const after = current.pages;
+  const added = [];
+  const changed = [];
+  const removed = [];
+  let unchanged = 0;
+  for (const [url, hash] of Object.entries(after)) {
+    if (!Object.hasOwn(before, url)) added.push(url);
+    else if (before[url] !== hash) changed.push(url);
+    else unchanged += 1;
+  }
+  for (const url of Object.keys(before)) if (!Object.hasOwn(after, url)) removed.push(url);
+  const urls = [...added, ...changed, ...removed].sort();
+  return { added: added.sort(), changed: changed.sort(), removed: removed.sort(), unchanged, urls };
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
@@ -582,6 +723,17 @@ if (isMain) {
   } catch (err) {
     console.error(`indexnow: ${err.message}`);
     process.exit(2);
+  }
+  // The deploy job drops the live site's manifest into the announce copy
+  // under PREVIOUS_FILE, so its announce step needs no extra flag.
+  if (args.dir && !args.previous) {
+    const saved = path.join(args.dir, PREVIOUS_FILE);
+    try {
+      await fs.access(saved);
+      args.previous = saved;
+    } catch {
+      // None saved: every URL, as before.
+    }
   }
   const readFile = readerFor(args);
   // A missing ref or a bad --base-url is a user error with a message already
@@ -641,7 +793,7 @@ if (isMain) {
         `  ${err?.message || err}`,
     );
   }
-  const { kept: urls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
+  const { kept: allUrls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
   if (dropped.length) {
     console.error(
       `indexnow: warning — ${dropped.length} URL(s) are not under ${baseUrl} and were left out ` +
@@ -650,9 +802,44 @@ if (isMain) {
     );
   }
 
-  if (urls.length === 0) {
+  if (allUrls.length === 0) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
     process.exit(1);
+  }
+
+  // Only what changed since the last deploy ("Changed URLs only" above says why).
+  // The manifest is built only when asked for: it reads every page.
+  let urls = allUrls;
+  let changeNote = 'every URL (no --previous manifest given)';
+  if (args.previous || args.manifestOut) {
+    const current = await buildManifest(readFile, allUrls, baseUrl);
+    if (args.manifestOut) {
+      await fs.writeFile(args.manifestOut, `${JSON.stringify(current)}\n`);
+      console.log(`indexnow: wrote ${Object.keys(current.pages).length} page hash(es) to ${args.manifestOut}`);
+    }
+    if (args.previous) {
+      let text = null;
+      try {
+        text = await fs.readFile(args.previous, 'utf8');
+      } catch {
+        // Missing: the first deploy, or the live manifest could not be fetched.
+      }
+      const previous = parseManifest(text);
+      if (!previous) {
+        changeNote = `every URL (${args.previous} is missing or not a manifest)`;
+      } else {
+        const diff = diffManifests(previous, current);
+        const { kept } = scopeToSite(diff.urls, baseUrl);
+        urls = kept;
+        changeNote =
+          `changed since the last deploy: ${diff.added.length} added, ${diff.changed.length} changed, ` +
+          `${diff.removed.length} removed, ${diff.unchanged} unchanged and left out`;
+      }
+    }
+  }
+  if (urls.length === 0) {
+    console.log(`indexnow: nothing to announce; ${changeNote}.`);
+    process.exit(0);
   }
   const payload = buildPayload({ baseUrl, urls });
   const planned = batches(urls);
@@ -662,6 +849,7 @@ if (isMain) {
     console.log(`  batches:     ${planned.length} requests (${planned.map((b) => b.length).join(' + ')}; at most ${MAX_URLS_PER_REQUEST} each)`);
   }
   console.log(`  sources:     ${fromCatalog.length} from catalog.json, ${sitemapNote}`);
+  console.log(`  submitting:  ${changeNote}`);
   console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
   console.log(`  keyLocation: ${payload.keyLocation}`);

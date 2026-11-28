@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { AttachmentsPanel } from "./attachments";
 import { ErrorText } from "./error";
+import { StartButton, useStartOpen } from "./start-open";
 
 interface Job {
   name: string;
@@ -70,6 +71,7 @@ export function Closeout(props: {
   const q = useQuery({ queryKey: ["closeout", url], queryFn: () => api<CloseoutDto>(url) });
   const refresh = () => qc.invalidateQueries({ queryKey: ["closeout", url] });
   const section = useRef<HTMLElement>(null);
+  const [started, start] = useStartOpen(CLOSEOUT_ANCHOR, section);
   const loaded = q.data !== undefined;
   useEffect(() => {
     if (loaded && window.location.hash === `#${CLOSEOUT_ANCHOR}`) {
@@ -283,76 +285,86 @@ export function Closeout(props: {
       )}
       <ErrorText error={patch.error ?? remove.error} />
 
-      <form
-        className="mt-3 flex max-w-3xl flex-wrap items-end gap-3 text-sm"
-        onSubmit={(e) => {
-          e.preventDefault();
-          standard.mutate();
-        }}
-      >
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={bonded} onChange={(e) => setBonded(e.target.checked)} />
-          <span>Bonded job (adds consent of surety)</span>
-        </label>
-        <label className="grid gap-1">
-          <span className="text-slate-600">Due (optional)</span>
-          <input
-            className="input"
-            type="date"
-            value={standardDue}
-            onChange={(e) => setStandardDue(e.target.value)}
-          />
-        </label>
-        <button className="btn" type="submit" disabled={standard.isPending}>
-          Add the standard list
-        </button>
-        <ErrorText error={standard.error} />
-      </form>
+      {data?.items.length === 0 && !started ? (
+        <StartButton label="List the close-out documents" onClick={start} />
+      ) : (
+        <>
+          <form
+            className="mt-3 flex max-w-3xl flex-wrap items-end gap-3 text-sm"
+            onSubmit={(e) => {
+              e.preventDefault();
+              standard.mutate();
+            }}
+          >
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={bonded}
+                onChange={(e) => setBonded(e.target.checked)}
+              />
+              <span>Bonded job (adds consent of surety)</span>
+            </label>
+            <label className="grid gap-1">
+              <span className="text-slate-600">Due (optional)</span>
+              <input
+                className="input"
+                type="date"
+                value={standardDue}
+                onChange={(e) => setStandardDue(e.target.value)}
+              />
+            </label>
+            <button className="btn" type="submit" disabled={standard.isPending}>
+              Add the standard list
+            </button>
+            <ErrorText error={standard.error} />
+          </form>
 
-      <form
-        className="mt-3 grid max-w-3xl gap-2 text-sm"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add.mutate();
-        }}
-      >
-        <h3 className="font-semibold">Add a document</h3>
-        <div className="flex flex-wrap items-end gap-3">
-          <KindSelect value={draft.kind} onChange={(k) => setDraft({ ...draft, kind: k })} />
-          <input
-            className="input min-w-64 flex-1"
-            placeholder="The document, e.g. Fire alarm acceptance test report"
-            value={draft.title}
-            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-            aria-label="Close-out document"
-            required
-          />
-        </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="grid gap-1">
-            <span className="text-slate-600">Required by (optional)</span>
-            <input
-              className="input"
-              placeholder="Subcontract Exhibit D"
-              value={draft.requiredBy}
-              onChange={(e) => setDraft({ ...draft, requiredBy: e.target.value })}
-            />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-slate-600">Due (optional)</span>
-            <input
-              className="input"
-              type="date"
-              value={draft.dueOn}
-              onChange={(e) => setDraft({ ...draft, dueOn: e.target.value })}
-            />
-          </label>
-          <button className="btn" type="submit" disabled={add.isPending}>
-            Add document
-          </button>
-        </div>
-        <ErrorText error={add.error} />
-      </form>
+          <form
+            className="mt-3 grid max-w-3xl gap-2 text-sm"
+            onSubmit={(e) => {
+              e.preventDefault();
+              add.mutate();
+            }}
+          >
+            <h3 className="font-semibold">Add a document</h3>
+            <div className="flex flex-wrap items-end gap-3">
+              <KindSelect value={draft.kind} onChange={(k) => setDraft({ ...draft, kind: k })} />
+              <input
+                className="input min-w-64 flex-1"
+                placeholder="The document, e.g. Fire alarm acceptance test report"
+                value={draft.title}
+                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+                aria-label="Close-out document"
+                required
+              />
+            </div>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="grid gap-1">
+                <span className="text-slate-600">Required by (optional)</span>
+                <input
+                  className="input"
+                  placeholder="Subcontract Exhibit D"
+                  value={draft.requiredBy}
+                  onChange={(e) => setDraft({ ...draft, requiredBy: e.target.value })}
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-slate-600">Due (optional)</span>
+                <input
+                  className="input"
+                  type="date"
+                  value={draft.dueOn}
+                  onChange={(e) => setDraft({ ...draft, dueOn: e.target.value })}
+                />
+              </label>
+              <button className="btn" type="submit" disabled={add.isPending}>
+                Add document
+              </button>
+            </div>
+            <ErrorText error={add.error} />
+          </form>
+        </>
+      )}
     </section>
   );
 }

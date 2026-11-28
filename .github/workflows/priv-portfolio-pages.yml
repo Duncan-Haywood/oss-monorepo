@@ -608,10 +608,27 @@ jobs:
       # (platform/pages/cloudflare/router.mjs). It fails, before anything is
       # uploaded, if either half is over the limit.
       - name: Split the site across the two Workers
+        env:
+          PAGE_URL: ${{ needs.gate.outputs.base }}
         run: |
+          # IndexNow asks for changed URLs only (platform/marketing/indexnow.mjs,
+          # "Changed URLs only"), so keep the manifest of the site being replaced,
+          # then write this build's into the site root, before the split and the
+          # deploy. Neither may fail the deploy: without a previous manifest the
+          # announcement sends every URL.
+          curl -fsS --max-time 30 "${PAGE_URL%/}/indexnow-manifest.json" -o "$RUNNER_TEMP/indexnow-previous.json" \
+            || echo "::notice::No live IndexNow manifest; this deploy announces every URL."
+          node platform/marketing/indexnow.mjs --dir platform/pages/dist \
+            --manifest-out platform/pages/dist/indexnow-manifest.json \
+            || echo "::warning::Could not write the IndexNow manifest; the next deploy announces every URL."
           # A hard-linked copy of the whole site for IndexNow, which walks the
           # sitemaps, some of which move to the shard.
           cp -al platform/pages/dist "$RUNNER_TEMP/site-full"
+          # The announce step reads <dir>/indexnow-previous.json as --previous.
+          # Only the announce copy gets it; it is never deployed.
+          if [ -s "$RUNNER_TEMP/indexnow-previous.json" ]; then
+            cp "$RUNNER_TEMP/indexnow-previous.json" "$RUNNER_TEMP/site-full/indexnow-previous.json"
+          fi
           node platform/pages/cloudflare/split.mjs platform/pages/dist platform/pages/dist-shard
 
       # The shard first: the site Worker's binding needs it to exist.

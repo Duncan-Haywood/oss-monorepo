@@ -108,6 +108,54 @@ test("stills of a made-up machine shop quote", async ({ page, browser }) => {
   await page.evaluate(() => window.scrollBy(0, -40));
   await shot(page, "rate-card-desktop");
 
+  // The shop's letterhead on every quote PDF: contact lines, lead time, terms and a logo. The logo is
+  // drawn here on a canvas (an invented mark and the made-up shop's name), not taken from anyone.
+  const rules = card(page, "Shop and pricing rules");
+  await field(rules, "Phone").fill("(555) 010-0142");
+  await field(rules, "Email").fill("quotes@example.com");
+  await field(rules, "Address (one line each)").fill("12 Example Way\nSpringfield, OH 45500");
+  await field(rules, "Default lead time").fill("3-4 weeks ARO");
+  await field(rules, "Terms (printed on quotes)").fill(
+    "Net 30. FOB our dock. Material certs on request. Prices are for the quantities shown.",
+  );
+  await rules.getByRole("button", { name: "Save" }).click();
+  await settle(page);
+  const logo = await page.evaluate(async () => {
+    const c = document.createElement("canvas");
+    c.width = 720;
+    c.height = 216;
+    const g = c.getContext("2d");
+    if (!g) return "";
+    g.fillStyle = "#ffffff";
+    g.fillRect(0, 0, c.width, c.height);
+    // A hexagon (a nut seen end-on) with a bore, then the shop's name.
+    g.fillStyle = "#1e3a5f";
+    g.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (Math.PI / 3) * i + Math.PI / 6;
+      g.lineTo(108 + 84 * Math.cos(a), 108 + 84 * Math.sin(a));
+    }
+    g.closePath();
+    g.fill();
+    g.fillStyle = "#ffffff";
+    g.beginPath();
+    g.arc(108, 108, 34, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#1e3a5f";
+    g.font = "bold 76px sans-serif";
+    g.fillText("EXAMPLE", 216, 112);
+    g.fillStyle = "#b45309";
+    g.font = "600 50px sans-serif";
+    g.fillText("PRECISION", 220, 172);
+    return c.toDataURL("image/png").split(",")[1] ?? "";
+  });
+  await page.getByLabel("Upload logo").setInputFiles({
+    name: "example-precision-logo.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(logo, "base64"),
+  });
+  await expect(page.getByAltText("Shop logo as it prints on quotes")).toBeVisible();
+
   // An RFQ whose part is entered by hand (the offline extractor may add an empty part; it is removed).
   await page.getByRole("link", { name: "RFQs" }).click();
   const newRfq = card(page, "New RFQ");
@@ -273,7 +321,112 @@ test("stills of a made-up machine shop quote", async ({ page, browser }) => {
   renameSync(join(OUT, "customer-pdf-page1.png"), join(OUT, "customer-pdf.png"));
   await buyer.close();
 
+  // The quote log: three more made-up RFQs quoted the same way, one won, one lost, one still a
+  // draft, so the log, its totals and the follow-up list show a shop's week rather than one quote.
+  const more = [
+    {
+      subject: "Sensor plates",
+      company: "Sample Fluidics Inc.",
+      contact: "Lee Sample",
+      part: "SP-220",
+      desc: "Sensor plate",
+      qty: "25, 100",
+      l: "6",
+      w: "4",
+      t: "0.375",
+      setup: "45",
+      cycle: "9",
+      outcome: "won",
+    },
+    {
+      subject: "Cover plates, rush",
+      company: "Demo Aero Components",
+      contact: "Pat Demo",
+      part: "CVR-12",
+      desc: "Access cover",
+      qty: "20",
+      l: "8",
+      w: "5",
+      t: "0.25",
+      setup: "40",
+      cycle: "15",
+      outcome: "lost",
+    },
+    {
+      subject: "Fixture blocks",
+      company: "Example Robotics LLC",
+      contact: "Dana Example",
+      part: "FXB-3",
+      desc: "Fixture block",
+      qty: "4",
+      l: "5",
+      w: "3",
+      t: "2",
+      setup: "90",
+      cycle: "35",
+      outcome: "draft",
+    },
+  ] as const;
+  for (const m of more) {
+    await page.getByRole("link", { name: "RFQs" }).click();
+    const rfq = card(page, "New RFQ");
+    await field(rfq, "Subject").fill(m.subject);
+    await field(rfq, "Paste the RFQ email").fill(`Please quote ${m.part}, drawing attached.`);
+    await rfq.getByRole("button", { name: "Create and extract" }).click();
+    await page.waitForURL(/\/rfqs\/[^/]+$/);
+    await expect(page.getByRole("heading", { level: 1, name: m.subject })).toBeVisible();
+    const who = card(page, "Customer");
+    await field(who, "Company").fill(m.company);
+    await field(who, "Contact").fill(m.contact);
+    await who.getByRole("button", { name: "Save" }).click();
+    await settle(page);
+    while ((await parts.count()) > 0) {
+      const n = await parts.count();
+      await parts.first().getByRole("button", { name: "Remove" }).click();
+      await expect(parts).toHaveCount(n - 1);
+    }
+    await page.getByRole("button", { name: "Add part by hand" }).click();
+    await field(parts.first(), "Part number").fill(m.part);
+    const pc = card(page, new RegExp(`^${m.part}`));
+    await field(pc, "Description").fill(m.desc);
+    await field(pc, "Quantities").fill(m.qty);
+    await field(pc, "Rate-card material").selectOption({ label: "Aluminum 6061-T6 plate" });
+    await pc.getByRole("button", { name: "Save" }).click();
+    await settle(page);
+    await pc.getByRole("button", { name: "Confirm" }).click();
+    await expect(pc.getByText("confirmed", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Quote 1 confirmed part" }).click();
+    await page.waitForURL(/\/quotes\/[^/]+$/);
+    const ln = card(page, new RegExp(`^${m.part}`));
+    await field(ln, "Blank").selectOption({ label: "Plate / block (L×W×T in)" });
+    await field(ln, "Length in").fill(m.l);
+    await field(ln, "Width in").fill(m.w);
+    await field(ln, "Thickness in").fill(m.t);
+    await ln.getByRole("button", { name: "+ Operation" }).click();
+    await field(ln, "Op").fill("Op 10 mill");
+    await field(ln, "Setup min").fill(m.setup);
+    await field(ln, "Cycle min/pc").fill(m.cycle);
+    await ln.getByRole("button", { name: "Save line" }).click();
+    await expect(ln.getByText("priced", { exact: true })).toBeVisible();
+    if (m.outcome === "draft") continue;
+    await page.getByRole("button", { name: "Mark sent" }).click();
+    const outcome = card(page, "Outcome");
+    await expect(outcome).toBeVisible();
+    if (m.outcome === "won") {
+      await field(outcome, "PO number").fill("PO-4417");
+      await outcome.getByRole("button", { name: "Won", exact: true }).click();
+    } else {
+      await field(outcome, "Lost reason").fill("lead time");
+      await outcome.getByRole("button", { name: "Lost", exact: true }).click();
+    }
+    await expect(page.getByText(m.outcome, { exact: true }).first()).toBeVisible();
+  }
+  await page.goto(orgPath);
+  await expect(card(page, "Quote log").getByRole("row")).toHaveCount(5);
+  await shot(page, "quote-log-desktop");
+
   for (const name of [
+    "quote-log-desktop",
     "rate-card-desktop",
     "quote-line-desktop",
     "quote-phone",

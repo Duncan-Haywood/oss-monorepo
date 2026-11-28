@@ -2011,6 +2011,19 @@ nothing to copy. No customers yet. Paid plans are dark
   policy 2026-11-26.17 names the items. Why: close-out is where a sub's retainage (often 5-10% of
   the contract) waits, and the punch list is the usual gate; Procore, Buildertrend and Contractor
   Foreman all carry one, and the bet's suite grows into it (portfolio bets.md, #1).
+- **Punch list, part 2a: photos per item** (2026-11-28, every plan, punch-list-photos): each punch
+  item keeps up to 10 files, "Before: the item as listed", "After: the item fixed" and the GC's
+  marked-up sheet (the stored categories photo, signed and backup; `PUNCH_CATEGORY_LABELS`), taken
+  with the phone's camera from a "Photos (n)" link on the row. Same rules as the RFI files: type from
+  the extension allow-list, downloads as attachments with nosniff, the company's one storage limit,
+  objects under `orgs/{org}/projects/{job}/punch/{item}/` cleared when the item or the job goes.
+  The list's DTO, CSV ("Photos kept") and PDF ("(2 photos kept)") carry the count; each photo added
+  or removed is a job-history row ("Punch item P-004: photo attached, ..."). Table
+  `punch_item_files` (migration 0091), `services/payapps/punch-item-files.ts`, routes under
+  `/punch-list/:itemId/attachments`; privacy policy 2026-11-28.1 names the photos. Why: before and
+  after photos are what settles a back-check or a "not ours" dispute, and every competing punch tool
+  (Procore, Buildertrend, Fieldwire) has them; the item had waited "if people ask", but a punch list
+  without photos is below the bar a buyer compares against.
 - **Close-out, part 1** (2026-11-26, every plan, closeout-checklist): per job, the close-out documents
   the subcontract asks for, each with its kind (warranty, O&M manuals, as-builts, attic stock, final
   lien waiver, consent of surety, owner training, test and start-up reports, final inspection
@@ -2497,8 +2510,11 @@ nothing to copy. No customers yet. Paid plans are dark
   The date is estimated from billing until the last day is entered, moves back to the Friday on a
   weekend, and reaches the cash page, its CSV and the weekly email 45 days ahead like a lien date.
   A state or local job checks the job's retainage (the latest application's work and stored rates,
-  and any line's own rate) against the state's cap on public work in the 16 states of the
-  retainage-explained guide's table, each with its statute linked: over, above the cap but allowed
+  and any line's own rate) against the state's cap on public work in the 23 states of the
+  retainage-explained guide's table (16 until 2026-11-28, when Delaware, Idaho, Iowa at 3%, Kansas,
+  Maine, Missouri and Ohio were added from each statute page, text in
+  `ventures/pay-app-guides/sources/retainage-caps.txt`; Ohio holds 4% on labor and allows 8% on
+  stored materials, and its § 153.13 no longer stops retainage at 50% since 2025-09-30), each with its statute linked: over, above the cap but allowed
   in a stated case (New York without bonds), within the cap but above a lower stage (after 50%
   complete, a $5M+ Texas prime), or within; it says whether the statute also limits what the prime
   holds from its subs. Migration 0087 (`public_owner`, `miller_tier`). Rules
@@ -2622,6 +2638,16 @@ nothing to copy. No customers yet. Paid plans are dark
   holds is still flagged. Four tests in `payapp-math.test.ts` ("a line released in full, then the
   rate is cut"), including a 0% final application paying exactly the contract sum.
 
+- New job page leads with the schedule of values (2026-11-28, new-job-page-empty-modules-collapsed):
+  a walk of the first session (sign up, add a job) showed a new job's page at ~2,930 px on a laptop
+  and ~4,530 px on a phone, five empty entry forms (RFIs, schedule, punch list, close-out's two)
+  stacked under the schedule of values and the first pay application. An empty RFI log, schedule,
+  punch list or close-out list now shows its one-line explanation and a start button ("Log an RFI",
+  "Add your first activity", "Start the punch list", "List the close-out documents"); the form opens
+  on the button (cursor in its first field), on the jump links at the top of the job or a link with
+  the module's anchor (the weekly email's `#rfis`), and stays open once anything is in it
+  (`src/client/components/start-open.tsx`). Same page now ~2,280 px and ~3,290 px. Checked in
+  `test/e2e/01-first-pay-app.spec.ts`.
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2755,8 +2781,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
   email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
   required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
-- Punch list, part 2: photos per item (before and after, the attachments rules the RFIs use),
-  punch events in the job history, items overdue across jobs in the weekly email, and a line on the
+- Punch list, part 2 (2a, photos per item and their history rows, done 2026-11-28): punch events
+  beyond photos in the job history, items overdue across jobs in the weekly email, photos in the
+  punch list PDF itself, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
   PDF read into items (text layer) once customers share real ones
 - Submittals, part 4: spec sections from a scan, and OCR of a scanned stamp with no text layer (the

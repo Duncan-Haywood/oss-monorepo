@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, orgPath } from "../lib/api";
 import { AttachmentsPanel } from "./attachments";
 import { ErrorText } from "./error";
+import { StartButton, useStartOpen } from "./start-open";
 
 /** What a row has open under it: the editor, the email draft or the RFI's files. */
 type RowMode = "edit" | "email" | "files";
@@ -91,6 +92,7 @@ export function RfiLog(props: {
   const [open, setOpen] = useState<string | null>(null);
   // The weekly email and the projects page link here with #rfis: scroll once the log has loaded.
   const section = useRef<HTMLElement>(null);
+  const [started, start] = useStartOpen(RFI_LOG_ANCHOR, section);
   const loaded = q.data !== undefined;
   useEffect(() => {
     if (loaded && window.location.hash === `#${RFI_LOG_ANCHOR}`) section.current?.scrollIntoView();
@@ -230,84 +232,88 @@ export function RfiLog(props: {
       )}
       <ErrorText error={remove.error} />
 
-      <form
-        className="mt-3 grid max-w-3xl gap-2 text-sm"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add.mutate();
-        }}
-      >
-        <h3 className="font-semibold">New RFI{log ? ` (${rfiLabel(log.nextNumber)})` : ""}</h3>
-        <input
-          className="input"
-          placeholder="Subject, e.g. Ceiling height at corridor 2"
-          value={draft.subject}
-          onChange={(e) => setDraft({ ...draft, subject: e.target.value })}
-          aria-label="RFI subject"
-          required
-        />
-        <textarea
-          className="input min-h-20"
-          placeholder="The question: what the drawings or specs leave unclear, and what you need to know"
-          value={draft.question}
-          onChange={(e) => setDraft({ ...draft, question: e.target.value })}
-          aria-label="RFI question"
-          required
-        />
-        <div className="grid gap-2 sm:grid-cols-2">
+      {log?.items.length === 0 && !started ? (
+        <StartButton label="Log an RFI" onClick={start} />
+      ) : (
+        <form
+          className="mt-3 grid max-w-3xl gap-2 text-sm"
+          onSubmit={(e) => {
+            e.preventDefault();
+            add.mutate();
+          }}
+        >
+          <h3 className="font-semibold">New RFI{log ? ` (${rfiLabel(log.nextNumber)})` : ""}</h3>
           <input
             className="input"
-            placeholder="Reference: sheet, detail, spec section or grid"
-            value={draft.reference}
-            onChange={(e) => setDraft({ ...draft, reference: e.target.value })}
-            aria-label="RFI reference"
+            placeholder="Subject, e.g. Ceiling height at corridor 2"
+            value={draft.subject}
+            onChange={(e) => setDraft({ ...draft, subject: e.target.value })}
+            aria-label="RFI subject"
+            required
           />
-          <input
-            className="input"
-            placeholder="Your proposed solution (optional)"
-            value={draft.suggestion}
-            onChange={(e) => setDraft({ ...draft, suggestion: e.target.value })}
-            aria-label="Proposed solution"
+          <textarea
+            className="input min-h-20"
+            placeholder="The question: what the drawings or specs leave unclear, and what you need to know"
+            value={draft.question}
+            onChange={(e) => setDraft({ ...draft, question: e.target.value })}
+            aria-label="RFI question"
+            required
           />
-        </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="grid gap-1">
-            <span className="text-slate-600">Date sent (blank: not yet)</span>
+          <div className="grid gap-2 sm:grid-cols-2">
             <input
               className="input"
-              type="date"
-              value={draft.sentOn}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  sentOn: e.target.value,
-                  responseDueOn:
-                    draft.responseDueOn || !e.target.value
-                      ? draft.responseDueOn
-                      : suggestedDueDate(e.target.value),
-                })
-              }
+              placeholder="Reference: sheet, detail, spec section or grid"
+              value={draft.reference}
+              onChange={(e) => setDraft({ ...draft, reference: e.target.value })}
+              aria-label="RFI reference"
             />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-slate-600">Response requested by</span>
             <input
               className="input"
-              type="date"
-              value={draft.responseDueOn}
-              onChange={(e) => setDraft({ ...draft, responseDueOn: e.target.value })}
+              placeholder="Your proposed solution (optional)"
+              value={draft.suggestion}
+              onChange={(e) => setDraft({ ...draft, suggestion: e.target.value })}
+              aria-label="Proposed solution"
             />
-          </label>
-          <button className="btn" type="submit" disabled={add.isPending}>
-            Add RFI
-          </button>
-        </div>
-        <p className="text-xs text-slate-500">
-          The response date fills in seven days after the date sent; change it to what your
-          subcontract allows.
-        </p>
-        <ErrorText error={add.error} />
-      </form>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="grid gap-1">
+              <span className="text-slate-600">Date sent (blank: not yet)</span>
+              <input
+                className="input"
+                type="date"
+                value={draft.sentOn}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    sentOn: e.target.value,
+                    responseDueOn:
+                      draft.responseDueOn || !e.target.value
+                        ? draft.responseDueOn
+                        : suggestedDueDate(e.target.value),
+                  })
+                }
+              />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-slate-600">Response requested by</span>
+              <input
+                className="input"
+                type="date"
+                value={draft.responseDueOn}
+                onChange={(e) => setDraft({ ...draft, responseDueOn: e.target.value })}
+              />
+            </label>
+            <button className="btn" type="submit" disabled={add.isPending}>
+              Add RFI
+            </button>
+          </div>
+          <p className="text-xs text-slate-500">
+            The response date fills in seven days after the date sent; change it to what your
+            subcontract allows.
+          </p>
+          <ErrorText error={add.error} />
+        </form>
+      )}
     </section>
   );
 }

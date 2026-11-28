@@ -16,10 +16,16 @@ import {
   saleFee,
 } from "../../db/schema";
 import { notFound } from "../../lib/errors";
+import type { DepAsset, DepreciationMethod, RecoveryYears } from "./depreciation";
 import { buildSalesLedger, type LedgerSaleInput } from "./ledger";
 import { allocateLotCost } from "./lots";
 import { buildPnl, type PnlSaleInput } from "./pnl";
-import { buildScheduleC, type HomeOfficeInput, type ScInput } from "./schedule-c";
+import {
+  buildScheduleC,
+  DE_MINIMIS_LIMIT_CENTS,
+  type HomeOfficeInput,
+  type ScInput,
+} from "./schedule-c";
 import { buildStockReport, type StockSaleInput } from "./stock";
 import { splitCents } from "./units";
 
@@ -212,6 +218,48 @@ async function loadCharges(ctx: AppContext, orgId: string, from: string, to: str
     );
 }
 
+/**
+ * Every equipment purchase over the de minimis limit bought by `to`, of any year, with the seller's
+ * depreciation choice: Form 4562 for line 13 (depreciation.ts).
+ */
+export async function loadEquipmentAssets(
+  ctx: AppContext,
+  orgId: string,
+  to: string,
+): Promise<DepAsset[]> {
+  const rows = await ctx.db
+    .select({
+      id: expense.id,
+      date: expense.date,
+      amountCents: expense.amountCents,
+      vendor: expense.vendor,
+      memo: expense.memo,
+      depreciationMethod: expense.depreciationMethod,
+      recoveryYears: expense.recoveryYears,
+      businessUsePct: expense.businessUsePct,
+    })
+    .from(expense)
+    .where(
+      and(
+        eq(expense.orgId, orgId),
+        eq(expense.category, "equipment"),
+        sql`${expense.amountCents} > ${DE_MINIMIS_LIMIT_CENTS}`,
+        lte(expense.date, to),
+      ),
+    )
+    .orderBy(expense.date, expense.id);
+  return rows.map((r) => ({
+    id: r.id,
+    date: r.date,
+    amountCents: r.amountCents,
+    vendor: r.vendor,
+    memo: r.memo,
+    method: (r.depreciationMethod as DepreciationMethod | null) ?? null,
+    recoveryYears: (r.recoveryYears as RecoveryYears | null) ?? null,
+    businessUsePct: r.businessUsePct ?? null,
+  }));
+}
+
 async function loadExpenses(ctx: AppContext, orgId: string, from: string, to: string) {
   return ctx.db
     .select({
@@ -317,32 +365,34 @@ async function loadScheduleCInput(
 ): Promise<Omit<ScInput, "businessMiles">> {
   const from = `${year}-01-01`;
   const to = `${year}-12-31`;
-  const [sales, charges, expenses, items, lots, filedOpeningCents] = await Promise.all([
-    loadSales(ctx, orgId, from, to),
-    loadCharges(ctx, orgId, from, to),
-    loadExpenses(ctx, orgId, from, to),
-    ctx.db
-      .select({
-        acquiredDate: inventoryItem.acquiredDate,
-        costCents: inventoryItem.costCents,
-        status: inventoryItem.status,
-        disposedDate: inventoryItem.disposedDate,
-        returnSaleId: inventoryItem.returnSaleId,
-      })
-      .from(inventoryItem)
-      .where(and(eq(inventoryItem.orgId, orgId), lte(inventoryItem.acquiredDate, to))),
-    ctx.db
-      .select()
-      .from(inventoryLot)
-      .where(
-        and(
-          eq(inventoryLot.orgId, orgId),
-          gte(inventoryLot.acquiredDate, from),
-          lte(inventoryLot.acquiredDate, to),
+  const [sales, charges, expenses, items, lots, filedOpeningCents, equipmentAssets] =
+    await Promise.all([
+      loadSales(ctx, orgId, from, to),
+      loadCharges(ctx, orgId, from, to),
+      loadExpenses(ctx, orgId, from, to),
+      ctx.db
+        .select({
+          acquiredDate: inventoryItem.acquiredDate,
+          costCents: inventoryItem.costCents,
+          status: inventoryItem.status,
+          disposedDate: inventoryItem.disposedDate,
+          returnSaleId: inventoryItem.returnSaleId,
+        })
+        .from(inventoryItem)
+        .where(and(eq(inventoryItem.orgId, orgId), lte(inventoryItem.acquiredDate, to))),
+      ctx.db
+        .select()
+        .from(inventoryLot)
+        .where(
+          and(
+            eq(inventoryLot.orgId, orgId),
+            gte(inventoryLot.acquiredDate, from),
+            lte(inventoryLot.acquiredDate, to),
+          ),
         ),
-      ),
-    getFiledInventory(ctx, orgId, year - 1),
-  ]);
+      getFiledInventory(ctx, orgId, year - 1),
+      loadEquipmentAssets(ctx, orgId, to),
+    ]);
   const unallocatedLots: { acquiredDate: string; cents: number }[] = [];
   for (const lot of lots) {
     const lotItems = await ctx.db
@@ -363,6 +413,7 @@ async function loadScheduleCInput(
     unallocatedLots,
     mileageRateCents,
     filedOpeningCents,
+    equipmentAssets,
   };
 }
 
