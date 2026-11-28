@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-28
+subjects: [wall-framing-takeoff, residential-takeoff]
+---
 # Shingle bench: the hip result depends on the layout convention (2026-11-28)
 
 For whoever finishes or extends PR #20111 (`how-many-bundles-of-shingles.html`, `shingle-bench.mjs`).
