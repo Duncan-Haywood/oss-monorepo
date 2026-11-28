@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "platform/pages build.test.mjs offline-bundle bound red on main (pre-existing), fixed in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +52,7 @@
     "ventures/mechanics-lien-deadline-calculator/README.md"
   ],
   "goal": null,
-  "notes": "Explore idea: lien/bond act-by dates skip observed federal holidays (safe side), in PayApps (bet #1) and its free lien-deadline front door, kept in parity. Found a Texas bond notice on Washington's Birthday 2027 shown as due that day. Verified: payapps unit 1603 pass, worker lien/bond 169 pass, tsc clean, calculator node tests 68 pass.",
+  "notes": "Explore idea: lien/bond act-by dates skip observed federal holidays (safe side), in PayApps (bet #1) and its free lien-deadline front door, kept in parity. Found a Texas bond notice on Washington's Birthday 2027 shown as due that day. Verified: payapps unit 1603 pass, worker lien/bond 169 pass, tsc clean, calculator node tests 68 pass. CI then showed the catalogue build test red on main (services offline bundle 4,203,110 B, 8.8 KB over 4 MiB; this PR added ~1 KB): fixed by moving the six machine/fabrication shop tools into a new job-shops section (services then under 3.9 MB); full platform/pages suite 2233 pass after the count update.",
   "corrections": [],
   "redteam": null,
   "usage": {
