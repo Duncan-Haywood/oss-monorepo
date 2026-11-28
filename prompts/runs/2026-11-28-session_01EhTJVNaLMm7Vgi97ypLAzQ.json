@@ -51,7 +51,7 @@
     "ventures/saints-by-candlelight/episodes/184-david-at-the-gate-of-gath.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight. Piece: david-at-the-gate-of-gath (episode 184, 6,179 spoken words, text only; audio at 581 MB is over the 400 MB cap). Security queue: none workable. Ideas inbox: empty. Checks: check-script ok, venture node --test 21/21, og-description test pass, run_workflow_locally --for-changes 11/11 (CodeQL and security gate reached no verdict locally; CI is their verdict). CI's pages test failed on main's breakage from PR #20062 (SPRS page title 79 chars, description 172); fixed forward in this PR (60 and 154). The same CI run also failed the services offline bundle at 4.2 MB, but that test passes locally on the merged tree; treated as at-the-edge noise and re-run.",
+  "notes": "Project: saints-by-candlelight. Piece: david-at-the-gate-of-gath (episode 184, 6,179 spoken words, text only; audio at 581 MB is over the 400 MB cap). Security queue: none workable. Ideas inbox: empty. Checks: check-script ok, venture node --test 21/21, og-description test pass, run_workflow_locally --for-changes 11/11 (CodeQL and security gate reached no verdict locally; CI is their verdict). CI's pages test failed on main's breakage from PR #20062 (SPRS page title 79 chars, description 172); fixed forward in this PR (60 and 154), then main landed its own fix and the merge took main's version. The same CI run also failed the services offline bundle at 4.2 MB, but that test passes locally on the merged tree; treated as at-the-edge noise and re-run.",
   "corrections": [],
   "redteam": null,
   "usage": {
