@@ -1,3 +1,4 @@
+import { addDaysIso, daysFrom } from "./iso-days.ts";
 import {
   MS_CHECKED_ON,
   MS_HEAD_FIELDS,
@@ -122,18 +123,6 @@ export function msAffidavitOfNonpayment(): NoticeForm {
   };
 }
 
-function addDaysIso(iso: string, days: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(Date.UTC(y ?? 0, (m ?? 1) - 1, (d ?? 1) + days)).toISOString().slice(0, 10);
-}
-
-function daysFrom(from: string, to: string): number {
-  const ms = (iso: string) => {
-    const [y, m, d] = iso.split("-").map(Number);
-    return Date.UTC(y ?? 0, (m ?? 1) - 1, d ?? 1);
-  };
-  return Math.round((ms(to) - ms(from)) / 86_400_000);
-}
 
 export interface MsSixtyDays {
   /** The waiver's date (YYYY-MM-DD). */

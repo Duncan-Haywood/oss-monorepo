@@ -1,4 +1,5 @@
 import { GA_AMENDMENT_URL, GA_CHECKED_ON, GA_MIN_FONT_PT } from "./ga.ts";
+import { addDaysIso, daysFrom } from "./iso-days.ts";
 import type { NoticeForm } from "./notices.ts";
 import type { BlockTemplate, FieldSpec, ValidationError, WaiverData } from "./types.ts";
 
@@ -215,18 +216,6 @@ export function gaAffidavitOfNonpayment(): NoticeForm {
   };
 }
 
-function addDaysIso(iso: string, days: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(Date.UTC(y ?? 0, (m ?? 1) - 1, (d ?? 1) + days)).toISOString().slice(0, 10);
-}
-
-function daysFrom(from: string, to: string): number {
-  const ms = (iso: string) => {
-    const [y, m, d] = iso.split("-").map(Number);
-    return Date.UTC(y ?? 0, (m ?? 1) - 1, d ?? 1);
-  };
-  return Math.round((ms(to) - ms(from)) / 86_400_000);
-}
 
 export interface GaNinetyDays {
   /** The waiver's date (YYYY-MM-DD). */
