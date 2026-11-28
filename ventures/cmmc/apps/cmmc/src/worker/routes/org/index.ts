@@ -88,6 +88,15 @@ import {
   FINDING_KINDS,
 } from "@shared/internal-audits";
 import {
+  MAX_REVIEW_ACTIONS,
+  REVIEW_INPUT_KEYS,
+  REVIEW_INPUTS,
+  REVIEW_OUTPUT_KEYS,
+  REVIEW_OUTPUTS,
+  REVIEW_SHORT_MAX,
+  REVIEW_TEXT_MAX,
+} from "@shared/management-review";
+import {
   DEPARTURE_KINDS,
   DEPARTURE_LABEL,
   personnelCsv,
@@ -237,6 +246,15 @@ import {
   updateCorrectiveAction,
   verifyCorrectiveAction,
 } from "../../services/internal-audits";
+import {
+  createReview,
+  deleteReview,
+  finaliseReview,
+  reviewList,
+  reviewMinutes,
+  setActionDone,
+  updateReview,
+} from "../../services/management-review";
 import {
   addMember,
   getOrg,
@@ -1887,6 +1905,95 @@ routes.put(
     });
   },
 );
+
+// ---- management review (ISO 9001 9.3) ----
+// A draft is edited freely; finalising checks the minutes are complete and freezes them, after which
+// only an action's done date changes. Only drafts can be deleted.
+const reviewText = (keys: readonly string[]) =>
+  z
+    .record(z.string(), text(REVIEW_TEXT_MAX))
+    .refine((o) => Object.keys(o).every((k) => keys.includes(k)), "Unknown heading");
+const reviewAction = z.object({
+  id: z.string().max(64).optional(),
+  text: z
+    .string()
+    .trim()
+    .min(1)
+    .max(REVIEW_SHORT_MAX * 2),
+  owner: text(REVIEW_SHORT_MAX),
+  dueOn: date.nullable(),
+  doneOn: date.nullable(),
+});
+const reviewBody = z.object({
+  heldOn: date,
+  periodFrom: date.optional(),
+  periodTo: date.optional(),
+  attendees: text(REVIEW_TEXT_MAX).optional(),
+  inputs: reviewText(REVIEW_INPUT_KEYS).optional(),
+  outputs: reviewText(REVIEW_OUTPUT_KEYS).optional(),
+  actions: z.array(reviewAction).max(MAX_REVIEW_ACTIONS).optional(),
+  nextReviewOn: date.nullable().optional(),
+});
+
+routes.get("/reviews", async (c) =>
+  c.json({
+    ...(await reviewList(c.var.ctx, c.var.tenant.orgId)),
+    inputs: REVIEW_INPUTS,
+    outputs: REVIEW_OUTPUTS,
+  }),
+);
+routes.get("/reviews/:id/minutes.md", async (c) => {
+  const md = await reviewMinutes(c.var.ctx, c.var.tenant.orgId, c.req.param("id"));
+  return new Response(md, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="management-review-minutes.md"',
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+routes.post("/reviews", requireRole("editor"), validate("json", reviewBody), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await createReview(c.var.ctx, t.orgId, t.userId, c.req.valid("json")), 201);
+});
+routes.patch(
+  "/reviews/:id",
+  requireRole("editor"),
+  validate("json", reviewBody.partial()),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await updateReview(c.var.ctx, t.orgId, t.userId, c.req.param("id"), c.req.valid("json")),
+    );
+  },
+);
+routes.post("/reviews/:id/finalise", requireRole("editor"), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await finaliseReview(c.var.ctx, t.orgId, t.userId, c.req.param("id")));
+});
+routes.put(
+  "/reviews/:id/actions/:actionId/done",
+  requireRole("editor"),
+  validate("json", z.object({ doneOn: date.nullable() })),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await setActionDone(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("id"),
+        c.req.param("actionId"),
+        c.req.valid("json").doneOn,
+      ),
+    );
+  },
+);
+routes.delete("/reviews/:id", requireRole("editor"), async (c) => {
+  const t = c.var.tenant;
+  await deleteReview(c.var.ctx, t.orgId, t.userId, c.req.param("id"));
+  return c.json({ ok: true });
+});
 
 // ---- audit log ----
 routes.get("/audit-log", requireRole("admin"), async (c) => {

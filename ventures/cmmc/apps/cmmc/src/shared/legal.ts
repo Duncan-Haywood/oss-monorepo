@@ -21,7 +21,8 @@
 // "2026-11-28.1": the Privacy Policy now names Cloudflare Web Analytics (cookieless visit counts), which the CSP stopped blocking.
 // "2026-11-28.2": the cyber incident register: Privacy lists its records, exports and calendar dates (a count per date, no titles); Terms name it and its computed dates.
 // "2026-11-28.3": the Privacy Policy now lists the gauge and calibration records and the gauge list CSV.
-export const POLICY_VERSION = "2026-11-28.3";
+// "2026-11-28.4": the Privacy Policy now lists ISO 9001 management reviews and their minutes download.
+export const POLICY_VERSION = "2026-11-28.4";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];
