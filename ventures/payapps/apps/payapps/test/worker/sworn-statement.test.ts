@@ -214,3 +214,120 @@ describe("sworn statement draft saved with the job", () => {
     );
   });
 });
+
+describe("sworn statements kept as given", () => {
+  interface Summary {
+    id: string;
+    payApp: string;
+    statementDate: string;
+    parties: number;
+    paidCents: number;
+    owingCents: number;
+    createdByName: string | null;
+  }
+
+  async function job() {
+    const t = await setupTenant("owner");
+    const p = await call<ProjectDto>(`/api/orgs/${t.orgId}/projects`, {
+      method: "POST",
+      as: t.userId,
+      expect: 201,
+      json: { name: "Given job", gcName: "Prairie Builders", originalContractSumCents: 48_000_000 },
+    });
+    return { ...t, path: `/api/orgs/${t.orgId}/projects/${p.id}/sworn-statements` };
+  }
+
+  it("keeps each pay application's statement, a reprint replaces it, and prints it again", async () => {
+    const t = await job();
+    const as = t.userId;
+    expect(await call<Summary[]>(t.path, { as })).toEqual([]);
+
+    const first = await call<Summary>(t.path, { method: "POST", as, expect: 201, json: STATEMENT });
+    expect(first).toMatchObject({
+      payApp: "No. 4, period to 2026-10-31",
+      statementDate: "2026-11-26",
+      parties: 3,
+      paidCents: 8_500_000,
+      owingCents: 3_290_000,
+      createdByName: "Test User",
+    });
+
+    // The same pay application and date again: replaced, not a second row.
+    const fixed = structuredClone(STATEMENT);
+    const r = fixed.rows[2];
+    if (!r) throw new Error("no row");
+    r.address = "8 Oak St, Springfield IL";
+    const again = await call<Summary>(t.path, { method: "POST", as, expect: 201, json: fixed });
+    expect(again.id).toBe(first.id);
+
+    // Next month's is its own row, listed first.
+    const december = {
+      ...STATEMENT,
+      payApp: "No. 5, period to 2026-11-30",
+      statementDate: "2026-12-24",
+    };
+    const second = await call<Summary>(t.path, { method: "POST", as, expect: 201, json: december });
+    const list = await call<Summary[]>(t.path, { as });
+    expect(list.map((g) => g.id)).toEqual([second.id, first.id]);
+
+    // A viewer lists, reads and reprints; the full statement comes back as kept.
+    const viewer = await createTestUser();
+    await addToOrg(t.orgId, viewer.id, "viewer");
+    const full = await call<{ statement: typeof STATEMENT }>(`${t.path}/${first.id}`, {
+      as: viewer.id,
+    });
+    expect(full.statement.rows[2]?.address).toBe("8 Oak St, Springfield IL");
+    const pdf = await api(`${t.path}/${first.id}/statement.pdf`, { as: viewer.id });
+    expect(pdf.status).toBe(200);
+    expect(pdf.headers.get("Content-Disposition")).toContain(
+      "sworn-statement-pay-app-4-2026-11-26.pdf",
+    );
+    const text = new TextDecoder().decode(await pdf.arrayBuffer());
+    expect(text).toContain("(Lowvolt Systems LLC)");
+
+    // A viewer cannot keep or delete one; an editor deletes.
+    expect((await api(t.path, { method: "POST", as: viewer.id, json: STATEMENT })).status).toBe(
+      403,
+    );
+    expect((await api(`${t.path}/${first.id}`, { method: "DELETE", as: viewer.id })).status).toBe(
+      403,
+    );
+    await call(`${t.path}/${first.id}`, { method: "DELETE", as });
+    expect((await call<Summary[]>(t.path, { as })).map((g) => g.id)).toEqual([second.id]);
+    expect((await api(`${t.path}/${first.id}/statement.pdf`, { as })).status).toBe(404);
+  });
+
+  it("refuses to keep a statement that would not print", async () => {
+    const t = await job();
+    const bad = structuredClone(STATEMENT);
+    const r = bad.rows[2];
+    if (!r) throw new Error("no row");
+    r.paidCents = 6_000_000;
+    const res = await api(t.path, { method: "POST", as: t.userId, json: bad });
+    expect(res.status).toBe(400);
+    expect((await call<Summary[]>(t.path, { as: t.userId })).length).toBe(0);
+  });
+
+  it("another company cannot list, read, print or delete them", async () => {
+    const t = await job();
+    const kept = await call<Summary>(t.path, {
+      method: "POST",
+      as: t.userId,
+      expect: 201,
+      json: STATEMENT,
+    });
+    const other = await setupTenant("owner");
+    const theirs = t.path.replace(t.orgId, other.orgId);
+    for (const path of [t.path, theirs]) {
+      expect((await api(path, { as: other.userId })).status).toBe(404);
+      expect((await api(`${path}/${kept.id}`, { as: other.userId })).status).toBe(404);
+      expect((await api(`${path}/${kept.id}/statement.pdf`, { as: other.userId })).status).toBe(
+        404,
+      );
+      expect((await api(`${path}/${kept.id}`, { method: "DELETE", as: other.userId })).status).toBe(
+        404,
+      );
+    }
+    expect((await call<Summary[]>(t.path, { as: t.userId })).length).toBe(1);
+  });
+});

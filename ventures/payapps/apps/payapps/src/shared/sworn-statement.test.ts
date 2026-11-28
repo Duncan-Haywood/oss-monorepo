@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  compareWithPrevious,
   computeSwornStatement,
   OWN_FORCES_NAME,
   swornHasErrors,
@@ -232,5 +233,81 @@ describe("header and file name", () => {
     const s = swornStatementSchema.parse({ ...h, rows: [{ name: "x", contractCents: 1 }] });
     expect(swornStatementFileName(s)).toBe("sworn-statement-pay-app-4-2026-11-26.pdf");
     expect(swornStatementFileName({ ...s, payApp: "" })).toBe("sworn-statement-2026-11-26.pdf");
+  });
+});
+
+describe("compareWithPrevious", () => {
+  const stmt = (date: string, rows: Record<string, unknown>[]) =>
+    swornStatementSchema.parse({ ...base, statementDate: date, payApp: "No. 3", rows });
+  const october = stmt("2026-10-25", [
+    { name: "Own forces (labor and profit)", contractCents: 1_000_000, paidCents: 500_000 },
+    {
+      name: "Valley Electric Supply",
+      address: "120 Mill Rd",
+      contractCents: 15_000_000,
+      retainageCents: 500_000,
+      paidCents: 2_000_000,
+      owingCents: 2_500_000,
+    },
+    { name: "Lowvolt Systems LLC", contractCents: 5_000_000, paidCents: 1_000_000 },
+  ]);
+
+  it("a month that carries owing into paid, with every party kept, raises nothing", () => {
+    const november = stmt("2026-11-26", [
+      { name: "Own forces (labor and profit)", contractCents: 1_000_000, paidCents: 0 },
+      {
+        name: "valley  electric supply",
+        contractCents: 15_000_000,
+        retainageCents: 750_000,
+        paidCents: 4_500_000,
+        owingCents: 2_250_000,
+      },
+      { name: "Lowvolt Systems LLC", contractCents: 5_000_000, paidCents: 1_000_000 },
+      { name: "New Sub", contractCents: 100_000 },
+    ]);
+    // Own forces going down is the contractor's own business; a new party is fine.
+    expect(compareWithPrevious(november, october)).toEqual([]);
+  });
+
+  it("flags a party dropped, paid to date going down and earned to date going down", () => {
+    const november = stmt("2026-11-26", [
+      {
+        name: "Valley Electric Supply",
+        contractCents: 15_000_000,
+        paidCents: 1_500_000,
+        owingCents: 0,
+      },
+    ]);
+    const issues = compareWithPrevious(november, october);
+    expect(issues.map((i) => [i.where, i.message.slice(0, 30)])).toEqual([
+      ["Valley Electric Supply", "Already paid is $15,000.00, le"],
+      ["Valley Electric Supply", "Paid, owing and retainage come"],
+      ["Lowvolt Systems LLC", "On the statement given 2026-10"],
+    ]);
+    expect(issues.every((i) => i.level === "warning")).toBe(true);
+    expect(issues[2]?.message).toContain("(No. 3)");
+    expect(issues[1]?.message).toContain("$50,000.00");
+  });
+
+  it("adds several rows for one party together, and warns of a date before the last", () => {
+    const split = stmt("2026-10-01", [
+      { name: "Own forces", contractCents: 0 },
+      {
+        name: "Valley Electric Supply",
+        contractCents: 8_000_000,
+        paidCents: 1_000_000,
+        retainageCents: 500_000,
+      },
+      {
+        name: "Valley Electric Supply",
+        contractCents: 7_000_000,
+        paidCents: 1_000_000,
+        owingCents: 2_500_000,
+      },
+      { name: "Lowvolt Systems LLC", contractCents: 5_000_000, paidCents: 1_000_000 },
+    ]);
+    const issues = compareWithPrevious(split, october);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.where).toBe("Statement date");
   });
 });

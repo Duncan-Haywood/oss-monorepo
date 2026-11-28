@@ -2935,6 +2935,22 @@ nothing to copy. No customers yet. Paid plans are dark
   viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
   `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
 
+- Sworn statements kept per pay application (2026-11-28, every plan, sworn-statement-given): the
+  draft kept only the latest list, so last month's statement could not be printed again and nothing
+  said when this month's disagreed with it. Now each PDF an editor downloads is kept as given with its
+  pay application (`sworn_statements_given`, migration 0096; one per job, pay application and
+  statement date, so a corrected reprint replaces it; 60 per job), listed at the foot of the page with
+  paid and owing, who kept it and a PDF link printed from the kept figures
+  (`GET/POST .../sworn-statements`, `GET .../sworn-statements/:id[/statement.pdf]`, `DELETE` for
+  editors). The statement being typed is checked against the last one given before it
+  (`compareWithPrevious` in `src/shared/sworn-statement.ts`): a party listed last time and missing
+  now, a party's paid to date going down, or its paid + owing + retainage going down (own forces left
+  out, several rows for one party added together), and a statement date before the last one. Viewers
+  list and reprint; their downloads are not kept. Tests: `src/shared/sworn-statement.test.ts`,
+  `test/worker/sworn-statement.test.ts` (kept, replaced, listed newest first, reprinted by a viewer,
+  refused when it would not print, viewer 403, another company 404) and
+  `test/e2e/06-sworn-given.spec.ts` (downloaded, listed, next month's lower paid flagged, fixed).
+
 - Lien waivers: Mississippi part 3, the time computation (2026-11-28, ms-time-computation). § 85-7-425
   counts time under the lien article by Miss. Code Ann. § 1-3-67, now read (FindLaw's copy; the official
   LexisNexis Code still out of reach), with § 3-3-7(1)'s ten legal holidays (a Sunday holiday makes the
@@ -3065,8 +3081,9 @@ nothing to copy. No customers yet. Paid plans are dark
   2026-11-26: `src/shared/sworn-statement.ts`, the job's "Sworn statement" page, parties prefilled from
   its purchase orders and subcontracts with invoiced to date as a cross-check, checked against the
   contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; the
-  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved. Next, if
-  people ask: a saved copy per pay application (each month's statement kept, not only the latest), and
+  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved. Each month's
+  statement kept as given and checked against the last, done 2026-11-28, sworn-statement-given. Next,
+  if people ask: the kept statement attached to the pay application's backup packet, and
   the Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
