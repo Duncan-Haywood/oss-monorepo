@@ -1,9 +1,9 @@
 ---
 title: "Re-audit: the COI tracker's fix closed 5 of 10 defects, and a GL policy could pass as workers' comp"
-seo_title: "Tracking subcontractor certificates of insurance: renewals, ACORD 25 headings and coverage names"
+seo_title: "Subcontractor COI tracking: renewals, ACORD 25 headings, coverage"
 date: 2026-11-28
 tags: [quality-audit, evaluation, testing, construction, coi-expiry-gap-checker]
-description: "A re-check of the free certificate-of-insurance tracker found half its earlier defects fixed, all four earlier surviving bugs still untested, and a new coverage-name bug. All but one gap is fixed now."
+description: "A re-check of the free COI tracker: 5 of 10 earlier defects fixed, four untested bugs still passing, and a GL row read as workers' comp. Now fixed."
 ---
 
 The [COI expiry and gap checker](https://marisstella.app/coi-expiry-gap-checker/) reads a list of
