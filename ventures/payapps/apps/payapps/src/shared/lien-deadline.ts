@@ -23,12 +23,15 @@
 // Arizona) and no completion date is entered, the claimant's own last furnishing is used: completion
 // can only be the same or later, so the date can only be the same or earlier. Where no last-furnished
 // date is entered, the start of the latest billing period with work billed is used: the last day of
-// work was on or after it, so again the date can only be early. A date on a weekend moves back to the
-// Friday before. Holidays are not modeled. Not modeled at all: public jobs (payment bond claims, not
+// work was on or after it, so again the date can only be early. A date on a weekend or an observed federal
+// holiday (federal-holidays.ts) moves back to the business day before; state-only holidays and a
+// statute's own roll-forward to the next business day are not modeled (the earlier date is always
+// safe). Not modeled at all: public jobs (payment bond claims, not
 // liens), third-tier claimants, Texas retainage claims and contracts before 2022, laborers' special
 // rules, contract terms, and the service or suit deadlines that follow a recorded lien.
 
 import { isCalendarDate } from "./calendar-date";
+import { actByOnOrBefore, actByReason } from "./federal-holidays";
 import {
   MILLER_CITATION,
   type MillerTier,
@@ -408,12 +411,16 @@ export function lienDateFields(state: string | null | undefined): {
   };
 }
 
-const weekday = (iso: string) => new Date(`${iso}T00:00:00Z`).getUTCDay();
-
-/** The date itself, or the Friday before when it falls on a weekend. */
+/** The date itself, or the last business day before it when it falls on a weekend or a federal holiday. */
 export function businessDayOnOrBefore(iso: string): string {
-  const d = weekday(iso);
-  return d === 6 ? addDays(iso, -1) : d === 0 ? addDays(iso, -2) : iso;
+  return actByOnOrBefore(iso).on;
+}
+
+/** "; the statute's date, X, is a weekend, so PayApps shows the business day before" or "". */
+export function actByNote(statutoryOn: string | null, dueOn: string | null): string {
+  if (!statutoryOn || statutoryOn === dueOn) return "";
+  const why = actByReason(statutoryOn) ?? "not a business day";
+  return `; the statute's date, ${statutoryOn}, is ${why}, so PayApps shows the business day before`;
 }
 
 /** What PayApps knows about the job's billing, for the last-furnished floor. */
@@ -468,9 +475,9 @@ export interface LienDeadline {
   stateName: string;
   citation: string;
   act: string;
-  /** The statute's date, before the weekend move. */
+  /** The statute's date, before the weekend and holiday move. */
   statutoryOn: string;
-  /** The date to act by: statutoryOn, or the Friday before it on a weekend. */
+  /** The date to act by: statutoryOn, or the business day before it on a weekend or federal holiday. */
   dueOn: string;
   /** How the date is counted, in words. */
   rule: string;
@@ -743,9 +750,7 @@ export function stateBondText(
       ? " (needed if you contracted with a subcontractor rather than the prime)"
       : "";
   const weekend = (x: { dueOn: string | null; statutoryOn: string | null }) =>
-    x.statutoryOn && x.statutoryOn !== x.dueOn
-      ? `; the statute's date, ${x.statutoryOn}, is a weekend, so PayApps shows the Friday before`
-      : "";
+    actByNote(x.statutoryOn, x.dueOn);
   const name = bond.rule.name;
   if (passed) {
     const after =

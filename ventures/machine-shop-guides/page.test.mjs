@@ -6,7 +6,7 @@ import { apply } from "./cta.mjs";
 // Escape every regex metacharacter, backslash included, before building a RegExp from data.
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "nist-800-171-policy-templates", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "how-to-submit-sprs-score", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "corrective-action-report", "cui-markings", "iso-9001-internal-audit-checklist", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
+const PAGES = ["index", "bar-stock-weight-calculator", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "nist-800-171-policy-templates", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "how-to-submit-sprs-score", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "corrective-action-report", "cui-markings", "iso-9001-internal-audit-checklist", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -219,8 +219,21 @@ test("machine hour rate page ships no rates and builds its rows from text", () =
   assert.match(html, /Load an invented example/);
 });
 
-test("the quote calculator takes a machine rate from the machine hour rate page", () => {
-  assert.match(read("job-shop-quote-calculator"), /\["setupFactor", "cycleFactor", "machineRate"\]/);
+test("the quote calculator takes a machine rate from the machine hour rate page and a material cost from the bar stock page", () => {
+  assert.match(read("job-shop-quote-calculator"), /\["setupFactor", "cycleFactor", "machineRate", "materialPerPart"\]/);
+});
+
+test("bar stock page ships no price, builds its rows from text and keeps nothing", () => {
+  const html = read("bar-stock-weight-calculator");
+  for (const name of ["price", "barLength", "partLength", "facing", "kerf", "remnant", "quantity"]) {
+    const m = html.match(new RegExp(`<input name="${name}"[^>]*>`));
+    assert.ok(m, name);
+    assert.doesNotMatch(m[0], /value=/, `${name} has a default value`);
+  }
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(html, /localStorage|sessionStorage|fetch\(|XMLHttpRequest|sendBeacon/);
+  assert.match(html, /Load an invented example/);
+  assert.match(html, /materialPerPart/);
 });
 
 // The cost page quotes DoD's regulatory impact analysis (2026-11-27). Every <q> is a pinned sentence
