@@ -1,5 +1,5 @@
 # Public retainage statutes, as published on each legislature's own site, fetched 2026-11-28 for the
-# 2026-11-28 rows of retainage-explained.html (Delaware, Idaho, Iowa, Kansas, Maine, Missouri, Ohio).
+# 2026-11-28 rows of retainage-explained.html (Delaware, Idaho, Iowa, Kansas, Maine, Missouri, Ohio, North Dakota, South Carolina).
 # Tags stripped, whitespace collapsed, curly apostrophes made straight; wording otherwise unchanged.
 # Only the subsections the page uses; [...] marks a cut.
 
@@ -72,6 +72,16 @@ In addition to all other payments on account of work performed, there shall be a
 Source: https://legislature.vermont.gov/statutes/section/09/102/04005
 
 § 4005. Retainage (a) If payments under a construction contract are subject to retainage, any amounts that have been retained during the performance of the contract and that are due to be released to the contractor upon final completion shall be paid within 30 days after final acceptance of the work.
+
+## S.C. Code § 11-35-3030(4) (fetched 2026-11-28)
+Source: https://www.scstatehouse.gov/code/t11c035.php
+
+(4) Retention. (a) Maximum amount to be withheld. In a contract or subcontract for construction which provides for progress payments in installments based upon an estimated percentage of completion, with a percentage of the contract's proceeds to be retained by the State or general contractor pending completion of the contract or subcontract, the retained amount of each progress payment or installment must be no more than three and one-half percent. (b) Release of Retained Funds. When the work to be performed on a state construction project or pursuant to a state construction contract is to be performed by multiple prime contractors or by a prime contractor and multiple subcontractors, the work contracted to be done by each individual contractor or subcontractor is considered a separate division of the contract for the purpose of retention. As each division of the contract is certified as having been completed, that portion of the retained funds which is allocable to the completed division of the contract must be released forthwith to the prime contractor, who, within ten days of its receipt, shall release to the subcontractor responsible for the completed work the full amount of retention previously withheld from him by the prime contractor.
+
+## N.D. Cent. Code § 48-01.2-13 (fetched 2026-11-28)
+Source: https://ndlegis.gov/cencode/t48c01-2.pdf
+
+At least once in each calendar month during the continuance of work upon any public improvement, the governing body shall receive and consider any partial payment estimate prepared by the architect or engineer. Upon review and approval, the governing body shall pay an estimate in an amount equal to the estimated value of the labor and material furnished plus the material adequately stored. A partial payment estimate must include retentions or retainage as follows: ten percent of each estimate until the project is fifty percent completed with no further retainage on estimates during the continuance of the contract unless unsatisfactory progress or performance is documented. The governing body may, upon completion of ninety-five percent of the contract, pay to the contractor up to ninety-five percent of the amount retained from previous estimates. The remaining amount retained must be paid to the contractor in the amounts and at the times approved by the architect or engineer. The governing body shall make final payment of all moneys due to the contractor following completion of all work, acceptance of the project by the governing body, and the provision of necessary releases. If an architect or engineer is not employed by the governing body for administration of the contract, the contractor, at the end of each calendar month during the continuance of work, may furnish a payment estimate to the governing body. After considering and approving an estimate, the governing body shall draw a warrant upon the proper fund and promptly transmit the warrant to the contractor. The governing body may invest or deposit any retained amount in a financial association or institution so that the contractor's money retained is earning interest or dividends for the benefit of the contractor. Any amount invested or deposited must remain in the name of the governing body until final payment of all money due to the contractor is to be made.
 
 ## Ala. Code § 39-2-12(c) (fetched 2026-11-28)
 Source: https://alison.legislature.state.al.us/code-of-alabama?section=39-2-12

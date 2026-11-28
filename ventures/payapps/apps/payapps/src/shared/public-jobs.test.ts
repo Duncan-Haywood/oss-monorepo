@@ -130,8 +130,8 @@ describe("lienDeadline on a public job", () => {
 });
 
 describe("retainage caps on public work", () => {
-  it("covers the guide's 24 states, each with a citation and an official link", () => {
-    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(24);
+  it("covers the guide's 26 states, each with a citation and an official link", () => {
+    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(26);
     for (const r of Object.values(RETAINAGE_CAPS)) {
       expect(r.url).toMatch(/^https:\/\//);
       expect(r.citation.length).toBeGreaterThan(3);
@@ -180,6 +180,23 @@ describe("retainage caps on public work", () => {
     );
     expect(retainageCapCheck("TX", [1200, 1000])).toMatchObject({ verdict: "over", jobBps: 1200 });
     expect(retainageCapCheck("MI", [500, 500])).toMatchObject({ verdict: "lower" });
+  });
+
+  it("South Carolina caps at 3.5%, flowing down; North Dakota stops retaining at 50% complete", () => {
+    // S.C. Code § 11-35-3030(4)(a): "no more than three and one-half percent", contract or subcontract.
+    const sc = retainageCapCheck("SC", [500, 500]);
+    expect(sc).toMatchObject({ verdict: "over", jobBps: 500 });
+    expect(sc?.kind === "checked" && sc.text).toBe(
+      "This job holds 5%, above the 3.5% South Carolina allows on public work (S.C. Code § 11-35-3030(4)). The statute applies the same limit to what the prime holds from its subcontractors.",
+    );
+    expect(retainageCapCheck("SC", [350, 0])).toMatchObject({ verdict: "within" });
+    // N.D. Cent. Code § 48-01.2-13: ten percent until fifty percent complete, then none further.
+    expect(retainageCapCheck("ND", [1000, 1000])).toMatchObject({ verdict: "lower" });
+    expect(retainageCapCheck("ND", [1200, 1000])).toMatchObject({ verdict: "over" });
+    const nd = retainageCapCheck("nd", [500, 500]);
+    expect(nd?.kind === "checked" && nd.text).toContain(
+      "drops to 0% on estimates after the project is 50% complete",
+    );
   });
 
   it("reads the states added 2026-11-28: Iowa's 3%, Ohio's labor and materials split, Kansas and Missouri's 10% cases", () => {

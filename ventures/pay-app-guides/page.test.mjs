@@ -49,13 +49,13 @@ test("calculator inputs are labelled", () => {
   for (const id of ["ret-work", "ret-stored", "released", "prev-cert"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
 
-test("the retainage table covers 24 states, each linked to an official legislature site, with a read date", () => {
+test("the retainage table covers 26 states, each linked to an official legislature site, with a read date", () => {
   const html = page("retainage-explained.html");
   const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
   const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
-  assert.equal(rows.length, 24, `${rows.length} states`);
+  assert.equal(rows.length, 26, `${rows.length} states`);
   assert.equal(new Set(rows.map((r) => r[1])).size, rows.length, "a state is listed twice");
-  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.legis\.iowa\.gov|ksrevisor\.org|legislature\.maine\.gov|revisor\.mo\.gov|codes\.ohio\.gov|alison\.legislature\.state\.al\.us)\//;
+  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.legis\.iowa\.gov|ksrevisor\.org|legislature\.maine\.gov|revisor\.mo\.gov|codes\.ohio\.gov|alison\.legislature\.state\.al\.us|ndlegis\.gov|www\.scstatehouse\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-24/);
   assert.match(html, /2026-11-25/);
@@ -63,7 +63,7 @@ test("the retainage table covers 24 states, each linked to an official legislatu
   // The 2026-11-28 rows' statute text is kept beside the page, and each row's figure is in it.
   assert.match(html, /href="sources\/retainage-caps\.txt"/);
   const src = page("sources/retainage-caps.txt");
-  for (const words of ["The percentage retained shall be 5% of the value of the work completed", "any amount exceeding five percent (5%) of the total amount payable", "not more than three percent", "Retainage shall not exceed 5% of the value of the contract or subcontract", "the State shall withhold 5% of the money due", "shall not exceed five percent of the value of the contract or subcontract", "not less than ninety-six per cent", "ninety-two per cent of the invoice costs", "After the contract is fifty per cent complete, no further funds shall be retained", "after 50 percent completion has been accomplished, no further retainage shall be withheld"]) assert.ok(src.includes(words), words);
+  for (const words of ["The percentage retained shall be 5% of the value of the work completed", "any amount exceeding five percent (5%) of the total amount payable", "not more than three percent", "Retainage shall not exceed 5% of the value of the contract or subcontract", "the State shall withhold 5% of the money due", "shall not exceed five percent of the value of the contract or subcontract", "not less than ninety-six per cent", "ninety-two per cent of the invoice costs", "After the contract is fifty per cent complete, no further funds shall be retained", "must be no more than three and one-half percent", "ten percent of each estimate until the project is fifty percent completed with no further retainage", "after 50 percent completion has been accomplished, no further retainage shall be withheld"]) assert.ok(src.includes(words), words);
   // Ohio's §153.13 dropped its "no further retainage after 50% complete" rule on 2025-09-30: the row says so.
   const ohio = table.slice(table.indexOf(">Ohio<"), table.indexOf("</tr>", table.indexOf(">Ohio<")));
   assert.match(ohio, /no longer says retainage stops at 50% complete/);

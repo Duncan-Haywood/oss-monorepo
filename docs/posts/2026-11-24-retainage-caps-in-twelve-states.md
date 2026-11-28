@@ -1,9 +1,9 @@
 ---
-title: "Retainage caps on public work in twenty-four states, and a free SOV calculator"
-seo_title: "Public retainage caps by state: CA, TX, FL, NY, OH and 19 more"
+title: "Retainage caps on public work in twenty-six states, and a free SOV calculator"
+seo_title: "Public retainage caps by state: CA, TX, FL, NY, OH, SC and 20 more"
 date: 2026-11-24
 tags: [construction, subcontractors, retainage, pay-applications, lien-waivers, pay-app-guides, for-customers]
-description: "Statutory caps on retainage for public construction in 24 states, each linked to the official statute, plus a free continuation-sheet calculator."
+description: "Statutory caps on retainage for public construction in 26 states, each linked to the official statute, plus a free continuation-sheet calculator."
 ---
 
 Retainage is the 5 or 10 percent of every progress payment an owner holds
@@ -92,7 +92,7 @@ relying on a row; it is a summary, not legal advice.
 
 ## Seven more states, and Ohio's rule changed in 2025
 
-*Added 2026-11-28.* The table now has 23 states. The seven new rows were each
+*Added 2026-11-28.* The table had 23 states after this addition (25 with the two below). The seven new rows were each
 read from the statute page on the legislature's own site, and the text read
 is kept beside the guide in
 [sources/retainage-caps.txt](https://marisstella.app/pay-app-guides/sources/retainage-caps.txt):
@@ -125,13 +125,37 @@ final completion) and drops the 50% stop and the escrow. An estimator or a
 contract template written before then may still promise the old rule. Both
 versions are on codes.ohio.gov and quoted in the sources file.
 
+## South Carolina and North Dakota
+
+*Added 2026-11-28, later.* Two more rows, read the same way and quoted in the
+same sources file:
+
+- **South Carolina holds 3.5%.** S.C. Code §11-35-3030(4), in the State
+  Consolidated Procurement Code, says the amount retained from each progress
+  payment "must be no more than three and one-half percent", and it says so
+  of a "contract or subcontract", so the same limit reaches what a general
+  contractor holds from a sub. On a state job each contractor's or sub's work
+  counts as its own division: when a division is certified complete, its
+  retainage goes to the prime, who has ten days to pass it on. Only Iowa's 3%
+  is lower in the table.
+- **North Dakota stops at 50%.** N.D. Cent. Code §48-01.2-13 holds "ten
+  percent of each estimate until the project is fifty percent completed",
+  then no further retainage unless unsatisfactory progress or performance is
+  documented. At 95% complete the governing body may pay up to 95% of what it
+  holds, and an approved estimate left unpaid more than 30 days earns interest
+  (§48-01.2-14).
+
+PayApps' public-job check uses the same rows: mark a job state or local in
+South Carolina and a 5% rate is flagged as over the cap; in North Dakota a
+10% rate is within it, with the note that retainage stops at 50% complete.
+
 **Alabama, added later on 2026-11-28.** Ala. Code §39-2-12(c) lets a public
 owner hold no more than 5% of the work done and materials stored, and once
 the job is 50% complete "no further retainage shall be withheld"; what was
 held stays until final completion and acceptance, unless the contract allows
 an escrow account or deposited securities instead. Alabama Department of
 Transportation highway, bridge and road contracts carry no retainage at all.
-That makes 24 states.
+That makes 26 states.
 
 Some states set when retainage is paid without capping the rate. Vermont's
 9 V.S.A. §4005 is one: retainage is paid within 30 days after final

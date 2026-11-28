@@ -137,7 +137,7 @@ export const PROBLEMS = [
       ['pay-app-guides/fire-protection-contractor-billing.html', 'Pay apps for fire sprinkler contractors', 'Design and permit, pipe and heads as stored materials, rough-in before trim, the hydro test and the AHJ’s final acceptance.'],
       ['pay-app-guides/front-loading-schedule-of-values.html', 'Front-loading check', 'Compare each schedule of values line’s markup with the job’s, see what a reviewer sees, and get a balanced SOV.'],
       ['pay-app-guides/stored-materials-billing.html', 'Billing stored materials', 'The monthly stored-materials rollforward, so installed material is billed once, and the backup reviewers ask for.'],
-      ['pay-app-guides/retainage-explained.html', 'Retainage explained, with state caps', 'How retainage is calculated and released, and public retainage caps for 24 states, each linked to the statute.'],
+      ['pay-app-guides/retainage-explained.html', 'Retainage explained, with state caps', 'How retainage is calculated and released, and public retainage caps for 26 states, each linked to the statute.'],
       ['pay-app-guides/retainage-tracker.html', 'Retainage tracker', 'Retainage receivable across jobs: aging from your release terms, unbilled releases, totals by GC and a chase list.'],
       ['pay-app-guides/retainage-release.html', 'Retainage release', 'The closeout documents usually asked for, a release date, and a request letter.'],
       ['pay-app-guides/retainage-in-quickbooks.html', 'Retainage in QuickBooks Online', 'The account, item and invoice lines QuickBooks needs, since it has no retainage field.'],
