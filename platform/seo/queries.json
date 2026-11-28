@@ -26,6 +26,13 @@
     {"id": "intent-hreflang", "tier": "intent", "query": "check hreflang return tags missing reciprocal", "expect": "https://marisstella.app/hreflang-reciprocity-check/"},
     {"id": "intent-jsonld-drift", "tier": "intent", "query": "check JSON-LD matches visible page content", "expect": "https://marisstella.app/structured-data-drift-check/"},
     {"id": "intent-ai-bookkeeping", "tier": "intent", "query": "free AI bookkeeping categorize bank CSV in browser", "expect": "https://marisstella.app/ai-bookkeeper/"},
-    {"id": "intent-diy-ball-machine", "tier": "intent", "query": "DIY tennis ball machine open source build", "expect": "https://marisstella.app/open-tennis-robots/"}
+    {"id": "intent-diy-ball-machine", "tier": "intent", "query": "DIY tennis ball machine open source build", "expect": "https://marisstella.app/open-tennis-robots/"},
+    {"id": "name-payapps", "tier": "name", "query": "PayApps AIA G702 G703 pay application software for subcontractors", "expect": "https://marisstella.app/payapps/"},
+    {"id": "name-jobshop-quote", "tier": "name", "query": "Job Shop Quote RFQ to quote software CNC machine shop", "expect": "https://marisstella.app/jobshop/"},
+    {"id": "intent-pay-application", "tier": "intent", "query": "how to fill out a pay application G702 G703 subcontractor", "expect": "https://marisstella.app/pay-app-guides/"},
+    {"id": "intent-lien-waivers-by-state", "tier": "intent", "query": "lien waiver forms by state conditional unconditional", "expect": "https://marisstella.app/pay-app-guides/"},
+    {"id": "intent-quote-cnc", "tier": "intent", "query": "how to quote CNC machining jobs machine shop", "expect": "https://marisstella.app/jobshop/"},
+    {"id": "intent-cmmc-l1", "tier": "intent", "query": "CMMC level 1 self-assessment workspace small defense contractor", "expect": "https://marisstella.app/cmmc/"},
+    {"id": "intent-reseller-books", "tier": "intent", "query": "reseller profit tracker Schedule C eBay Poshmark Mercari books", "expect": "https://marisstella.app/seller-books/"}
   ]
 }
