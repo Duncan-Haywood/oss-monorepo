@@ -218,7 +218,7 @@ export function sprsSubmitPage({ cite, statusBox, sourcesList, cta }) {
   return {
     path: SPRS_SUBMIT_PATH,
     kind: "faq",
-    title: `How to submit your SPRS score (NIST 800-171 and CMMC) · ${SHORT_NAME}`,
+    title: `How to submit your SPRS score, step by step · ${SHORT_NAME}`,
     description:
       "Step by step from DoD's own SPRS guides: the PIEE account and Cyber Vendor User role, entering a Basic score or a CMMC self-assessment, and affirming it.",
     changefreq: "monthly",
