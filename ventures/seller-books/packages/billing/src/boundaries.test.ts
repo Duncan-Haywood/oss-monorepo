@@ -31,13 +31,22 @@ describe("pricing band edges", () => {
 describe("deriveLargestQuota edges", () => {
   it("returns 1 when exactly one unit fits the target", () => {
     // $1 a month: 1 unit costs $0.40 (2.5x), 2 units $0.80 (1.25x) against a 2x target.
-    assert.equal(deriveLargestQuota([month], (q) => q * 400_000, 2), 1);
+    assert.equal(
+      deriveLargestQuota([month], (q) => q * 400_000, 2),
+      1,
+    );
   });
   it("stops at the default cap of 1000 when every quota fits", () => {
-    assert.equal(deriveLargestQuota([month], () => 1, 2), 1000);
+    assert.equal(
+      deriveLargestQuota([month], () => 1, 2),
+      1000,
+    );
   });
   it("stops at a caller's cap", () => {
-    assert.equal(deriveLargestQuota([month], () => 1, 2, 7), 7);
+    assert.equal(
+      deriveLargestQuota([month], () => 1, 2, 7),
+      7,
+    );
   });
 });
 
