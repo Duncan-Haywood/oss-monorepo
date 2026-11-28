@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI pages test failed once: llms.txt Answers out of date after a FAQ edit; fixed by regenerating."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "The nine-states entry lists unreachable hosts, but not that Alabama's site needs a headless browser (that fact was only in a prior run record). Added it to the new ROADMAP entry."
+    },
+    {
+      "file": "ventures/mechanics-lien-deadline-calculator (page FAQ)",
+      "issue": "Editing a FAQ answer means also running `node platform/pages/llms-answers.mjs <venture>`; the venture's own page tests pass without it and only the repo-wide pages test in CI caught the drift. One CI cycle lost."
     }
   ],
   "deviations": [
