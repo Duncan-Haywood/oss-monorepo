@@ -299,6 +299,13 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   `on`: an unattended send is the owner's call. 9 tests (`worker/digest-clock.test.mjs`), bundled by
   `wrangler deploy --dry-run` (three bindings listed).
 
+- Leitweg-ID form warning (2026-11-28, leitweg-id-pruefen): `XR-012`, a warning when the buyer
+  reference is a valid Leitweg-ID once a "Leitweg-ID:" label is dropped or its spaces, dots or slashes
+  are made hyphens, or a run of digits that passes MOD 97-10; explained from templates in EN/DE/FR/NL
+  (`leitweg-form.test.mjs`). Measured on the free tool (`ventures/einvoice-preflight/leitweg-id-bench.mjs`):
+  the official EN 16931 and KoSIT rules flag 1 of 11 buyer-reference mistakes (the missing one,
+  BR-DE-15). Front door: the German page `leitweg-id-pruefen.html` with an in-browser check-digit field.
+
 ## Next (by what stands between the bet and a paying accountant)
 
 1. Hosting, part 3 (part 2 done 2026-11-26: the Worker + D1 build, and the manual deploy workflow

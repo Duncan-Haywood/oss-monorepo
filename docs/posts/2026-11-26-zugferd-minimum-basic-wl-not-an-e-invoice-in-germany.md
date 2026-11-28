@@ -2,7 +2,7 @@
 title: "ZUGFeRD MINIMUM and BASIC WL are not e-invoices in Germany, and our checker now says so"
 seo_title: "Is ZUGFeRD MINIMUM an e-invoice in Germany? No: BASIC WL neither"
 date: 2026-11-26
-tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
+tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, leitweg-id, germany, france, accountants]
 description: "The BMF counts XRechnung and ZUGFeRD from 2.0.1 as e-invoices except MINIMUM and BASIC WL. How to spot the profile, and what our checker reports."
 ---
 
@@ -131,6 +131,35 @@ explanation, is
 [XRechnung oder ZUGFeRD?](https://marisstella.app/einvoice-preflight/xrechnung-oder-zugferd.html).
 `xrechnung-zugferd-bench.mjs` in the tool's source reproduces the table, and
 the page's test fails if the creator or the checker changes a result.
+
+**Update, 2026-11-28: the Leitweg-ID, which the official rules never read.**
+An XRechnung to a German public body carries the body's Leitweg-ID as the
+buyer reference (BT-10). We took the same example XRechnung (UBL) and put one
+common mistake at a time into that field: two digits swapped, one digit
+wrong, the hyphen moved, the check digits left off, the hyphens left out,
+spaces instead of hyphens, a "Leitweg-ID:" label in front, the order number
+instead, nothing at all, and another body's valid id. The official EN 16931
+and KoSIT XRechnung rules flagged exactly one of the eleven files: the one
+with no buyer reference (BR-DE-15). Every other file passed, because the
+rules only ask that BT-10 holds some text.
+
+The id's two check digits are ISO/IEC 7064 MOD 97-10, the IBAN scheme
+([KoSIT, Leitweg-ID format specification 2.0.2](https://xeinkauf.de/app/uploads/2022/11/Leitweg-ID-Formatspezifikation-v2-0-2-1.pdf),
+read 2026-11-28). Counted on our example id, all 135 single-digit
+substitutions and all 9 swaps of neighbouring digits fail them, so our
+checker's rule `XR-002` catches every typo of that kind. A moved hyphen does
+not: hyphens are not part of the sum, which the specification itself warns
+about. For the form slips we added a warning, `XR-012`: a label in front,
+spaces or dots where the hyphens go, or a run of digits that passes the check
+(which a non-Leitweg number does by chance about 1 time in 97; 104 times in
+the 10,000 numbers from 100000 to 109999). The paid workspace explains it in
+German, French, Dutch and English. Nothing can tell a valid id that belongs
+to someone else; only the public body's order can.
+
+The German page has a check-digit field that runs in the browser:
+[Leitweg-ID prüfen](https://marisstella.app/einvoice-preflight/leitweg-id-pruefen.html).
+`leitweg-id-bench.mjs` reproduces the table, and the page's test fails if a
+result changes.
 
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.
