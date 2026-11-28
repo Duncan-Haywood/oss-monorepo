@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peppol-factuur controleren: gratis en zonder upload</title>
+<meta name="description" content="Belgische Peppol-factuur controleren voor verzending: ondernemingsnummer (0208), btw-nummer, IBAN, totalen en de Peppol-regels. Gratis, zonder account.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/peppol-factuur-controleren.html">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/peppol-factuur-controleren.html">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/belgium-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Peppol-factuur controleren: gratis en zonder upload">
+<meta property="og:description" content="Belgische Peppol-factuur controleren voor verzending: ondernemingsnummer (0208), btw-nummer, IBAN, totalen en de Peppol-regels. Gratis, zonder account.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/peppol-factuur-controleren.html">
+<meta property="og:locale" content="nl_BE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Hoe controleer ik gratis een Peppol-factuur?", "acceptedAnswer": {"@type": "Answer", "text": "Open de controle via de knop „Peppol-factuur controleren” op deze pagina: de Peppol BIS-regels en het officiële EN 16931-Schematron staan dan al aan. Sleep het UBL-bestand in het vak en klik op „Check invoices”. Elke afwijking verschijnt met de regel-ID en een voorstel om ze te verbeteren. Het bestand blijft op uw computer."}}, {"@type": "Question", "name": "Hoe schrijf ik mijn ondernemingsnummer in een Peppol-adres?", "acceptedAnswer": {"@type": "Answer", "text": "Met schema 0208 is het elektronisch adres het ondernemingsnummer van tien cijfers, met de voorloopnul, zonder BE ervoor en zonder punten of spaties: 0123456749, niet BE0123456749 of 0123.456.749. De laatste twee cijfers zijn een controlegetal (97 min de eerste acht cijfers modulo 97). Elke andere schrijfwijze weigert de officiële Peppol-regel PEPPOL-COMMON-R043 als fatale fout."}}, {"@type": "Question", "name": "Ziet de controle of mijn klant op Peppol bereikbaar is?", "acceptedAnswer": {"@type": "Answer", "text": "Nee. De controle ziet of een ondernemingsnummer goed geschreven is en een geldig controlegetal heeft, niet of er een Peppol-toegangspunt voor geregistreerd is en niet of het nummer bij de juiste onderneming hoort. Een ander, geldig ondernemingsnummer als afzender gaf in onze meting geen enkele melding. Kijk het adres van uw klant na in de Peppol Directory of bij uw toegangspunt."}}, {"@type": "Question", "name": "Is een pdf per e-mail in België nog een geldige factuur?", "acceptedAnswer": {"@type": "Answer", "text": "Niet tussen Belgische btw-plichtige ondernemingen. Sinds 1 januari 2026 moeten die facturen gestructureerde e-facturen zijn, via Peppol in het formaat Peppol BIS. Alleen als de ontvanger technisch geen e-factuur kan ontvangen, mag de leverancier uitzonderlijk een factuur op papier of als pdf uitreiken. Bekijk uw eigen geval met uw boekhouder."}}, {"@type": "Question", "name": "Vervangt deze controle mijn toegangspunt?", "acceptedAnswer": {"@type": "Answer", "text": "Nee. De controle verstuurt niets en is geen Peppol-toegangspunt. Ze voert in uw browser dezelfde gepubliceerde regels uit die een toegangspunt toepast (EN 16931 en Peppol BIS 3.0.22, op verzoek ook 3.1.0), zodat u een fout ziet voordat uw toegangspunt of uw klant het bestand weigert. Ze geeft geen certificaat en zegt niet dat een factuur juridisch geldig is."}}, {"@type": "Question", "name": "Waarom is de controlepagina in het Engels?", "acceptedAnswer": {"@type": "Answer", "text": "De controle zelf bestaat voorlopig alleen in het Engels. Voor 35 veelvoorkomende regels uit EN 16931 en Peppol BIS is er een Nederlandse uitleg met oorzaken, oplossing en XML-voorbeeld."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}td code{font-size:.85rem}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="belgium-e-invoice-mandate.html" hreflang="en" lang="en">English</a></p>
+<header>
+<h1>Peppol-factuur controleren voor ze vertrekt</h1>
+<p class="lede">Facturen tussen Belgische btw-plichtige ondernemingen moeten gestructureerde e-facturen zijn, via Peppol in het formaat Peppol BIS (tenzij beide partijen iets anders afspreken en EN 16931 wordt nageleefd). Een pdf per e-mail of via een portaal volstaat niet meer. Controleer uw Peppol BIS-bestand hier voordat een toegangspunt of een klant het weigert: gratis, zonder account, en het bestand verlaat uw computer niet.</p>
+<p><a class="cta" href="./?profil=peppol#drop">Peppol-factuur controleren</a> <a class="cta alt" href="./?profil=en16931#drop">Alleen EN 16931 controleren</a></p>
+<p class="fine">Beide knoppen openen de controle met de juiste regels al aangevinkt. De controle zelf is voorlopig Engelstalig; veelvoorkomende foutmeldingen zijn <a href="rules/nl/index.html">in het Nederlands uitgelegd</a>.</p>
+</header>
+<section>
+<h2>Wat wordt gecontroleerd</h2>
+<ul>
+<li><strong>Elektronische adressen:</strong> een ondernemingsnummer als Peppol-adres (schema 0208) moet tien cijfers zijn met een geldig controlegetal (mod 97), net zoals de fatale Peppol-regel PEPPOL-COMMON-R043 het controleert; ook GLN, e-mailadressen en de adressen van andere landen.</li>
+<li><strong>Nummers:</strong> btw-nummer (vorm en controlegetal), IBAN-controlegetal, BIC.</li>
+<li><strong>Rekenwerk:</strong> regelbedragen, kortingen en toeslagen, btw-uitsplitsing per tarief, totaal en te betalen bedrag.</li>
+<li><strong>Officiële regels, in de browser:</strong> het EN 16931-Schematron en Peppol BIS Billing 3.0.22, uit de gepubliceerde regelbestanden die met deze pagina worden meegeleverd; op verzoek ook Peppol BIS 3.1.0, dat toegangspunten vanaf 24 februari 2027 toepassen.</li>
+</ul>
+<p>Ingelezen worden UBL- en CII-bestanden, Factur-X/ZUGFeRD-pdf's (de ingebedde XML) en JSON. Elke afwijking komt met de regel-ID en een voorstel om ze te verbeteren.</p>
+<p class="fine">Niet gecontroleerd: of een ondernemingsnummer op Peppol geregistreerd is of bij de juiste onderneming hoort, welke btw-behandeling op uw verkoop van toepassing is, en of uw klant of zijn toegangspunt het bestand aanvaardt. Het resultaat is een voorafgaande controle, geen certificaat en geen verklaring dat een factuur geldig is.</p>
+</section>
+<section>
+<h2>Gemeten: welke fouten de controle ziet</h2>
+<p>We lieten de gratis <a href="create.html" hreflang="en">e-factuurmaker</a> één factuur tussen twee Belgische ondernemingen schrijven als Peppol BIS 3.0 (UBL), met het ondernemingsnummer als Peppol-adres (0208), en maakten er telkens één veelgemaakte fout in. Elk bestand ging door de eigen regels van de controle en door de officiële Peppol-regels. „Blokkeert” betekent een fatale fout die een toegangspunt doet weigeren; een waarschuwing laat het bestand door.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Fout in de factuur</th><th scope="col">Eigen regels</th><th scope="col">Peppol BIS 3.0.22</th><th scope="col">Peppol BIS 3.1.0</th></tr></thead>
+<tbody>
+<tr><td>geen fout</td><td>geen melding</td><td>geen melding</td><td>geen melding</td></tr>
+<tr><td>adres van de klant met BE ervoor (<code>BE0765432146</code>)</td><td>INV-041, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td></tr>
+<tr><td>adres met puntjes (<code>0765.432.146</code>)</td><td>INV-041, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td></tr>
+<tr><td>adres zonder voorloopnul (<code>765432146</code>)</td><td>INV-041, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td></tr>
+<tr><td>tikfout in het adres (<code>0765432164</code>, twee cijfers omgewisseld)</td><td>INV-041, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td><td>PEPPOL-COMMON-R043, blokkeert</td></tr>
+<tr><td>btw-nummer van de klant met dezelfde tikfout (<code>BE0765432164</code>)</td><td>INV-023, blokkeert</td><td>geen melding</td><td>PEPPOL-COMMON-R062, waarschuwing</td></tr>
+<tr><td>geen referentie van de klant en geen bestelnummer</td><td>PP-005, blokkeert</td><td>PEPPOL-EN16931-R003, blokkeert</td><td>PEPPOL-EN16931-R003, blokkeert</td></tr>
+<tr><td>IBAN met een tikfout</td><td>INV-025, blokkeert</td><td>geen melding</td><td>geen melding</td></tr>
+<tr><td>een ander, geldig ondernemingsnummer als adres van de afzender (<code>0456789034</code>)</td><td>geen melding</td><td>geen melding</td><td>geen melding</td></tr>
+</tbody>
+</table>
+</div>
+<p>Wat dit zegt: elke schrijfwijze van het ondernemingsnummer behalve tien cijfers met de voorloopnul weigert Peppol als fatale fout, ook de schrijfwijzen met BE ervoor of met puntjes die op briefpapier gewoon zijn. Een tikfout in het btw-nummer of de IBAN laten de officiële Peppol 3.0.22-regels door; Peppol 3.1.0 geeft voor het btw-nummer alleen een waarschuwing. En geen enkele regel ziet dat een geldig nummer het verkeerde is: dat kan alleen de Peppol Directory of uw toegangspunt.</p>
+<p class="fine">Meting van 28 november 2026 met <code>belgium-peppol-bench.mjs</code> (in de broncode van deze pagina; <code>node belgium-peppol-bench.mjs</code> drukt de tabel af). De ondernemingsnummers zijn verzonnen voorbeelden met een geldig controlegetal. Een waarneming over gegenereerde bestanden, geen uitspraak over de geldigheid van een factuur.</p>
+</section>
+<section>
+<h2>Wat geldt in België</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Datum</th><th scope="col">Wat geldt</th></tr></thead>
+<tbody>
+<tr><td>1 maart 2024</td><td>Facturen aan overheden (B2G): een gestructureerde e-factuur via Peppol in het formaat Peppol BIS voor opdrachten die na 1 maart 2024 zijn bekendgemaakt, in de regel vanaf 3.000 euro exclusief btw (federale aanbestedende overheden ook daaronder).</td></tr>
+<tr><td>1 januari 2026</td><td>Elke btw-plichtige onderneming die in België gevestigd is, moet gestructureerde e-facturen kunnen ontvangen, ook als ze alleen aan particulieren verkoopt of de vrijstellingsregeling voor kleine ondernemingen (jaaromzet tot 25.000 euro) toepast.</td></tr>
+<tr><td>1 januari 2026</td><td>Facturen tussen Belgische btw-plichtige ondernemingen moeten gestructureerde e-facturen zijn, via Peppol in het formaat Peppol BIS (tenzij beide partijen iets anders afspreken en EN 16931 wordt nageleefd). Een pdf per e-mail of via een portaal volstaat niet meer.</td></tr>
+<tr><td>31 maart 2026</td><td>Einde van de algemene tolerantie: in de eerste drie maanden van 2026 legde de FOD Financiën geen sancties op voor inbreuken op de nieuwe verplichting als de onderneming tijdig en redelijk de nodige stappen had gezet. Volgens het bericht van 7 april 2026 is die tolerantie afgelopen.</td></tr>
+<tr><td>30 juni 2026</td><td>Laatste dag van de tolerantie voor self-billing (zelffacturering): als de software van de onderneming self-billing via Peppol nog niet aankon, werd tot en met deze dag geen boete opgelegd.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Terugvalregel: als de ontvanger technisch geen e-factuur kan ontvangen, mag de leverancier de factuur op papier of in een andere elektronische vorm (bijvoorbeeld als pdf) uitreiken. De ontvanger moet zich wel onverwijld in staat stellen om te ontvangen.</p>
+<p>Niet gevat: btw-plichtigen zonder zetel en zonder vaste inrichting in België, ook als ze er een btw-nummer hebben, en ondernemingen die uitsluitend handelingen verrichten die vrijgesteld zijn op grond van artikel 44 van het Btw-wetboek.</p>
+<p class="fine">Bronnen (FOD BOSA / FOD Financiën, efacture.belgium.be): <a href="https://efacture.belgium.be/fr/article/pour-qui-la-facturation-electronique-deviendra-t-elle-obligatoire" rel="noopener">voor wie de e-facturatie verplicht wordt</a>; <a href="https://efacture.belgium.be/fr/news/periode-de-tolerance-pendant-les-trois-premiers-mois-de-2026" rel="noopener">tolerantie in de eerste drie maanden van 2026</a>; <a href="https://efacture.belgium.be/fr/news/fin-de-la-periode-de-tolerance-pour-le-facturation" rel="noopener">einde van de tolerantie</a>; <a href="https://efacture.belgium.be/fr/news/e-facturation-mesures-en-matiere-de-tva-partir-du-1er-janvier-2026" rel="noopener">btw-maatregelen vanaf 1 januari 2026</a>. Op 27 november 2026 met die teksten vergeleken. Dit is een samenvatting, geen fiscaal advies.</p>
+</section>
+<section>
+<h2>Veelvoorkomende foutmeldingen, uitgelegd</h2>
+<p>Heeft uw toegangspunt of uw klant een factuur geweigerd met een code? Elk van deze pagina's zegt wat de regel vraagt, waarom ze meestal geschonden wordt en hoe de verbeterde XML eruitziet.</p>
+<ul>
+<li><a href="rules/nl/peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a>: er is geen kopersreferentie en geen ordernummer opgegeven</li>
+<li><a href="rules/nl/peppol-en16931-r010.html"><strong>PEPPOL-EN16931-R010</strong></a>: elektronisch adres van de koper ontbreekt</li>
+<li><a href="rules/nl/peppol-en16931-r020.html"><strong>PEPPOL-EN16931-R020</strong></a>: elektronisch adres van de verkoper ontbreekt</li>
+<li><a href="rules/nl/peppol-en16931-r001.html"><strong>PEPPOL-EN16931-R001</strong></a>: bedrijfsproces (profiel-ID) ontbreekt</li>
+<li><a href="rules/nl/br-co-10.html"><strong>BR-CO-10</strong></a>: som van de nettoregelbedragen klopt niet met de factuurregels</li>
+<li><a href="rules/nl/br-co-15.html"><strong>BR-CO-15</strong></a>: totaal met btw is niet totaal zonder btw plus btw</li>
+<li><a href="rules/nl/br-s-08.html"><strong>BR-S-08</strong></a>: belastbaar bedrag bij normaal tarief klopt niet met de regels</li>
+<li><a href="rules/nl/br-ae-10.html"><strong>BR-AE-10</strong></a>: btw-uitsplitsing met verlegging heeft geen vrijstellingsreden</li>
+<li><a href="rules/nl/br-cl-23.html"><strong>BR-CL-23</strong></a>: eenheid is geen code uit UN/ECE-aanbeveling 20/21</li>
+</ul>
+<p><a href="rules/nl/index.html">Alle uitgelegde regels</a> (35 uit EN 16931 en Peppol BIS).</p>
+</section>
+<section>
+<h2>Nog geen e-factuur?</h2>
+<p>De gratis <a href="create.html" hreflang="en">e-factuurmaker</a> (Engelstalig) maakt van een formulier een Peppol BIS-, UBL- of CII-bestand of een Factur-X-pdf en controleert het voor de download. Versturen over Peppol doet u daarna via uw toegangspunt.</p>
+</section>
+<section>
+<h2>Voor boekhouders en facturatieteams</h2>
+<p>Een betalende dienst die elke geschonden regel in begrijpelijk Nederlands, Frans of Duits uitlegt, een verbeterd bestand voorstelt en de facturen van veel klanten tegelijk controleert, is in ontwikkeling. Er is nog niets te koop: <a href="https://marisstella.app/industries/eu-e-invoicing/">vroege toegang en termijnen</a>.</p>
+</section>
+<section id="faq">
+<h2>Veelgestelde vragen</h2>
+<h3>Hoe controleer ik gratis een Peppol-factuur?</h3>
+<p>Open de controle via de knop „Peppol-factuur controleren” op deze pagina: de Peppol BIS-regels en het officiële EN 16931-Schematron staan dan al aan. Sleep het UBL-bestand in het vak en klik op „Check invoices”. Elke afwijking verschijnt met de regel-ID en een voorstel om ze te verbeteren. Het bestand blijft op uw computer.</p>
+<h3>Hoe schrijf ik mijn ondernemingsnummer in een Peppol-adres?</h3>
+<p>Met schema 0208 is het elektronisch adres het ondernemingsnummer van tien cijfers, met de voorloopnul, zonder BE ervoor en zonder punten of spaties: 0123456749, niet BE0123456749 of 0123.456.749. De laatste twee cijfers zijn een controlegetal (97 min de eerste acht cijfers modulo 97). Elke andere schrijfwijze weigert de officiële Peppol-regel PEPPOL-COMMON-R043 als fatale fout.</p>
+<h3>Ziet de controle of mijn klant op Peppol bereikbaar is?</h3>
+<p>Nee. De controle ziet of een ondernemingsnummer goed geschreven is en een geldig controlegetal heeft, niet of er een Peppol-toegangspunt voor geregistreerd is en niet of het nummer bij de juiste onderneming hoort. Een ander, geldig ondernemingsnummer als afzender gaf in onze meting geen enkele melding. Kijk het adres van uw klant na in de Peppol Directory of bij uw toegangspunt.</p>
+<h3>Is een pdf per e-mail in België nog een geldige factuur?</h3>
+<p>Niet tussen Belgische btw-plichtige ondernemingen. Sinds 1 januari 2026 moeten die facturen gestructureerde e-facturen zijn, via Peppol in het formaat Peppol BIS. Alleen als de ontvanger technisch geen e-factuur kan ontvangen, mag de leverancier uitzonderlijk een factuur op papier of als pdf uitreiken. Bekijk uw eigen geval met uw boekhouder.</p>
+<h3>Vervangt deze controle mijn toegangspunt?</h3>
+<p>Nee. De controle verstuurt niets en is geen Peppol-toegangspunt. Ze voert in uw browser dezelfde gepubliceerde regels uit die een toegangspunt toepast (EN 16931 en Peppol BIS 3.0.22, op verzoek ook 3.1.0), zodat u een fout ziet voordat uw toegangspunt of uw klant het bestand weigert. Ze geeft geen certificaat en zegt niet dat een factuur juridisch geldig is.</p>
+<h3>Waarom is de controlepagina in het Engels?</h3>
+<p>De controle zelf bestaat voorlopig alleen in het Engels. Voor 35 veelvoorkomende regels uit EN 16931 en Peppol BIS is er een Nederlandse uitleg met oorzaken, oplossing en XML-voorbeeld.</p>
+</section>
+<footer>
+<p><strong>Zonder garantie (no warranty).</strong> Deze tool is gratis en wordt geleverd zoals hij is, zonder enige uitdrukkelijke of stilzwijgende garantie. Dit is geen juridisch, fiscaal, financieel of boekhoudkundig advies en vervangt geen deskundige (not legal, tax, financial, or accounting advice). <strong>Controleer het resultaat zelf voordat u erop vertrouwt.</strong> Voor zover de wet het toelaat, zijn de auteurs niet aansprakelijk voor schade door het gebruik.</p>
+<p><strong>Niets verlaat uw browser.</strong> Alle controles lopen lokaal. Data en regels kunnen veranderen; bepalend zijn de actuele teksten van de FOD Financiën. Deze Nederlandse tekst is geschreven zonder nalezing door een moedertaalspreker.</p>
+<p class="support">Free to use and source available. Gratis en met open broncode: de <a href="LICENSE" rel="noopener">code valt onder de licentie FSL-1.1-MIT</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is vrijwillig en verandert niets aan wat de tool doet.</p>
+</footer>
+</main>
+</body></html>
