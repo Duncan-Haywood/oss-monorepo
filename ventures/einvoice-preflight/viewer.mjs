@@ -28,8 +28,9 @@ export const DOCUMENT_TYPES = {
   "386": "Vorauszahlungsrechnung",
   "389": "Selbst ausgestellte Rechnung (Gutschriftsverfahren)",
   "326": "Teilrechnung",
-  "875": "Teilschlussrechnung (Bau)",
-  "876": "Teilrechnung (Bau)",
+  // KoSIT BR-DE-17: 875 Partial construction invoice, 876 Partial final construction invoice.
+  "875": "Abschlagsrechnung (Bau)",
+  "876": "Teilschlussrechnung (Bau)",
   "877": "Schlussrechnung (Bau)",
 };
 
@@ -104,16 +105,24 @@ export function formatIban(value) {
   return esc(compact.replace(/(.{4})(?=.)/g, "$1 "));
 }
 
+// Own entries only: a file's code "constructor" or "toString" must not reach Object.prototype.
+function ownLabel(table, key) {
+  if (Object.hasOwn(table, key.toUpperCase())) return table[key.toUpperCase()];
+  if (Object.hasOwn(table, key)) return table[key];
+  return "";
+}
+
 function codeLabel(table, code) {
   const key = String(code ?? "").trim();
   if (!key) return "";
-  const label = table[key.toUpperCase()] ?? table[key];
+  const label = ownLabel(table, key);
   return label ? `${esc(label)} <span class="code">(${esc(key)})</span>` : `<span class="code">Code ${esc(key)}</span>`;
 }
 
 export function documentTitle(invoice) {
   const code = String(invoice.document_code ?? "").trim();
-  if (DOCUMENT_TYPES[code]) return DOCUMENT_TYPES[code].replace(/ \(.*\)$/, "");
+  const label = code ? ownLabel(DOCUMENT_TYPES, code) : "";
+  if (label) return label.replace(/ \(.*\)$/, "");
   if (invoice.document_type === "credit_note") return "Gutschrift";
   return "Rechnung";
 }
