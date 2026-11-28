@@ -336,8 +336,12 @@ function ControlDetail({
                 aria-label={`Result for ${o.id}`}
                 value={results[o.id] ?? ""}
                 onChange={(e) =>
-                  e.target.value &&
-                  save.mutate({ objectiveResults: { [o.id]: e.target.value as ObjectiveResult } })
+                  save.mutate({
+                    // "—" clears the result back to unanswered.
+                    objectiveResults: {
+                      [o.id]: (e.target.value || null) as ObjectiveResult | null,
+                    },
+                  })
                 }
               >
                 <option value="">—</option>

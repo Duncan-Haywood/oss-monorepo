@@ -74,6 +74,55 @@ model either yet. A requirement under one of them has to be recorded as
 implemented, with the reason in its notes. A later audit will re-check all
 of this.
 
+## The re-check, 2026-11-28
+
+A re-audit the next day
+([audit file](../../portfolio/quality/audits/2026-11-28-cmmc-reaudit.json))
+checked every defect from the first audit against the code as it now is.
+The four this fix marked are closed. The case above scores 105, lists the
+conflict, and blocks Conditional status, because 3.1.1 is worth 5 points
+and only 1-point requirements may be on the POA&M. All three mutants that
+used to survive now fail a test.
+
+We redid the arithmetic by hand from the DoD Assessment Methodology and
+32 CFR 170.21. Seven cases match:
+
+| case | by hand | app |
+|---|---|---|
+| 3.1.1 not met, 3.1.3 partial, 3.5.3 MFA for remote and privileged users only | 110 − 5 − 1 − 3 = 101 | 101 |
+| 3.13.11 encrypted, not FIPS-validated | 107, may be on the POA&M | 107, eligible |
+| 3.1.1 implemented, objective [a] not met | 105 | 105, flagged |
+| nothing implemented but the SSP | −203 | −203 |
+| 22 one-point items open, then 23 | 88 passes, 87 does not | same |
+| POA&M closeout from 2026-01-15 and from 2028-01-15 | 2026-07-14, 2028-07-13 (leap year) | same |
+
+We also scored 2,000 random assessments with the app and with the free
+SPRS calculator. The two engines were written separately, and they gave
+the same score every time.
+
+The re-audit found three small defects the fix had not touched, plus one
+new one. All four are fixed in the same pull request:
+
+- **A result can now be cleared.** Once an objective was marked met, not
+  met or N/A, there was no way to set it back to unanswered. Choosing "—"
+  now clears it.
+- **The two Level 1 lists are now checked against each other.** The app's
+  list of the 15 Level 1 requirements was typed out a second time, apart from
+  the list behind the free
+  [Level 1 checklist](2026-11-25-cmmc-level-1-self-assessment-checklist.md),
+  and nothing kept the two the same. A new test checks every requirement and
+  all 59 objectives. The wording matches word for word, but the test found
+  one difference. Where NIST gives a requirement only one objective (3.10.4
+  and 3.14.4), the free page calls it "3.10.4" and the app calls it
+  "3.10.4[a]". The test now pins that this is the only difference.
+- **A new test for the conflict list.** A requirement you already marked not
+  implemented, with an objective not met, is consistent, and it should not
+  appear in the conflict warning. Nothing tested that until now.
+
+Re-audit result: the app now **meets the bar** on correctness, claims and
+tests. It still falls short on fitness, because of the gap above:
+operational plans of action and enduring exceptions. That is the next fix.
+
 This is a planning aid, not a determination. Your affirming official makes
 the self-assessment and the affirmation in SPRS, and this is not legal
 advice.

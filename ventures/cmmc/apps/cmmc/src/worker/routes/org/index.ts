@@ -394,7 +394,8 @@ routes.patch(
         notes: text(8000),
         statement: text(8000),
         draftStatement: text(8000).nullable(),
-        objectiveResults: z.record(z.string().max(32), z.enum(OBJECTIVE_RESULTS)),
+        // null clears a result back to unanswered.
+        objectiveResults: z.record(z.string().max(32), z.enum(OBJECTIVE_RESULTS).nullable()),
       })
       .partial(),
   ),
