@@ -30,6 +30,9 @@
   `/poam/import`, `/suppliers/import` and the like): the browser sends one sheet as CSV text, the caps
   above apply, and only the parsed fields are written. The supplier import writes no field the form
   cannot, through the form's own validation and plan gate.
+- The gauge list import (`POST /gauges/import`) follows the same caps and writes only new gauges and
+  their last calibration, each through the form's `validateGauge` and `validateCalibration` and the
+  quality-plan gate; ids already listed are never changed.
 - The reader is bounded: rows past 100,000 and columns past 200 are ignored, ZIP64, encrypted and old
   OLE .xls files are refused with a message, and entries are inflated only on demand.
 

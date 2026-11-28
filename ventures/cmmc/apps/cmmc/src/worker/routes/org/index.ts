@@ -172,6 +172,7 @@ import {
   recordImpact,
   updateGauge,
 } from "../../services/calibration";
+import { applyGaugeImport, previewGaugeImport } from "../../services/calibration/import";
 import {
   acceptDraft,
   getRecord,
@@ -1832,6 +1833,31 @@ routes.get("/gauges/export.csv", async (c) => {
     },
   });
 });
+// Import an existing gauge list (CSV, or an .xlsx sheet sent as CSV by the browser): `apply: false`
+// previews (any editor, any plan), `apply: true` adds the gauges not yet listed under the quality plan.
+// `lastCalPassed` is the person's statement that the last calibrations with no result cell were found
+// in tolerance; `performerDefault` is who calibrated rows with no "calibrated by" cell (null leaves
+// those calibration records out); `dateOrder` reads numeric dates like 03/04/2026.
+routes.post(
+  "/gauges/import",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      csv: z.string().min(1).max(IMPORT_MAX_BYTES),
+      apply: z.boolean().default(false),
+      lastCalPassed: z.boolean().default(false),
+      performerDefault: z.enum(CAL_PERFORMERS).nullable().default(null),
+      dateOrder: z.enum(["mdy", "dmy"]).optional(),
+    }),
+  ),
+  async (c) => {
+    const t = c.var.tenant;
+    const { csv, apply, ...opts } = c.req.valid("json");
+    if (!apply) return c.json(await previewGaugeImport(c.var.ctx, t.orgId, csv, opts));
+    return c.json(await applyGaugeImport(c.var.ctx, t.orgId, t.userId, csv, opts));
+  },
+);
 routes.get("/gauges/:id/calibrations", async (c) =>
   c.json({ items: await gaugeHistory(c.var.ctx, c.var.tenant.orgId, c.req.param("id")) }),
 );
