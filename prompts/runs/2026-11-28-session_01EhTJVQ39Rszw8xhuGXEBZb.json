@@ -31,7 +31,9 @@
   "outcome": "success",
   "errors": [
     "A screenshot path passed as an env var after `node -e` was read as undefined and wrote ./undefined/lw.png; deleted before committing.",
-    "run_venture_tests.py pay-app-guides failed once, then passed on rerun with and without the change (flaky)."
+    "run_venture_tests.py pay-app-guides failed once, then passed on rerun with and without the change (flaky).",
+    "CI payapps-site: modules.test.ts read ../pay-app-guides, absent in payapps-ci's sparse checkout; test now skips there.",
+    "CI Portfolio Pages: custom-domain.test.mjs found absolute marisstella.app guide links in a catalogue.test build; platform/pages/payapps-site.mjs rebase now rewrites the whole production origin, not only /payapps."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +44,10 @@
     {
       "file": "ventures/payapps/apps/payapps-site/README.md",
       "issue": "Bumping CONTENT_UPDATED also re-dates the feed's 'app open' entry, so it cannot be used as a 'page changed' date; I left it unchanged."
+    },
+    {
+      "file": "platform/pages/payapps-site.mjs",
+      "issue": "rebase() moved only /payapps links, so any link from the product site to another catalogue page broke custom-domain builds; only the full pages suite (5 min) catches it, and the module's own tests do not."
     }
   ],
   "deviations": [
