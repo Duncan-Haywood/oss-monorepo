@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKiZoK3gBmvTx43pnRq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T11:18:02Z",
+  "ended": "2026-11-28T11:27:10Z",
+  "wall_minutes": 9.32,
+  "tokens_in": 10859436,
+  "tokens_out": 32518,
+  "cost_usd": 4.0742,
+  "tool_calls": 87,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20097",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First venture-suite run failed 5 tests: page.test.mjs and more-tools.test.mjs read every .html in the app folder as a calculator page; fixed with a LEGAL_PAGES set."
+  ],
+  "integrity_issues": [
+    "The paid edition's footer at /residential-takeoff/ said 'no accounts, cookies, or analytics vendors' while the zone injects Cloudflare Web Analytics; corrected, and the guard now reads the page."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets 'Start here' pointed at cmmc launch items 3b/3c that had already merged (PR #20049, #20066): _SHIPPED skipped leads that contain a colon. I wrote the fix, then found PR #20080 open with the same fix, and dropped mine."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Stale: '#3 has none yet' (launch review merged in PR #19794) and row 6 'not served yet' (served dark since 2026-11-27). Both corrected here."
+    },
+    {
+      "file": "platform/pages/analytics-claims.test.mjs",
+      "issue": "SITE_SOURCES listed four bet sites but not bet #6's served page, so its false analytics denial survived PR #20029's sweep."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No blog post: the work is legal pages and a privacy correction. Posts are being consolidated and these pages are not post material.",
+      "did": "Recorded the outcome in the README, the ROADMAP and the PR instead",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/residential-takeoff/README.md, Status: 'Sale terms served'",
+    "ventures/residential-takeoff/apps/wall-framing-takeoff/ROADMAP.md milestone"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed. Ideas inbox empty. Routed to ventures. All bets' Next lists are gated on demand or owner steps. Bet #6 lacked the terms, refund and privacy pages Paddle's website review needs, so I built them. Verified: run_venture_tests residential-takeoff with 0 failed; platform/pages tests 12/12; Chromium at 390 px with no overflow and no errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e71911c-4110-526b-824e-75e44a1fdc68",
+    "transcripts": 1,
+    "first": "2026-11-28T11:18:02Z",
+    "last": "2026-11-28T11:27:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 160,
+        "output": 32518,
+        "thinking": 7349,
+        "cache_read": 10698846,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160430,
+        "api_equivalent_usd": 4.0742,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 160,
+      "output": 32518,
+      "thinking": 7349,
+      "cache_read": 10698846,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160430,
+      "api_equivalent_usd": 4.0742,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 84,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.32,
+      "active_minutes": 9.32,
+      "model_minutes": 6.81,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "drafting three legal pages against the billing code, wiring the build and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 73.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
