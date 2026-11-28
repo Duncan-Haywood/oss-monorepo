@@ -1,6 +1,6 @@
 ---
 title: "Re-audit: the XER checker now scores BEI against a real baseline, and its tests still miss three seeded bugs"
-seo_title: "DCMA BEI and missed tasks in a P6 schedule: why planned dates are not the baseline"
+seo_title: "DCMA BEI and missed tasks in P6: planned dates are not a baseline"
 date: 2026-11-28
 tags: [quality-audit, evaluation, construction, scheduling, xer-schedule-check]
 description: "A re-check of XER Schedule Check against its 2026-11-19 audit. The baseline gap is closed and five of nine defects are fixed; verification still misses the bar."
