@@ -58,7 +58,7 @@ export function barStock(input) {
   const errors = [];
   const notes = [];
   const shape = input.shape;
-  const spec = SHAPES[shape];
+  const spec = Object.hasOwn(SHAPES, shape) ? SHAPES[shape] : null;
   if (!spec) return { errors: ["Pick a shape."], notes };
   const unit = input.units === "mm" ? 1 : IN;
   const dims = {};
@@ -145,8 +145,8 @@ export function barStock(input) {
 }
 
 const cell = (v) => {
-  const s = String(v ?? "");
-  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? "'" + s : s;
+  let safe = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(safe) && !/^-?\d+(\.\d+)?$/.test(safe)) safe = "'" + safe;
   return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 
@@ -155,7 +155,7 @@ export function barCsv(r, label = "") {
   const f = (x, d) => (x === undefined || x === null ? "" : x.toFixed(d));
   const rows = [
     ["Item", "Value"],
-    ["Shape", label || SHAPES[r.shape]?.label || r.shape],
+    ["Shape", label || (Object.hasOwn(SHAPES, r.shape) ? SHAPES[r.shape].label : r.shape)],
     ["Area (in²)", f(r.areaIn2, 4)], ["Area (mm²)", f(r.areaMm2, 1)],
     ["Weight (lb/ft)", f(r.lbPerFt, 3)], ["Weight (kg/m)", f(r.kgPerM, 3)],
     ["Bar length (ft)", f(r.barFt, 3)], ["Bar weight (lb)", f(r.barLb, 3)], ["Bar weight (kg)", f(r.barKg, 3)],

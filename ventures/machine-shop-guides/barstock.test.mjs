@@ -89,4 +89,7 @@ test("CSV: header, formula text neutralised", () => {
   assert.match(csv, /^Item,Value\n/);
   assert.match(csv, /Shape,'=HYPERLINK\(1\)/);
   assert.match(csv, /Parts per bar,58/);
+  assert.match(barCsv(barStock(EXAMPLE), "-1+CMD|x"), /Shape,'-1\+CMD/);
+  assert.match(barCsv(barStock(EXAMPLE), "-12.50"), /Shape,-12\.50\n/);
+  assert.match(barStock({ shape: "constructor" }).errors.join(), /shape/);
 });
