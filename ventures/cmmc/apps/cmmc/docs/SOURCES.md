@@ -165,6 +165,21 @@ interval, and the page says intervals and tolerances are the shop's. A due date 
 calendar months from the calibration date (31 January plus one month is 28 February), and a gauge is
 overdue on its due date. AS9100D additions are not covered.
 
+## Management review (`src/shared/management-review.ts`)
+
+No source text is quoted. ISO 9001:2015 is copyrighted, so the module names clause 9.3 and its letters
+(9.3.2 a to f for the inputs, 9.3.3 a to c for the outputs; headings checked against the contents page
+above) as pointers, and the twelve input headings and three output headings are the app's own plain-language
+readings, with hints that are common machine-shop practice (on-time delivery, scrap, first article), not the
+standard's words. The figures beside each input are counts of records the workspace holds, and every line
+says what it counted ("logged as corrective actions", "CMMC flow-down register"), so a complaint nobody
+logged is never reported as no complaints. The finalise check (every input either has figures or a note,
+every output answered, every action with an owner and a due date, the meeting held and its attendees named)
+is the app's reading of what an auditor asks of the minutes, not a requirement the standard spells out in
+those terms. The twelve-month default interval and the 30-day "due soon" window are the app's choices; ISO
+9001 says only "planned intervals". AS9100D's additions to 9.3 (on-time delivery performance as an input, for
+one) are not covered separately; on-time delivery is suggested under process performance.
+
 ## Suppliers (`src/shared/suppliers.ts`)
 
 Read on 2026-11-26. ecfr.gov and acquisition.gov refused this environment that day, so the DFARS text came

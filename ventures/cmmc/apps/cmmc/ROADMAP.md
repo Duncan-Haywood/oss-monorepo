@@ -599,6 +599,22 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.3); docs/SOURCES.md,
   "Calibration".
 
+- Management review, part 1 (2026-11-28, management-review): the ISO 9001 9.3 record every certified shop
+  produces once a year, and the one the workspace's other quality records feed. A "Mgmt review" tab: start a
+  review on a meeting date (the period runs from the day after the last final review's period, else twelve
+  months back); each of the twelve inputs (9.3.2 a to f, our own wording, no ISO text) shows the figures the
+  workspace works out for the period: the last review's actions done, open and past due; complaints and
+  returns logged as corrective actions; corrective actions raised by source, closed, open, past due, found not
+  effective; internal audits done, findings by grade, planned audits missed; gauges in use, calibrations,
+  out-of-tolerance results without an impact record, gauges overdue; supplier problems and gaps on the CMMC
+  flow-down register; cyber incidents. Each line says it counts logged records only. A note per input, the
+  three outputs (9.3.3), actions with owner and due date. Finalising refuses minutes with an input neither
+  figured nor noted, an output left blank, an action without owner or date, a future meeting or no one named;
+  then the figures are kept as they stood and only an action's done date changes. Next due (twelve months or a
+  set date), open and overdue actions, minutes as Markdown. Migration 0022; `src/shared/management-review.ts`,
+  `services/management-review`, `/reviews` routes, `Reviews.tsx`; unit and worker tests. Privacy lists the
+  new fields (POLICY_VERSION 2026-11-28.5); docs/SOURCES.md, "Management review".
+
 - Gauges and calibration, part 2 (2026-11-28, gauges-and-calibration-part-2-part-1-the): calibration due
   dates in the calendar. The downloaded `.ics` and the subscribable link carry one event per date for gauges
   in use falling due ("Calibration due: 3 gauges", UID per org and date, the same 60- and 7-day alarms),
@@ -614,6 +630,10 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Next
 
+- Management review, part 2 (part 1 done 2026-11-28): the next review's due date and overdue review
+  actions in the calendar file, the subscribable link and a dashboard card; quality objectives kept as their
+  own records (target, measure, results by month) so input 9.3.2 c 2 fills itself; a "Raise a corrective
+  action" from a review action, if shops ask
 - Gauges and calibration, part 3 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
   2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28): an
   existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a corrective action" button
