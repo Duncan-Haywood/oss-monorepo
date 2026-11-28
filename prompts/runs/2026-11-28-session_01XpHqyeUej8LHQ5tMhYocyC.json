@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyeUej8LHQ5tMhYocyC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T04:38:18Z",
+  "ended": "2026-11-28T04:43:19Z",
+  "wall_minutes": 5.21,
+  "tokens_in": 3167493,
+  "tokens_out": 15804,
+  "cost_usd": 1.6594,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19993",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets front-door tally only matched titles saying 'front door', so bet #2's site/guide PRs (16) read as 1 and it named bet #2 the least-worked demand side; fixed in this PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git fetch --shallow-since=2026-11-21 origin main` left history starting 2026-11-27 (the repo merges ~200 commits/day), so the 7-day window the tool hints at was not reachable here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Picked a steering-tool fix over a product page: the miscount was sending every --bets run to an already crowded bet.",
+      "did": "Fixed the counter and added tests; no product page this run.",
+      "result": "Tally now #1 17, #2 16, #3 5, #4 9, #5 10, #6 2; points runs to bet #6."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: a fix to an internal tool has no reader outside the agents, and the docstring and PR record the why.",
+      "did": "Wrote the reasoning into is_front_door's docstring.",
+      "result": null
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Explore idea: correct the --bets front-door counter (roadmap_claim.py) that misrouted demand-side work. Verified with python3 -m unittest test_roadmap_claim (49 OK).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a2851099-07d7-5c41-8584-98a0de37021e",
+    "transcripts": 1,
+    "first": "2026-11-28T04:38:18Z",
+    "last": "2026-11-28T04:43:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 15804,
+        "thinking": 5229,
+        "cache_read": 3076455,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90969,
+        "api_equivalent_usd": 1.6594,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 15804,
+      "thinking": 5229,
+      "cache_read": 3076455,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90969,
+      "api_equivalent_usd": 1.6594,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 33,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.21,
+      "active_minutes": 5.21,
+      "model_minutes": 3.04,
+      "tool_minutes": 2.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read the counter, prototype a classifier on a week of titles, implement and test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 120.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
