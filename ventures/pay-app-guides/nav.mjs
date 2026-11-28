@@ -54,6 +54,7 @@ export const GROUPS = [
     ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
+    ["final-payment-affidavit.html", "Final payment affidavit (G706) exceptions"],
     ["paid-short.html", "Paid short? Reconcile the check"],
     ["joint-checks.html", "Joint check splitter and split letter"],
     ["miller-act-payment-bond-claims.html", "Miller Act bond claim deadlines (federal jobs)"],
