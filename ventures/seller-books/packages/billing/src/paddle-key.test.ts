@@ -50,6 +50,26 @@ describe("classifyPaddleKey", () => {
     assert.equal(s.whitespace, true);
     assert.equal(classifyPaddleKey(LIVE).whitespace, false);
   });
+
+  it("whitespace around even a one-character value is flagged; whitespace alone is just missing", () => {
+    assert.equal(classifyPaddleKey("x ").whitespace, true);
+    assert.equal(classifyPaddleKey("   ").kind, "missing");
+    assert.equal(classifyPaddleKey("   ").whitespace, false);
+  });
+
+  it("a client token needs ten characters after its prefix", () => {
+    assert.equal(classifyPaddleKey("live_0123456789").kind, "client-token");
+    assert.equal(classifyPaddleKey("live_012345678").kind, "unrecognised");
+  });
+
+  it("a truncated pdl_..._apikey_ paste is not called the right kind of key", () => {
+    for (const k of ["pdl_live_apikey_abc", "pdl_sdbx_apikey_01hzz"]) {
+      const s = classifyPaddleKey(k);
+      assert.equal(s.kind, "unrecognised", k);
+      assert.equal(s.usable, false, k);
+      assert.match(s.advice, /truncated/);
+    }
+  });
 });
 
 describe("probeVerdict", () => {
@@ -58,6 +78,8 @@ describe("probeVerdict", () => {
     assert.equal(probeVerdict("GET", 400), "error");
     assert.equal(probeVerdict("POST", 400), "allowed");
     assert.equal(probeVerdict("POST", 201), "allowed");
+    assert.equal(probeVerdict("GET", 299), "allowed");
+    assert.equal(probeVerdict("GET", 300), "error");
     assert.equal(probeVerdict("POST", 403), "forbidden");
     assert.equal(probeVerdict("GET", 401), "unauthenticated");
     assert.equal(probeVerdict("GET", 500), "error");

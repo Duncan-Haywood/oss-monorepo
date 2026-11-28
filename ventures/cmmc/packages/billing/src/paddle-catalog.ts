@@ -119,6 +119,24 @@ const tag = (v: Record<string, unknown> | null | undefined, k: string): string |
 
 const productTitle = (c: CatalogFile, p: CatalogPlan) => `${c.productName} ${p.name}`;
 
+/**
+ * Whether a price charges exactly what the catalog wants: amount, currency and a one-month or
+ * one-year cycle. planCatalogSync and priceIdsFromPaddle share it, so a price the sync would archive
+ * is never handed to checkout (red team 2026-11-28: the price-id map ignored currency and cycle).
+ */
+function chargesAsWanted(
+  pr: PaddlePrice,
+  catalog: CatalogFile,
+  want: { interval: BillingInterval; cents: number },
+): boolean {
+  return (
+    pr.unit_price.amount === String(want.cents) &&
+    pr.unit_price.currency_code === catalog.currency &&
+    pr.billing_cycle?.interval === want.interval &&
+    pr.billing_cycle?.frequency === 1
+  );
+}
+
 function wantedPrices(p: CatalogPlan) {
   const out: { interval: BillingInterval; cents: number }[] = [
     { interval: "month", cents: p.monthlyCents },
@@ -176,13 +194,7 @@ export function planCatalogSync(
           tag(pr.custom_data, "plan") === plan.key &&
           tag(pr.custom_data, "interval") === want.interval,
       );
-      const match = current.find(
-        (pr) =>
-          pr.unit_price.amount === String(want.cents) &&
-          pr.unit_price.currency_code === catalog.currency &&
-          pr.billing_cycle?.interval === want.interval &&
-          pr.billing_cycle?.frequency === 1,
-      );
+      const match = current.find((pr) => chargesAsWanted(pr, catalog, want));
       if (!match) {
         actions.push({
           kind: "create-price",
@@ -263,7 +275,7 @@ export function priceIdsFromPaddle(
           tag(x.custom_data, "app") === catalog.app &&
           tag(x.custom_data, "plan") === plan.key &&
           tag(x.custom_data, "interval") === want.interval &&
-          x.unit_price.amount === String(want.cents),
+          chargesAsWanted(x, catalog, want),
       );
       if (pr) out[checkoutPriceKey(plan.key, want.interval)] = pr.id;
     }

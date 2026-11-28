@@ -101,6 +101,21 @@ describe("validateCatalog", () => {
     assert.throws(bad({ app: "Grants App" }), /app id/);
   });
 
+  it("takes the smallest valid plan key and annual price, and rejects an empty key or zero annual", () => {
+    const bad = (patch: object) => () => validateCatalog({ ...CATALOG, ...patch });
+    assert.equal(
+      validateCatalog({ ...CATALOG, plans: [{ ...STARTER, key: "s" }] }).plans[0]?.key,
+      "s",
+    );
+    assert.throws(bad({ plans: [{ ...STARTER, key: "" }] }), /bad plan key/);
+    assert.equal(
+      validateCatalog({ ...CATALOG, plans: [{ ...STARTER, annualCents: 1 }] }).plans[0]
+        ?.annualCents,
+      1,
+    );
+    assert.throws(bad({ plans: [{ ...STARTER, annualCents: 0 }] }), /annualCents/);
+  });
+
   it("catalogFromPlans leaves out plans that are not for sale", () => {
     const c = catalogFromPlans(
       { app: "grants", productName: "Grant Autopilot", currency: "USD", taxCategory: "saas" },
@@ -302,5 +317,49 @@ describe("priceIdsFromPaddle", () => {
       pr("pri_pro", "pro", "month", "10000"),
     ]);
     assert.deepEqual(ids, { starter: "pri_new", pro: "pri_pro" });
+  });
+});
+
+describe("priceIdsFromPaddle only maps a price checkout would charge correctly", () => {
+  const pr = (patch: Partial<PaddlePrice>): PaddlePrice => ({
+    id: "pri_x",
+    product_id: "p",
+    status: "active",
+    description: "",
+    unit_price: { amount: "500", currency_code: "USD" },
+    billing_cycle: { interval: "month", frequency: 1 },
+    custom_data: { app: "grants", plan: "starter", interval: "month" },
+    ...patch,
+  });
+  it("skips a same-amount price in the wrong currency (catalog moved USD to EUR, plan-only run)", () => {
+    const eur = {
+      ...CATALOG,
+      currency: "EUR" as const,
+      plans: [{ ...STARTER, annualCents: null }],
+    };
+    assert.deepEqual(priceIdsFromPaddle(eur, [pr({ id: "pri_usd" })]), {});
+    assert.deepEqual(
+      priceIdsFromPaddle(eur, [
+        pr({ id: "pri_usd" }),
+        pr({ id: "pri_eur", unit_price: { amount: "500", currency_code: "EUR" } }),
+      ]),
+      { starter: "pri_eur" },
+    );
+  });
+  it("skips a price whose billing cycle is not one month or one year", () => {
+    const one = { ...CATALOG, plans: [{ ...STARTER, annualCents: null }] };
+    assert.deepEqual(
+      priceIdsFromPaddle(one, [
+        pr({ id: "pri_q", billing_cycle: { interval: "month", frequency: 3 } }),
+      ]),
+      {},
+    );
+    assert.deepEqual(priceIdsFromPaddle(one, [pr({ id: "pri_once", billing_cycle: null })]), {});
+    assert.deepEqual(
+      priceIdsFromPaddle(one, [
+        pr({ id: "pri_yr", billing_cycle: { interval: "year", frequency: 1 } }),
+      ]),
+      {},
+    );
   });
 });
