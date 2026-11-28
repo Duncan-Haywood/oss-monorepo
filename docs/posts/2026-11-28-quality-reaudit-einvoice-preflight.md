@@ -1,9 +1,9 @@
 ---
 title: "Re-audit: the e-invoice checker now agrees with CEN's own validator, and meets the bar"
-seo_title: "Does an e-invoice pre-check agree with the official EN 16931 Schematron? A re-audit"
+seo_title: "Does an e-invoice checker agree with the EN 16931 Schematron?"
 date: 2026-11-28
 tags: [quality-audit, evaluation, testing, einvoice-preflight]
-description: "Fifth audit of the e-invoice checker: 8 of 8 test invoices match CEN's EN 16931 Schematron, 5 of 5 seeded bugs are caught, and one repair bug at 10^13 is now fixed."
+description: "Fifth audit of the e-invoice checker: 8 of 8 test invoices match CEN's EN 16931 Schematron, 5 of 5 seeded bugs caught, a 10^13 repair bug fixed."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks UBL, CII and
