@@ -1,7 +1,8 @@
 // A sold item that came back on a refund goes back in stock as a copy dated the return, at its cost, and is
 // not a purchase: the year it sold keeps its line 41, the year it came back takes its cost out through line 41.
+import { inventoryItem, sale } from "@worker/db/schema";
 import { describe, expect, it } from "vitest";
-import { api, json, setupTenant } from "./helpers";
+import { api, json, setupTenant, testDb } from "./helpers";
 
 type Line = { line: string; amountCents: number | null; note?: string };
 type Ws = { partIII: Line[]; warnings: string[] };
@@ -204,5 +205,60 @@ describe("items that came back on a refund", () => {
       await api(p("/sales?unlinked=true"), { as: t.userId }),
     );
     expect(unlinked.items.map((s) => s.title)).toEqual(["Le Creuset pot again"]);
+  });
+});
+
+describe("a refund on an order with more lines than D1 binds in one statement", () => {
+  it("lists every item the order sold as a candidate (120 lines, past the 100-parameter limit)", async () => {
+    const t = await setupTenant();
+    const p = (s: string) => `/api/orgs/${t.orgId}${s}`;
+    const db = testDb();
+    const n = 120;
+    const items = Array.from({ length: n }, (_, i) => ({
+      id: `itm_bulk_${String(i).padStart(3, "0")}`,
+      orgId: t.orgId,
+      title: `Bulk item ${i}`,
+      acquiredDate: "2026-01-02",
+      costCents: 100,
+      status: "sold",
+      disposedDate: "2026-03-10",
+      // Half point at their sale the current way, half only through the sale's legacy inventoryItemId.
+      soldBySaleId: i % 2 === 0 ? `sal_bulk_${i}` : null,
+    }));
+    const sales = items.map((it, i) => ({
+      id: `sal_bulk_${i}`,
+      orgId: t.orgId,
+      platform: "shopify",
+      kind: "order",
+      externalId: `bulk-line-${i}`,
+      orderId: "BULK-1001",
+      date: "2026-03-10",
+      title: it.title,
+      itemCents: 500,
+      netCents: 500,
+      inventoryItemId: i % 2 === 0 ? null : it.id,
+    }));
+    for (let i = 0; i < n; i += 4) {
+      await db.insert(inventoryItem).values(items.slice(i, i + 4));
+      await db.insert(sale).values(sales.slice(i, i + 4));
+    }
+    await db.insert(sale).values({
+      id: "sal_bulk_refund",
+      orgId: t.orgId,
+      platform: "shopify",
+      kind: "refund",
+      externalId: "bulk-refund-1",
+      orderId: "BULK-1001",
+      date: "2026-04-01",
+      title: "Bulk order, part returned",
+      refundCents: 500,
+      netCents: -500,
+    });
+
+    const res = await api(p("/sales/sal_bulk_refund/returned-items"), { as: t.userId });
+    expect(res.status).toBe(200);
+    const list = await json<Returned>(res);
+    expect(list.fromOrder).toBe(true);
+    expect(list.candidates.map((i) => i.id).sort()).toEqual(items.map((i) => i.id).sort());
   });
 });
