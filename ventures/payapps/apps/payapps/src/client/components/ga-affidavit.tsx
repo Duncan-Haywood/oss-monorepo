@@ -75,6 +75,14 @@ export function GaAffidavitForm(props: { base: string; waiverId: string; enabled
                 ? ` (${o.clock.daysLeft} day${o.clock.daysLeft === 1 ? "" : "s"} left)`
                 : " (passed)"}
               ; {formatCents(o.clock.unpaidCents)} is not recorded as received.
+              {o.clock.lastDay && (
+                <>
+                  {" "}
+                  That day is {o.clock.lastDay.because}, so Miss. Code Ann. § 1-3-67 runs the period
+                  to the end of <strong>{o.clock.lastDay.on}</strong>; file before the 60th day if
+                  you can.
+                </>
+              )}
             </p>
           )}
           {o.form.notes.map((n) => (

@@ -2789,6 +2789,20 @@ nothing to copy. No customers yet. Paid plans are dark
   viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
   `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
 
+- Lien waivers: Mississippi part 3, the time computation (2026-11-28, ms-time-computation). § 85-7-425
+  counts time under the lien article by Miss. Code Ann. § 1-3-67, now read (FindLaw's copy; the official
+  LexisNexis Code still out of reach), with § 3-3-7(1)'s ten legal holidays (a Sunday holiday makes the
+  Monday one; Confederate Memorial Day included, the Friday after Thanksgiving not), in
+  `packages/lien-waivers/src/ms-dates.ts` (no imports, aliased `@lien-waivers/ms-dates` for the browser)
+  and `sources/ms-1-3-67-and-3-3-7.txt`. A waiver whose 60th day is a Saturday, Sunday or legal holiday
+  shows the day the period runs to (`lastDay` on the clock; the countdown still runs to the 60th day), on
+  the pay app, in the cash report and the weekly email; on the closed days in between it says the
+  period is still open rather than ended; an affidavit filed on the moved day is not late. The two days
+  to the owner's copy leave out the weekends and holidays in between (filed Friday, due Tuesday).
+  A county's own holiday and a clerk's office closed for other reasons are not known, and can only make
+  the true day later. Georgia (O.C.G.A. § 1-3-1 not read) still counts calendar days. Tests:
+  `test/ms-dates.test.ts` in the package, `src/shared/ms-waiver-clock.test.ts` here.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2865,9 +2879,8 @@ nothing to copy. No customers yet. Paid plans are dark
   cost type as bid are done, 2026-11-26): a sub quote on the estimate carried to the job as a
   subcontract commitment once the estimate keeps the sub's name, if people ask; "last emailed" on an
   estimate (as change orders keep it), if people ask
-- Lien waivers: Mississippi part 3, if asked: move the sixty days off a weekend or holiday once
-  Miss. Code Ann. § 1-3-67 (which § 85-7-425 sends the computation of time to) is read; PayApps counts
-  calendar days and says so. California
+- Lien waivers: Mississippi part 4, if asked: a county's own holiday (§ 3-3-7(2), Mardi Gras on the
+  coast) chosen per job, so the moved 60th day can count it (part 3, § 1-3-67, done 2026-11-28). California
   preliminary notice part 4: Code Civ. Proc. § 2015.5's perjury sentence on the § 8118 declaration
   once the official text is reachable; the attached receipts listed on the proof PDF (part 3, the
   job history and the receipts kept with each record, done 2026-11-26)
