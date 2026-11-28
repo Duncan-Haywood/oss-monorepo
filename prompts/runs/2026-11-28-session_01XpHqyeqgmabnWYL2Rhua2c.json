@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "First insert script asserted on a non-unique anchor (VA appears in both RETAINAGE_CAPS and STATE_BOND_RULES); fixed with a longer anchor.",
-    "Kansas excerpt grep returned nothing the first time; inserted by slicing the stripped text."
+    "Kansas excerpt grep returned nothing the first time; inserted by slicing the stripped text.",
+    "CI 'test' (priv-portfolio-pages) failed: llms-answers.txt hand-edited instead of regenerated, so it missed one FAQ sentence; fixed with node platform/pages/llms-answers.mjs ventures/pay-app-guides."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "ventures/payapps/apps/payapps/ROADMAP.md",
       "issue": "The Not-done list for state bond claims said Kansas's site refused on 2026-11-28; ksrevisor.gov answered later that day. Host status flips within hours, so 'refused' notes go stale fast."
+    },
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "The venture's own tests pass while llms-answers.txt is stale; the drift check lives only in platform/pages/llms-answers.test.mjs, so a FAQ edit should end with `node platform/pages/llms-answers.mjs ventures/pay-app-guides` (not hand edits)."
     }
   ],
   "deviations": [
@@ -57,7 +62,7 @@
     "ventures/payapps/apps/payapps/ROADMAP.md (done entry)"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable (exit 3). IDEAS empty. Route: ventures/1. Verification: tsc exit 0; payapps unit 164 files / 1585 passed / 4 skipped; worker lien-deadline.test.ts 5 passed; pay-app-guides page.test.mjs 36 pass 0 fail; biome clean. Live health endpoints for payapps, jobshop-quote, cmmc, seller-books all 200 on 2026-11-28.",
+  "notes": "Security queue: 0 workable (exit 3). IDEAS empty. Route: ventures/1. Verification: tsc exit 0; payapps unit 164 files / 1585 passed / 4 skipped; worker lien-deadline.test.ts 5 passed; pay-app-guides page.test.mjs 36 pass 0 fail; biome clean. Live health endpoints for payapps, jobshop-quote, cmmc, seller-books all 200 on 2026-11-28. After fix: platform/pages node --test locally 2233 pass / 1 fail before regen, llms-answers.test.mjs 7/7 after.",
   "corrections": [],
   "redteam": null,
   "usage": {
