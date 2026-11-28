@@ -532,8 +532,14 @@ routes.delete("/:payAppId", editor, async (c) => {
 routes.get("/:payAppId/application.pdf", async (c) => {
   const { orgId, projectId, payAppId } = ids(c);
   const data = await loadApplicationDocument(c.var.ctx, orgId, projectId, payAppId);
-  const bytes = applicationPdf(data);
-  return download(bytes.slice().buffer, "application/pdf", exportFileName(data, "pdf"));
+  // ?pencil=1: a draft printed as the pencil copy the GC reviews before the official application.
+  const pencil = c.req.query("pencil") === "1" && data.payApp.status === "draft";
+  const bytes = applicationPdf(data, { pencil });
+  return download(
+    bytes.slice().buffer,
+    "application/pdf",
+    exportFileName(data, "pdf", pencil ? "-pencil" : ""),
+  );
 });
 
 // The application plus its backup files in one PDF to send the GC (any member). `files` names the
@@ -550,7 +556,9 @@ routes.get("/:payAppId/packet.pdf", async (c) => {
           .map((s) => s.trim())
           .filter(Boolean);
   if (chosen && chosen.length > 40) throw badRequest("Choose at most 40 files");
-  const packet = await buildPayAppPacket(c.var.ctx, orgId, projectId, payAppId, chosen);
+  const packet = await buildPayAppPacket(c.var.ctx, orgId, projectId, payAppId, chosen, {
+    pencil: c.req.query("pencil") === "1",
+  });
   return packetResponse(packet);
 });
 
