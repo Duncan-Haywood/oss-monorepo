@@ -87,7 +87,7 @@ floor above hangs its own thickness below its surface, so the opening must be at
 With a 12-1/2 in floor system: (80 + 12.5) x 10 / 7.6875 = **9 ft 11-15/16 in**. A 10 ft opening
 just clears; a 9 ft one leaves under 6 ft 8 in, and if you type the opening length the engine says
 by how much. The opening's tail joists, header and trimmers are counted in the floor takeoff, with
-their hangers in the [framing nails, hangers and ties guide](../framing-nails-hangers-and-ties-for-a-house/).
+their hangers in the [framing nails, hangers and ties guide](2026-11-27-framing-nails-hangers-and-ties-for-a-house.md).
 
 ## When does a stair need a landing?
 

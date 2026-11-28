@@ -234,7 +234,7 @@ export function stairCuts(l) {
  * simply supported beam spanning the total run with no mid support. The section is the throat under the notches
  * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
  * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
- * @param {{stringer:{spacing:number, throat:number, count?:number}, run:number}} l
+ * @param {{stringer:{spacing:number, throat:number, count?:number, depth?:number}, run:number}} l
  * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number, connectorCapacity?:number, bearingFcPerp?:number, bearingLength?:number, notchedSupport?:boolean|number}} c
  */
 export function checkStringer(l, c) {
