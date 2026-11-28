@@ -103,9 +103,16 @@ describe("validateCatalog", () => {
 
   it("takes the smallest valid plan key and annual price, and rejects an empty key or zero annual", () => {
     const bad = (patch: object) => () => validateCatalog({ ...CATALOG, ...patch });
-    assert.equal(validateCatalog({ ...CATALOG, plans: [{ ...STARTER, key: "s" }] }).plans[0]?.key, "s");
+    assert.equal(
+      validateCatalog({ ...CATALOG, plans: [{ ...STARTER, key: "s" }] }).plans[0]?.key,
+      "s",
+    );
     assert.throws(bad({ plans: [{ ...STARTER, key: "" }] }), /bad plan key/);
-    assert.equal(validateCatalog({ ...CATALOG, plans: [{ ...STARTER, annualCents: 1 }] }).plans[0]?.annualCents, 1);
+    assert.equal(
+      validateCatalog({ ...CATALOG, plans: [{ ...STARTER, annualCents: 1 }] }).plans[0]
+        ?.annualCents,
+      1,
+    );
     assert.throws(bad({ plans: [{ ...STARTER, annualCents: 0 }] }), /annualCents/);
   });
 
@@ -325,7 +332,11 @@ describe("priceIdsFromPaddle only maps a price checkout would charge correctly",
     ...patch,
   });
   it("skips a same-amount price in the wrong currency (catalog moved USD to EUR, plan-only run)", () => {
-    const eur = { ...CATALOG, currency: "EUR" as const, plans: [{ ...STARTER, annualCents: null }] };
+    const eur = {
+      ...CATALOG,
+      currency: "EUR" as const,
+      plans: [{ ...STARTER, annualCents: null }],
+    };
     assert.deepEqual(priceIdsFromPaddle(eur, [pr({ id: "pri_usd" })]), {});
     assert.deepEqual(
       priceIdsFromPaddle(eur, [
@@ -338,12 +349,16 @@ describe("priceIdsFromPaddle only maps a price checkout would charge correctly",
   it("skips a price whose billing cycle is not one month or one year", () => {
     const one = { ...CATALOG, plans: [{ ...STARTER, annualCents: null }] };
     assert.deepEqual(
-      priceIdsFromPaddle(one, [pr({ id: "pri_q", billing_cycle: { interval: "month", frequency: 3 } })]),
+      priceIdsFromPaddle(one, [
+        pr({ id: "pri_q", billing_cycle: { interval: "month", frequency: 3 } }),
+      ]),
       {},
     );
     assert.deepEqual(priceIdsFromPaddle(one, [pr({ id: "pri_once", billing_cycle: null })]), {});
     assert.deepEqual(
-      priceIdsFromPaddle(one, [pr({ id: "pri_yr", billing_cycle: { interval: "year", frequency: 1 } })]),
+      priceIdsFromPaddle(one, [
+        pr({ id: "pri_yr", billing_cycle: { interval: "year", frequency: 1 } }),
+      ]),
       {},
     );
   });
