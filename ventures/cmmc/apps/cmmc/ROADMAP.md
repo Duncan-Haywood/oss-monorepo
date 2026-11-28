@@ -514,13 +514,29 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   and `planImport` (110 rows, each column on its field). Linked from the SPRS calculator and the Level 2 page.
   Next: read whether its `from=` sign-ups lead to Level 2 once checkout is on; a Level 1 version if asked.
 
+- Document control, part 3b: master list import (2026-11-28, document-master-list-import). "Import a
+  master list" on the Documents tab reads the list a shop keeps now (.xlsx, read in the browser with only
+  the chosen sheet sent, or CSV, this register's own export included): number and title required; type
+  (its cell, else the title's own words such as "Work Instruction", else Other), origin and issuer,
+  revision, status, approver and approval date, effective date, last review, next review or interval
+  (12/24/36 months only), owner, location, notes. A revision counts as released only with its approval
+  date; otherwise the row is a draft, which the register shows as never released. Approvers and owners
+  are matched to members by name or email when exactly one matches; an unmatched approver's name stays in
+  the history and the approver is blank (the existing "no approver" gap). Each release, last review and
+  withdrawal gets its history row, marked as recorded from the import; an obsolete row with no withdrawal
+  date is dated the import day and says so. Numbers already listed are left alone, so re-importing the
+  list or the export changes nothing. Preview on every plan (a free shop sees its own list ready to
+  import), adding on Level 2 + Quality; one audit entry. `src/shared/documents-import.ts`,
+  `services/documents/import.ts`, `POST /documents/import`, `DocumentImport.tsx`; unit, component and
+  worker tests. Header words are this app's reading of common shop lists, not checked against real files.
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
-- Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27): linking
-  an evidence file as the controlled copy of a revision, and an import of an existing master list
-  (CSV/.xlsx) once shops send theirs
+- Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
+  master list import done 2026-11-28): linking an evidence file as the controlled copy of a revision;
+  check the import's header words against real master lists once shops send theirs
 - ISO 9001, part 3 (the headings checked against the 2015 contents page done 2026-11-26): AS9100D's
   aerospace additions once a source is in hand; filter the clause list to "mine" once shops with
   several owners ask
