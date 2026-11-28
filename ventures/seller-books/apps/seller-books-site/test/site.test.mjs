@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
 import { build, fileFor } from "../build.mjs";
 import { BASE_PATH, FEATURES, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
+import { esc } from "../src/html.mjs";
 import {
   ALTERNATIVES,
   COGS_EXAMPLE,
@@ -1260,6 +1261,16 @@ describe("feature cards on the home page", () => {
           pages.some((p) => p.path === f.guide),
           `${f.key}: no page ${f.guide}`,
         );
+    }
+    // Each guide link is labelled with its page's title (the sell-through card once read "undefined").
+    const home = htmlOf(pages.find((p) => p.path === "/"));
+    assert.ok(!home.includes(">undefined<"), "a feature guide link has no title");
+    for (const f of FEATURES.filter((x) => x.guide)) {
+      const t = pages.find((p) => p.path === f.guide).title;
+      assert.ok(
+        home.includes(`${BASE_PATH}${f.guide}">${esc(t)}</a>`),
+        `${f.key}: guide link label`,
+      );
     }
   });
 
