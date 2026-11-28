@@ -224,20 +224,3 @@ notice by 13 January 2027, its suit by 13 April and the bond suit by 13 July. If
 recorded later, or never, you have longer, and the panel says so. The statute site still refused
 our connection, so this one was read from california.public.law's copy of the official text, which
 the guide says.
-
-**Added later on 2026-11-28: the day the notice was recorded.** Counting from acceptance is safe,
-but it can tell you a deadline has passed when it has not. So a California public job now takes the
-day the public body recorded its notice of completion, read off the recorded copy (the county
-recorder has it), and every date moves to it. For work accepted on Monday 14 December 2026 with a
-notice recorded on Tuesday 22 December, the stop payment notice is due by Thursday 21 January 2027,
-its suit by 21 April and the bond suit by 21 July, eight days later each than the acceptance-day
-guess. The late bond notice for a sub who missed the preliminary notice gets its own date too, 15
-days after the recording (6 January here, § 9560(b)).
-
-The rule has a window. A public body may record the notice on or within 15 days after completion
-(§ 9204(a)). The code does not say what a later recording does, so PayApps does not bet on it: when
-the recording is more than 15 days after the acceptance entered, it uses whichever ends first, 30
-days after the recording or 90 days after completion (§ 9356(b)), and says why. Recorded on
-5 January 2027, that is 4 February; recorded on 1 March, it is 14 March (a Sunday, so Friday the
-12th). These sections were read on lawserver.com's copy of the code, since both the legislature's
-site and california.public.law turned this session away.

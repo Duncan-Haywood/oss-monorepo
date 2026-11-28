@@ -98,7 +98,6 @@ export function toCashInput(
               tier: p.millerTier ?? null,
               lastFurnishedOn: p.lastFurnishedOn ?? null,
               acceptedOn: p.workCompletedOn ?? null,
-              completionRecordedOn: p.noticeOfCompletionOn ?? null,
             }),
             tier: p.millerTier ?? null,
           }

@@ -3033,10 +3033,7 @@ nothing to copy. No customers yet. Paid plans are dark
   Miller notices sent with the proof of delivery, if contractors use the draft; state bond claims
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
-  California's stop payment notice and bond claim done 2026-11-28 (dated from acceptance, or from
-  the recorded notice of completion once its day is entered, done 2026-11-28, ca-public-notice-of-completion:
-  `caStopPaymentPeriod`, a recording more than 15 days after acceptance read as the earlier of its 30
-  days and 90 days after completion, § 9560(b)'s late bond notice dated; next, if contractors ask: a
-  "none was recorded" mark that dates § 9356(b)'s 90 days and § 9560(b)'s 75);
+  California's stop payment notice and bond claim done 2026-11-28 (dated from acceptance; the recorded
+  notice of completion as its own date next, if contractors mark California public jobs);
   more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28; Alabama 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

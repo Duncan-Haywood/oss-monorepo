@@ -78,8 +78,6 @@ export function LienDeadlinePanel(props: {
       const fields = owner ? null : lienDateFields(s);
       // A state or local job keeps the public body's acceptance in the completion column.
       const keepsCompletion = !!fields?.completion || owner === "state_local";
-      // California public work dates its stop payment notice from a recorded notice of completion.
-      const keepsNotice = !!fields?.noticeOfCompletion || (owner === "state_local" && s === "CA");
       return api<ProjectDetailDto>(path, {
         method: "PATCH",
         body: {
@@ -87,7 +85,7 @@ export function LienDeadlinePanel(props: {
           lienResidential: residential,
           lastFurnishedOn: last || null,
           workCompletedOn: keepsCompletion ? completed || null : null,
-          noticeOfCompletionOn: keepsNotice ? noc || null : null,
+          noticeOfCompletionOn: fields?.noticeOfCompletion ? noc || null : null,
           publicOwner: owner || null,
           millerTier: owner ? tier || null : null,
         },
@@ -118,7 +116,6 @@ export function LienDeadlinePanel(props: {
           tier: p.millerTier ?? null,
           lastFurnishedOn: p.lastFurnishedOn ?? null,
           acceptedOn: p.workCompletedOn ?? null,
-          completionRecordedOn: p.noticeOfCompletionOn ?? null,
         })
       : null;
   // The next bond date still ahead (else the latest passed one) leads the summary.
@@ -404,20 +401,6 @@ export function LienDeadlinePanel(props: {
                   aria-label="Day the public body accepted the work"
                 />
               </label>
-              {upper === "CA" && (
-                <label className="grid">
-                  <span className="text-slate-600">
-                    Notice of completion recorded on (if the public body recorded one)
-                  </span>
-                  <input
-                    className="input"
-                    type="date"
-                    value={noc}
-                    onChange={(e) => setNoc(e.target.value)}
-                    aria-label="Day the public body recorded a notice of completion"
-                  />
-                </label>
-              )}
             </div>
           )}
           {fields?.completion && (

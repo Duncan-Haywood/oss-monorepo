@@ -258,44 +258,4 @@ describe("lien deadline", () => {
     row = r.projects.find((x) => x.id === job.id);
     expect(row?.actions.some((a) => a.includes("payment bond"))).toBe(false);
   });
-  it("California public job: a recorded notice of completion moves the stop payment notice on the cash report", async () => {
-    const { orgId, userId: as } = await setupTenant("owner");
-    await grantPlan(orgId);
-    const from = addDays(today(), -90);
-    const job = await finishedJob(orgId, as, from, addDays(from, 20));
-    // Accepted 40 days ago: counted from acceptance, the stop payment notice period ended 10 days ago.
-    const accepted = addDays(today(), -40);
-    await call<ProjectDetailDto>(job.base, {
-      method: "PATCH",
-      as,
-      json: {
-        lienState: "CA",
-        publicOwner: "state_local",
-        millerTier: "first",
-        lastFurnishedOn: addDays(today(), -45),
-        workCompletedOn: accepted,
-      },
-    });
-    let r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
-    let row = r.projects.find((x) => x.id === job.id);
-    expect(row?.actions.some((a) => a.startsWith("California payment bond step passed on"))).toBe(
-      true,
-    );
-
-    // Recorded 12 days after acceptance (inside § 9204(a)'s 15): the period ends 30 days after it,
-    // two days from now (or the Friday before), so the notice is still open and named.
-    const recorded = addDays(accepted, 12);
-    const saved = await call<ProjectDetailDto>(job.base, {
-      method: "PATCH",
-      as,
-      json: { noticeOfCompletionOn: recorded },
-    });
-    expect(saved.noticeOfCompletionOn).toBe(recorded);
-    r = await call<CashReport>(`/api/orgs/${orgId}/reports/cash`, { as });
-    row = r.projects.find((x) => x.id === job.id);
-    const text = row?.actions.find((a) => a.startsWith("California payment bond claim")) ?? "";
-    expect(text).toContain("Give the public body a stop payment notice by");
-    expect(text).toContain("within 30 days after the notice of completion was recorded");
-    expect(text).toContain("Cal. Civ. Code § 9356");
-  });
 });
