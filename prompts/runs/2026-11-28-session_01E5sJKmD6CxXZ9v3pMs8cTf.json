@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A literal U+FEFF ended up in test/worker/fai-form3.test.ts; check_hidden_unicode caught it in run_workflow_locally, fixed by writing it as String.fromCharCode(0xfeff)."
+    "A literal U+FEFF ended up in test/worker/fai-form3.test.ts; check_hidden_unicode caught it in run_workflow_locally, fixed by writing it as String.fromCharCode(0xfeff).",
+    "CI: check_csv_formula_guard flagged the CSV cell guard for defusing plain negative numbers; fixed to let -?digits through."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,14 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "Every bet's free Next items were demand-gated or owner steps, as earlier runs reported; finding work meant reading front-doors.json, funnel.json and the growth-path lines by hand (~20 min)."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "After merging main, the site-builder suite was red from other PRs: PR #20062's SPRS page title (77) and description (171) over the length limits, and the services offline bundle at 4.20 MB over the 4 MiB line once the machine-shop guides grew. Main's push run stayed green, so nothing flagged it. Fixed here: shorter SPRS title/description, and a new job-shops category split out of services (uk-tax precedent)."
+    },
+    {
+      "file": "mcp github get_job_logs",
+      "issue": "The site-builder job log is over 320k characters; tail_lines returns only the end, so the failing test's name (printed earlier) could not be read from CI. Reproducing locally took a full suite run (~5 min)."
     }
   ],
   "deviations": [
@@ -59,7 +68,7 @@
     "docs/posts/2026-11-25-first-article-inspection-checker.md (extended: 'Before the checker: the list itself')"
   ],
   "goal": null,
-  "notes": "Explore idea: AS9102 first article (Form 3) characteristic list drafted from the RFQ drawing's text inside Job Shop Quote (bet #2). Verification: jobshop-quote unit 768/768, worker 304/304 (+2 new), tsc clean, biome clean; run_workflow_locally --for-changes: all run: steps passed except check_hidden_unicode (fixed in the follow-up commit, rerun OK); uses: steps not run locally.",
+  "notes": "Explore idea: AS9102 first article (Form 3) characteristic list drafted from the RFQ drawing's text inside Job Shop Quote (bet #2). Verification: jobshop-quote unit 768/768, worker 304/304 (+2 new), tsc clean, biome clean; run_workflow_locally --for-changes: all run: steps passed except check_hidden_unicode (fixed in the follow-up commit, rerun OK); uses: steps not run locally. Also fixed main-red site tests: SPRS page title/description lengths, and a job-shops category (cnc-machining-quote-calculator, machine-shop-guides, dxf-nesting, laser-cutting and powder-coating job price) split out of services to bring its offline bundle under 4 MiB; platform/pages suite passes locally (exit 0).",
   "corrections": [],
   "redteam": null,
   "usage": {

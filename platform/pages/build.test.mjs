@@ -1769,13 +1769,16 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
   assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['machine-shop-guides', 'cnc-machining-quote-calculator', 'dxf-nesting']) {
+    assert.equal(categoryFor(slug).id, 'job-shops');
+  }
   for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
     assert.equal(categoryFor(slug).id, 'open-hardware');
   }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 21, 'the twenty named sections (personal-tax and household joined 2026-11-17, bookkeeping, sales and imports 2026-11-21) plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 22, 'the twenty-one named sections (personal-tax and household joined 2026-11-17, bookkeeping, sales and imports 2026-11-21, job-shops 2026-11-28) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);

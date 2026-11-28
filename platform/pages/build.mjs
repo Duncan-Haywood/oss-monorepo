@@ -1379,6 +1379,16 @@ const CATEGORY_RULES = [
     ].includes(slug),
   },
   {
+    // Split out of `services` on 2026-11-28, the way `uk-tax` left `backoffice`: the machine-shop guides (bet #2 and #4's front door)
+    // took the `services` offline bundle to 4.20 MB, over build.test.mjs's 4 MiB line. These five are one buyer, a small CNC,
+    // laser or fabrication job shop pricing a customer's part; listed before `services`, whose slug list still names them.
+    id: 'job-shops',
+    title: 'Machine & fabrication shops',
+    accent: '#3d4f5c',
+    blurb: 'Quote a machined, laser-cut or coated part, nest a DXF, and the shop guides behind the quote — for small CNC and fabrication job shops.',
+    test: (slug) => /^(cnc-machining-quote|machine-shop-guides|dxf-nesting|laser-cutting-engraving-job-price|powder-coating-job-price)/.test(slug),
+  },
+  {
     // `water-well-drilling-bid-calculator` joined 2026-10-09 on its first commit: a small driller bidding a well is a trade bid like the ones in
     // `trades`, but that bundle is at the 3 MB ceiling (build.test.mjs) and its slug would match `bid-calculator$` there, so `trades` excludes it by name.
     id: 'services',
