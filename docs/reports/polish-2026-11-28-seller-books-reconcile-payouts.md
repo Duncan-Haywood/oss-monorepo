@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, aeo, product-build]
+topics: [seo, product-build]
 date: 2026-11-28
 ---
 
