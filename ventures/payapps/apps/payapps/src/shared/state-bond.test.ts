@@ -22,13 +22,16 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the seventeen states read, each with a statute link on its legislature's site", () => {
+  it("covers the twenty states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AZ",
+      "CO",
       "FL",
+      "IA",
       "ID",
       "MA",
       "MD",
+      "ME",
       "MI",
       "MN",
       "MO",
@@ -45,7 +48,7 @@ describe("state bond claims", () => {
     for (const s of STATE_BOND_STATES) {
       const rule = STATE_BOND_RULES[s];
       expect(rule?.url).toMatch(/^https:\/\//);
-      expect(rule?.checkedOn).toBe("2026-11-27");
+      expect(["2026-11-27", "2026-11-28"]).toContain(rule?.checkedOn);
     }
   });
 
@@ -156,6 +159,39 @@ describe("state bond claims", () => {
     expect(noAcceptance[0]?.waitsFor).toMatch(/accepted/);
   });
 
+  it("Maine: a 90-day notice for a sub's sub, one year to sue for everyone", () => {
+    const me = checked("ME", "second");
+    expect(me.steps.map((s) => [s.who, s.dueOn])).toEqual([
+      // 10 July + 90 days = Thursday 8 October 2026.
+      ["not-prime", "2026-10-08"],
+      // Saturday 10 July 2027: the Friday before.
+      ["all", "2027-07-09"],
+    ]);
+    expect(checked("ME", "first").steps.map((s) => s.act)).toEqual(["Bring suit on the payment bond"]);
+  });
+
+  it("Iowa: the claim is filed with the public body within 30 days of acceptance, the action by day 60", () => {
+    const ia = checked("IA", "second", ACCEPTED);
+    expect(ia.steps[0]?.waitsFor).toMatch(/first day/);
+    // Monday 14 December 2026 + 30 days = Wednesday 13 January 2027; + 60 = Friday 12 February.
+    expect(dueOf(ia, "Iowa Code § 573.10(1)")).toBe("2027-01-13");
+    expect(dueOf(ia, "Iowa Code § 573.16(1)")).toBe("2027-02-12");
+    expect(ia.dated.map((s) => s.citation)).toEqual(["Iowa Code § 573.10(1)", "Iowa Code § 573.16(1)"]);
+    expect(checked("IA", "first", ACCEPTED).steps).toHaveLength(2);
+    expect(checked("IA", "first").dated).toEqual([]);
+  });
+
+  it("Colorado: both steps wait on the published final settlement date, so none is dated", () => {
+    const co = checked("CO", "first", ACCEPTED);
+    expect(co.steps.map((s) => s.citation)).toEqual([
+      "C.R.S. § 38-26-107(1)",
+      "C.R.S. § 38-26-107(2), (3)",
+    ]);
+    expect(co.dated).toEqual([]);
+    for (const s of co.steps) expect(s.waitsFor).toMatch(/final settlement/);
+    expect(co.notes.join(" ")).toMatch(/six months after the completion/);
+  });
+
   it("Missouri: only a remote supplier gives notice, and the section states no suit limit", () => {
     expect(dueOf(checked("MO", "second"), "Mo. Rev. Stat. § 107.170.2")).toBe("2026-10-08");
     expect(checked("MO", "first").steps).toEqual([]);
@@ -202,9 +238,9 @@ describe("state bond claims", () => {
   });
 
   it("names an unsupported state and returns nothing without a state", () => {
-    expect(stateBondClaim("CO", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toEqual({
+    expect(stateBondClaim("PA", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toEqual({
       kind: "unsupported",
-      state: "CO",
+      state: "PA",
     });
     expect(stateBondClaim("", { tier: null, lastFurnishedOn: LAST, acceptedOn: null })).toBeNull();
   });
