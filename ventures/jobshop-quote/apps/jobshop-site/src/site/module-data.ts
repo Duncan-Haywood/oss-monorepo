@@ -7,7 +7,8 @@
 // names goes in `limits`; no customers, results, time saved, ratings or competitor claims. Every
 // module is on every plan: plans differ by RFQs a month and seats, not by features
 // (apps/jobshop-quote/docs/BILLING.md). Parts that are built but switched off in the hosted app
-// (AI reading, inbound RFQ email, QuickBooks) are not given pages until they are on.
+// (AI reading, inbound RFQ email, the live QuickBooks connection) are not given pages until they are
+// on; the QuickBooks import file, which needs no connection, is on and has one.
 //
 // Data only, no imports from ./pages, so pages.ts can link the list without an import cycle.
 
@@ -351,6 +352,38 @@ export const MODULES: readonly ModuleData[] = [
     faq: {
       q: "Do prices show on the traveler?",
       a: "No. It carries quantities, material, operations and times only; no price, rate or markup appears on it.",
+    },
+  },
+  {
+    id: "quickbooks-import",
+    path: "/quickbooks-invoices-from-quotes",
+    label: "QuickBooks invoices from quotes",
+    title: "Machine shop quotes to QuickBooks invoices",
+    description:
+      "Turn a won quote into a QuickBooks Online invoice import file: each part at the break it was quoted at, the PO on the invoice, no retyping.",
+    h1: "Invoice a won quote in QuickBooks without retyping it",
+    intro:
+      "The quote already says what the customer agreed to pay, so the bookkeeper should not key it in again. On a won quote, the app writes the invoice as a CSV in the shape QuickBooks Online's own invoice import takes.",
+    does: [
+      "One row per part at the quantity it was quoted at and that quantity's unit price and amount, the stored price exactly",
+      "The quantity the customer accepted online, the only break, or the one you pick; a multi-break line with none of these is refused, never priced between breaks",
+      'The invoice number Q1001 (Q1001-R2 for a revision), the customer, the invoice and due dates, and "Your PO ... Per our quote ..." as the message on the invoice',
+      'The due date from "Net N" in your quote terms, else 30 days, changeable before download',
+      "No costs, rates, markups or operations in the file: the same facts the customer's PDF prints",
+    ],
+    limits: [
+      "One won quote per file; there is no batch export of several quotes yet",
+      "You upload the file in QuickBooks and match its columns there; the app does not know when it was imported",
+      "QuickBooks Online does not take invoice imports in a company that has set up sales tax",
+      "The one-click send to a connected QuickBooks company is built but not switched on in the hosted app yet",
+    ],
+    guides: [
+      { label: "Machine shop quote template", path: "/machine-shop-quote-template" },
+      { label: "How to quote a CNC machining job", path: "/how-to-quote-cnc-machining" },
+    ],
+    faq: {
+      q: "Does it work with QuickBooks Desktop?",
+      a: "The file is laid out for QuickBooks Online's invoice import. QuickBooks Desktop imports invoices differently, and the app does not write a Desktop file.",
     },
   },
   {

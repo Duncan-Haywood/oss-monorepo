@@ -443,3 +443,105 @@ describe("the shop's own QuickBooks item and income account", () => {
     expect((await json<QuickBooksItemsDto>(items(t))).current).toBeNull();
   });
 });
+
+describe("Won quote as a QuickBooks import file", () => {
+  const csv = (t: Tenant, quoteId: string, body: unknown, as = t.userId) =>
+    api(t.path(`/quotes/${quoteId}/quickbooks.csv`), { method: "POST", as, json: body });
+
+  it("downloads the planned invoice without a connection, for any member, and records nothing", async () => {
+    const { t, one } = await setup();
+    const q = await quoteWith(t, [
+      { partNumber: "BRK-1001", inputs: one([50]) },
+      { partNumber: "SPC-220", inputs: one([10, 100]) },
+    ]);
+    const [brk, spc] = q.lines;
+    const spc100 = spc?.breaks?.find((b) => b.quantity === 100);
+    const brk50 = brk?.breaks?.[0];
+    if (!brk || !spc || !spc100 || !brk50) throw new Error("lines not priced");
+
+    // Not won yet: refused.
+    expect((await csv(t, q.id, { choices: [], dueDays: 30 })).status).toBe(409);
+    await win(t, q.id);
+
+    const info = await json<QuoteQuickBooksDto>(
+      api(t.path(`/quotes/${q.id}/quickbooks`), { as: t.userId }),
+    );
+    expect(info.connected).toBe(false);
+    expect(info.defaultDueDays).toBe(30);
+
+    const unpicked = await csv(t, q.id, { choices: [], dueDays: 30 });
+    expect(unpicked.status).toBe(400);
+    expect(await unpicked.text()).toContain("SPC-220");
+    expect((await csv(t, q.id, { choices: [], dueDays: 400 })).status).toBe(400);
+
+    const viewer = await addMember(t.orgId, "viewer");
+    const res = await csv(
+      t,
+      q.id,
+      { choices: [{ lineId: spc.id, quantity: 100 }], dueDays: 15 },
+      viewer,
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("text/csv; charset=utf-8");
+    expect(res.headers.get("Content-Disposition")).toContain(
+      `invoice-Q${q.quoteNumber}-quickbooks.csv`,
+    );
+    const rows = (await res.text())
+      .replace(/^\uFEFF/, "")
+      .trim()
+      .split("\r\n");
+    expect(rows[0]).toBe(
+      "Invoice No,Customer,Invoice Date,Due Date,Product/Service,Description,Qty,Rate,Amount,Message on invoice",
+    );
+    const dollars = (c: number) => (c / 100).toFixed(2);
+    const memo = `Your PO PO-7781. Per our quote Q-${q.quoteNumber}.`;
+    expect(rows.slice(1).map((r) => r.split(",").slice(4, 9))).toEqual([
+      ["Machined parts", '"BRK-1001 Rev B', ' Motor bracket"', "50", dollars(brk50.unitPriceCents)],
+      [
+        "Machined parts",
+        '"SPC-220 Rev B',
+        ' Motor bracket"',
+        "100",
+        dollars(spc100.unitPriceCents),
+      ],
+    ]);
+    for (const r of rows.slice(1)) {
+      expect(r.startsWith(`Q${q.quoteNumber},Example Robotics LLC,`)).toBe(true);
+      expect(r.endsWith(`,${memo}`)).toBe(true);
+      const [, , invoiceDate, dueDate] = r.split(",");
+      expect(invoiceDate).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+      const [m, d, y] = (invoiceDate ?? "").split("/").map(Number);
+      const due = new Date(Date.UTC(y ?? 0, (m ?? 1) - 1, (d ?? 1) + 15));
+      const mm = String(due.getUTCMonth() + 1).padStart(2, "0");
+      const dd = String(due.getUTCDate()).padStart(2, "0");
+      expect(dueDate).toBe(`${mm}/${dd}/${due.getUTCFullYear()}`);
+    }
+    expect(rows[1]).toContain(`,${dollars(brk50.totalCents)},`);
+    expect(rows[2]).toContain(`,${dollars(spc100.totalCents)},`);
+
+    // Nothing recorded: the quote can still be sent through the API later.
+    const after = await json<QuoteQuickBooksDto>(
+      api(t.path(`/quotes/${q.id}/quickbooks`), { as: t.userId }),
+    );
+    expect(after.invoice).toBeNull();
+  });
+
+  it("is per shop", async () => {
+    const { t, one } = await setup();
+    const q = await quoteWith(t, [{ partNumber: "BRK-1001", inputs: one([50]) }]);
+    await win(t, q.id);
+    const other = await setupTenant();
+    const res = await api(t.path(`/quotes/${q.id}/quickbooks.csv`), {
+      method: "POST",
+      as: other.userId,
+      json: { choices: [], dueDays: 30 },
+    });
+    expect(res.status).toBe(404);
+    const own = await api(other.path(`/quotes/${q.id}/quickbooks.csv`), {
+      method: "POST",
+      as: other.userId,
+      json: { choices: [], dueDays: 30 },
+    });
+    expect(own.status).toBe(404);
+  });
+});

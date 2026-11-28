@@ -198,6 +198,7 @@ declines; the answer shows on the quote, which is marked won or lost.
 - Quote follow-up: Every sent quote gets a follow-up day. A morning email lists each estimator's quotes due, and the quote log keeps every call, so no quote goes quiet.
 - Win/loss tracking: See your win rate by customer, material, machine, markup, estimator, routing and month, the reasons you lose, and the unit prices you won and lost at.
 - Job travelers: Print a job traveler from a won quote: material and stock to pull, every operation with setup, cycle and run time, finishing, inspection and sign-off lines.
+- QuickBooks invoices from quotes: Turn a won quote into a QuickBooks Online invoice import file: each part at the break it was quoted at, the PO on the invoice, no retyping.
 - Shop load and lead time: Put your open jobs on your machines, see the day each one finishes and each machine is booked until, and quote a lead time behind the backlog.
 
 ### What it will not do
@@ -1685,6 +1686,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -1753,6 +1755,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -1820,6 +1823,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -1886,6 +1890,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -1953,6 +1958,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -2019,6 +2025,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -2085,6 +2092,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -2151,6 +2159,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Quote follow-up
 - Job travelers
+- QuickBooks invoices from quotes
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -2217,6 +2226,76 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Quote follow-up
 - Win/loss tracking
+- QuickBooks invoices from quotes
+- Shop load and lead time
+
+How it works, step by step · Pricing
+
+### Try it on your own RFQs
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## QuickBooks invoices from quotes
+
+Source: https://marisstella.app/jobshop/quickbooks-invoices-from-quotes
+
+In the app today
+
+## Invoice a won quote in QuickBooks without retyping it
+
+The quote already says what the customer agreed to pay, so the bookkeeper should not key it in again. On a won quote, the app writes the invoice as a CSV in the shape QuickBooks Online's own invoice import takes.
+
+Start free
+
+### What it does
+
+- One row per part at the quantity it was quoted at and that quantity's unit price and amount, the stored price exactly
+- The quantity the customer accepted online, the only break, or the one you pick; a multi-break line with none of these is refused, never priced between breaks
+- The invoice number Q1001 (Q1001-R2 for a revision), the customer, the invoice and due dates, and "Your PO ... Per our quote ..." as the message on the invoice
+- The due date from "Net N" in your quote terms, else 30 days, changeable before download
+- No costs, rates, markups or operations in the file: the same facts the customer's PDF prints
+
+### What it does not do yet
+
+- One won quote per file; there is no batch export of several quotes yet
+- You upload the file in QuickBooks and match its columns there; the app does not know when it was imported
+- QuickBooks Online does not take invoice imports in a company that has set up sales tax
+- The one-click send to a connected QuickBooks company is built but not switched on in the hosted app yet
+
+### Free guides on this
+
+- Machine shop quote template
+- How to quote a CNC machining job
+
+### Common questions
+
+### Which plans include it?
+
+Every plan, including the free Early access plan (up to 40 RFQs a month, 3 people, no card). Plans differ by RFQs a month and seats, not by features. Paid plans start at $199 a month and are not on sale yet.
+
+### Does it work with QuickBooks Desktop?
+
+The file is laid out for QuickBooks Online's invoice import. QuickBooks Desktop imports invoices differently, and the app does not write a Desktop file.
+
+### Is Job Shop Quote new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. What this page describes works in the hosted app today; check every price, time and quantity before you send a quote.
+
+### The rest of Job Shop Quote
+
+Every part works on the same rate card and the same quotes, so nothing is typed twice.
+
+- CNC quoting software
+- Sheet metal quoting software
+- Quoting from STEP files
+- Repeat parts and routings
+- Material price tracking
+- Online quote acceptance
+- Quote follow-up
+- Win/loss tracking
+- Job travelers
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -2284,6 +2363,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- QuickBooks invoices from quotes
 
 How it works, step by step · Pricing
 
