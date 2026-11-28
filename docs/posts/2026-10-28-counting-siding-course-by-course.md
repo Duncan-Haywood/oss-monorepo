@@ -3,6 +3,7 @@ title: "Counting siding course by course instead of by square foot"
 date: 2026-10-28
 description: "The wall-framing takeoff now counts lap siding, house wrap and corner boards from walls and openings: a window cuts a course, the run splits, offcuts carry on."
 tags: [construction, wall-framing-takeoff, estimating]
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 The wall-framing takeoff in this repository counted studs, sheathing, drywall,

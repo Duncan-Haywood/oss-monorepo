@@ -4,6 +4,7 @@ seo_title: "Siding starter strip and window head flashing takeoff in the browser
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, siding]
 description: "The wall-framing takeoff page can now count the siding starter strip and the head flashing over every window and door, not just the command line."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*
