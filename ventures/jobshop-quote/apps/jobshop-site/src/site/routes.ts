@@ -118,7 +118,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
     {
       path: "/machine-shop-markup",
       label: "Machine shop markup and margin",
-      title: `Machine shop markup and margin: material, labor and outside services · ${SITE_NAME}`,
+      title: `Machine shop markup and margin: how much to mark up · ${SITE_NAME}`,
       description:
         "How much markup a machine shop puts on material, labor and outside processing, markup against margin, and what four markup policies do to one quote.",
       changefreq: "monthly",
