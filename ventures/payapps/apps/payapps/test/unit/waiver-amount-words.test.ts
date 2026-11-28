@@ -35,3 +35,12 @@ it("forms without words are unchanged apart from the field typed", () => {
   });
   expect(typeValue(ma, "county", "Suffolk")).toEqual({ ...ma, county: "Suffolk" });
 });
+
+it("figures too large to spell out clear the words instead of throwing", () => {
+  // amountInWords refuses $1 trillion and up; a run of zeros typed or pasted into the figures
+  // ran it inside the setValues updater and took the whole panel down (redteam 2026-11-28).
+  expect(typeValue(ma, "paymentAmountCents", "1000000000000").paymentAmountWords).toBe("");
+  expect(typeValue(ma, "paymentAmountCents", "999999999999.99").paymentAmountWords).toBe(
+    "Nine Hundred Ninety-Nine Billion Nine Hundred Ninety-Nine Million Nine Hundred Ninety-Nine Thousand Nine Hundred Ninety-Nine and 99/100 Dollars",
+  );
+});

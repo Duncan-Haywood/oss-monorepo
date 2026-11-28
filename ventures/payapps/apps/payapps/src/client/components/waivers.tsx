@@ -27,10 +27,16 @@ type Values = Record<string, string>;
 const toText = (field: WaiverFormDto["fields"][number], v: string | number | undefined) =>
   v === undefined ? "" : field.type === "money" ? (Number(v) / 100).toFixed(2) : String(v);
 
-/** A form's amount spelled out ("... and 00/100 Dollars") for these dollars, or null if not one. */
+/** amountInWords spells out amounts below $1 trillion and throws at or above it. */
+const MAX_WORDS_CENTS = 100_000_000_000_000;
+
+/**
+ * A form's amount spelled out ("... and 00/100 Dollars") for these dollars, or null if not one.
+ * Never throws: it runs inside a state updater, where a throw would unmount the panel.
+ */
 const wordsFor = (dollars: string | undefined): string | null => {
   const c = dollars ? parseDollarsToCents(dollars) : null;
-  return c === null || c < 0 ? null : amountInWords(c);
+  return c === null || c < 0 || c >= MAX_WORDS_CENTS ? null : amountInWords(c);
 };
 
 /**
