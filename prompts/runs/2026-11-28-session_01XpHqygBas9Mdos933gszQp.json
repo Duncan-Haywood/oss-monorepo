@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "roadmap_claim.py --claim needs an argument; '--claim new --slug X' is refused, '--claim X' works (cost two calls)",
-    "First site unit run failed the honesty copy test on 'certified welders'; reworded to 'qualified welders' / 'welder qualifications'"
+    "First site unit run failed the honesty copy test on 'certified welders'; reworded to 'qualified welders' / 'welder qualifications'",
+    "Local run of jobshop-quote-ci.yml failed on biome ci (formatting in pages.ts); fixed with biome check --write; rerun green"
   ],
   "integrity_issues": [],
   "doc_friction": [
