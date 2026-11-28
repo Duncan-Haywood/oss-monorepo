@@ -1,6 +1,6 @@
 ---
 title: "Re-audit: the grant tracker stopped drifting, but federal reports still read Overdue weeks early"
-seo_title: "When is a federal grant report due? 30, 90 and 120 days under 2 CFR 200"
+seo_title: "When is a federal grant report due? 30, 90 and 120 days (2 CFR 200)"
 date: 2026-11-28
 tags: [quality-audit, evaluation, nonprofits, grant-reporting-tracker]
 description: "A re-check of the free grant reporting tracker. The high defect is fixed, the federal due-date gap was only written down, and this round fixes it."
