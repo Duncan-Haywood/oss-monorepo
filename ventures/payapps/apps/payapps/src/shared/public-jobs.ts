@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-three states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the thirty-five states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 26 states the public guide lists.
@@ -736,6 +736,32 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "Payment bonds are required on public work contracts over $100,000, other than the highway contracts of NRS chapter 408 (NRS 339.025).",
     ],
   },
+  NJ: {
+    name: "New Jersey",
+    law: "N.J.S.A. 2A:44-143 to 2A:44-147",
+    url: "https://pub.njleg.gov/statutes/",
+    checkedOn: "2026-11-28",
+    notes: [
+      "If you have no direct contract with the prime, give the prime written notice that you are a beneficiary of the bond before you start any work, by certified mail or another way that gives proof of delivery. Late notice is not fatal, but your bond rights run only from the day it is given (\u00a7 2A:44-145, first paragraph).",
+      "The bond covers subcontractors and suppliers in contract with the prime and those in contract with a first-tier subcontractor; a claimant further down is not a beneficiary (\u00a7 2A:44-143(a)(1)).",
+      "The statement of the amount due goes to the sureties on the bond, and the suit clock needs it sent to the contractor too: no suit until 90 days after both have it, and in no event later than one year from your last day (\u00a7\u00a7 2A:44-145, 2A:44-146). Send it early enough that the 90 days end well before the year does.",
+      "The public body may waive the bond on contracts up to $200,000 (the State's building division) or $100,000 (a county, municipality or school district), or set it below 100% (\u00a7 2A:44-143(a)(2), (3)): ask the public body for the bond before you rely on it.",
+      "Money the State, a county, a municipality or a school district pays the contractor on a public improvement is a trust fund until labor and material claims on that contract are paid (\u00a7 2A:44-148).",
+    ],
+  },
+  PA: {
+    name: "Pennsylvania",
+    law: "Public Works Contractors' Bond Law of 1967 (Act 385) \u00a7 4; 62 Pa.C.S. \u00a7 903(d); 42 Pa.C.S. \u00a7 5523(3)",
+    url: "https://www.palegis.us/statutes/unconsolidated/law-information?sessYr=1967&sessInd=0&actNum=385",
+    checkedOn: "2026-11-28",
+    notes: [
+      "Two statutes: a Commonwealth agency's job is under the Procurement Code, 62 Pa.C.S. \u00a7 903 (bonds on contracts over $100,000, adjusted yearly), and a county, city, borough, township, school district or authority's job under the Public Works Contractors' Bond Law of 1967 (bonds on contracts over $10,000 for most local bodies, \u00a7 3.1). The claim steps are the same.",
+      "Anyone may sue once unpaid 90 days after your last day (Act 385 \u00a7 4(a); \u00a7 903(d)(1)).",
+      "The 90-day notice states with substantial accuracy the amount claimed and who you worked for. Under Act 385 it goes by registered or certified mail to the contractor's office, under \u00a7 903 by registered mail; either may instead be served the way a summons is.",
+      "The one-year limit on actions on a payment bond (42 Pa.C.S. \u00a7 5523(3)) does not say which day it counts from, so PayApps does not date it. On the safe side, file within one year of your last day, and ask a construction attorney which day the courts use.",
+      "On an affidavit that you furnished work and were not fully paid, the contracting body gives you a certified copy of the bond and the contract for its copying cost (Act 385 \u00a7 6).",
+    ],
+  },
   OR: {
     name: "Oregon",
     law: "ORS 279C.600-279C.610",
@@ -1285,6 +1311,67 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
           L,
           addOneYear,
           LAST,
+        ),
+      ];
+    case "NJ":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the prime written notice that you are a beneficiary of the payment bond",
+            citation: "N.J.S.A. 2A:44-145 (notice before work)",
+            rule: "before you start any work; rights run only from the day it is given",
+          },
+          null,
+          null,
+          "the day you start work, which this notice must come before",
+        ),
+        step(
+          {
+            who: "all",
+            act: "Send the sureties and the contractor a statement of the amount due",
+            citation: "N.J.S.A. 2A:44-145",
+            rule: `within one year from ${LAST}, early enough that 90 days pass before the suit limit`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "N.J.S.A. 2A:44-146",
+            rule: `not before 90 days after the statement of the amount due, and within one year from ${LAST}`,
+          },
+          L,
+          addOneYear,
+          LAST,
+        ),
+      ];
+    case "PA":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the prime written notice of your claim",
+            citation: "Act 385 \u00a7 4(b); 62 Pa.C.S. \u00a7 903(d)(2)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond",
+            citation: "42 Pa.C.S. \u00a7 5523(3)",
+            rule: "within one year; the statute does not say from which day",
+          },
+          null,
+          null,
+          "the day the claim accrued, which the statute does not name (count from your last day to be safe)",
         ),
       ];
     case "MD":
