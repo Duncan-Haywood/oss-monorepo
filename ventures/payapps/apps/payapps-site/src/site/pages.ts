@@ -886,7 +886,7 @@ function earlyAccess(ctx: SiteContext): BuiltPage {
       <label for="consent">${CONSENT_TEXT}</label>
     </div>
     <button class="btn" type="submit">Join early access</button>
-    <p class="fine">We store what you enter here and nothing else (no tracking, no cookies). See the <a href="${href(ctx, PAGES.privacy.path)}">privacy notice</a>.</p>
+    <p class="fine">We store what you enter here and nothing else (no cookies; visits are counted without identifying you). See the <a href="${href(ctx, PAGES.privacy.path)}">privacy notice</a>.</p>
   </form>
 </div>`;
   return { page, main, jsonLd: [webPage(ctx, page), breadcrumbs(ctx, page)] };
@@ -907,7 +907,7 @@ function privacy(ctx: SiteContext): BuiltPage {
 </section>
 <div class="wrap narrow section prose">
   <h2>What we store</h2>
-  <p>When you join early access we store the email address you give, the optional answers on the form (company, role, number of jobs, how you bill today, your message), which version of the consent text you agreed to, and when you signed up and confirmed. We do not store your IP address. The site sets no cookies and runs no analytics or advertising scripts.</p>
+  <p>When you join early access we store the email address you give, the optional answers on the form (company, role, number of jobs, how you bill today, your message), which version of the consent text you agreed to, and when you signed up and confirmed. We do not store your IP address. The site sets no cookies and runs no advertising scripts; visits are counted by Cloudflare Web Analytics, which keeps no identifier for you.</p>
   <h2>Why</h2>
   <p>To email you about ${PRODUCT_NAME} early access and to decide what to build first. We do not sell or share the list, and we do not add you to any other mailing list.</p>
   <h2>Confirmation</h2>
@@ -923,8 +923,8 @@ function privacy(ctx: SiteContext): BuiltPage {
 }
 
 /**
- * The privacy notice of the static catalogue copy (no early-access list): the pages have no form,
- * cookie or script, so the only data is what the host sees serving them. The account's own data is
+ * The privacy notice of the static catalogue copy (no early-access list): the pages have no form or
+ * cookie; the data is what the host sees serving them and the zone's cookieless Web Analytics beacon. The account's own data is
  * the app's Privacy Policy (apps/payapps/docs/legal/privacy.md, served at <APP_URL>/legal/privacy).
  */
 function privacyNoList(ctx: SiteContext): BuiltPage {
@@ -940,7 +940,9 @@ function privacyNoList(ctx: SiteContext): BuiltPage {
 </section>
 <div class="wrap narrow section prose">
   <h2>What this website stores</h2>
-  <p>Nothing about you. These pages have no forms, set no cookies and run no analytics, advertising or other scripts.</p>
+  <p>Nothing that identifies you. These pages have no forms, set no cookies and run no advertising scripts.</p>
+  <h2>Visit counts</h2>
+  <p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from <code>static.cloudflareinsights.com</code> stops it and the pages still work. The site's <a href="../privacy/">privacy policy</a> has the details.</p>
   <h2>What the host sees</h2>
   <p>The pages are served by Cloudflare as part of the marisstella.app site. Like any web host, Cloudflare handles the request your browser sends (including its IP address) to deliver the page and protect the site, under Cloudflare's own privacy policy.</p>
   <h2>Your ${PRODUCT_NAME} account</h2>

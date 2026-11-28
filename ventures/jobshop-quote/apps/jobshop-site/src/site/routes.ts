@@ -204,7 +204,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
         ? `Site privacy notice · ${SITE_NAME}`
         : `Early-access privacy notice · ${SITE_NAME}`,
       description: open
-        ? `This site stores nothing about you: no forms, no cookies, no analytics scripts. The ${SITE_NAME} app has its own privacy policy, linked here.`
+        ? `This site stores nothing that identifies you: no forms, no cookies, only cookieless visit counts. The ${SITE_NAME} app has its own privacy policy.`
         : `What ${SITE_NAME} stores when you request early access, why, where it is kept, and how to have it deleted.`,
       changefreq: "yearly",
       priority: 0.3,

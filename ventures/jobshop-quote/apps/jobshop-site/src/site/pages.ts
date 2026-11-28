@@ -1158,8 +1158,8 @@ export function privacyPage(ctx: RenderContext): Html {
     <p>Only the people who run ${SITE_NAME} can see the list of requests: your name, email address, the
     page you sent the form from, and the date. Each time they view it, that view is logged.</p>
     <h2>Where</h2>
-    <p>In a database on Cloudflare, which hosts this site. The site sets no tracking cookies and loads no
-    third-party scripts.</p>
+    <p>In a database on Cloudflare, which hosts this site. The site sets no tracking cookies; its only
+    third-party script is Cloudflare's cookieless Web Analytics, which counts visits.</p>
     <h2>How long, and how to remove it</h2>
     <p>Until early access ends or you ask us to delete it, whichever comes first. Email
     <a class="link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> from the address you signed up with
@@ -1176,8 +1176,8 @@ function sitePrivacyPage(ctx: RenderContext): Html {
   <div class="container narrow">
     <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Privacy</p>
     <h1>Site privacy notice</h1>
-    <p class="lead">These pages have no forms, set no cookies and load no analytics or third-party
-    scripts, so they store nothing about you.</p>
+    <p class="lead">These pages have no forms and set no cookies, so they store nothing that identifies
+    you. Visits are counted by cookieless Cloudflare Web Analytics.</p>
   </div>
 </section>
 <section class="band">
@@ -1190,6 +1190,12 @@ function sitePrivacyPage(ctx: RenderContext): Html {
     <h2>Hosting</h2>
     <p>The site is served by Cloudflare, which, like any web host, sees the requests your browser
     makes to it.</p>
+    <h2>Visit counts</h2>
+    <p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page
+    views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for
+    you, so the counts are aggregate. Blocking scripts from <code>static.cloudflareinsights.com</code>
+    stops it and the pages still work. The site's
+    <a class="link" href="https://marisstella.app/privacy/">privacy policy</a> has the details.</p>
     <h2>Earlier early-access requests</h2>
     <p>If you asked for early access through an earlier form and want your request deleted, email
     <a class="link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> from the address you used.</p>

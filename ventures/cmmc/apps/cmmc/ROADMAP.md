@@ -13,6 +13,12 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
 
 ## Done
 
+- Visits counted (2026-11-28, cmmc-web-analytics): the app's CSP (`public/_headers`) refused the Cloudflare
+  Web Analytics beacon the zone injects (a "violates script-src 'self'" console error on every page), so the
+  live app's visits went uncounted while PayApps, Seller Books and Job Shop Quote reported theirs. It now allows
+  `https://static.cloudflareinsights.com` in `script-src` and `https://cloudflareinsights.com` in `connect-src`,
+  nothing else; `test/unit/headers.test.ts` holds both and the rest of the policy. Checked in Chromium against
+  the live page with the new header: the beacon loads and `/cdn-cgi/rum` answers 204.
 - Account email (2026-11-25): confirm the address at sign-up (sign-in refused until then), reset a
   password by email (1 hour, single use, signs out everywhere), "you already have an account" mail,
   per-user send throttles in D1, `email` in `/api/health` and a smoke-test warning, and an admin can

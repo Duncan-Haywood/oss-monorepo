@@ -30,7 +30,7 @@ Paid plans (not on sale yet): Shop $199/month for up to 125 RFQs; Shop Plus $399
 - [Win/loss tracking](https://marisstella.app/jobshop/quote-win-rate-tracking): See your win rate by customer, material, machine, markup, estimator, routing and month, the reasons you lose, and the unit prices you won and lost at.
 - [Job travelers](https://marisstella.app/jobshop/job-traveler-software): Print a job traveler from a won quote: material and stock to pull, every operation with setup, cycle and run time, finishing, inspection and sign-off lines.
 - [Shop load and lead time](https://marisstella.app/jobshop/machine-shop-lead-time): Put your open jobs on your machines, see the day each one finishes and each machine is booked until, and quote a lead time behind the backlog.
-- [Privacy](https://marisstella.app/jobshop/privacy): This site stores nothing about you: no forms, no cookies, no analytics scripts. The Job Shop Quote app has its own privacy policy, linked here.
+- [Privacy](https://marisstella.app/jobshop/privacy): This site stores nothing that identifies you: no forms, no cookies, only cookieless visit counts. The Job Shop Quote app has its own privacy policy.
 
 ## Optional
 

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Version 2026-11-27** · Maris Stella Labs LLC
+**Version 2026-11-28** · Maris Stella Labs LLC
 
 This policy explains what information Job Shop Quote (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
@@ -16,6 +16,7 @@ This policy explains what information Job Shop Quote (operated by Maris Stella L
 - **AI usage records:** for each AI request, which shop it was for, its purpose, the model, the number of tokens and its cost. These records do not contain the RFQ text.
 - **Billing:** your plan, subscription status, and payment events from the merchant of record. We do not receive or store card numbers.
 - **Technical data:** the IP address and browser user-agent of each sign-in session (used to secure your account), short-lived counters of sign-in, sign-up and password-reset attempts per IP address and per account (an account is counted by a hash of its address, never the address itself), and security logs.
+- **Visit statistics:** Cloudflare Web Analytics counts page views and page load times on the Service's pages. It sets no cookies, does not fingerprint your browser and does not see your records; we use the counts only to see how many people visit and which pages are slow.
 - **Acceptance records:** which version of these policies each user accepted, and when.
 
 ## Why we use it
@@ -33,7 +34,7 @@ We share data only with service providers that process it on our behalf to run t
 
 | Subprocessor | Purpose |
 | --- | --- |
-| Cloudflare, Inc. | Hosting, database, file storage, receiving RFQ email, sending email, and reading text from uploaded PDFs and images (Workers AI) |
+| Cloudflare, Inc. | Hosting, database, file storage, receiving RFQ email, sending email, and reading text from uploaded PDFs and images (Workers AI) and cookieless visit statistics (Web Analytics) |
 | Anthropic, PBC | AI model that reads an RFQ when an estimator asks it to, and drafts cover notes |
 | Paddle (merchant of record) | Checkout, payments, invoicing and sales tax |
 
