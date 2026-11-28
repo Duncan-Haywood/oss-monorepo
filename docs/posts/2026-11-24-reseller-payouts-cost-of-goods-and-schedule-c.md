@@ -322,6 +322,31 @@ instead of guessing an amount. Each email has a one-click link that turns
 the reminders off, no sign-in needed. State estimated payments are not in
 it.
 
+**What a missed payment costs so far** (added 2026-11-28). The penalty for
+paying late or short is not a flat fine. Form 2210 charges each shortfall at
+the IRS underpayment rate for the days it stays unpaid: 7% a year for 2025,
+and for 2026 7% from January to March, 6% from April to June and 7% after
+that ([IRS quarterly interest rates](https://www.irs.gov/payments/quarterly-interest-rates),
+read 2026-11-28). The count runs until the shortfall is paid or until
+April 15 of the next year, and a later payment pays the earliest missed date
+first. Take a seller whose last year's tax was $8,000, so $2,000 is due on
+each date, who has paid nothing by November 28, 2026. April's $2,000 has been
+short for 227 days, June's for 166 and September's for 74. That comes to
+$82.91, $62.85 and $28.38: $174.14 in all. Every further 30 days unpaid adds
+about $34.53. The app's tests check these figures.
+
+Once a due date has passed short, the Quarterly estimates page now shows the
+same count from your books and the payments you typed in. It shows the
+penalty so far, what each missed date contributes and what another 30 days
+would add. It figures the penalty with the regular and with the annualized
+installments and shows the lower, since Form 2210 lets you use either. It
+assumes each payment you typed in went in by its due date, so a payment
+sent late adds a little it cannot see. The IRS works out the real figure
+from your return and can waive it, for example after a disaster. Paying now
+stops the count on what you pay. The engine is a port of the one in our free
+ai-bookkeeper tool. There it is tested against the worked examples in the
+IRS's own Form 2210 instructions.
+
 ## Sharing the books with your bookkeeper (added 2026-11-26)
 
 The Business plan's extra seats are meant for the people who touch a

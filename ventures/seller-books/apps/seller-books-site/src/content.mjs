@@ -386,7 +386,7 @@ export const FEATURES = [
   {
     key: "quarterly",
     title: "Quarterly estimated tax from your own books",
-    body: "For each of the four federal due dates (April, June, September and January), what to have paid so far, figured two ways: a quarter of the year's required payment (the smaller of 90% of this year's tax or 100% of last year's, 110% above $150,000 of AGI), and the annualized method on Form 2210 Schedule AI, which asks less early in the year when your sales come in the fourth quarter. It uses the profit in your books to each period's end. An estimate to check with your tax preparer, not tax advice.",
+    body: "For each of the four federal due dates (April, June, September and January), what to have paid so far, figured two ways: a quarter of the year's required payment (the smaller of 90% of this year's tax or 100% of last year's, 110% above $150,000 of AGI), and the annualized method on Form 2210 Schedule AI, which asks less early in the year when your sales come in the fourth quarter. It uses the profit in your books to each period's end. Once a date has passed short, it shows the underpayment penalty so far and what another month unpaid would add. An estimate to check with your tax preparer, not tax advice.",
   },
   {
     key: "1099k-check",

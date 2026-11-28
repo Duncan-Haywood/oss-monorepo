@@ -1826,7 +1826,7 @@ function estimatedTax() {
     },
     {
       q: "Is the underpayment penalty worth worrying about?",
-      a: "It is interest-like, figured on Form 2210 for each date you were short and for how long, not a flat fine. Paying the safe-harbour amounts by each date generally avoids it. Your tax preparer can say how it applies to you.",
+      a: "It is interest-like, figured on Form 2210 for each date you were short and for how long, not a flat fine: the IRS underpayment rate (7% a year for most of 2026, 6% from April to June) on each shortfall, day by day, until it is paid or until April 15 of the next year. Three missed $2,000 payments in 2026 come to about $174 by late November, and about $35 more each month after. Paying the safe-harbour amounts by each date generally avoids it, and Seller Books shows the penalty so far once a date has passed short. Your tax preparer can say how it applies to you.",
     },
   ];
   const body = `<section class="wrap">

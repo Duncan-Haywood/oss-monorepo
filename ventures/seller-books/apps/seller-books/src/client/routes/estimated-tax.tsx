@@ -53,6 +53,13 @@ interface Estimate {
   exempt: boolean;
   rows: Row[];
   next: { due: string; stillToPay: number | null } | null;
+  penalty: {
+    through: string;
+    method: "regular" | "annualized";
+    cents: number;
+    next30Days: number;
+    byDate: { due: string; underpayment: number; cents: number }[];
+  } | null;
   homeOffice?: { officeSqft: number; months: number[] } | null;
   warnings: string[];
 }
@@ -255,6 +262,10 @@ export function EstimatedTaxPage() {
         </section>
       )}
 
+      {e?.penalty && (e.penalty.cents > 0 || e.penalty.next30Days > 0) && (
+        <PenaltyCard penalty={e.penalty} />
+      )}
+
       {savesToShop && <ReminderCard orgId={orgId} />}
 
       <section className="card space-y-3">
@@ -444,6 +455,57 @@ export function EstimatedTaxPage() {
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * The underpayment penalty so far (Form 2210, Part III, shared/penalty-2210.ts): shown only when a due
+ * date has passed short. Figured from the payments typed in, each taken as sent by its date.
+ */
+function PenaltyCard({ penalty: p }: { penalty: NonNullable<Estimate["penalty"]> }) {
+  const short = p.byDate.filter((b) => b.underpayment > 0);
+  return (
+    <section className="card space-y-2" aria-labelledby="penalty-heading">
+      <h2 id="penalty-heading" className="font-medium">
+        Underpayment penalty so far
+      </h2>
+      <p className="text-2xl font-semibold">
+        about {usd(p.cents)} to {p.through}
+      </p>
+      <p className="text-sm text-stone-600">
+        {p.next30Days > 0
+          ? `Each 30 more days a shortfall stays unpaid adds about ${usd(p.next30Days)}. Paying it now stops the count for what you pay.`
+          : "The count has stopped at April 15 of the next year."}{" "}
+        Figured with the {p.method === "annualized" ? "annualized (Schedule AI)" : "regular"}{" "}
+        installments, whichever gives the lower penalty, at the IRS underpayment rate for each
+        quarter (Form 2210).
+      </p>
+      {short.length > 0 && (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Due</th>
+              <th className="num">Short by</th>
+              <th className="num">Penalty so far</th>
+            </tr>
+          </thead>
+          <tbody>
+            {short.map((b) => (
+              <tr key={b.due}>
+                <td>{b.due}</td>
+                <td className="num">{usd(b.underpayment)}</td>
+                <td className="num">{usd(b.cents)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <p className="text-xs text-stone-500">
+        An estimate from this year's projected tax and the payments typed in below, each taken as
+        sent by its due date. The IRS figures the real penalty from your return, and can waive it
+        (for example after a disaster or casualty).
+      </p>
+    </section>
   );
 }
 
