@@ -243,7 +243,8 @@
    "what": "A revolved solid carries no bounding box, so a revolved element's Uniformat basis says 'geometry not read' although its volume was computed, and box-based rules (what a member carries, room placement) skip it.",
    "where": "ventures/ifc-quantity-takeoff/uniformat.mjs:284",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108"
   },
   {
    "severity": "low",
@@ -253,6 +254,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165", "https://github.com/Duncan-Haywood/oss-monorepo/pull/20108"],
  "verdict": "Every one of ten outputs recomputed on auditor-written IFC files matches by hand. They cover I, hollow-circle, ellipse and arbitrary profiles, an oblique extrusion, a recess opening with and without a void threshold, a revolved solid, a scaled mapped item and imperial units. The tool does what its README says from the command line, carries the disclaimer, and states honestly that no quantity surveyor has reviewed it. It misses the bar on verification: three of six seeded bugs in core geometry and units survive the 172 tests (ellipse axis ratio, revolved-axis offset, CENTI prefix). For an estimator the main gap is steel: member length and mass come only from stored quantities, so an unquantified frame prices at 0 per m or kg with no note. The page also carries one stale figure (9,184 of 9,314)."
 }

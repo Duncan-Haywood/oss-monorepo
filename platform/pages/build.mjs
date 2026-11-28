@@ -13357,9 +13357,16 @@ const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 // category: einvoice-preflight alone carried about 150 KB of them gzipped, enough to push
 // `evidence` past its 4 MiB bound in build.test.mjs. They stay published (a page may link
 // one as source); they are just not part of the offline download.
+// Since 2026-11-28 also test files (`*.test.mjs`, node:test suites) and a venture's root
+// `server.mjs` (the self-host Node server; every one imports `node:` modules and no page
+// imports one): `services` reached 4.20 MB, 9.5 KB over the bound, and league-schedule-
+// generator's server.mjs alone was 21 KB of it gzipped.
 export const isNodeOnlyScript = (relToVenture) => {
   const parts = relToVenture.split(/[\\/]/);
-  if (!/\.(mjs|js|cjs)$/.test(parts[parts.length - 1])) return false;
+  const name = parts[parts.length - 1];
+  if (!/\.(mjs|js|cjs)$/.test(name)) return false;
+  if (/\.test\.(mjs|js|cjs)$/.test(name)) return true;
+  if (parts.length === 1 && name === 'server.mjs') return true;
   return parts[0] === 'eval' || (parts.length === 1 && /^build-[\w.-]+\.(mjs|js|cjs)$/.test(parts[0]));
 };
 

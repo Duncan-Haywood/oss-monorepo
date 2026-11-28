@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtJuiYM6LHYR1wNBsxK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T12:06:44Z",
+  "ended": "2026-11-28T12:17:05Z",
+  "wall_minutes": 10.52,
+  "tokens_in": 9906778,
+  "tokens_out": 46913,
+  "cost_usd": 4.3758,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20109",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First venture-suite run failed on three page checks (meta description over 160 chars, FAQ JSON-LD stripped curly quotes so it diverged from visible text, every guide must carry a stacked table); fixed by shortening the description, copying the visible FAQ text verbatim into the JSON-LD and adding a deadlines table."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "Every guide page must contain a class=\"stack\" table; nothing in nav.mjs's 'Add a page' header or the README says so, found only by a failing test."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported every bet's Next list gated or claimed; the useful pointer (front-door pages are the remaining work) came last in a long output."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "why": "It suggested bet #3 (fewest claims) or bet #6 (fewest front-door PRs); bet #3's Next items are owner-gated and bet #6 is not served yet, so a front door there sends traffic nowhere.",
+      "did": "Took a bet #1 front-door page (Utah preliminary notice) for the live PayApps app, a statute-read topic with no claim.",
+      "result": "Page shipped with tests; sign-ups attributable via from=pay-app-guides/utah-preliminary-notice."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-utah-preliminary-notice-registry.md"
+  ],
+  "goal": null,
+  "notes": "Statutes read directly from le.utah.gov (200 through the proxy). Venture suite pay-app-guides exit 0; platform/pages industry/llms tests 31/31; Chromium check at 390px clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "76dc500b-833c-5a56-851f-7bcbfebb81ef",
+    "transcripts": 1,
+    "first": "2026-11-28T12:06:44Z",
+    "last": "2026-11-28T12:17:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 46913,
+        "thinking": 8098,
+        "cache_read": 9720025,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186620,
+        "api_equivalent_usd": 4.3758,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 46913,
+      "thinking": 8098,
+      "cache_read": 9720025,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186620,
+      "api_equivalent_usd": 4.3758,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 70,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.52,
+      "active_minutes": 10.52,
+      "model_minutes": 8.78,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statute reading, calculator, page and tests for one state notice guide, as the Arizona page took",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 137.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

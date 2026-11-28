@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Utah Preliminary Notice (20 Days, SCR)</title>
+  <meta name="description" content="Utah preliminary notice: the 20-day State Construction Registry deadline for subs, suppliers and GCs, late filings, and the lien recording date.">
+  <meta property="og:title" content="Utah preliminary notice: the 20-day registry filing, late filings and the lien date">
+  <meta property="og:description" content="Utah Code § 38-1a-501 for private and government jobs: the 20-day date, what a late filing still protects, the notice of completion cut-off, and the lien recording date.">
+  <link rel="canonical" href="./utah-preliminary-notice.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .err { color: #9a3412; font-weight: 600; }
+    #draft { white-space: pre-wrap; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border-radius: 7px; padding: 10px 12px; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Utah preliminary notice: the 20-day registry filing, late filings and the lien date", "datePublished": "2026-11-28", "dateModified": "2026-11-28"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Who has to file a Utah preliminary notice?", "acceptedAnswer": {"@type": "Answer", "text": "On a private Utah job, everyone who may want a construction lien, the original contractor included: a person who fails to file one “may not claim a construction lien” (Utah Code § 38-1a-501(1)(e)). On a government job only subcontractors file; a person with a contract with the owner and a laborer paid wages do not (§ 38-1b-202(1)(a))."}}, {"@type": "Question", "name": "When is the Utah preliminary notice due?", "acceptedAnswer": {"@type": "Answer", "text": "No later than 20 days after the day you start providing construction work on the property (§ 38-1a-501(1)(a)). It is filed with the State Construction Registry, not mailed to the owner. On a government job where you started before the notice of commencement, it is the later of 20 days after you started and 20 days after that notice was filed (§ 38-1b-202(1)(a))."}}, {"@type": "Question", "name": "What happens if I file the Utah preliminary notice late?", "acceptedAnswer": {"@type": "Answer", "text": "On a private job you may still file, but you cannot claim a lien for work provided before the fifth day after the late filing (§ 38-1a-501(1)(c)). Once a notice of completion has been filed, a preliminary notice filed more than 10 days after it has no effect at all (§ 38-1a-501(1)(d))."}}, {"@type": "Question", "name": "How many preliminary notices do I need on one Utah project?", "acceptedAnswer": {"@type": "Answer", "text": "One per project, covering all your work under a single original contract, even if you work for more than one sub on it (§ 38-1a-501(1)(b), (3)(a)). Work under a second original contract on the same project needs its own notice (§ 38-1a-501(3)(b))."}}, {"@type": "Question", "name": "How long do I have to record a Utah mechanics lien?", "acceptedAnswer": {"@type": "Answer", "text": "180 days after final completion of the original contract if no notice of completion is filed, or 90 days after a notice of completion is filed, but never later than 180 days after final completion (§ 38-1a-502(1)(a)). Then sue to enforce within 180 days of recording (§ 38-1a-701(2))."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Utah preliminary notice: the 20-day registry filing</h1>
+  <p>On a Utah job the preliminary notice is not mailed to anyone: it is <strong>filed with the State Construction Registry</strong>, “no later than 20 days after the day on which the person commences providing construction work on the real property” (Utah Code § 38-1a-501(1)(a)). On a private job everyone who may want a lien files one, the general contractor too, and “A person who fails to file a preliminary notice as required in this section may not claim a construction lien” (§ 38-1a-501(1)(e)). Enter your dates for the last day, what a late filing still protects, the notice of completion cut-off and the lien recording date, then list what the filing must carry so you have it in hand when you file.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="utah-lien-waiver-forms.html">Utah lien waiver forms</a>
+    <a href="arizona-preliminary-notice.html">Arizona preliminary notice</a>
+    <a href="state-payment-bond-claims.html">Public job bond claims</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="dates">
+  <h2>Your dates</h2>
+  <p>Your entries stay in this browser tab; nothing is uploaded.</p>
+  <p><button type="button" class="secondary" id="sample">Load the example</button></p>
+  <div class="grid">
+    <div><label for="project">What kind of job?</label><select id="project">
+      <option value="private">Private (not for a government entity)</option>
+      <option value="government">Government project</option>
+    </select></div>
+    <div><label for="role">Who are you on this job?</label><select id="role">
+      <option value="sub">A subcontractor or supplier</option>
+      <option value="direct">I contracted directly with the owner</option>
+      <option value="laborer">A worker paid wages for my own labor</option>
+    </select></div>
+    <div><label for="first">First day you provided work on the job (YYYY-MM-DD)</label><input id="first" placeholder="2026-04-06"></div>
+    <div><label for="filed">Day filed (optional)</label><input id="filed" placeholder="2026-04-20"></div>
+    <div class="gov"><label for="commencement">Notice of commencement filed on (government jobs, optional)</label><input id="commencement"></div>
+    <div class="priv"><label for="completed">Final completion, if known (optional)</label><input id="completed" placeholder="2026-10-30"></div>
+    <div class="priv"><label for="noc">Notice of completion filed on (optional)</label><input id="noc"></div>
+    <div><label for="today">Today (YYYY-MM-DD)</label><input id="today"></div>
+  </div>
+  <div id="who" aria-live="polite"></div>
+  <div id="errors" aria-live="polite"></div>
+  <div id="result" aria-live="polite"></div>
+  <p class="note">Dates count calendar days. A deadline that ends on a Saturday, Sunday or legal holiday carries to the next day that is none of them (§ 68-3-7); this page names a weekend but does not check Utah's holidays, so plan on the unmoved date. “Final completion” is the permanent certificate of occupancy where one is required, else the final inspection where one is required, else the day no substantial work remains under the original contract (§ 38-1a-102(17)).</p>
+</section>
+
+<section class="card" id="at-a-glance">
+  <h2>Utah's deadlines at a glance</h2>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Step</th><th role="columnheader" scope="col">Deadline</th><th role="columnheader" scope="col">Section</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Step">File the preliminary notice with the registry</td><td role="cell" data-label="Deadline">20 days after you start work</td><td role="cell" data-label="Section">§ 38-1a-501(1)(a)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Late filing: lien covers work from</td><td role="cell" data-label="Deadline">5 days after you file</td><td role="cell" data-label="Section">§ 38-1a-501(1)(c)(ii)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Last filing that counts once a notice of completion is filed</td><td role="cell" data-label="Deadline">10 days after it</td><td role="cell" data-label="Section">§ 38-1a-501(1)(d)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Amend your notice with a balance statement (large unbonded commercial jobs)</td><td role="cell" data-label="Deadline">20 days after the notice of intent to obtain final completion</td><td role="cell" data-label="Section">§ 38-1a-506(3)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Record the notice of construction lien, no notice of completion</td><td role="cell" data-label="Deadline">180 days after final completion</td><td role="cell" data-label="Section">§ 38-1a-502(1)(a)(i)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Record it, notice of completion filed</td><td role="cell" data-label="Deadline">90 days after the notice of completion, 180 after final completion at most</td><td role="cell" data-label="Section">§ 38-1a-502(1)(a)(ii)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Copy the recorded lien to the owner</td><td role="cell" data-label="Deadline">30 days after recording</td><td role="cell" data-label="Section">§ 38-1a-502(4)(a)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Sue to enforce, and record a notice of pendency</td><td role="cell" data-label="Deadline">180 days after recording the lien</td><td role="cell" data-label="Section">§ 38-1a-701(2), (3)</td></tr>
+      <tr role="row"><td role="cell" data-label="Step">Government job: subcontractor's preliminary notice</td><td role="cell" data-label="Deadline">Later of 20 days after starting and 20 days after the notice of commencement</td><td role="cell" data-label="Section">§ 38-1b-202(1)(a)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Calendar days; § 68-3-7 carries a period ending on a Saturday, Sunday or legal holiday to the next day that is none of them.</p>
+</section>
+
+<section class="card" id="who-files">
+  <h2>Who files, and how many</h2>
+  <ul>
+    <li><strong>Private jobs: everyone who may want a lien.</strong> The section speaks of “A person who desires to claim a construction lien” and names no exceptions, so the original contractor, every sub at every tier and every supplier files (§ 38-1a-501(1)(a), (e)). Utah differs from Arizona and California here, where the GC in contract with the owner sends nothing.</li>
+    <li><strong>Government jobs: subcontractors.</strong> A person with a contract with the owner and a laborer paid wages are excepted; a temporary labor or professional employer company is not (§ 38-1b-202(1)). The notice is attached to the project's notice of commencement, and the claim is on the payment bond, not the property (see <a href="state-payment-bond-claims.html">state public job bond claims</a>).</li>
+    <li><strong>One per project.</strong> “a person required by this section to give preliminary notice is required to give only one notice for each construction project” (§ 38-1a-501(3)(a)), and it covers your work “under a single original contract, including construction work that the person provides to more than one supervisory subcontractor under that original contract” (§ 38-1a-501(1)(b)). A second original contract on the same project needs its own (§ 38-1a-501(3)(b)).</li>
+    <li><strong>Why the GC's filing matters to everyone.</strong> Every construction lien on the project “relates back to, and takes effect as of, the time of the first preliminary notice filing” (§ 38-1a-503(1)). Ask the GC for its entry number: a sub whose notice links to the original contractor's notice by that number has substantially complied (§ 38-1a-501(2)(b)).</li>
+  </ul>
+</section>
+
+<section class="card" id="late">
+  <h2>Filing late, and the notice of completion</h2>
+  <ul>
+    <li><strong>Late is not too late, at first.</strong> You may file after the 20 days, but you “may not claim a construction lien for construction work the person provides to the construction project before the date that is five days after the preliminary notice is filed” (§ 38-1a-501(1)(c)(ii)). File the day you notice the miss: every day of delay is a day of work outside the lien.</li>
+    <li><strong>The hard stop.</strong> Once an owner, GC, lender, surety or title company files a notice of completion (§ 38-1a-507), a preliminary notice “has no effect if it is filed more than 10 days after the filing of a notice of completion” (§ 38-1a-501(1)(d)).</li>
+    <li><strong>Big commercial jobs: the balance statement.</strong> On a nonresidential job over $500,000 and 120 days with no payment bond, the owner or GC files a notice of intent to obtain final completion at least 45 days ahead, and you then amend your preliminary notice within 20 days with what is still owed and what is in dispute (§ 38-1a-506(1) to (3)).</li>
+    <li><strong>Government jobs.</strong> A late notice “becomes effective on the date that is five days after the date on which the preliminary notice is filed” (§ 38-1b-202(4)), and work before then can be claimed only against the person who hired you (§ 38-1b-202(5)).</li>
+  </ul>
+</section>
+
+<section class="card" id="notice-card">
+  <h2>What the filing must carry</h2>
+  <p>The registry's own form asks the questions; § 38-1a-501(1)(h) says what “A preliminary notice shall include”. Fill in what you know to see what is still missing before you sit down to file. This is a checklist, not a form to send.</p>
+  <div class="grid">
+    <div><label for="f-claimant">Your company, address, phone and email</label><input id="f-claimant"></div>
+    <div><label for="f-hiredBy">Who contracted with you, and address</label><input id="f-hiredBy"></div>
+    <div><label for="f-owner">Record or reputed owner</label><input id="f-owner"></div>
+    <div><label for="f-original">Original contractor (GC)</label><input id="f-original"></div>
+    <div><label for="f-site">Project address or location</label><input id="f-site"></div>
+    <div><label for="f-county">County</label><input id="f-county"></div>
+    <div><label for="f-parcel">Tax parcel ID number(s)</label><input id="f-parcel"></div>
+    <div><label for="f-loanEntry">Construction loan notice entry number</label><input id="f-loanEntry"></div>
+    <div><label for="f-prelimEntry">GC's (or another) preliminary notice entry number</label><input id="f-prelimEntry"></div>
+    <div><label for="f-permit">Building permit entry number</label><input id="f-permit"></div>
+    <div><label for="f-projectName">Project or subdivision name (optional)</label><input id="f-projectName"></div>
+    <div><label for="f-lot">Lot number(s) (optional)</label><input id="f-lot"></div>
+    <div><label for="f-work">Your work, in a few words (for your records)</label><input id="f-work"></div>
+  </div>
+  <p id="missing" class="note" aria-live="polite"></p>
+  <div id="draft" aria-label="Filing checklist"></div>
+  <p><button type="button" id="print">Print the checklist</button> <button type="button" class="secondary" id="copy">Copy the text</button></p>
+  <p class="note">One of the four identifiers is enough (§ 38-1a-501(1)(h)(vii)); the GC's entry number is the easiest to get and links your notice to its filing. If the registry tells you a parcel number is new to it, either yours is the first filing on the project or the number is wrong (§ 38-1a-501(1)(g)): check it. Filing by paper or another “alternate means” leaves you responsible for correcting it before the 20 days run (§ 38-1a-501(4)). Not legal advice.</p>
+</section>
+
+<section class="card" id="lien">
+  <h2>After the notice: the lien and the lawsuit</h2>
+  <ul>
+    <li><strong>Record the lien</strong> with the county recorder no later than 180 days after final completion of the original contract if no notice of completion is filed, or 90 days after a notice of completion is filed, “but not later than 180 days after the date on which final completion of the original contract occurs” (§ 38-1a-502(1)(a)). A sub doing substantial work after the certificate of occupancy or final inspection has 180 days after its own last work (§ 38-1a-502(1)(b)).</li>
+    <li><strong>Copy the owner</strong> by delivery or certified mail within 30 days of filing the lien; missing it costs you costs and attorney fees against the owner, not the lien (§ 38-1a-502(4)).</li>
+    <li><strong>Sue to enforce</strong> within 180 days after filing the notice of lien, and record a notice of pendency of the action in the same time or the lien is void against most others (§ 38-1a-701(2), (3)).</li>
+    <li><strong>Owner-occupied homes.</strong> A lien on an owner-occupied residence must say how the owner can have it removed under § 38-11-107 (§ 38-1a-502(2)(i)); Utah's Residence Lien Restriction and Lien Recovery Fund Act may bar the lien if the owner paid the contractor in full. Read that chapter before liening a home.</li>
+  </ul>
+  <p class="note">Source: Utah Code <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S102.html">§ 38-1a-102</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S501.html">§ 38-1a-501</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S502.html">§ 38-1a-502</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S503.html">§ 38-1a-503</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S506.html">§ 38-1a-506</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S507.html">§ 38-1a-507</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1A/38-1a-S701.html">§ 38-1a-701</a>, <a href="https://le.utah.gov/xcode/Title38/Chapter1B/38-1b-S202.html">§ 38-1b-202</a> and <a href="https://le.utah.gov/xcode/Title68/Chapter3/68-3-S7.html">§ 68-3-7</a> on the Utah Legislature's site, read <strong>2026-11-28</strong>; the text is kept with this page's source and its tests check every quoted phrase against it. Read the sections there before relying on this page. Waivers on Utah jobs are on <a href="utah-lien-waiver-forms.html">Utah's statutory lien waiver forms</a>.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>Who has to file a Utah preliminary notice?</h3>
+  <p>On a private Utah job, everyone who may want a construction lien, the original contractor included: a person who fails to file one “may not claim a construction lien” (Utah Code § 38-1a-501(1)(e)). On a government job only subcontractors file; a person with a contract with the owner and a laborer paid wages do not (§ 38-1b-202(1)(a)).</p>
+  <h3>When is the Utah preliminary notice due?</h3>
+  <p>No later than 20 days after the day you start providing construction work on the property (§ 38-1a-501(1)(a)). It is filed with the State Construction Registry, not mailed to the owner. On a government job where you started before the notice of commencement, it is the later of 20 days after you started and 20 days after that notice was filed (§ 38-1b-202(1)(a)).</p>
+  <h3>What happens if I file the Utah preliminary notice late?</h3>
+  <p>On a private job you may still file, but you cannot claim a lien for work provided before the fifth day after the late filing (§ 38-1a-501(1)(c)). Once a notice of completion has been filed, a preliminary notice filed more than 10 days after it has no effect at all (§ 38-1a-501(1)(d)).</p>
+  <h3>How many preliminary notices do I need on one Utah project?</h3>
+  <p>One per project, covering all your work under a single original contract, even if you work for more than one sub on it (§ 38-1a-501(1)(b), (3)(a)). Work under a second original contract on the same project needs its own notice (§ 38-1a-501(3)(b)).</p>
+  <h3>How long do I have to record a Utah mechanics lien?</h3>
+  <p>180 days after final completion of the original contract if no notice of completion is filed, or 90 days after a notice of completion is filed, but never later than 180 days after final completion (§ 38-1a-502(1)(a)). Then sue to enforce within 180 days of recording (§ 38-1a-701(2)).</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Keep the dates on every Utah job</h2>
+  <p>PayApps is hosted pay-app billing for specialty subcontractors. On a Utah job it shows the last day to record the lien under § 38-1a-502 from final completion and any notice of completion, names it on the cash page while the job still owes you money, and, on the Crew plan and up, prints Utah's statutory lien waivers (§ 38-1a-802) against each pay application. <!-- cta-status: generated by cta.mjs, do not edit by hand -->It is <strong>open now</strong>: pay applications with retainage and change orders, free on one job, no card. Lien waivers, QuickBooks and job costing are in the paid plans, which are not on sale yet. <a href="https://payapps.marisstella.app/?signup&amp;from=pay-app-guides%2Futah-preliminary-notice">Start free in PayApps</a>.<!-- /cta-status --></p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="construction-invoice-template.html">Free contractor invoice template (Excel)</a></li>
+      <li><a href="change-order-template.html">Free change order form (Excel)</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      <li><a href="how-to-write-an-rfi.html">RFI drafter and how to write an RFI</a></li>
+      <li><a href="punch-list.html">Punch list tracker and back-check email</a></li>
+      <li><a href="daily-report-template.html">Daily report template (print, email, CSV)</a></li>
+      <li><a href="submittal-log-template.html">Submittal log template and tracker</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="progress-billing.html">Progress billing and draw schedules</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="gc-portal-billing.html">Billing in Procore, Textura and GCPay</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      <li><a href="coconstruct-alternatives.html">CoConstruct closing: your options</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-form.html">Free lien waiver form (general, fill in and print)</a></li>
+      <li><a href="california-preliminary-notice.html">California 20-day preliminary notice</a></li>
+      <li><a href="arizona-preliminary-notice.html">Arizona 20-day preliminary notice</a></li>
+      <li><a href="florida-notice-to-owner.html">Florida Notice to Owner (45 days)</a></li>
+      <li><a href="michigan-notice-of-furnishing.html">Michigan notice of furnishing (20 days)</a></li>
+      <li><a href="utah-preliminary-notice.html" aria-current="page">Utah preliminary notice (20 days, registry)</a></li>
+      <li><a href="texas-lien-notice.html">Texas monthly lien notice deadlines</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="state-payment-bond-claims.html">State public job bond claims (little Miller Acts)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      <li><a href="certificate-of-insurance-for-subcontractors.html">Certificates of insurance (COI)</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing by trade</h2>
+      <ul>
+      <li><a href="electrical-contractor-billing.html">Electrical contractors</a></li>
+      <li><a href="mechanical-contractor-billing.html">HVAC, plumbing and mechanical</a></li>
+      <li><a href="drywall-contractor-billing.html">Drywall and framing</a></li>
+      <li><a href="concrete-contractor-billing.html">Concrete (unit-price billing)</a></li>
+      <li><a href="site-work-contractor-billing.html">Site work and excavation (unit prices)</a></li>
+      <li><a href="roofing-contractor-billing.html">Commercial roofing</a></li>
+      <li><a href="masonry-contractor-billing.html">Masonry</a></li>
+      <li><a href="painting-contractor-billing.html">Commercial painting</a></li>
+      <li><a href="finish-carpentry-contractor-billing.html">Millwork and finish carpentry</a></li>
+      <li><a href="flooring-contractor-billing.html">Commercial flooring and tile</a></li>
+      <li><a href="glazing-contractor-billing.html">Glass, glazing and curtain wall</a></li>
+      <li><a href="steel-contractor-billing.html">Structural steel and misc metals</a></li>
+      <li><a href="fire-protection-contractor-billing.html">Fire sprinkler and fire protection</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Statutory lien waiver forms</h2>
+      <ul>
+      <li><a href="arizona-lien-waiver-forms.html">Arizona</a></li>
+      <li><a href="california-lien-waiver-forms.html">California</a></li>
+      <li><a href="florida-lien-waiver-forms.html">Florida</a></li>
+      <li><a href="georgia-lien-waiver-forms.html">Georgia</a></li>
+      <li><a href="massachusetts-lien-waiver-forms.html">Massachusetts</a></li>
+      <li><a href="michigan-lien-waiver-forms.html">Michigan</a></li>
+      <li><a href="mississippi-lien-waiver-forms.html">Mississippi</a></li>
+      <li><a href="missouri-lien-waiver-forms.html">Missouri</a></li>
+      <li><a href="nevada-lien-waiver-forms.html">Nevada</a></li>
+      <li><a href="texas-lien-waiver-forms.html">Texas</a></li>
+      <li><a href="utah-lien-waiver-forms.html">Utah</a></li>
+      <li><a href="wyoming-lien-waiver-forms.html">Wyoming</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>En español</h2>
+      <ul>
+      <li><a href="es-como-llenar-una-solicitud-de-pago.html">Cómo llenar una solicitud de pago</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser; nothing you type is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_ut_prelim_viewed</code>, <code>ut_prelim_dated</code>, <code>ut_prelim_printed</code>, <code>ut_prelim_copied</code>) are kept in local storage on your device only, never with your entries, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { isoDate, noticeDates, whoFiles, checklist } from "./utprelim.mjs";
+  record("guide_ut_prelim_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const now = new Date();
+  $("today").value = isoDate(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const FIELDS = ["claimant", "hiredBy", "owner", "original", "site", "county", "parcel", "loanEntry", "prelimEntry", "permit", "projectName", "lot", "work"];
+  let counted = false, text = "";
+  const para = (t, cls = "finding") => { const p = document.createElement("p"); p.className = cls; p.textContent = t; return p; };
+  const PILL = { past: ["high", "passed"], today: ["high", "today"], soon: ["high", "soon"], open: ["", "open"] };
+  const when = (label, date, s) => {
+    const p = document.createElement("p"); p.className = "finding";
+    if (s) {
+      const [pill, word] = PILL[s.state];
+      const span = document.createElement("span"); span.className = `pill ${pill}`; span.textContent = word;
+      const left = s.daysLeft < 0 ? `${-s.daysLeft} days ago` : s.daysLeft === 0 ? "today" : `${s.daysLeft} days left`;
+      p.append(span, `${label}: ${date} (${left})`);
+    } else p.textContent = `${label}: ${date}`;
+    return p;
+  };
+  function showFields() {
+    const gov = $("project").value === "government";
+    for (const el of document.querySelectorAll(".gov")) el.hidden = !gov;
+    for (const el of document.querySelectorAll(".priv")) el.hidden = gov;
+  }
+  function renderDates() {
+    showFields();
+    const project = $("project").value;
+    const who = whoFiles(project, $("role").value);
+    $("who").replaceChildren(para(who.why, "note"));
+    if (!who.needed || !$("first").value.trim()) { $("errors").replaceChildren(); $("result").replaceChildren(); return; }
+    const r = noticeDates({ project, first: $("first").value, filed: $("filed").value, commencement: $("commencement").value, completed: $("completed").value, noc: $("noc").value, today: $("today").value });
+    $("errors").replaceChildren(...r.errors.map((e) => para(e, "err")));
+    if (r.errors.length) { $("result").replaceChildren(); return; }
+    const out = [when("Last day to file the preliminary notice", `${r.lastDay} (${r.weekday})`, r.status), para(`That is ${r.rule}.`, "note")];
+    if (r.filed) out.push(para(`${r.noEffect ? "No effect" : r.onTime ? "On time" : "Late"}: filed ${r.filed}. It covers ${r.covers}.`));
+    if (r.recordBy) out.push(when("Record the lien by", r.recordBy, r.recordStatus), para(`That is ${r.recordRule}.`, "note"));
+    for (const n of r.notes) out.push(para(n, "note"));
+    $("result").replaceChildren(...out);
+    if (!counted) { record("ut_prelim_dated"); counted = true; }
+  }
+  function renderDraft() {
+    const f = Object.fromEntries(FIELDS.map((k) => [k, $(`f-${k}`).value]));
+    f.first = $("first").value;
+    const d = checklist(f);
+    text = d.text;
+    $("draft").textContent = d.text;
+    $("missing").textContent = d.missing.length ? `Still missing: ${d.missing.join("; ")}.` : "Every item § 38-1a-501(1)(h) asks for is filled in.";
+  }
+  for (const id of ["project", "role", "first", "filed", "commencement", "completed", "noc", "today"]) $(id).addEventListener("input", () => { renderDates(); renderDraft(); });
+  for (const k of FIELDS) $(`f-${k}`).addEventListener("input", renderDraft);
+  $("sample").addEventListener("click", () => {
+    $("project").value = "private"; $("role").value = "sub"; $("first").value = "2026-04-06"; $("filed").value = "2026-05-04"; $("commencement").value = ""; $("completed").value = "2026-10-30"; $("noc").value = "";
+    const s = { claimant: "Wasatch Mechanical LLC, 410 W 800 S, Salt Lake City, UT 84101, 801-555-0142, office@example.com", hiredBy: "Beehive Builders Inc., 2200 S State St, Salt Lake City, UT 84115", owner: "Granary Lofts LLC", original: "Beehive Builders Inc.", site: "750 W 900 S, Salt Lake City, UT", county: "Salt Lake", parcel: "", loanEntry: "", prelimEntry: "(the GC's entry number)", permit: "", projectName: "Granary Lofts", lot: "", work: "HVAC and plumbing rough-in and trim" };
+    for (const k of FIELDS) $(`f-${k}`).value = s[k];
+    renderDates(); renderDraft();
+  });
+  $("print").addEventListener("click", () => { record("ut_prelim_printed"); window.print(); });
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; record("ut_prelim_copied"); }
+    catch { $("copy").textContent = "Copy failed: select the text and copy it"; }
+  });
+  renderDates(); renderDraft();
+</script>
+</body>
+</html>
