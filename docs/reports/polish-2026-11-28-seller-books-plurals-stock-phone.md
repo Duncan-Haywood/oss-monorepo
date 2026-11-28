@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, product]
+topics: [design, product-build]
 date: 2026-11-28
 ---
 
