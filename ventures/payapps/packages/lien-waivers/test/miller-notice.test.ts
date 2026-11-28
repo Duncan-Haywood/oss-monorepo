@@ -104,3 +104,20 @@ test("Miller notice refuses a missing amount, a missing party and a bad date", (
     "lastDay",
   ]);
 });
+
+// Red-team run of 2026-11-28: a notice dated before the last day it claims for rendered, so a
+// claimant could print a notice saying work was last done on a day after the notice itself.
+test("a notice dated before its own last day is refused, naming the last day", () => {
+  const r = renderNotice(millerActNotice(), { ...DATA, noticeDate: "2026-10-01" });
+  assert.equal(r.ok, false);
+  if (r.ok) return;
+  assert.deepEqual(
+    r.errors.map((e) => [e.field, e.code]),
+    [["lastDay", "INVALID_DATE"]],
+  );
+  assert.match(r.errors[0]?.message ?? "", /after the date of the notice/);
+});
+
+test("a notice dated on its last day renders", () => {
+  assert.ok(renderNotice(millerActNotice(), { ...DATA, noticeDate: DATA.lastDay }).ok);
+});
