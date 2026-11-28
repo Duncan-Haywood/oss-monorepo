@@ -99,9 +99,14 @@ ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
 # llms-answers.test.mjs (0.2 s) fails when a page's FAQ changed and the
 # product's llms.txt Answers were not regenerated: PR #19965 merged that way and
 # left main red for later venture runs (five run records, 2026-11-28).
+# title-length, description-length and og-description-length (the length
+# ratchets, under 1 s each): PR #20062 merged an SPRS page over both
+# and left main red, and a run record (2026-11-28T07:14) names a 180-character
+# description that passed locally and failed CI.
 PAGES = ROOT / "platform" / "pages"
 PAGE_CHECKS = ("faq-visible.test.mjs", "secondary-schema.test.mjs", "css-lint.test.mjs",
-               "llms-answers.test.mjs")
+               "llms-answers.test.mjs", "title-length.test.mjs", "description-length.test.mjs",
+               "og-description-length.test.mjs")
 
 
 def git(*args):
