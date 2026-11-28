@@ -20,6 +20,7 @@ import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
 import { inspectXmlValues } from "./xmlvalues.mjs";
+import { XRECHNUNG_EXTENSION } from "./profile.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
 const parseNumber = parseDecimal;
@@ -348,16 +349,24 @@ export function checkInvoice(invoice) {
   // BT-114 (rounding) can be negative: BR-CO-16 is due = gross - prepaid + rounding.
   const rounding = optionalMoney(totals, "rounding");
   const roundingValue = rounding === undefined || rounding === null ? 0 : rounding;
+  // XRechnung's extension adds third-party payments (BG-DEX-09) to the amount due:
+  // BR-DEX-09, which overrides BR-CO-16, is due = gross - prepaid + rounding + their sum.
+  // Outside the extension BR-CO-16 stands and the payments do not count.
+  const thirdParty = Array.isArray(invoice.third_party_payments) ? invoice.third_party_payments : [];
+  const thirdPartyCounts = XRECHNUNG_EXTENSION.test(String(invoice.specification_id || "").trim());
+  const thirdPartySum = thirdParty.reduce((sum, row) => sum + (row && typeof row.amount === "number" && Number.isFinite(row.amount) ? row.amount : 0), 0);
+  const thirdPartyValue = thirdPartyCounts ? thirdPartySum : 0;
+  const dueBase = (gross ?? 0) + thirdPartyValue;
   // When prepayments exceed the gross, EN 16931 allows a negative amount due
   // (a credit balance for the buyer) as long as the arithmetic is stated.
   // A negative prepaid amount (a correction that adds to what is owed) is accepted
   // only when the stated amount due works out from it.
   const debitBalance = gross !== null && prepaid !== undefined && prepaid !== null && prepaid < 0
     && due !== undefined && due !== null
-    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
+    && due === roundHalfUpToCents(dueBase - prepaid + roundingValue);
   const creditBalance = gross !== null && gross >= 0 && prepaid !== undefined && prepaid !== null && prepaid > gross
     && due !== undefined && due !== null
-    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
+    && due === roundHalfUpToCents(dueBase - prepaid + roundingValue);
   if (prepaid !== undefined) {
     if (prepaid === null || (prepaid < 0 && !debitBalance)) {
       fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
@@ -370,12 +379,18 @@ export function checkInvoice(invoice) {
       fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
     } else if (gross !== null && (gross >= 0 || negativeInvoice) && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
       const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
-      let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
+      let expectedDue = roundHalfUpToCents(dueBase - applied + roundingValue);
       if (expectedDue < 0 && !creditBalance && !negativeInvoice) expectedDue = 0;
       // MINIMUM has no prepaid field (BT-113), so a lower amount due is normal there.
       const minimumProfile = /[:#]minimum$/i.test(String(invoice.specification_id || "").trim());
       if (due !== expectedDue && !(minimumProfile && (prepaid === undefined || prepaid === null))) {
-        fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
+        if (thirdPartyCounts && thirdParty.length) {
+          fail("INV-029", "Amount due does not equal gross minus prepaid plus the third-party payments (BR-DEX-09).", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid, gross and the third-party payments (BG-DEX-09).`, "/totals/due");
+        } else if (thirdParty.length && thirdPartySum !== 0 && due === roundHalfUpToCents(gross + thirdPartySum - applied + roundingValue)) {
+          fail("INV-029", "Amount due includes third-party payments (cac:PrepaidPayment), which count only in an XRechnung extension file.", `Declare the XRechnung extension in BT-24 (ending #conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0) if the receiver accepts it, or set amount due to ${formatMoney(expectedDue)} and bill the third-party amounts another way.`, "/totals/due");
+        } else {
+          fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
+        }
       }
     }
   }
