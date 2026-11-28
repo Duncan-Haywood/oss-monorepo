@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
@@ -40,6 +40,10 @@
     {
       "what": "New route description was over the site test's 160-character limit",
       "fix": "shortened to 146"
+    },
+    {
+      "what": "jobshop-quote/jobshop-site CI red on biome format (a long throw line, test file)",
+      "fix": "biome check --write; biome ci clean on both apps"
     }
   ],
   "integrity_issues": [],
