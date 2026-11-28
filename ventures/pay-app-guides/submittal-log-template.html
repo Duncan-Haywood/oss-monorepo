@@ -221,7 +221,7 @@
 </footer>
 <script type="module">
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-  import { compute, summaryText, overdueEmail, logCsv, templateCsv, sampleLog, SAMPLE_SETTINGS, stateLabel, label, ACTION_LABEL } from "./submittals.mjs";
+  import { compute, summaryText, overdueEmail, logCsv, templateCsv, sampleLog, SAMPLE_SETTINGS, stateLabel, label, actionLabel } from "./submittals.mjs";
   import { dayText } from "./colog.mjs";
   record("guide_submittal_log_viewed");
   const b = document.getElementById("optout");
@@ -233,7 +233,7 @@
   const download = (text, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
   const itemText = (x) => {
     const parts = [`${label(x)} ${x.title}: ${stateLabel(x.state)}`];
-    if (x.state === "approved" || x.state === "resubmit") parts.push(`${ACTION_LABEL[x.action]} ${dayText(x.returned)}`);
+    if (x.state === "approved" || x.state === "resubmit") parts.push(`${actionLabel(x.action)} ${dayText(x.returned)}`);
     if (x.overdue) parts.push(`${x.daysOverdue} day${x.daysOverdue === 1 ? "" : "s"} past the required-back date`);
     if (x.submitBy != null && x.state === "not_submitted") parts.push(`send by ${dayText(x.submitBy)}`);
     if (x.deliveryAtRisk === true) parts.push("delivery on site at risk");

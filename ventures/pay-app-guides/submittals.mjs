@@ -28,6 +28,7 @@ export const ACTION_LABEL = {
   rejected: "Rejected",
   for_record: "Received for record",
 };
+export const actionLabel = (a) => (a && Object.hasOwn(ACTION_LABEL, a) ? ACTION_LABEL[a] : "");
 const CLOSING = ["approved", "approved_as_noted", "for_record"];
 
 // The stamp wordings GCs and architects use, read to PayApps' five actions. Anything else is refused
@@ -224,7 +225,7 @@ export function chaseText(c) {
   const why =
     c.reason === "overdue_back" ? `back from the GC by ${dayText(c.since)}, ${dayWord(c.days)} overdue` :
     c.reason === "late_to_send" ? `not sent, last day to send was ${dayText(c.since)}, ${dayWord(c.days)} ago` :
-    `returned "${ACTION_LABEL[c.action]}" ${dayText(c.since)}${c.days > 0 ? `, ${dayWord(c.days)} ago` : ", today"}: send Rev ${c.revision + 1}`;
+    `returned "${actionLabel(c.action)}" ${dayText(c.since)}${c.days > 0 ? `, ${dayWord(c.days)} ago` : ", today"}: send Rev ${c.revision + 1}`;
   return `${what}: ${why}.${c.deliveryAtRisk ? " Delivery on site is at risk." : ""}`;
 }
 
@@ -263,7 +264,7 @@ export function overdueEmail(r, { gc, pm, project, sub } = {}) {
 
 export function logCsv(r) {
   const head = ["Number", "Revision", "Spec section", "Title", "Type", "Sent", "Required back", "Returned", "Action", "Needed on site", "Lead time (days)", "Review days", "Submit by", "Status", "Days overdue", "Days with GC", "Delivery at risk"];
-  const rows = r.items.map((x) => [x.number, x.revision, x.spec, x.title, x.type, dayText(x.sent), dayText(x.requiredBy), dayText(x.returned), x.action ? ACTION_LABEL[x.action] : "", dayText(x.needed), x.lead ?? "", x.review ?? "", dayText(x.submitBy), stateLabel(x.state), x.daysOverdue || "", x.daysWithGc ?? "", x.deliveryAtRisk == null ? "" : x.deliveryAtRisk ? "Yes" : "No"]);
+  const rows = r.items.map((x) => [x.number, x.revision, x.spec, x.title, x.type, dayText(x.sent), dayText(x.requiredBy), dayText(x.returned), actionLabel(x.action), dayText(x.needed), x.lead ?? "", x.review ?? "", dayText(x.submitBy), stateLabel(x.state), x.daysOverdue || "", x.daysWithGc ?? "", x.deliveryAtRisk == null ? "" : x.deliveryAtRisk ? "Yes" : "No"]);
   return [head, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
