@@ -93,6 +93,44 @@ describe("cashDigest", () => {
     ]);
   });
 
+  it("totals the interest accrued on past-due applications and earned on those paid late", () => {
+    const paid = (n: number) => ({ payAppId: `pa${n}`, number: n }) as never;
+    const d = cashDigest(
+      report(
+        [
+          job({ id: "a", actions: ["Bill the interest."], paidLate: [paid(2), paid(3)] }),
+          job({ id: "b", actions: ["Follow up."], paidLate: [paid(1)] }),
+        ],
+        {
+          outstandingCents: 300_000,
+          pastDueCents: 200_000,
+          interestCents: 4_500,
+          paidLateInterestCents: 12_345,
+        },
+      ),
+    );
+    expect(d?.summary).toEqual([
+      "Owed on sent applications: $3,000.00, of which $2,000.00 is past due.",
+      "Interest accrued on the past-due applications at your jobs' late-payment rates: $45.00, and still running until they are paid.",
+      "Interest earned on 3 applications paid late, not billed or waived yet: $123.45. Mark each one billed or waived on the cash page once you decide.",
+    ]);
+  });
+
+  it("says nothing about interest when none accrued or all is billed or waived", () => {
+    const one = cashDigest(
+      report([job({ id: "a", actions: ["x"], paidLate: [{ number: 4 } as never] })], {
+        paidLateInterestCents: 900,
+      }),
+    );
+    expect(one?.summary).toEqual([
+      "Interest earned on 1 application paid late, not billed or waived yet: $9.00. Mark each one billed or waived on the cash page once you decide.",
+    ]);
+    const none = cashDigest(
+      report([job({ id: "a", actions: ["x"] })], { paidLateBilledCents: 900 }),
+    );
+    expect(none?.summary).toEqual([]);
+  });
+
   it("says how much of the finished jobs' retainage waits on close-out", () => {
     const d = cashDigest(
       report([job({ id: "a", actions: ["Close out."] })], {

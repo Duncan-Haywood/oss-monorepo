@@ -5,6 +5,7 @@ date: 2026-10-31
 updated: 2026-11-28
 tags: [construction, siding, wall-framing-takeoff, residential-takeoff, for-customers]
 description: "A free standalone siding calculator page: lap siding boards packed course by course around doors and windows, house wrap rolls and corner boards."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*

@@ -353,3 +353,12 @@ test("the band under the rake: refused outside 0 to 36 in, and as text", () => {
   assert.deepEqual(validateSiding({ rakeHeel: -1 }), ["The band under the rake (`rakeHeel`) must be between 0 and 36 inches above the top plate."]);
   assert.equal(layoutSiding({ rakeHeel: "6" }, plan(box())).ok, false);
 });
+
+test("the not-counted line drops the flashing the takeoff did count", () => {
+  const p = { studLength: 92.625, defaultHeaderHeight: 82, walls: [{ id: "A", length: 240, openings: [{ kind: "window", offset: 60, width: 36, height: 48 }] }] };
+  const last = (d) => sidingText(layoutSiding(d, p)).at(-1);
+  assert.match(last({}), /trim, flashing, nails/);
+  assert.match(last({ headFlashing: true }), /trim, sill and jamb flashing, nails/);
+  assert.match(last({ openingTape: true }), /trim, head flashing, nails/);
+  assert.doesNotMatch(last({ headFlashing: true, openingTape: true }), /flashing/);
+});

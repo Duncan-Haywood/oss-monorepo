@@ -3,6 +3,7 @@ title: "Counting the trim boards around every window and door"
 date: 2026-10-30
 tags: [wall-framing-takeoff, siding, estimating]
 description: "The framing takeoff's siding step now orders exterior window and door trim as cut pieces packed into boards, with a hand-worked example."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 Exterior trim is the line item that gets guessed. The [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already cuts siding course by course and packs the runs into boards. Until now it left the trim around openings out of the order. It no longer does, if you ask it to (`siding.openingTrim: true`).

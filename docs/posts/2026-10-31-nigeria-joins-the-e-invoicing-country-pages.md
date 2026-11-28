@@ -4,6 +4,7 @@ seo_title: "Nigeria e-invoicing: NRS Merchant Buyer Solution rollout and scope"
 date: 2026-10-31
 tags: [einvoice-preflight, e-invoicing, nigeria]
 description: "E-invoice Preflight gets a Nigeria page: the NRS Merchant Buyer Solution, the turnover-based rollout, and exactly where the sources disagree."
+folded_into: einvoice-preflight/nigeria-mbs-e-invoice-mandate
 ---
 
 E-invoice Preflight now has a page for Nigeria, the 55th row in its mandates-by-country table.

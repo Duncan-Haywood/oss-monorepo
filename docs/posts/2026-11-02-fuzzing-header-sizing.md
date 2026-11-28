@@ -4,6 +4,7 @@ seo_title: "Testing header sizing from a user-supplied span table"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: A seeded property test for the header sizing step of the wall-framing takeoff, and what it checks.
+folded_into: writing/window-and-door-headers-size-plies-jacks-and-what-to-order/
 ---
 
 The wall-framing takeoff picks a header for each door and window from a span table the user types in; it ships no code values. The picking step is small, so it was tested with a handful of examples. A new seeded test now builds 300 random valid tables and openings and checks the rules that matter.

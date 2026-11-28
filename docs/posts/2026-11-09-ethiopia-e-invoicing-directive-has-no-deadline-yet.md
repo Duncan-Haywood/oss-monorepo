@@ -4,6 +4,7 @@ seo_title: "Ethiopia e-invoicing Directive 1142/2026: deadline, who must comply"
 date: 2026-11-09
 tags: [einvoice-preflight, e-invoicing, ethiopia]
 description: "Ethiopia issued e-invoicing Directive 1142/2026 in mid-2026, but the compliance schedule is unpublished. What sources agree on and where they differ."
+folded_into: einvoice-preflight/ethiopia-eis-e-invoice-mandate
 ---
 
 Searching "Ethiopia e-invoicing mandate date" returns vendor posts that read like

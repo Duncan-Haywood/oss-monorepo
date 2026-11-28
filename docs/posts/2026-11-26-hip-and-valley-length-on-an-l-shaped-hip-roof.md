@@ -1,7 +1,7 @@
 ---
 title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
-updated: 2026-11-27
+updated: 2026-11-28
 tags: [wall-framing-takeoff, for-customers, construction]
 description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing by hand, with hip cut-offs reused at valleys and at the next course's hip.
 ---
@@ -175,10 +175,31 @@ The takeoff now draws the roof over outlines with angled sides as well. The meth
 - a regular octagon and a rectangle with clipped corners match their closed forms, and the bay above was worked by hand;
 - on 800 random outlines with sides at any angle, every line is inside the outline and lies where at least two roof planes meet, and no point is higher than its distance to the walls allows.
 
-It gives squares, eave length and every ridge, hip and valley. It does **not** yet lay out rafters or sheathing courses on angled planes, and it says so instead of guessing. It has not been compared with a roofer's measured roof.
+It gives squares, eave length and every ridge, hip and valley. Since 2026-11-28 it also frames those planes (next section). It does **not** yet lay out sheathing courses on angled planes, and it says so instead of guessing. It has not been compared with a roofer's measured roof.
+
+## Rafters on the bay: the cut at a hip is not the 45-degree cut (added 2026-11-28)
+
+Every rafter runs square to the eave it bears on, so on the bay's front it runs straight in, and on each 45-degree side it runs at 45 degrees to the house. Where a rafter dies into a hip or valley, you take half the hip's thickness off its run. At a square corner the hip crosses the rafter at 45 degrees, so the take-off is ¾ in ÷ sin 45° = **1-1/16 in** of run for a 1-½ in hip. On the bay that angle changes:
+
+- The bay's front hips bisect 135-degree corners, so they cross the front rafters at **22.5 degrees**. The take-off is ¾ ÷ sin 22.5° = **1-15/16 in** of run, almost twice the square-corner figure.
+- The two valleys where the bay meets the house cross the main front's valley jacks at 22.5 degrees as well, so those jacks lose 1-15/16 in at the foot, not 1-1/16 in.
+
+Use the 45-degree figure on a bay and every jack against those hips and valleys comes out about ⅞ in of run long, a bit more along the slope. One rafter that long is easy to trim. A bundle of them cut on the ground and carried up is not.
+
+On the same 40 × 24 ft house with the 8 ft bay, at 6 in 12, 2x8 rafters 16 in on centre and 2x10 hips, valleys and ridge, the takeoff gives:
+
+- **Without the bay:** 28 commons, 64 jacks, 4 hips and a ridge.
+- **With the bay:** 24 commons, 69 jacks, 7 valley jacks and 6 cripple jacks (valley to hip, on the bay's sides), 7 hips and 2 valleys. The bay's front common is 77-3/8 in long. The 7 valley jacks on the house's front slope, between the valleys and the ridge, run from 28-7/16 in to 157-15/16 in.
+
+How it was checked: each plane is found from the roof's own lines. The eaves, ridges, hips and valleys are traced as a network, and each eave owns the area on its inside. We checked this four ways:
+
+- **Turned houses.** 60 random square-cornered houses were turned to an odd angle. Each one framed rafter for rafter as it does square to the axes.
+- **Clipped corners and bays.** On 150 random outlines with clipped corners and bays, both ends of every rafter sit at exactly the height the roof lines give. No two rafters stand within 3 in of each other.
+- **Square-cornered plans.** On 300 random square-cornered plans, the new method matches the old one exactly, except where two eaves sit on one line.
+- **The trap from above.** Where two eaves sit on one line, the new method fixes a bug. The old method framed the shared plane behind the bump-out from both eaves, which put pairs of rafters 4 in apart: three such pairs on one 46 × 26 ft test plan. Now the area behind the bump-out is framed once, on one layout.
 
 ## Where to use it
 
-Since 2026-11-27 you can run it on any square-cornered outline in [Residential Takeoff](https://marisstella.app/residential-takeoff/), the paid edition of the framing takeoff: pick "any outline" under Roof shape, type the corners, and the roof plan, hip and valley lengths, sheathing courses and blocking come out with the walls, then go into one supplier material list. It is in early access and checkout is not open, so every feature works without a key for now; the material list and bid package are planned as a $29 report per house. It is not on the free framing page, and the multipliers above still get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
+Since 2026-11-27 you can run it on any square-cornered outline in [Residential Takeoff](https://marisstella.app/residential-takeoff/), the paid edition of the framing takeoff: pick "any outline" under Roof shape, type the corners, and the roof plan, hip and valley lengths, sheathing courses and blocking come out with the walls, then go into one supplier material list. Since 2026-11-28 an outline with a bay or a 45-degree corner gets its rafters too, in the same order (no sheathing courses yet). It is in early access and checkout is not open, so every feature works without a key for now; the material list and bid package are planned as a $29 report per house. It is not on the free framing page, and the multipliers above still get you there by hand for an L, T or U, and the bay table for a 45-degree bay. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.
 
 Quantities only, not engineering: hip and valley rafter sizes, bearing and connections are for your engineer or the local building department.
