@@ -34,6 +34,20 @@ describe("date helpers", () => {
     expect(businessDayOnOrBefore("2026-11-29")).toBe("2026-11-27"); // Sunday
     expect(businessDayOnOrBefore("2026-11-30")).toBe("2026-11-30"); // Monday
   });
+  it("moves a federal holiday back to the business day before, and a weekend past one", () => {
+    expect(businessDayOnOrBefore("2026-11-26")).toBe("2026-11-25"); // Thanksgiving Day
+    expect(businessDayOnOrBefore("2026-07-04")).toBe("2026-07-02"); // Saturday; Friday 3 July observed
+    expect(businessDayOnOrBefore("2026-09-07")).toBe("2026-09-04"); // Labor Day Monday: back past the weekend
+    expect(businessDayOnOrBefore("2026-11-27")).toBe("2026-11-27"); // the day after Thanksgiving is not federal
+  });
+});
+
+describe("the act-by date on a federal holiday", () => {
+  it("Washington: 90 days after 28 August 2026 is Thanksgiving, so the lien is due the Wednesday", () => {
+    const d = deadline({ state: "WA", lastFurnishedOn: "2026-08-28" });
+    expect(d.statutoryOn).toBe("2026-11-26");
+    expect(d.dueOn).toBe("2026-11-25");
+  });
 });
 
 describe("lienDeadline: each state's clock, worked by hand", () => {

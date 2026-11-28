@@ -109,7 +109,9 @@ describe("state bond claims", () => {
     });
     if (nov?.kind !== "checked") throw new Error("expected checked");
     expect(nov.steps[0]?.dueOn).toBe("2027-01-15");
-    expect(nov.steps[1]?.dueOn).toBe("2027-02-15");
+    // 15 February 2027 is Washington's Birthday (a federal holiday): the Friday before.
+    expect(nov.steps[1]?.statutoryOn).toBe("2027-02-15");
+    expect(nov.steps[1]?.dueOn).toBe("2027-02-12");
   });
 
   it("Florida, Arizona and North Carolina count from the last day", () => {
@@ -419,7 +421,7 @@ describe("state bond claim reminder on the cash page", () => {
     // New York: 120 days from 10 July is Saturday 7 November 2026.
     const ny = checked("NY", "second");
     expect(stateBondText(ny, owed, "2026-11-01", "second")).toContain(
-      "by 2026-11-06 (within 120 days from your last day of labor or material, N.Y. State Fin. Law § 137(3); the statute's date, 2026-11-07, is a weekend, so PayApps shows the Friday before)",
+      "by 2026-11-06 (within 120 days from your last day of labor or material, N.Y. State Fin. Law § 137(3); the statute's date, 2026-11-07, is a weekend, so PayApps shows the business day before)",
     );
   });
 

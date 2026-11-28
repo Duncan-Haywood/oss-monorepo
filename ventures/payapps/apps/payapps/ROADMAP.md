@@ -2745,6 +2745,17 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Deadlines skip federal holidays (2026-11-28, lien-deadline-holidays): the lien deadline, the Miller
+  Act notice and suit dates and every state bond claim step now step their act-by date back past an
+  observed federal holiday (5 U.S.C. § 6103(a), OPM's weekend rule) as well as a weekend, since the
+  recorder or clerk is closed then; the earlier date is always safe whether or not a state rolls a
+  deadline forward. The job panel and the cash page say which holiday moved it ("the statute's date,
+  2026-11-26, is Thanksgiving Day, a federal holiday"). The list moved to `src/shared/federal-holidays.ts`
+  (no imports; the job schedule re-exports it), and the free mechanics lien deadline calculator got the
+  same rule, so the parity grid still holds. State-only holidays (Cesar Chavez Day, the day after
+  Thanksgiving in many counties) are not modeled. Found while checking: Texas's second bond notice
+  for a November 2026 last day falls on Washington's Birthday 2027 and was shown as that Monday.
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers

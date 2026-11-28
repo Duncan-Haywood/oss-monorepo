@@ -21,17 +21,16 @@
 //
 // Day counting (as the public calculator): 90 calendar days starting the day after the last day,
 // and a year as the same calendar date a year later (29 February to 28 February, the earlier
-// date). A date on a weekend moves back to the Friday before, the same safe side the lien deadline
-// takes. Pure functions, no I/O.
+// date). A date on a weekend or an observed federal holiday moves back to the business day before,
+// the same safe side the lien deadline takes. Pure functions, no I/O.
+
+import { actByOnOrBefore } from "./federal-holidays";
 
 // Small date helpers kept here (not imported from lien-deadline.ts, which imports this file).
 const DAY_MS = 86_400_000;
 const addDays = (iso: string, days: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
-function businessDayOnOrBefore(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`).getUTCDay();
-  return d === 6 ? addDays(iso, -1) : d === 0 ? addDays(iso, -2) : iso;
-}
+const businessDayOnOrBefore = (iso: string) => actByOnOrBefore(iso).on;
 
 export const PUBLIC_OWNERS = ["federal", "state_local"] as const;
 export type PublicOwner = (typeof PUBLIC_OWNERS)[number];
@@ -58,13 +57,13 @@ export function addOneYear(iso: string): string {
 export interface MillerDates {
   /** Second tier (or tier not given): the 90-day notice to the prime, statute's date. Null for first tier. */
   noticeOn: string | null;
-  /** The notice date, or the Friday before it on a weekend. */
+  /** The notice date, or the business day before it on a weekend or federal holiday. */
   noticeDueOn: string | null;
   /** The first day a suit may be filed: day 91 (§ 3133(b)(1)). */
   suitFromOn: string;
   /** The one-year limit on the suit (§ 3133(b)(4)), statute's date. */
   suitByOn: string;
-  /** The suit limit, or the Friday before it on a weekend. */
+  /** The suit limit, or the business day before it on a weekend or federal holiday. */
   suitDueOn: string;
 }
 
@@ -448,7 +447,8 @@ export function retainageCapCheck(
 // ventures/pay-app-guides/sources/state-bond-claims.txt). Only the dates a statute states in
 // days, months or years from a day PayApps knows (the last day of labor or material, or the day
 // the public body accepted the work) are dated; the rest are listed with the day they wait for.
-// A date on a weekend moves back to the Friday before (the safe side); holidays are not modeled.
+// A date on a weekend or an observed federal holiday moves back to the business day before (the safe
+// side); state-only holidays are not modeled.
 
 /** One step of a state bond claim. */
 export interface BondClaimStep {
@@ -461,7 +461,7 @@ export interface BondClaimStep {
   rule: string;
   /** The statute's date, or null when it waits on a day not entered (see waitsFor). */
   statutoryOn: string | null;
-  /** statutoryOn, or the Friday before it on a weekend. */
+  /** statutoryOn, or the business day before it on a weekend or federal holiday. */
   dueOn: string | null;
   /** The day the date is counted from, when it is not entered or not knowable here. */
   waitsFor: string | null;
