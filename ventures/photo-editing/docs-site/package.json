@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "marked": "^15.0.7",
-    "next": "16.3.3",
+    "next": "16.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -20,7 +20,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.25.1",
-    "eslint-config-next": "16.3.2",
+    "eslint-config-next": "16.4.6",
     "html-to-jsx-transform": "^1.2.1",
     "typescript": "^5.8.2"
   }
