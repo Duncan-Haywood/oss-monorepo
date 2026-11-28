@@ -970,17 +970,30 @@ describe("feature cards on the home page", () => {
     for (const f of FEATURES) {
       assert.ok(f.short && f.short.length <= 130, `${f.key}: summary is ${f.short?.length} chars`);
       assert.ok(f.body.length > f.short.length, f.key);
-      if (f.guide) assert.ok(pages.some((p) => p.path === f.guide), `${f.key}: no page ${f.guide}`);
+      if (f.guide)
+        assert.ok(
+          pages.some((p) => p.path === f.guide),
+          `${f.key}: no page ${f.guide}`,
+        );
     }
   });
 
   test("the home page shows each summary, keeps the full text in a details block, and links the guide", () => {
     const home = read("index.html");
-    const esc = (t) => t.replaceAll("&", "&amp;").replaceAll("'", "&#39;").replaceAll('"', "&quot;");
+    const esc = (t) =>
+      t.replaceAll("&", "&amp;").replaceAll("'", "&#39;").replaceAll('"', "&quot;");
     for (const f of FEATURES) {
-      const card = home.match(new RegExp(`<div class="card feature"><h3>${esc(f.title).replace(/[?()]/g, "\\$&")}</h3>.*?</div>`, "s"));
+      const card = home.match(
+        new RegExp(
+          `<div class="card feature"><h3>${esc(f.title).replace(/[?()]/g, "\\$&")}</h3>.*?</div>`,
+          "s",
+        ),
+      );
       assert.ok(card, `${f.key}: no card`);
-      assert.ok(card[0].includes(`<details><summary>How it works</summary>`), `${f.key}: no details`);
+      assert.ok(
+        card[0].includes(`<details><summary>How it works</summary>`),
+        `${f.key}: no details`,
+      );
       if (f.guide) assert.ok(linksTo(card[0], `${BASE_PATH}${f.guide}`), `${f.key}: no guide link`);
     }
     assert.ok(read("llms-full.txt").includes(FEATURES[0].body.slice(0, 80)));
