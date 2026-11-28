@@ -119,11 +119,41 @@ export const CALLOUTS: CalloutRow[] = [
   },
   {
     callout: "H7",
-    means: "An ISO 286 hole fit, grade IT7: a 21 µm zone on an 18 to 30 mm bore",
+    means: "An ISO 286 hole fit, grade IT7: a 21 µm zone, read at 18 to 30 mm since no size is given",
     zoneIn: 0.0008268,
     band: "precision",
     sizeAssumed: true,
   },
+  {
+    callout: "Ø40 H7",
+    means: "The same fit on a 40 mm bore: IT7 over 30 up to 50 mm is 25 µm",
+    zoneIn: 0.0009843,
+    band: "precision",
+    sizeAssumed: false,
+  },
+  {
+    callout: ".4995/.5000",
+    means: "Limit dimensions: the two sizes the feature may be, half a thousandth apart",
+    zoneIn: 0.0005,
+    band: "precision",
+    sizeAssumed: false,
+  },
+];
+
+/**
+ * ISO 286-1 table 1: standard tolerance grades IT5 to IT11, µm, by nominal size in mm ("over" the
+ * previous limit "up to and including" this one). The same table the app's reader uses
+ * (apps/jobshop-quote/src/shared/tolerance.ts, IT_GRADES_UM); a test holds the two together.
+ */
+export const IT_SIZE_LIMITS_MM = [3, 6, 10, 18, 30, 50, 80, 120, 180, 250, 315, 400, 500] as const;
+export const IT_ROWS: { grade: number; um: number[] }[] = [
+  { grade: 5, um: [4, 5, 6, 8, 9, 11, 13, 15, 18, 20, 23, 25, 27] },
+  { grade: 6, um: [6, 8, 9, 11, 13, 16, 19, 22, 25, 29, 32, 36, 40] },
+  { grade: 7, um: [10, 12, 15, 18, 21, 25, 30, 35, 40, 46, 52, 57, 63] },
+  { grade: 8, um: [14, 18, 22, 27, 33, 39, 46, 54, 63, 72, 81, 89, 97] },
+  { grade: 9, um: [25, 30, 36, 43, 52, 62, 74, 87, 100, 115, 130, 140, 155] },
+  { grade: 10, um: [40, 48, 58, 70, 84, 100, 120, 140, 160, 185, 210, 230, 250] },
+  { grade: 11, um: [60, 75, 90, 110, 130, 160, 190, 220, 250, 290, 320, 360, 400] },
 ];
 
 /** ISO 2768-1 table 1: the class's ± value for each size range of a linear dimension, mm. */

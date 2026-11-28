@@ -89,7 +89,7 @@
         <caption class="fineprint">Each callout's full zone in inches and millimetres, and its band. * The zone depends on the feature's size; shown for the size named.</caption>
         <thead><tr><th scope="col">Callout</th><th scope="col">Means</th><th scope="col">Zone</th><th scope="col">Band</th></tr></thead>
         <tbody>
-          <tr><th scope="row"><code>+/- .005</code></th><td>Five thousandths either way</td><td>0.0100 in<br><span class="fineprint">0.254 mm</span></td><td>Standard</td></tr><tr><th scope="row"><code>±.002</code></th><td>Two thousandths either way</td><td>0.0040 in<br><span class="fineprint">0.102 mm</span></td><td>Close</td></tr><tr><th scope="row"><code>+.002/-.000</code></th><td>Up to two thousandths over, nothing under (one-sided)</td><td>0.0020 in<br><span class="fineprint">0.051 mm</span></td><td>Close</td></tr><tr><th scope="row"><code>±.0005</code></th><td>Half a thousandth either way</td><td>0.0010 in<br><span class="fineprint">0.025 mm</span></td><td>Tight</td></tr><tr><th scope="row"><code>+.0005/-.0000</code></th><td>Half a thousandth over, nothing under</td><td>0.00050 in<br><span class="fineprint">0.013 mm</span></td><td>Precision</td></tr><tr><th scope="row"><code>±0,02 mm</code></th><td>Two hundredths of a millimetre either way (a comma decimal)</td><td>0.0016 in<br><span class="fineprint">0.040 mm</span></td><td>Tight</td></tr><tr><th scope="row"><code>ISO 2768-m</code></th><td>The general tolerance class &#39;medium&#39;: ±0.2 mm on a 6 to 30 mm dimension</td><td>0.0157 in<br><span class="fineprint">0.400 mm</span> *</td><td>Standard</td></tr><tr><th scope="row"><code>ISO 2768-f</code></th><td>The general tolerance class &#39;fine&#39;: ±0.1 mm on a 6 to 30 mm dimension</td><td>0.0079 in<br><span class="fineprint">0.200 mm</span> *</td><td>Close</td></tr><tr><th scope="row"><code>H7</code></th><td>An ISO 286 hole fit, grade IT7: a 21 µm zone on an 18 to 30 mm bore</td><td>0.00083 in<br><span class="fineprint">0.021 mm</span> *</td><td>Precision</td></tr>
+          <tr><th scope="row"><code>+/- .005</code></th><td>Five thousandths either way</td><td>0.0100 in<br><span class="fineprint">0.254 mm</span></td><td>Standard</td></tr><tr><th scope="row"><code>±.002</code></th><td>Two thousandths either way</td><td>0.0040 in<br><span class="fineprint">0.102 mm</span></td><td>Close</td></tr><tr><th scope="row"><code>+.002/-.000</code></th><td>Up to two thousandths over, nothing under (one-sided)</td><td>0.0020 in<br><span class="fineprint">0.051 mm</span></td><td>Close</td></tr><tr><th scope="row"><code>±.0005</code></th><td>Half a thousandth either way</td><td>0.0010 in<br><span class="fineprint">0.025 mm</span></td><td>Tight</td></tr><tr><th scope="row"><code>+.0005/-.0000</code></th><td>Half a thousandth over, nothing under</td><td>0.00050 in<br><span class="fineprint">0.013 mm</span></td><td>Precision</td></tr><tr><th scope="row"><code>±0,02 mm</code></th><td>Two hundredths of a millimetre either way (a comma decimal)</td><td>0.0016 in<br><span class="fineprint">0.040 mm</span></td><td>Tight</td></tr><tr><th scope="row"><code>ISO 2768-m</code></th><td>The general tolerance class &#39;medium&#39;: ±0.2 mm on a 6 to 30 mm dimension</td><td>0.0157 in<br><span class="fineprint">0.400 mm</span> *</td><td>Standard</td></tr><tr><th scope="row"><code>ISO 2768-f</code></th><td>The general tolerance class &#39;fine&#39;: ±0.1 mm on a 6 to 30 mm dimension</td><td>0.0079 in<br><span class="fineprint">0.200 mm</span> *</td><td>Close</td></tr><tr><th scope="row"><code>H7</code></th><td>An ISO 286 hole fit, grade IT7: a 21 µm zone, read at 18 to 30 mm since no size is given</td><td>0.00083 in<br><span class="fineprint">0.021 mm</span> *</td><td>Precision</td></tr><tr><th scope="row"><code>Ø40 H7</code></th><td>The same fit on a 40 mm bore: IT7 over 30 up to 50 mm is 25 µm</td><td>0.00098 in<br><span class="fineprint">0.025 mm</span></td><td>Precision</td></tr><tr><th scope="row"><code>.4995/.5000</code></th><td>Limit dimensions: the two sizes the feature may be, half a thousandth apart</td><td>0.00050 in<br><span class="fineprint">0.013 mm</span></td><td>Precision</td></tr>
         </tbody>
       </table>
     </div>
@@ -117,8 +117,21 @@
     zone relative to the nominal size; the number is the IT grade, which sets its width, and that width
     grows with the size. On an 18 to 30 mm feature, IT6 is 13 µm (about .0005 in) and IT7 is 21 µm
     (about .0008 in): an H7 bore of that size is a precision feature by the bands above, which is why it
-    usually means a reamer or a boring bar and a bore gauge, not a drill. Look up the size you have in
-    the standard's tables before you quote it.</p>
+    usually means a reamer or a boring bar and a bore gauge, not a drill. The grade's width at each size:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">ISO 286-1 standard tolerance grades, µm, by nominal size in mm (over the
+        previous size, up to and including the one named). 25.4 µm is .001 in.</caption>
+        <thead><tr><th scope="col">Grade</th><th scope="col">up to 3</th><th scope="col">over 3–6</th><th scope="col">over 6–10</th><th scope="col">over 10–18</th><th scope="col">over 18–30</th><th scope="col">over 30–50</th><th scope="col">over 50–80</th><th scope="col">over 80–120</th><th scope="col">over 120–180</th><th scope="col">over 180–250</th><th scope="col">over 250–315</th><th scope="col">over 315–400</th><th scope="col">over 400–500</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">IT5</th><td>4</td><td>5</td><td>6</td><td>8</td><td>9</td><td>11</td><td>13</td><td>15</td><td>18</td><td>20</td><td>23</td><td>25</td><td>27</td></tr><tr><th scope="row">IT6</th><td>6</td><td>8</td><td>9</td><td>11</td><td>13</td><td>16</td><td>19</td><td>22</td><td>25</td><td>29</td><td>32</td><td>36</td><td>40</td></tr><tr><th scope="row">IT7</th><td>10</td><td>12</td><td>15</td><td>18</td><td>21</td><td>25</td><td>30</td><td>35</td><td>40</td><td>46</td><td>52</td><td>57</td><td>63</td></tr><tr><th scope="row">IT8</th><td>14</td><td>18</td><td>22</td><td>27</td><td>33</td><td>39</td><td>46</td><td>54</td><td>63</td><td>72</td><td>81</td><td>89</td><td>97</td></tr><tr><th scope="row">IT9</th><td>25</td><td>30</td><td>36</td><td>43</td><td>52</td><td>62</td><td>74</td><td>87</td><td>100</td><td>115</td><td>130</td><td>140</td><td>155</td></tr><tr><th scope="row">IT10</th><td>40</td><td>48</td><td>58</td><td>70</td><td>84</td><td>100</td><td>120</td><td>140</td><td>160</td><td>185</td><td>210</td><td>230</td><td>250</td></tr><tr><th scope="row">IT11</th><td>60</td><td>75</td><td>90</td><td>110</td><td>130</td><td>160</td><td>190</td><td>220</td><td>250</td><td>290</td><td>320</td><td>360</td><td>400</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>So an H7 bore is 15 µm wide at 8 mm and 25 µm at 40 mm: the same callout is tighter on a small
+    hole than on a large one. Zone widths here are the grade's; where the zone sits (the H, g or js)
+    is in ISO 286-2's deviation tables, which matter for the gauge, not for how hard the zone is to
+    hold.</p>
 
     <h2>Where the cost goes on the quote</h2>
     <p>Tolerance has no price of its own. It costs money through the work it adds, and that work belongs
@@ -147,10 +160,13 @@
     <p>The RFQ review reads the tolerance text from the customer's email or drawing (the AI reader keeps it
     exactly as written) and, when the tightest tolerance is tighter than ±.005 in, names it with its zone
     and band and says what to check: "Precision: +.0005/-.0000, a 0.00050 in (0.013 mm) zone." It reads
-    ±, +/-, one-sided limits, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
+    ±, +/-, one-sided limits, limit dimensions, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
     and skips angles. It never changes a price: the minutes, operations and fallout above are yours to
-    add, and the quote is priced from your rate card. Fits and ISO 2768 classes are read at a typical size
-    (the note says which), because the RFQ does not say how big the feature is. The
+    add, and the quote is priced from your rate card. A fit with its size written before it (Ø40 H7, 20H7)
+    is read at that size from the table above; a fit with no size and an ISO 2768 class are read at a
+    typical size, and the note says which. Limit dimensions written as two sizes (.4995/.5000,
+    12.000-12.010) are read as the zone between them. The same note shows on the quote line, beside the
+    operations where you set the cycle times. The
     <a class="link" href="/jobshop/rfq-review-checklist">RFQ review checklist</a> has the
     tolerance questions to ask before you price.</p>
     <p class="fineprint">This page explains common estimating practice and summarises published

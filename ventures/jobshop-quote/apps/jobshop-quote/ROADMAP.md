@@ -845,6 +845,17 @@ checks the pair. No customers yet.
   invented prices"). `src/shared/tolerance.ts`; unit tests, `test/e2e/18-tolerance-check.spec.ts`,
   and `test/unit/site-tolerance-example.test.ts` holding the site's /machining-tolerances guide to
   the reader.
+- Tolerance check, part 2 (2026-11-28): the same note on the quote line, under "Operations" where
+  the cycle times are set ("Part tolerance: ..."), from the RFQ part the line was made from (the RFQ
+  page's own query and cache; `src/client/components/tolerance-check.tsx`). An ISO 286 fit with its
+  nominal size written before it (Ø40 H7, 20H7, DIA 8 g6) is read at that size from ISO 286-1 table 1
+  (IT5 to IT11, up to 500 mm; `IT_GRADES_UM`), in millimetres unless marked in inches or written
+  inch-style (two or more decimals) in an inch text; over 500 mm is not read, and "ISO 286 H7" is not a
+  286 mm size. The note then names the range ("IT7 for 30-50 mm") instead of the 18-30 mm
+  assumption. Limit dimensions written as two sizes (.4995/.5000, 12.000-12.010 mm, 1.250 TO 1.255;
+  same decimals, at least two, close together) are read as the zone between them. The
+  /machining-tolerances guide prints the IT table, held to the reader's by
+  `test/unit/site-tolerance-example.test.ts`; `test/e2e/18-tolerance-check.spec.ts` covers the quote line.
 - First article list, part 1 (2026-11-28, every plan, fai-form3-draft): each drawing PDF with text
   on the RFQ page has a "First article list (CSV)" link (`GET /rfqs/:id/files/:fileId/form3.csv`):
   a draft of the characteristic list AS9102 Form 3 holds, numbered in reading order so the numbers
@@ -1019,11 +1030,11 @@ checks the pair. No customers yet.
     with the cheapest whole-bar mix, if shops ask; a supplier's PDF price list read into the import
     preview, if shops send them.
 
-16. Tolerance check, part 2 (part 1 done 2026-11-28): the same note on the quote line beside the
-    cycle time, the tolerances read from a drawing PDF's dimension text (not only the labelled
-    tolerance line), limit dimensions written as two sizes (.4995/.5000), the feature's size taken
-    from the callout when it is there (Ø20 H7) instead of the 18-30 mm assumption, and band limits an
-    admin can set per shop, if shops ask.
+16. Tolerance check, part 3 (part 2 done 2026-11-28: the note on the quote line, fits at the
+    callout's size, limit dimensions): the tolerances read from a drawing PDF's dimension text (not
+    only the labelled tolerance line; `fai-characteristics.ts` already finds them), ISO 2768 at the
+    dimension's size when a tolerance line pairs a size with the class, and band limits an admin can
+    set per shop, if shops ask.
 
 17. First article list, part 2 (part 1 done 2026-11-28): the list as a screen on the won quote, where
     the inspector ticks, edits and adds rows, enters results and gets an accept/reject per row
