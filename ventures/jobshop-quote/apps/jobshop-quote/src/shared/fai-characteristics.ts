@@ -429,7 +429,7 @@ export const KIND_LABEL: Record<CharacteristicKind, string> = {
 function cell(v: string | number | null): string {
   const s = v === null ? "" : String(v);
   // Quote every cell that needs it, and defuse spreadsheet formulas (=, +, -, @ at the start).
-  const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
   return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
