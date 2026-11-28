@@ -336,6 +336,26 @@ def drop_paused(rows: list[dict], include: bool = False) -> tuple[list[dict], in
     return kept, len(rows) - len(kept)
 
 
+# The for-profit products (owner, 2026-11-24: "pushing stuff that is for profit as highest priority"). The quality
+# prompt says to prefer one, but reaudit listed 321 subjects with no filter and two sessions on 2026-11-28 grepped
+# the list against transition.py's names by hand (doc_friction). `--paid` keeps only these.
+TRANSITION = ROOT / "portfolio" / "monetization" / "transition.json"
+
+
+def paid_ventures(path: Path = TRANSITION) -> set[str]:
+    """Subjects (`ventures/<slug>`) of the proprietary rows in transition.json; empty when it cannot be read."""
+    try:
+        rows = json.loads(path.read_text()).get("proprietary") or []
+    except (OSError, ValueError):
+        return set()
+    return {f"ventures/{r['venture']}" for r in rows if r.get("venture")}
+
+
+def keep_paid(rows: list[dict], paid: set[str]) -> list[dict]:
+    """Rows whose subject is a for-profit product or lies under one."""
+    return [r for r in rows if r["subject"] in paid or any(r["subject"].startswith(p + "/") for p in paid)]
+
+
 def paused_note(n: int, what: str) -> str:
     return (f"({n} {what} under research/ left out: standalone research is paused since 2026-11-25,"
             " prompts/goals.md pivot point 11; --research shows them)")
@@ -1002,6 +1022,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
     elif args.cmd == "queue":
         seed = getattr(args, "seed", None)
         rows, n_paused = drop_paused(queue(audits, args.severity, seed), getattr(args, "research", False))
+        if getattr(args, "paid", False):
+            rows = keep_paid(rows, paid_ventures())
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
         if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
@@ -1080,6 +1102,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
     elif args.cmd == "reaudit":
         prs = None if getattr(args, "no_prs", False) else open_pr_titles()
         rows, n_paused = drop_paused(reaudit_due(audits, args.seed), getattr(args, "research", False))
+        if getattr(args, "paid", False):
+            rows = keep_paid(rows, paid_ventures())
         if prs:  # subjects an open PR already names go last
             rows.sort(key=lambda r: bool(prs_naming(r["subject"], prs)))
         print(f"seed {args.seed}  (--seed {args.seed} repeats this order)")
@@ -1091,7 +1115,7 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                       " written the defects down")
             for n, t in prs_naming(r["subject"], prs or [])[:2]:
                 print(f"      open PR naming it: #{n} {t[:80]}")
-        print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
+        print(f"{len(rows)} {'for-profit ' if getattr(args, 'paid', False) else ''}subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
               ' "drawn_by": "reaudit": check every earlier defect (fixed or not) against the code as it is now and say'
               " which the fix closed (portfolio/quality/README.md, \"Five modes\").")
         if n_paused:

@@ -1683,6 +1683,167 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How to set quantity price breaks
+
+Source: https://marisstella.app/jobshop/quantity-price-breaks
+
+Guide
+
+## How to set quantity price breaks on machined parts
+
+The price each falls with quantity because some costs are paid once per lot and the rest
+once per part. Work out which is which and you can tell where a break earns its place, where the price
+has stopped falling, and what to charge for an order between two breaks. Here is the method and one part
+worked at 8 quantities.
+
+### Why the price each falls
+
+Every cost on a machined part belongs to one of two kinds:
+
+- Once per lot: programming, setups, the first-article check, and the minimum
+charges (the anodizer's lot charge, the supplier's material minimum, your own minimum per line). They
+cost the same for one part or five hundred.
+
+- Once per part: cycle time, loading and deburring, the blank, the vendor's per-part
+charge. They grow with every part started, scrap included.
+
+So the price each is roughly per-part cost + once-per-lot cost ÷ quantity. The first term is
+a floor the price never goes below; the second falls fast and then hardly at all. A quantity break is
+worth quoting where the second term still matters.
+
+### A worked example at 8 quantities
+
+The same mounting bracket as in how to
+quote a CNC machining job: 6061-T6 aluminum plate, two milling setups and a deburr on a
+3-axis mill at $123.85 an hour, clear anodize by a vendor at
+$3.50 a part with a $150.00 lot charge,
+a $25.00 material minimum, 3% expected fallout, and a
+$250.00 minimum per line. Every number is made up to show the
+arithmetic; none is a typical price, time or rate. Use your own.
+
+The made-up bracket at each break, per part shipped. Each component is priced for the whole lot, rounded to the cent, then divided by the quantity; the price each is rounded up to the cent. The floor is the price each as the quantity grows without end ($68.26).
+Per part15102550100250500
+
+Parts started26112652104258516Setup each$278.67$55.73$27.87$11.15$5.57$2.79$1.11$0.56Run time each$107.34$64.40$59.04$55.82$55.82$55.82$55.39$55.39Material each$25.00$8.89$8.15$7.70$7.70$7.70$7.64$7.64Anodize each$150.00$30.00$15.00$6.00$3.64$3.64$3.61$3.61Markup each$26.25$5.83$3.47$2.06$1.70$1.70$1.69$1.69Price each$587.26$164.86$113.53$82.73$74.44$71.65$69.45$68.89Line total$587.26$824.30$1,135.30$2,068.25$3,722.00$7,165.00$17,362.50$34,445.00Setup share of the price47.5%33.8%24.5%13.5%7.5%3.9%1.6%0.8%Above the long-run floor760.3%141.5%66.3%21.2%9.1%5.0%1.7%0.9%
+
+What the table shows:
+
+- Fallout rounds up to whole parts. 3% expected scrap means
+starting 2 brackets to ship one, so the one-off pays run time on
+2 parts ($107.34, against $55.82 each at
+100). On small lots the extra part is the honest price of the risk; leave it out
+and a one-off that scraps is made twice and paid for once.
+
+- Setup decides the small breaks. At one part, setup is
+47.5% of the price; it falls under a tenth of the price each from
+36 parts. Most of the fall from $587.26 to
+$71.65 each happens before then.
+
+- Each minimum stops applying at its own quantity. The material minimum covers
+orders under 3; the anodizer's lot charge covers every order under
+41, so up to 40 parts the anodize costs the same
+$150.00 in all. The $250.00 line minimum never applies here: even one bracket costs more
+than that. On a cheaper part it lifts the smallest breaks to the same total, so a buyer pays the
+same for one part as for several; quote those breaks anyway, so the buyer sees why.
+
+- Past a point the breaks stop meaning much. The floor is $68.26
+a part: run time, the blank and the per-part anodize, marked up, over the
+97% that ship good. At 100 the price is
+5.0% above it, at 500 0.9%.
+A lower price at volume has to come from a shorter cycle, a better blank or a cheaper vendor, not
+from the break.
+
+### Choosing which breaks to quote
+
+- Quote what the RFQ asks for first. The buyer's quantities, and the yearly or
+release quantity if the RFQ gives one. A break nobody will order is noise on the quote.
+
+- Add the small lot you would rather not run. One or a few parts, priced honestly,
+shows the buyer what a short run costs and stops a one-off being ordered at the volume price.
+
+- Put breaks just past where a minimum ends. Here the lot charge stops applying at
+41: a break at 40 still pays the whole lot charge,
+one at 50 spreads it as far as it goes.
+
+- Stop where the price stops falling. Once a break is within a few percent of the
+floor, a larger one tells the buyer little; a separate quote for a blanket order is clearer.
+
+### Orders that fall between two breaks
+
+The buyer saw 25 at $82.73 and
+50 at $74.44, and sends a PO for
+40. Three ways to price it:
+
+- At the lower break's price each: 40 × $82.73
+= $3,309.20. Safe for the shop, and the usual written rule.
+
+- Priced on its own: $76.58 each,
+$3,063.20, by the same arithmetic as the breaks
+(42 parts started).
+
+- At the upper break's price each, which is what a buyer will ask for:
+$2,977.60, $85.60 under the
+order's own price. The setup and the lot charge are spread over fewer parts than that price
+assumed.
+
+Whichever you choose, write it in the quote's terms ("quantities between breaks are priced at the
+next lower break") so the PO accepts it before work starts. The
+machine shop quote template
+lists the other terms worth deciding once, overruns and underruns among them; add this one beside
+them.
+
+### Releases are lots too
+
+A buyer who orders 500 but takes them in 5 releases of
+100 pays you for 5 setups. Priced as 5 runs of
+100, the order is $35,825.00; as one run of
+500, $34,445.00. The $1,380.00
+difference is the setups and smaller spreads you would give away by quoting the yearly quantity's
+price for release-sized runs. Price the run you will actually make, or quote the yearly price on the
+condition that the shop runs the whole quantity at once and holds the stock.
+
+### Mistakes that lose money
+
+- Discounting by a percentage table. "10% off at 50, 20% off at 100" ignores where
+your costs actually sit; on this part the price each at 100 is
+88% below the one-off, and on a part with a
+short setup it would be far less.
+
+- Pricing every break from the one-off's starts. Fallout and scrap are per part
+started; each break needs its own count.
+
+- Forgetting the vendor's minimum below its break-even. Under the lot charge's
+quantity, the outside service is a fixed cost, not a per-part one.
+
+- Letting a PO quantity pick its own price. Without a written rule the buyer reads
+the nearest break in their favour.
+
+### Doing it in Job Shop Quote
+
+Each quote line in Job Shop Quote carries up to eight quantity breaks, each priced on its own parts
+started, with the material, setup, run time, finishing, markup and line minimum worked out per break and
+the rate behind every figure listed under the table; the same quantity twice is refused. The quote PDF
+prints the price each at every break and none of the costs. A customer accepting the quote online can
+pick only the breaks it carries; any other quantity needs a new quote, so a PO never picks its own
+price. The example above is priced to the cent the app gives for the same inputs, checked by a test in
+its code. You can see how a quote is built.
+
+For the rate behind the setup and run time, see
+how to work out a machine shop hourly
+rate; for the cycle time itself,
+how to estimate CNC machining
+time.
+
+This page explains a common costing method. It is not accounting, tax, legal or
+financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+it.
+
+### Quote every break from your own rates
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## Machine shop quote template
 
 Source: https://marisstella.app/jobshop/machine-shop-quote-template
@@ -2125,6 +2286,7 @@ Reading RFQ emails and PDF drawings with AI is built but not switched on in the 
 - How to quote a CNC machining job
 - How to quote CNC turning and lathe parts
 - How to quote outside processing (heat treat, plating)
+- How to set quantity price breaks
 - How to work out a machine shop hourly rate
 - Machine shop markup and margin
 - Machine shop quote template (free CSV)
@@ -2469,6 +2631,7 @@ Start free
 
 - Machine shop quote template (free CSV)
 - How to quote a CNC machining job
+- How to set quantity price breaks
 
 ### Common questions
 
