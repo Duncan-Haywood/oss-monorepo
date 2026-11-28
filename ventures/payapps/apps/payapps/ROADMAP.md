@@ -2497,8 +2497,11 @@ nothing to copy. No customers yet. Paid plans are dark
   The date is estimated from billing until the last day is entered, moves back to the Friday on a
   weekend, and reaches the cash page, its CSV and the weekly email 45 days ahead like a lien date.
   A state or local job checks the job's retainage (the latest application's work and stored rates,
-  and any line's own rate) against the state's cap on public work in the 16 states of the
-  retainage-explained guide's table, each with its statute linked: over, above the cap but allowed
+  and any line's own rate) against the state's cap on public work in the 23 states of the
+  retainage-explained guide's table (16 until 2026-11-28, when Delaware, Idaho, Iowa at 3%, Kansas,
+  Maine, Missouri and Ohio were added from each statute page, text in
+  `ventures/pay-app-guides/sources/retainage-caps.txt`; Ohio holds 4% on labor and allows 8% on
+  stored materials, and its § 153.13 no longer stops retainage at 50% since 2025-09-30), each with its statute linked: over, above the cap but allowed
   in a stated case (New York without bonds), within the cap but above a lower stage (after 50%
   complete, a $5M+ Texas prime), or within; it says whether the statute also limits what the prime
   holds from its subs. Migration 0087 (`public_owner`, `miller_tier`). Rules

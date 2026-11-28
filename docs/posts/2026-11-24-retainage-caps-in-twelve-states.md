@@ -1,9 +1,9 @@
 ---
-title: "Retainage caps on public work in sixteen states, and a free SOV calculator"
-seo_title: "Public retainage caps by state: CA, TX, FL, NY and 12 more"
+title: "Retainage caps on public work in twenty-three states, and a free SOV calculator"
+seo_title: "Public retainage caps by state: CA, TX, FL, NY, OH and 18 more"
 date: 2026-11-24
 tags: [construction, subcontractors, retainage, pay-applications, lien-waivers, pay-app-guides, for-customers]
-description: "Statutory caps on retainage for public construction in 16 states, each linked to the official statute, plus a free continuation-sheet calculator."
+description: "Statutory caps on retainage for public construction in 23 states, each linked to the official statute, plus a free continuation-sheet calculator."
 ---
 
 Retainage is the 5 or 10 percent of every progress payment an owner holds
@@ -16,7 +16,7 @@ schedule-of-values calculator and four guides. The retainage guide's table
 reads each state's own statute, and it says something worth knowing before
 you sign a subcontract on public work.
 
-**Five percent is the usual ceiling now.** Of the sixteen states in the table,
+**Five percent is the usual ceiling now.** Of the first sixteen states in the table,
 ten cap public retainage at 5% of each payment: California (Public
 Contract Code §7201), Florida (§255.078), New York (General Municipal Law
 §106-b), North Carolina (G.S. 143-134.1), Virginia (§2.2-4333), Washington
@@ -86,10 +86,49 @@ would not load. On 2026-11-25 they did: nine of the twelve rows matched the
 statute text as written, and California, Pennsylvania and Illinois still
 refuse automated loads, so the page says which rows rest on which reading.
 Minnesota, Nevada, Oregon and Utah were added the same day from the statute
-pages directly. Ohio, Georgia and New Jersey are still left out: Ohio's
-§153.13 governs release of retained percentages but the cap was not in the
-text we read, and the other two could not be confirmed. Check the linked statute before
+pages directly. Georgia and New Jersey are still left out because their
+current text could not be confirmed. Check the linked statute before
 relying on a row; it is a summary, not legal advice.
+
+## Seven more states, and Ohio's rule changed in 2025
+
+*Added 2026-11-28.* The table now has 23 states. The seven new rows were each
+read from the statute page on the legislature's own site, and the text read
+is kept beside the guide in
+[sources/retainage-caps.txt](https://marisstella.app/pay-app-guides/sources/retainage-caps.txt):
+
+- **Iowa holds the least: 3%.** Iowa Code §573.12 lets a public owner keep no
+  more than 3% of each monthly payment, and the prime no more than the lesser
+  of 3% and the subcontract's rate from a sub. The figure is in the 2026 Iowa
+  Code, whose history note lists an amendment to those paragraphs by 2025
+  Acts, chapter 29; check a subcontract form older than that against it.
+- **Five at 5%:** Delaware (29 Del. C. §6962(d)(5), state agencies' large
+  public works contracts, with 60% of what is held releasable on completion),
+  Idaho (Idaho Code §54-1926(3), which caps prime-to-sub retainage at 5% too
+  and makes the prime pay it within 30 days after the subcontract is done),
+  Maine (5 M.R.S. §1746, held until the State accepts the project), Missouri
+  (RSMo §8.960, formerly 34.057; up to 10% on contracts too small to need a
+  bond, $50,000 or less) and Kansas (K.S.A. 16-1904, 5% unless a higher rate
+  up to 10% is needed to ensure performance; roads and bridges are outside
+  the act, and its rights cannot be waived by contract).
+- **Ohio splits labor and materials.** Ohio Rev. Code §153.12 pays labor at no
+  less than 96% of the approved estimate, and §153.14 pays for materials
+  delivered but not yet installed at 92% of invoice. No subcontract may be
+  paid at a lower rate than the contractor.
+
+**Ohio subs: the 50% rule is gone.** Until 30 September 2025, §153.13 said
+that once a contract was half complete "no further funds shall be retained"
+and what had been held went into escrow. House Bill 96 rewrote the section:
+the current text keeps the release dates (retainage and its interest on the
+substantially completed portion within 30 days, the rest within 30 days of
+final completion) and drops the 50% stop and the escrow. An estimator or a
+contract template written before then may still promise the old rule. Both
+versions are on codes.ohio.gov and quoted in the sources file.
+
+Some states set when retainage is paid without capping the rate. Vermont's
+9 V.S.A. §4005 is one: retainage is paid within 30 days after final
+acceptance and passed down within 7 days, but no percentage is set, so it is
+not in the table.
 
 The other three guides cover [how to fill out a pay application line by
 line](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html),
