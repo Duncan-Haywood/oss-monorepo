@@ -55,6 +55,7 @@ on:
       - "platform/daily/**"
       - "platform/devstats/**"
       - "platform/analytics/**"
+      - "platform/theme/**"
       - ".github/workflows/priv-portfolio-pages.yml"
   workflow_dispatch:
 
@@ -501,6 +502,11 @@ jobs:
           PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
         run: |
           node platform/pages/share.mjs platform/pages/dist --base="$PAGES_BASE_URL" --only=deploy,dev
+
+      # The light/dark switch (platform/theme/) for the same late pages;
+      # build.mjs already gave it to its own, which this skips.
+      - name: Give the late pages the light/dark switch
+        run: node platform/theme/apply.mjs platform/pages/dist
 
       # Cards no build has used for a day are dropped before saving, so the
       # entry holds the current site's cards and not every card ever drawn.
