@@ -3,6 +3,7 @@
 // refund (many exports list returns that way); a mapped refund column adds a refund beside the sale.
 // Amounts come only from the columns chosen: nothing is derived from an assumed fee rate.
 import {
+  CANCELLED_STATUS,
   type ColumnMapping,
   MAPPED_FIELDS,
   type MappedField,
@@ -74,6 +75,7 @@ export function parseMappedCsv(
     return n === 1 ? key : `${key}:${n}`;
   };
   let negativeFees = false;
+  const includes = new Set(mapping.priceIncludes ?? []);
 
   for (const row of table.rows) {
     try {
@@ -82,9 +84,27 @@ export function parseMappedCsv(
         out.skipped.push({ line: row.line, reason: `Unreadable date "${row.get("date") ?? ""}"` });
         continue;
       }
-      const price = parseMoney(row.get("itemPrice"));
-      if (price == null) {
+      const status = row.get("status")?.trim();
+      if (status && CANCELLED_STATUS.test(status)) {
+        out.skipped.push({ line: row.line, reason: `Order status "${status}": not a sale` });
+        continue;
+      }
+      const raw = parseMoney(row.get("itemPrice"));
+      if (raw == null) {
         out.skipped.push({ line: row.line, reason: "No item price" });
+        continue;
+      }
+      const shippingIn = abs(parseMoney(row.get("shipping"))) ?? 0;
+      const taxIn = abs(parseMoney(row.get("salesTax"))) ?? 0;
+      // A total that holds shipping and tax: the item is what is left once they are taken out.
+      const inside =
+        (includes.has("shipping") ? shippingIn : 0) + (includes.has("salesTax") ? taxIn : 0);
+      const price = raw < 0 ? raw + inside : raw - inside;
+      if (inside && (raw < 0 ? price > 0 : price < 0)) {
+        out.skipped.push({
+          line: row.line,
+          reason: "Shipping and tax are more than the total the price column holds",
+        });
         continue;
       }
       const orderId = row.get("orderId") || null;
@@ -120,7 +140,8 @@ export function parseMappedCsv(
           itemCents: 0,
           shippingChargedCents: 0,
           salesTaxCents: 0,
-          refundCents: Math.abs(price) + (abs(parseMoney(row.get("shipping"))) ?? 0),
+          // Item and shipping back; when the total held the tax, that part went back as tax, not income.
+          refundCents: Math.abs(price) + shippingIn,
           shippingLabelCents: 0,
           netCents: net,
           fees: feeList,
@@ -136,8 +157,8 @@ export function parseMappedCsv(
         sku,
         quantity,
         itemCents: price,
-        shippingChargedCents: abs(parseMoney(row.get("shipping"))) ?? 0,
-        salesTaxCents: abs(parseMoney(row.get("salesTax"))) ?? 0,
+        shippingChargedCents: shippingIn,
+        salesTaxCents: taxIn,
         refundCents: 0,
         shippingLabelCents: abs(parseMoney(row.get("shippingLabel"))) ?? 0,
         netCents: net,

@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, facebook-marketplace, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, facebook-marketplace, ebay, amazon, paypal, venmo, cash-app, grailed, stockx, vinted, reverb, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Resellers: bridge a payout back to sales, cost a mixed lot by resale value, map the year onto Schedule C. Seller Books, the hosted books, is open free."
 ---
 
@@ -827,6 +827,19 @@ yourself. For "another marketplace", Seller Books can't know who collected
 it. It lists that tax on your sales tax report with a note: if the
 marketplace collected it, take it out. Showing tax that isn't yours to file
 is the safer mistake than hiding tax that is.
+
+**Reverb (added 2026-11-28).** Music gear sellers can bring Reverb's orders
+export in the same way: from the Orders page in your shop, pick a start and
+end date and export the orders CSV. Reverb's help centre lists what the file
+holds, but the file has an order total rather than an item price, and a
+Total Fees column beside the separate fees. Seller Books suggests the order
+total as the price with two ticks set, "includes shipping" and "includes
+sales tax", and takes the shipping and tax columns back out row by row, so
+shipping isn't counted twice and the tax Reverb collected never lands in
+your income. It suggests the selling fee, the payment processing fee and the
+Bump fee as separate fees and leaves Total Fees out. If you choose the order
+status column, cancelled orders are left out. Refunds aren't read from this
+file yet, so enter those by hand.
 
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 

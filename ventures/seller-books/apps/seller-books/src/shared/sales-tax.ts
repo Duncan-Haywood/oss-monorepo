@@ -9,6 +9,7 @@
 //
 // Grailed, StockX and Vinted (imported through the column-mapped CSV) are marketplaces that collect the
 // tax themselves (Vinted's help article 1014; StockX and Grailed by secondary sources, docs/IMPORTERS.md).
+// So is Reverb (its sales tax information page and help centre, docs/IMPORTERS.md, "Reverb").
 // "Another marketplace" is counted as the seller's, with a caveat: the app cannot know who collected it,
 // and showing tax that is not the seller's to file is the safer mistake than hiding tax that is.
 //
