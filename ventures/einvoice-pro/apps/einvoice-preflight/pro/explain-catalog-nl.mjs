@@ -100,6 +100,8 @@ export const NL_TEXTS = {
   "XR-007": ["De factuurtypecode is geen code die XRechnung accepteert.", "Gebruik een geaccepteerde code, meestal 380 (factuur) of 381 (creditnota)."],
   "XR-008": ["De specificatie-identificatie (BT-24) noemt geen XRechnung-versie, zodat de ontvanger de verkeerde regels toepast.", "Zet ze op de XRechnung-versie die uw software maakt, bijvoorbeeld urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0."],
   "XR-009": ["De verkoper heeft geen btw-nummer en geen belastingnummer; een Duitse factuur heeft een van beide nodig.", "Voeg het btw-nummer (USt-IdNr.) of het belastingnummer (Steuernummer) van de verkoper toe."],
+  "XR-010": ["Bij een betaling door derden (BG-DEX-09, XRechnung-extensie) ontbreekt het soort, het bedrag of de omschrijving, zodat de ontvanger niet weet wat er betaald is.", "Geef elke betaling door derden het soort (BT-DEX-001), het bedrag (BT-DEX-002) en een omschrijving van waarvoor die is (BT-DEX-003)."],
+  "XR-011": ["Het bedrag van een betaling door derden (BT-DEX-002) heeft meer dan twee decimalen, is geen getal of staat in een andere valuta dan de factuur.", "Schrijf het met hoogstens twee decimalen in de valuta van de factuur (BT-5)."],
 
   // --- Peppol BIS Billing 3.0 ---
   "PP-001": ["De identificatie van het bedrijfsproces (BT-23) ontbreekt of is niet het Peppol-factureringsproces.", "Zet ze op urn:fdc:peppol.eu:2017:poacc:billing:01:1.0."],

@@ -57,7 +57,7 @@ describe("/rfq-review-checklist", () => {
     expect(page).toContain("does not\n    by itself meet either standard");
     expect(page).toContain("not legal,");
     expect(page).toContain("AI reading is not switched on yet");
-    expect(page).toContain('href="https://app.example.test/sign-up"');
+    expect(page).toContain('href="https://app.example.test/sign-up?from=jobshop-site%2F');
     const on = buildSite({
       siteUrl: SITE,
       basePath: "/jobshop",

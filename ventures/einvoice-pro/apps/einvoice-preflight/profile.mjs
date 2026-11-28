@@ -8,6 +8,10 @@
 const XRECHNUNG_TYPE_CODES = new Set(["326", "380", "381", "384", "389", "875", "876", "877"]);
 const XRECHNUNG_SPEC = /^urn:cen\.eu:en16931:2017#(?:compliant|conformant)#urn:xeinkauf\.de:kosit:(?:xrechnung_3\.\d+|extension:xrechnung_3\.\d+)/i;
 
+// BT-24 of an XRechnung extension file (KoSIT's $isExtension: the CIUS id, then
+// #conformant#urn:xeinkauf.de:kosit:extension:xrechnung_<major.minor>).
+export const XRECHNUNG_EXTENSION = /^urn:cen\.eu:en16931:2017#compliant#urn:xeinkauf\.de:kosit:xrechnung_3\.\d+#conformant#urn:xeinkauf\.de:kosit:extension:xrechnung_3\.\d+$/i;
+
 const PEPPOL_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
 const PEPPOL_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0";
 // The business processes PEPPOL-EN16931-R007 admits since Peppol BIS Billing 3.0.21
@@ -85,6 +89,8 @@ export const XRECHNUNG_RULES = {
   "XR-007": "Invoice type code is not one XRechnung allows (BR-DE-17).",
   "XR-008": "Specification identifier is not an XRechnung one (BR-DE-21).",
   "XR-009": "Seller has no VAT identifier or tax number (BR-DE-16).",
+  "XR-010": "A third-party payment (BG-DEX-09) is missing its type, amount or description (BR-DEX-10, -11, -12).",
+  "XR-011": "A third-party payment amount has more than two decimals or another currency than the invoice (BR-DEX-13, -14).",
 };
 
 export function inspectXrechnungProfile(invoice) {
@@ -177,6 +183,51 @@ export function inspectXrechnungProfile(invoice) {
       "Add supplier.vat_id (DE + 9 digits) or supplier.tax_number.",
       "/supplier/vat_id",
     ));
+  }
+
+  // BG-DEX-09 third-party payments: KoSIT checks them only in an extension file
+  // (XRechnung-UBL-validation.sch, ubl-extension-pattern), so this does too.
+  const thirdParty = Array.isArray(invoice.third_party_payments) ? invoice.third_party_payments : [];
+  if (XRECHNUNG_EXTENSION.test(spec)) {
+    const currency = str(invoice.currency).toUpperCase();
+    thirdParty.forEach((row, index) => {
+      if (!isObject(row)) return;
+      const path = `/third_party_payments/${index}`;
+      const gaps = [["type", "type (BT-DEX-001)"], ["amount_text", "amount (BT-DEX-002)"], ["description", "description (BT-DEX-003)"]]
+        .filter(([key]) => !(key === "amount_text" ? str(row.amount_text) || typeof row.amount === "number" : str(row[key])))
+        .map(([, label]) => label);
+      if (gaps.length) {
+        findings.push(finding(
+          "XR-010",
+          `Third-party payment ${index + 1} is missing its ${gaps.join(", ")} (BR-DEX-10, -11, -12).`,
+          "Give each cac:PrepaidPayment a cbc:ID (the kind of payment), a cbc:PaidAmount and a cbc:InstructionID that says what it was for.",
+          path,
+        ));
+      }
+      const text = str(row.amount_text);
+      const decimals = text.includes(".") ? text.split(".").pop().length : 0;
+      if (text && (decimals > 2 || row.amount === null)) {
+        findings.push(finding(
+          "XR-011",
+          row.amount === null
+            ? `Third-party payment ${index + 1}'s amount "${text.slice(0, 40)}" is not a number.`
+            : `Third-party payment ${index + 1}'s amount ${text} has more than two decimals (BR-DEX-13).`,
+          "Write the amount as a plain number with at most two decimals, for example 19.96.",
+          `${path}/amount`,
+        ));
+      }
+      const rowCurrency = str(row.currency).toUpperCase();
+      if (currency && rowCurrency !== currency) {
+        findings.push(finding(
+          "XR-011",
+          rowCurrency
+            ? `Third-party payment ${index + 1} is in ${rowCurrency}, the invoice in ${currency} (BR-DEX-14).`
+            : `Third-party payment ${index + 1}'s amount has no currency; it must be the invoice's, ${currency} (BR-DEX-14).`,
+          `Set currencyID="${currency}" on its cbc:PaidAmount.`,
+          `${path}/amount`,
+        ));
+      }
+    });
   }
 
   return findings;

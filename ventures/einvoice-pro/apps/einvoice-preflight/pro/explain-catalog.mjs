@@ -430,6 +430,16 @@ export const TEMPLATES = {
     de: ["Der Verkäufer hat weder USt-IdNr. noch Steuernummer; eine deutsche Rechnung braucht eine davon (BR-DE-16, § 14 Abs. 4 UStG).", "Ergänzen Sie die USt-IdNr. oder die Steuernummer des Verkäufers."],
     fr: ["Le vendeur n'a ni numéro de TVA ni numéro fiscal ; une facture allemande exige l'un des deux.", "Ajoutez le numéro de TVA (USt-IdNr.) ou le numéro fiscal (Steuernummer) du vendeur."],
   },
+  "XR-010": {
+    en: ["A third-party payment (BG-DEX-09, XRechnung extension) is missing its type, amount or description, so the receiver cannot tell what was paid to whom.", "Give each third-party payment its type (BT-DEX-001), amount (BT-DEX-002) and a description of what it covers (BT-DEX-003)."],
+    de: ["Bei einer Drittzahlung (BG-DEX-09, XRechnung-Extension) fehlen Art, Betrag oder Beschreibung (BR-DEX-10, -11, -12).", "Geben Sie jeder Drittzahlung ihre Art (BT-DEX-001), ihren Betrag (BT-DEX-002) und eine Beschreibung, wofür sie steht (BT-DEX-003)."],
+    fr: ["Un paiement par un tiers (BG-DEX-09, extension XRechnung) n'a pas de type, de montant ou de description ; le destinataire ne sait pas ce qui a été payé.", "Indiquez pour chaque paiement par un tiers son type (BT-DEX-001), son montant (BT-DEX-002) et ce qu'il couvre (BT-DEX-003)."],
+  },
+  "XR-011": {
+    en: ["A third-party payment amount (BT-DEX-002) has more than two decimals, is not a number, or is in another currency than the invoice.", "Write it with at most two decimals in the invoice currency (BT-5)."],
+    de: ["Ein Drittzahlungsbetrag (BT-DEX-002) hat mehr als zwei Nachkommastellen, ist keine Zahl oder steht in einer anderen Währung als die Rechnung (BR-DEX-13, -14).", "Schreiben Sie ihn mit höchstens zwei Nachkommastellen in der Rechnungswährung (BT-5)."],
+    fr: ["Le montant d'un paiement par un tiers (BT-DEX-002) a plus de deux décimales, n'est pas un nombre ou n'est pas dans la devise de la facture.", "Écrivez-le avec au plus deux décimales, dans la devise de la facture (BT-5)."],
+  },
 
   // --- Peppol BIS Billing 3.0 ---
   "PP-001": {

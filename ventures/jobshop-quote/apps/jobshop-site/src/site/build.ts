@@ -355,7 +355,7 @@ export function buildSite(opts: BuildOptions): Map<string, string> {
   for (const route of publicRoutes(launch)) {
     if (titles.has(route.title)) throw new Error(`Duplicate title: ${route.title}`);
     titles.add(route.title);
-    const page = renderPage(ctx, route);
+    const page = renderPage({ ...ctx, page: route.path }, route);
     pages.set(route.path, page);
     files.set(fileFor(route.path), page);
   }

@@ -7,6 +7,7 @@ import { Link, Navigate, Outlet, useNavigate, useParams } from "@tanstack/react-
 import { Fragment } from "react";
 import { Button } from "../components/ui";
 import { api, orgApi, queryClient, setMoneyCurrency } from "../lib/api";
+import { usePostSignupSource } from "../lib/use-signup-source";
 import { LegalFooter, LegalGate } from "./legal";
 import { useMe } from "./public";
 
@@ -37,6 +38,7 @@ export const canAdmin = (role?: string) => role === "owner" || role === "admin";
 export function OrgLayout() {
   const orgId = useOrgId();
   const me = useMe();
+  usePostSignupSource(me.data?.user.id);
   const org = useOrg(orgId);
   const navigate = useNavigate();
   // Set before the pages below render, so every amount prints in the shop's currency.
