@@ -221,8 +221,6 @@ LAUNCH = """## Done
 - ~~Re-check each official deadline source directly~~ done 2026-11-27
   (launch-re-check): every statement re-read against the official text
 - Launch review done 2026-11-27 ([docs/LAUNCH-REVIEW.md](docs/LAUNCH-REVIEW.md)): margins re-derived
-- Document control, part 3b: master list import (2026-11-28, document-master-list-import). "Import a
-  master list" on the Documents tab reads the list a shop keeps now
 
 ## Next
 - Billing, part 2 if people ask

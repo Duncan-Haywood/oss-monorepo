@@ -784,11 +784,8 @@ LAUNCH_HEAD = "must do before a public launch"
 # slug): ..." or "ISO 9001 dates in the calendar (2026-11-27)." Runs park changelog entries there.
 # Also "~~Re-check each source~~ done 2026-11-27 (slug)" and "Launch review done 2026-11-27 (...)":
 # both were offered as free "Start here" work on 2026-11-27 after they had shipped.
-# The lead may hold a colon: cmmc's "Document control, part 3b: master list import (2026-11-28,
-# document-master-list-import)" and its part 3c were offered as free "Start here" work on
-# 2026-11-28 after PRs #20049 and #20066 had merged them (explore run, 2026-11-28).
 _SHIPPED = re.compile(
-    r"^\W*(?:~~|done\b|[^()]{3,100}(?:\(|\bdone\s+)\d{4}-\d\d-\d\d\b)", re.I)
+    r"^\W*(?:~~|done\b|[^:()]{3,100}(?:\(|\bdone\s+)\d{4}-\d\d-\d\d\b)", re.I)
 
 
 def launch_items(roadmap: str) -> list[str]:
@@ -829,7 +826,11 @@ def landed_slugs(repo: str, days: int = 14) -> set[str]:
     """Slugs that merge subjects on origin/main name in brackets ("... [cui-markings] (#20041)").
 
     A backstop for launch bullets that record shipped work in a shape `_SHIPPED` does not
-    read: the bullet names its slug, and the PR that merged it carries the same slug.
+    read: the bullet names its slug, and the PR that merged it carries the same slug. On
+    2026-11-28 --bets offered cmmc's "Document control, part 3b: master list import
+    (2026-11-28, document-master-list-import)" and part 3c as free "Start here" work after
+    PRs #20049 and #20066 had merged them; PR #20080 widens `_SHIPPED` for that shape, and
+    this catches the next shape nobody has written a pattern for (explore run, 2026-11-28).
     Best effort: with no readable main, nothing counts as landed.
     """
     for ref in ("origin/main", "main"):
