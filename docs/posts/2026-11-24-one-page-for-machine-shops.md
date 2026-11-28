@@ -1268,3 +1268,28 @@ shop needs in order to set its breaks:
 A test prices every break and the in-between order with the app's own costing
 engine and fails if any cent differs. All the figures are made up, and the
 guide says so.
+
+## Update, 28 November 2026: what a rush job should cost
+
+When a customer needs parts in days rather than weeks, many shops add a flat
+expedite percentage to the normal price. The new guide, [how to price a rush
+job in a machine shop](https://marisstella.app/jobshop/how-to-price-a-rush-job),
+costs the rush line by line instead. It reuses the made-up anodized bracket
+from the CNC guide and quotes it twice. In the rush version the machining runs
+at an overtime rate, the job already on the mill is torn down and set up again
+later, the plate comes same-day, and the anodizer charges its expedite price
+and lot minimum. All the figures are made up, and the guide says so. At 1, 10
+and 100 parts:
+
+- **The rush adds 72.2%, 45.6% and 21.2%.** The bumped setup, the delivery
+  and the higher anodize minimum are charged once per order, so they weigh
+  most on small lots. The overtime premium grows with the hours, so on a
+  large lot it is most of the extra cost.
+- **A flat 25% is wrong both ways.** It is $277.44 short at one part and
+  $233.97 short at ten. At 100 it charges $269.25 more than the rush costs.
+
+Job Shop Quote has no rush switch. You put the overtime rate on the rate card
+as a second machine and add the bumped job as a setup-only operation. The
+expedite goes in as its own finishing operation and the delivery as an extra.
+A test in the app prices both versions through its costing engine and fails
+if any figure differs by a cent.
