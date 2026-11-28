@@ -64,6 +64,7 @@ import {
   setFollowUpDays,
 } from "../../services/quotes/follow-ups";
 import { copyLineFrom, partHistory, rfqPartHistory } from "../../services/quotes/history";
+import { readShipmentQuery, shipmentPdf } from "../../services/quotes/shipment";
 import { parseTravelerQuery, travelerPdf } from "../../services/quotes/traveler";
 import { loadRateCard } from "../../services/ratecard";
 import {
@@ -395,6 +396,25 @@ export const quoteRoutes = new Hono<AppEnv>()
       c.var.tenant.orgId,
       c.req.param("quoteId"),
       parseTravelerQuery(c.req.query()),
+    );
+    return new Response(bytes, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": contentDisposition(`${label}.pdf`),
+        "Content-Security-Policy": "default-src 'none'; sandbox",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  })
+  // Packing slip and certificate of conformance once a quote is won:
+  // `?ship=YYYY-MM-DD&qty.<lineId>=N&lot.<lineId>=H123&signer=Name, title&to=line1%0Aline2&coc=0`.
+  .get("/:quoteId/shipment.pdf", async (c) => {
+    const { bytes, label } = await shipmentPdf(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      c.req.param("quoteId"),
+      readShipmentQuery(c.req.query()),
     );
     return new Response(bytes, {
       headers: {

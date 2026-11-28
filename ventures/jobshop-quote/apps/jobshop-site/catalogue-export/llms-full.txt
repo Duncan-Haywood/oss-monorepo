@@ -198,6 +198,7 @@ declines; the answer shows on the quote, which is marked won or lost.
 - Quote follow-up: Every sent quote gets a follow-up day. A morning email lists each estimator's quotes due, and the quote log keeps every call, so no quote goes quiet.
 - Win/loss tracking: See your win rate by customer, material, machine, markup, estimator, routing and month, the reasons you lose, and the unit prices you won and lost at.
 - Job travelers: Print a job traveler from a won quote: material and stock to pull, every operation with setup, cycle and run time, finishing, inspection and sign-off lines.
+- Packing slips and certificates of conformance: Print a packing slip and a certificate of conformance for a machine shop order: part, revision, quantity shipped, material, outside processing and heat/lot.
 - QuickBooks invoices from quotes: Turn a won quote into a QuickBooks Online invoice import file: each part at the break it was quoted at, the PO on the invoice, no retyping.
 - Shop load and lead time: Put your open jobs on your machines, see the day each one finishes and each machine is booked until, and quote a lead time behind the backlog.
 
@@ -2707,6 +2708,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -2776,6 +2778,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -2844,6 +2847,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -2911,6 +2915,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -2980,6 +2985,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -3048,6 +3054,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -3116,6 +3123,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -3183,6 +3191,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Quote follow-up
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -3250,6 +3259,76 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Online quote acceptance
 - Quote follow-up
 - Win/loss tracking
+- Packing slips and certificates of conformance
+- QuickBooks invoices from quotes
+- Shop load and lead time
+
+How it works, step by step · Pricing
+
+### Try it on your own RFQs
+
+The Early access plan is free and needs no card.
+
+Start free
+
+## Packing slips and certificates of conformance
+
+Source: https://marisstella.app/jobshop/certificate-of-conformance-software
+
+In the app today
+
+## A packing slip and certificate of conformance from the quote you won
+
+Many machined-part POs ask for a certificate of conformance in the box, and the quote already holds the part numbers, revisions, material and outside processing it lists. On a won quote, the app prints the packing slip and the certificate together, with no prices, for your quality person to sign.
+
+Start free
+
+### What it does
+
+- A packing slip: your shop's name and address, the customer, PO, quote and ship date, the ship-to address, and per part the quantity ordered and shipped, with partial shipments marked
+- A certificate of conformance: per part the revision, quantity shipped, material (or customer-supplied), outside processing by name and the heat or lot number you enter
+- A conformance statement to the PO, drawings and revisions over a blank signature line, with the signer's name and title if you type them
+- Quantities from the job's saved PO quantities, the break the customer accepted online, or the line's only break; a partial shipment is typed per part, and a multi-break line with none of these is refused, never guessed
+- A part with no revision on the quote prints "not given" instead of being left blank, and a blank heat/lot box prints a line to write on
+
+### What it does not do yet
+
+- The app does not record shipments: partial shipments to date are not totalled, and a packing slip has no number of its own
+- The certificate is your shop's statement for your signature; the app does not check the parts, keep inspection records or attach material certs
+- Won quotes only
+
+### Free guides on this
+
+- Job travelers from won quotes
+- How to quote outside processing
+
+### Common questions
+
+### Which plans include it?
+
+Every plan, including the free Early access plan (up to 40 RFQs a month, 3 people, no card). Plans differ by RFQs a month and seats, not by features. Paid plans start at $199 a month and are not on sale yet.
+
+### Who signs the certificate of conformance?
+
+Your shop does. The app prints the parts, revisions, quantities, material and lot numbers from the quote and what you type, under a statement that the parts conform to the PO and drawings, and leaves the signature line blank for the person who can say so.
+
+### Is Job Shop Quote new?
+
+Yes. It opened in November 2026 and has no customers, reviews or published results yet. What this page describes works in the hosted app today; check every price, time and quantity before you send a quote.
+
+### The rest of Job Shop Quote
+
+Every part works on the same rate card and the same quotes, so nothing is typed twice.
+
+- CNC quoting software
+- Sheet metal quoting software
+- Quoting from STEP files
+- Repeat parts and routings
+- Material price tracking
+- Online quote acceptance
+- Quote follow-up
+- Win/loss tracking
+- Job travelers
 - QuickBooks invoices from quotes
 - Shop load and lead time
 
@@ -3320,6 +3399,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - Shop load and lead time
 
 How it works, step by step · Pricing
@@ -3389,6 +3469,7 @@ Every part works on the same rate card and the same quotes, so nothing is typed 
 - Quote follow-up
 - Win/loss tracking
 - Job travelers
+- Packing slips and certificates of conformance
 - QuickBooks invoices from quotes
 
 How it works, step by step · Pricing
