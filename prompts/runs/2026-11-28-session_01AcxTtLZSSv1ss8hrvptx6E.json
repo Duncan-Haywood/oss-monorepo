@@ -37,12 +37,19 @@
       "issue": "Bets #1-#4 have nearly every non-owner launch item done; the remaining Next items are mostly 'if contractors ask', so picking a slice took a wide read of four ROADMAPs (thousands of lines each). A short 'unblocked next slice' line per bet would save that time."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed another PR's page (title/description length) in this PR to clear red CI on main instead of waiting for its author",
+      "did": "merged origin/main, shortened title and meta description of how-to-submit-sprs-score.html",
+      "result": "description-length and title-length tests and machine-shop-guides suite pass locally"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended: the weekly email line)"
   ],
   "goal": null,
-  "notes": "Security queue: 2 alerts, both claimed. IDEAS empty. Routed ventures/1. Shipped payapps late-payment interest part 3b (interest totals in the weekly digest summary). Local: pnpm test:unit 1601 passed/4 skipped; worker digest suite 13 passed; tsc clean; biome clean. Live probes: payapps health ok, email true.",
+  "notes": "Security queue: 2 alerts, both claimed. IDEAS empty. Routed ventures/1. Shipped payapps late-payment interest part 3b (interest totals in the weekly digest summary). Local: pnpm test:unit 1601 passed/4 skipped; worker digest suite 13 passed; tsc clean; biome clean. Live probes: payapps health ok, email true. CI 'test' failed on main's PR #20062 page (machine-shop-guides/how-to-submit-sprs-score.html: title 77 > 70, description 173 > 160); merged main and shortened both here (title 60, description 160), page and length tests pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
