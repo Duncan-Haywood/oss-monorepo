@@ -7,7 +7,9 @@ const SRC = readFileSync(new URL("./sources/noi.txt", import.meta.url), "utf8");
 const flat = (s) => s.replace(/\s+/g, " ").trim();
 const FLAT = flat(SRC);
 const PAGE = readFileSync(new URL("./notice-of-intent-to-lien.html", import.meta.url), "utf8");
-const decode = (s) => s.replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"');
+// One pass, so "&amp;#39;" becomes "&#39;" and is not decoded a second time.
+const ENTITIES = { "&amp;": "&", "&#x27;": "'", "&#39;": "'", "&quot;": '"' };
+const decode = (s) => s.replace(/&amp;|&#x27;|&#39;|&quot;/g, (e) => ENTITIES[e]);
 
 test("Colorado: four months after last furnishing, serve 10 days before (hand-counted)", () => {
   const r = noiDates({ state: "CO", last: "2026-06-30", today: "2026-10-01" });
