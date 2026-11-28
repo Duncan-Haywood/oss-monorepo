@@ -2730,7 +2730,7 @@ nothing to copy. No customers yet. Paid plans are dark
   that states the balance, due and paid dates, days late and the rate with its source, and marks the
   interest billed if it was not ("Already in QuickBooks" records one typed by hand). Refused for
   waived interest; a retry finds the invoice by number (`sendInterestInvoice`,
-  `src/shared/qbo-interest.ts`, migration 0093; docs/QUICKBOOKS.md, "Late-payment interest").
+  `src/shared/qbo-interest.ts`, migration 0094; docs/QUICKBOOKS.md, "Late-payment interest").
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2788,7 +2788,7 @@ nothing to copy. No customers yet. Paid plans are dark
   parties, paid and owing columns were kept in one browser's storage, so the next month's statement
   started blank on any other computer and for anyone else in the company. Now an editor's changes are
   saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
-  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `sworn_statement_drafts`, migration 0094, replaced whole on each save; `swornDraftSchema` in
   `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
   and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
   A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and

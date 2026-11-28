@@ -259,7 +259,7 @@ the cash report lists under "Interest earned on late payments" (`paidLateApps` i
 QuickBooks** (editors; `POST .../pay-apps/:payAppId/quickbooks/interest-invoice`,
 `sendInterestInvoice` in `services/quickbooks.ts`, planned by `src/shared/qbo-interest.ts`) writes
 one invoice to the GC. `qbo_interest_invoice_syncs` keeps one row per pay application (migration
-0093); `GET /api/orgs/:orgId/quickbooks/interest-invoices` lists them for the cash page.
+0094); `GET /api/orgs/:orgId/quickbooks/interest-invoices` lists them for the cash page.
 
 - **What is written.** Number `LI` + the application's invoice tail (`PA24-117-03` becomes
   `LI24-117-03`, whether or not the application itself was sent); customer = the job's GC (the
