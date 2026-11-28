@@ -878,7 +878,7 @@ def main(argv):
         if age is not None and age >= STALE_DAYS:
             print(f"STALE: taken {age} days ago. Refresh one suite with "
                   "`run_venture_tests.py --write-times <slug>` (keeps the other rows), "
-                  "or all with `--write-times` and no slugs (~15 min on 4 cores, run_in_background).")
+                  "or all with `--write-times` and no slugs (~25 min on 4 cores, 2026-11-28; run_in_background).")
         print(slowest_table(data["seconds"], args.times, passes=functools.lru_cache(None)(
             suite_file_times.perf_history), taken=data.get("taken")))
         print("\nTimes are relative (suites ran in parallel). Which file is slow, timed alone: "
