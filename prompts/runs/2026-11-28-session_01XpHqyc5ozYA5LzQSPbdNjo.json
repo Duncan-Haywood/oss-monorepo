@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyc5ozYA5LzQSPbdNjo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T09:38:29Z",
+  "ended": "2026-11-28T09:48:41Z",
+  "wall_minutes": 10.47,
+  "tokens_in": 7531669,
+  "tokens_out": 28935,
+  "cost_usd": 3.2034,
+  "tool_calls": 68,
+  "task": "payapps #25: state bond claims, Alabama (Ala. Code 39-1-1) and its public retainage cap (39-2-12(c))",
+  "projects": [
+    "payapps",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20070",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "The mt-nd-sc-sd entry said Alabama publishes its code only through a vendor's site; alison.legislature.state.al.us serves it, but script-rendered (curl gets the shell, a headless Playwright page gets the text). Corrected in the new entry."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Every ranked bet's Next list is waits-on-demand except payapps #25, which five parallel runs are splitting state by state; finding an unclaimed state cost ~10 host probes. A per-state claim list in the item would save the next run that time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No new post: the work extends the existing customer posts (bond claims, retainage caps) per the 2026-11-24 consolidation direction, rather than a new short post.",
+      "did": "Added an Alabama section to both existing for-customers posts.",
+      "result": "Both posts carry the new rows; no thin new page."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-state-payment-bond-claims-little-miller-acts.md (extended)",
+    "docs/posts/2026-11-24-retainage-caps-in-twelve-states.md (extended)"
+  ],
+  "goal": "bet #1 PayApps: public-job bond claim coverage for a 30th state, plus its retainage cap",
+  "notes": "security_next: none workable (exit 3). ideas: none. Route: ventures/1 draw. Probed OK (Turnstile), IN (empty render), TN/AR/MS (vendor), NM/HI (403), WI/WV/CT/GA (no answer), VT (no claim procedure); only Alabama readable. Local checks: payapps tsc exit 0; vitest unit 164 files, 1598 passed, 4 skipped; biome clean on changed files; pay-app-guides node --test page.test.mjs 36/36; venture-preflight pay-app-guides run in background (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de930acb-daa0-5650-a332-fd235e7a93a1",
+    "transcripts": 1,
+    "first": "2026-11-28T09:38:29Z",
+    "last": "2026-11-28T09:48:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 28935,
+        "thinking": 7112,
+        "cache_read": 7388219,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143324,
+        "api_equivalent_usd": 3.2034,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 28935,
+      "thinking": 7112,
+      "cache_read": 7388219,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143324,
+      "api_equivalent_usd": 3.2034,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.47,
+      "active_minutes": 10.47,
+      "model_minutes": 5.55,
+      "tool_minutes": 4.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading two statutes, coding two rules with tests, updating two guides and posts: ~3h for a construction-software engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 93.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -152,3 +152,49 @@ export function megabytes(bytes: number): string {
   const mb = bytes / 1024 / 1024;
   return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
 }
+
+// ---- purchase receipts (2026-11-28, purchase-receipts) ---------------------------------------------
+// The receipt for stock: what was paid for a lot (an estate-sale haul, a pallet, a bin) or an item bought
+// on its own. Cost of goods sold (Schedule C line 4) is usually a reseller's largest deduction. Publication
+// 583, "Inventory" (read 2026-11-28): "Your supporting documents should show the amount paid and that the
+// amount was for inventory", naming canceled checks, cash register tape receipts, credit card sales slips
+// and invoices.
+
+/** Receipts on one lot or one item (a receipt and its card slip, a two-page invoice). */
+export const MAX_RECEIPTS_PER_PURCHASE = 5;
+
+export interface ProofItem {
+  id: string;
+  lotId: string | null;
+  costCents: number;
+}
+
+/**
+ * Which items have a purchase receipt behind their cost: their own, or their lot's (one receipt covers
+ * every item in the lot). A zero-cost item needs none and is counted apart.
+ */
+export function purchaseProof(
+  items: ProofItem[],
+  withReceipt: { lots: ReadonlySet<string>; items: ReadonlySet<string> },
+) {
+  let covered = 0;
+  let coveredCents = 0;
+  let zeroCost = 0;
+  const missing: ProofItem[] = [];
+  for (const i of items) {
+    if (i.costCents <= 0) zeroCost++;
+    else if (withReceipt.items.has(i.id) || (i.lotId != null && withReceipt.lots.has(i.lotId))) {
+      covered++;
+      coveredCents += i.costCents;
+    } else missing.push(i);
+  }
+  return {
+    items: items.length,
+    covered,
+    coveredCents,
+    zeroCost,
+    missing: missing.length,
+    missingCents: missing.reduce((s, i) => s + i.costCents, 0),
+    missingIds: missing.map((i) => i.id),
+  };
+}

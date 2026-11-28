@@ -1,10 +1,11 @@
-// The receipts on one expense (shared/receipts.ts): list, download, add and delete. The file goes up as
+// The receipts on one expense, lot or item (shared/receipts.ts): list, download, add and delete. The file goes up as
 // the request body with its name in the query; the browser checks the type and size first so a wrong
 // file is named before it is sent, and the worker checks both again plus the file's first bytes.
 import {
   checkReceipt,
   MAX_RECEIPT_BYTES,
   MAX_RECEIPTS_PER_EXPENSE,
+  MAX_RECEIPTS_PER_PURCHASE,
   megabytes,
   RECEIPT_ACCEPT,
 } from "@shared/receipts";
@@ -20,7 +21,7 @@ interface Receipt {
   size: number;
 }
 
-async function uploadReceipt(orgId: string, expenseId: string, file: File): Promise<Receipt> {
+async function uploadReceipt(orgId: string, base: string, file: File): Promise<Receipt> {
   if (file.size > MAX_RECEIPT_BYTES) {
     throw new Error(
       `A receipt can be up to ${megabytes(MAX_RECEIPT_BYTES)}; ${file.name} is ${megabytes(file.size)}.`,
@@ -30,7 +31,7 @@ async function uploadReceipt(orgId: string, expenseId: string, file: File): Prom
   const check = checkReceipt(file.name, bytes);
   if (!check.ok) throw new Error(check.reason);
   const res = await fetch(
-    apiUrl(orgPath(orgId, `/expenses/${expenseId}/receipts?name=${encodeURIComponent(file.name)}`)),
+    apiUrl(orgPath(orgId, `${base}/receipts?name=${encodeURIComponent(file.name)}`)),
     {
       method: "POST",
       credentials: "include",
@@ -60,16 +61,66 @@ export function ExpenseReceipts({
   expenseId: string;
   canEdit: boolean;
 }) {
+  return (
+    <Receipts
+      orgId={orgId}
+      base={`/expenses/${expenseId}`}
+      canEdit={canEdit}
+      max={MAX_RECEIPTS_PER_EXPENSE}
+      what="expense"
+      listKeys={["expenses"]}
+    />
+  );
+}
+
+/** Receipts on a lot (covering every item in it) or on an item bought on its own. */
+export function PurchaseReceipts({
+  orgId,
+  target,
+  canEdit,
+}: {
+  orgId: string;
+  target: { kind: "lot" | "item"; id: string };
+  canEdit: boolean;
+}) {
+  return (
+    <Receipts
+      orgId={orgId}
+      base={`/inventory/${target.kind}s/${target.id}`}
+      canEdit={canEdit}
+      max={MAX_RECEIPTS_PER_PURCHASE}
+      what={target.kind}
+      listKeys={["lots", "items"]}
+    />
+  );
+}
+
+function Receipts({
+  orgId,
+  base,
+  canEdit,
+  max,
+  what,
+  listKeys,
+}: {
+  orgId: string;
+  base: string;
+  canEdit: boolean;
+  max: number;
+  what: string;
+  /** The lists that show a receipt count, refreshed after a change. */
+  listKeys: string[];
+}) {
   const qc = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const list = useQuery({
-    queryKey: ["receipts", orgId, expenseId],
-    queryFn: () => api<{ items: Receipt[] }>(orgPath(orgId, `/expenses/${expenseId}/receipts`)),
+    queryKey: ["receipts", orgId, base],
+    queryFn: () => api<{ items: Receipt[] }>(orgPath(orgId, `${base}/receipts`)),
   });
   const add = useMutation({
     mutationFn: async (files: File[]) => {
-      for (const f of files) await uploadReceipt(orgId, expenseId, f);
+      for (const f of files) await uploadReceipt(orgId, base, f);
     },
     onMutate: () => setError(null),
     onError: (e) => setError(e instanceof Error ? e.message : String(e)),
@@ -77,31 +128,31 @@ export function ExpenseReceipts({
       if (input.current) input.current.value = "";
       return qc
         .invalidateQueries({ queryKey: ["receipts", orgId] })
-        .then(() => qc.invalidateQueries({ queryKey: ["expenses", orgId] }));
+        .then(() =>
+          Promise.all(listKeys.map((k) => qc.invalidateQueries({ queryKey: [k, orgId] }))),
+        );
     },
   });
   const remove = useMutation({
-    mutationFn: (id: string) =>
-      api(orgPath(orgId, `/expenses/${expenseId}/receipts/${id}`), { method: "DELETE" }),
+    mutationFn: (id: string) => api(orgPath(orgId, `${base}/receipts/${id}`), { method: "DELETE" }),
     onSettled: () =>
       qc
         .invalidateQueries({ queryKey: ["receipts", orgId] })
-        .then(() => qc.invalidateQueries({ queryKey: ["expenses", orgId] })),
+        .then(() =>
+          Promise.all(listKeys.map((k) => qc.invalidateQueries({ queryKey: [k, orgId] }))),
+        ),
   });
   const items = list.data?.items ?? [];
-  const full = items.length >= MAX_RECEIPTS_PER_EXPENSE;
+  const full = items.length >= max;
   return (
     <div className="space-y-2 text-sm">
       {items.length === 0 && !list.isLoading && (
-        <p className="text-stone-600">No receipt on this expense yet.</p>
+        <p className="text-stone-600">No receipt on this {what} yet.</p>
       )}
       <ul className="space-y-1">
         {items.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center gap-2">
-            <a
-              className="underline"
-              href={apiUrl(orgPath(orgId, `/expenses/${expenseId}/receipts/${r.id}`))}
-            >
+            <a className="underline" href={apiUrl(orgPath(orgId, `${base}/receipts/${r.id}`))}>
               {r.fileName}
             </a>
             <span className="text-xs text-stone-500">{megabytes(r.size)}</span>
@@ -140,7 +191,7 @@ export function ExpenseReceipts({
       )}
       {full && (
         <p className="text-xs text-stone-500">
-          {MAX_RECEIPTS_PER_EXPENSE} receipts is the most one expense can carry.
+          {max} receipts is the most one {what} can carry.
         </p>
       )}
       {error && <p className="text-sm text-red-700">{error}</p>}

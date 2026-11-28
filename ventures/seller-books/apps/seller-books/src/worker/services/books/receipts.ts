@@ -54,16 +54,31 @@ async function assertExpense(ctx: AppContext, orgId: string, expenseId: string) 
   if (!row) throw notFound("Expense");
 }
 
-/** Bytes of receipts the shop keeps, and every shop's together. */
+/**
+ * Bytes of receipts the shop keeps, and every shop's together: expense receipts and purchase receipts
+ * (purchase-receipts.ts) share one allowance, since both live in the same D1 database.
+ */
 export async function receiptUsage(ctx: AppContext, orgId: string) {
-  const row = await ctx.db
-    .select({
-      shop: sql<number>`coalesce(sum(case when ${expenseReceipt.orgId} = ${orgId} then ${expenseReceipt.size} else 0 end), 0)`,
-      total: sql<number>`coalesce(sum(${expenseReceipt.size}), 0)`,
-    })
-    .from(expenseReceipt)
-    .get();
+  const row = await ctx.env.DB.prepare(
+    `SELECT coalesce(sum(CASE WHEN org_id = ?1 THEN size ELSE 0 END), 0) AS shop, coalesce(sum(size), 0) AS total
+       FROM (SELECT org_id, size FROM expense_receipt UNION ALL SELECT org_id, size FROM purchase_receipt)`,
+  )
+    .bind(orgId)
+    .first<{ shop: number; total: number }>();
   return { shopBytes: Number(row?.shop ?? 0), totalBytes: Number(row?.total ?? 0) };
+}
+
+/** The shop and deployment limits every new receipt is checked against, with the message to show. */
+export async function assertReceiptRoom(ctx: AppContext, orgId: string, size: number) {
+  const usage = await receiptUsage(ctx, orgId);
+  if (usage.shopBytes + size > SHOP_RECEIPT_LIMIT_BYTES) {
+    throw storageFull(
+      `Receipts can use up to ${megabytes(SHOP_RECEIPT_LIMIT_BYTES)} a shop for now, and this shop has ${megabytes(usage.shopBytes)}. Delete receipts you no longer need, or shrink the photo (a receipt reads fine at 1 to 2 MB).`,
+    );
+  }
+  if (usage.totalBytes + size > TOTAL_RECEIPT_LIMIT_BYTES) {
+    throw storageFull("Receipt storage on this site is full for now. Try again later.");
+  }
 }
 
 export async function listReceipts(
@@ -121,15 +136,7 @@ export async function addReceipt(
     );
   }
   const size = input.bytes.byteLength;
-  const usage = await receiptUsage(ctx, orgId);
-  if (usage.shopBytes + size > SHOP_RECEIPT_LIMIT_BYTES) {
-    throw storageFull(
-      `Receipts can use up to ${megabytes(SHOP_RECEIPT_LIMIT_BYTES)} a shop for now, and this shop has ${megabytes(usage.shopBytes)}. Delete receipts you no longer need, or shrink the photo (a receipt reads fine at 1 to 2 MB).`,
-    );
-  }
-  if (usage.totalBytes + size > TOTAL_RECEIPT_LIMIT_BYTES) {
-    throw storageFull("Receipt storage on this site is full for now. Try again later.");
-  }
+  await assertReceiptRoom(ctx, orgId, size);
   const row: ReceiptRow = {
     id: newId("rct"),
     expenseId,
@@ -191,9 +198,10 @@ export async function receiptBytes(
   ctx: AppContext,
   receiptId: string,
   size: number,
+  chunkTable: "expense_receipt_chunk" | "purchase_receipt_chunk" = "expense_receipt_chunk",
 ): Promise<Uint8Array<ArrayBuffer>> {
   const { results } = await ctx.env.DB.prepare(
-    "SELECT chunk, bytes FROM expense_receipt_chunk WHERE receipt_id = ? ORDER BY chunk",
+    `SELECT chunk, bytes FROM ${chunkTable} WHERE receipt_id = ? ORDER BY chunk`,
   )
     .bind(receiptId)
     .all<{ chunk: number; bytes: ArrayBuffer | number[] }>();
