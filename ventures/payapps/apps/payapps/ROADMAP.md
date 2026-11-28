@@ -2616,6 +2616,14 @@ nothing to copy. No customers yet. Paid plans are dark
   California (claimed separately), Georgia, Pennsylvania, Illinois and Connecticut (their sites
   refused or timed out through the proxy on 2026-11-27), New Jersey, Colorado and the rest.
 
+- Retainage caps, South Carolina and North Dakota (2026-11-28, retainage-caps-sc-nd, every plan):
+  S.C. Code § 11-35-3030(4) (3.5% of each progress payment, in a contract or subcontract, so it
+  flows down; each division's retainage released when certified complete, the prime passes it on
+  within ten days) and N.D. Cent. Code § 48-01.2-13 (10% of each estimate until 50% complete, then
+  none unless unsatisfactory progress is documented), each read on the legislature's own site, text
+  in `ventures/pay-app-guides/sources/retainage-caps.txt`. Twenty-five states in `RETAINAGE_CAPS`
+  and the retainage guide's table; `pct` now prints 3.5% rather than 3.50%. Tests in
+  `src/shared/public-jobs.test.ts` and `ventures/pay-app-guides/page.test.mjs`.
 - State bond claims, Colorado, Iowa and Maine (2026-11-28, state-bond-claims-co-ia-me, every plan):
   Maine (14 M.R.S. § 871(4): a sub's sub's 90-day notice; suit within a year of the last day),
   Iowa (ch. 573: a sub's worker or supplier notifies the prime within 30 days of first furnishing,
