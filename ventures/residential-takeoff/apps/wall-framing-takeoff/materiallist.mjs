@@ -17,6 +17,9 @@
 //   Soffit and fascia soffit panels (vented and solid when the ventilation sizing set them),
 //                    fascia boards, J-channel and frieze board from eaves.mjs (when the plan
 //                    has `eaves`), under the framed roof's eaves and rakes
+//   Drywall          sheets by length, screws, joint tape, compound pails and corner bead
+//                    from drywall.mjs (when the plan has `drywall`); kept out of the sheet
+//                    total, which counts the lumberyard's structural panels
 //
 // Prices: shown only when the caller says the plan's prices are its own (`priced`); the
 // default stock price of 1 per foot is a placeholder, not a lumber price.
@@ -27,7 +30,7 @@ import { formatLength } from "./engine.mjs";
 const KIND_ORDER = ["stud", "precut stud", "king", "jack", "cripple", "header", "sill", "plate", "bottom plate", "top plate", "cap plate", "blocking"];
 
 /**
- * @param {any} r takeoff result (engine.mjs `takeoff`), with `sheathing`, `roof`, `roofOutline` (and `roofSheathing`, its courses), `siding` and `eaves` attached as the CLI does
+ * @param {any} r takeoff result (engine.mjs `takeoff`), with `sheathing`, `roof`, `roofOutline` (and `roofSheathing`, its courses), `siding`, `eaves` and `drywall` attached as the CLI does
  * @param {{ priced?: boolean, job?: string }} [o]
  * @returns {{ ok: boolean, errors: string[], job: string, rows: Row[], totals: { boards: number, sheets: number, squares: number | null, cost: number | null }, notes: string[] }}
  */
@@ -190,6 +193,28 @@ export function materialList(r, o = {}) {
     add("fascia length", round2(ev.eaveFeet + ev.rakeFeet), "ft", "", "eave and rake runs, before waste (for labor by the foot)", null);
     notes.push(ev.shape === "outline" ? "Soffit and fascia are counted under the all-hip roof read from the outline: one eave run on each side of its eave line, the overhang deep, no rakes; corner mitres, drip edge (on the roof's own rows), nails, caulk and paint are not counted, and panel widths and stock lengths are the figures you typed." : "Soffit and fascia are counted from the framed roof's eave and rake runs and overhangs; corner mitres, drip edge (on the roof's own rows), nails, caulk and paint are not counted, and panel widths and stock lengths are the figures you typed.");
     for (const n of ev.wingNotes || []) notes.push(n);
+  }
+  // Drywall (drywall.mjs, when the plan asks for it): the board and finishing a hanger or a remodeler orders
+  const dw = r.drywall;
+  if (dw && dw.ok === true) {
+    /** @param {string} item @param {number} qty @param {string} unit @param {string} size @param {string} length @param {string} note @param {number | null | undefined} [total] */
+    const add = (item, qty, unit, size, length, note, total) => {
+      if (!(Number.isFinite(qty) && qty > 0)) return;
+      const priced = o.priced && total != null && Number.isFinite(total);
+      rows.push({ section: "Drywall", item, size, length, qty, unit, note, ...(priced ? { cost: round2(Number(total)) } : {}) });
+      if (priced) cost += Number(total);
+    };
+    const f = dw.finishing || {};
+    const rips = (dw.bandSheets || []).filter((/** @type {any} */ b) => b.band < 48 && b.perSheet > 1);
+    const ripNote = rips.length ? `; ${rips.map((/** @type {any} */ b) => `${round2(b.band)} in course ripped ${b.perSheet} strips to a sheet`).join(", ")}` : "";
+    add("drywall sheets", dw.sheets.count, "sheets", `4x${round2(dw.sheetLength / 12)}`, `${round2(dw.sheetLength / 12)} ft`, `${round2(dw.netSqFt)} sq ft of faces hung ${round2(dw.hangHeight / 12)} ft high in 48 in courses, counted from the layout (no waste added)${ripNote}`, dw.sheets.cost);
+    add("drywall screws", dw.screws, "screws", "", "", `${dw.assumptions?.screwsPerSqFt ?? 1} per sq ft plus ${(100 * dw.waste).toFixed(0)}%, a rate you type`);
+    add("joint tape", f.tapeRolls, "rolls", "", `${f.rollFt} ft`, `${f.tapeFt} ft: ${f.seamFt} ft of seams, ${f.cornerFt} ft of wall-to-ceiling angle, ${f.insideCornerFt} ft of inside corners`);
+    add("joint compound", f.compoundPails, "pails", "", "", `${f.pailGal} gal pails; ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (set it from your product's label)`);
+    add("corner bead", f.beadSticks, "sticks", "", `${f.beadStickFt} ft`, `${f.beadFt} ft around openings (both jambs and the head), free wall ends and ceiling steps, waste added`);
+    add("drywall area", round2(dw.netSqFt), "sq ft", "", "", "wall and ceiling faces net of openings, before waste (for labor by the square foot or the board)");
+    if (dw.joints) notes.push(`Drywall end joints on walls: ${dw.joints.total}, ${dw.joints.offFraming} off framing${dw.joints.offFraming ? " (set jointsOnStuds to snap them to studs)" : ""}.`);
+    notes.push("Drywall is counted face by face from the wall list (partitions on both faces) and the ceilings you typed; trim and where a partition meets a ceiling step are not counted, and screw, compound and bead rates are the figures you typed.");
   }
   if (Array.isArray(r.skippedWalls) && r.skippedWalls.length) {
     // a wall the plan checks refused is not on this list; say so where the list is read, the CSV included

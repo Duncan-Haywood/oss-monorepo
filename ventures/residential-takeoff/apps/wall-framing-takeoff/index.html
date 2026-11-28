@@ -173,7 +173,7 @@
     <button type="button" class="secondary" id="example">Load the example house</button>
     <button type="button" class="secondary" id="clear">Start empty</button>
     <button type="button" class="secondary" id="csv">Download CSV</button>
-    <button type="button" class="secondary" id="mlCsv" title="One list a lumberyard can quote from: boards by size and length, the members they are cut into, wall sheathing (if ticked), and the roof's sheets, squares, roofing and ridge, hip, valley, eave and rake lengths (if the roof is on), siding boards, wrap, corner boards, trim, flashing and nails (if siding is on), and soffit panels, fascia boards and J-channel (if soffit and fascia is on)">Download supplier material list (CSV)</button>
+    <button type="button" class="secondary" id="mlCsv" title="One list a lumberyard can quote from: boards by size and length, the members they are cut into, wall sheathing (if ticked), and the roof's sheets, squares, roofing and ridge, hip, valley, eave and rake lengths (if the roof is on), siding boards, wrap, corner boards, trim, flashing and nails (if siding is on), soffit panels, fascia boards and J-channel (if soffit and fascia is on), and drywall sheets, screws, tape, compound and corner bead (if interior drywall is on)">Download supplier material list (CSV)</button>
     <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
     <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
     <button type="button" class="secondary" id="openingsCsvBtn" title="Doors and windows grouped into marks, with rough and unit sizes, header, sill height and where each sits">Download door and window schedule (CSV)</button>
@@ -1741,7 +1741,7 @@
       if (!gate.allowed) { $("#errors").textContent = gate.reason + " Enter it in the branded bid package card below."; $("#pkgCard").hidden = false; return; }
       const at = last;
       const sheathing = $("#sheath").checked ? sheathe({ ...at.plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, at.result) : null;
-      const m = materialList({ ...at.result, ...(sheathing?.ok ? { sheathing } : {}), ...(at.roof ? { roof: at.roof } : {}), ...(at.roofOutline?.ok ? { roofOutline: at.roofOutline, roofFrame: at.roofFrame, ...(at.roofSheathing?.ok ? { roofSheathing: at.roofSheathing } : {}) } : {}), ...(at.siding?.ok ? { siding: at.siding } : {}), ...(at.eaves?.ok ? { eaves: at.eaves } : {}) });
+      const m = materialList({ ...at.result, ...(sheathing?.ok ? { sheathing } : {}), ...(at.roof ? { roof: at.roof } : {}), ...(at.roofOutline?.ok ? { roofOutline: at.roofOutline, roofFrame: at.roofFrame, ...(at.roofSheathing?.ok ? { roofSheathing: at.roofSheathing } : {}) } : {}), ...(at.siding?.ok ? { siding: at.siding } : {}), ...(at.eaves?.ok ? { eaves: at.eaves } : {}), ...(at.drywall?.ok ? { drywall: at.drywall } : {}) });
       download("material-list.csv", "text/csv", materialListCsv(m));
       record("material_list_downloaded");
     });

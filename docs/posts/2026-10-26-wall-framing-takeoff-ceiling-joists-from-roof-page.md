@@ -4,6 +4,7 @@ seo_title: "Wall framing takeoff: ceiling drywall follows the roof's joists"
 date: 2026-10-26
 description: "A new option in the ceiling joist select makes drywall ceiling joints land on the joists the roof model already placed."
 tags: [wall-framing-takeoff, construction, drywall]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) could already read ceiling joist positions from the roof layout (`ceilingJoistsFromRoof`), but only through the CLI plan file. The "Ceiling joist spacing" select on the page now has a "From the roof's ceiling joists" choice, and it round-trips through the saved plan.

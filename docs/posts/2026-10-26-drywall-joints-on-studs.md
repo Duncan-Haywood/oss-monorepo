@@ -3,6 +3,7 @@ title: "Where drywall sheets end: 18 joints off the studs in a sample house"
 date: 2026-10-26
 description: "Hung naively, a sample house's 8 ft drywall sheets end between studs 18 times. Snapping each cut to a stud costs 4 sheets and fixes all 18."
 tags: [wall-framing-takeoff, drywall, construction]
+folded_into: writing/drywall-takeoff-sheets-screws-tape-compound-and-corner-bead/
 ---
 
 [wall-framing-takeoff](../../ventures/wall-framing-takeoff/) counts drywall sheets for a framed house. A sheet's end joint should land on a stud, king or jack, not in the air between two. Until now the count ignored that. A new plan key, `drywall.jointsOnStuds`, cuts each sheet at the last framing centre it can reach.
