@@ -248,7 +248,7 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
     {
       path: "/machining-tolerances",
       label: "How tolerances change a machining quote",
-      title: `Machining tolerances and cost: how to quote tight tolerances · ${SITE_NAME}`,
+      title: `Tight machining tolerances: how to quote the cost · ${SITE_NAME}`,
       description:
         "Read a tolerance as a zone, the four bands from standard to precision, ISO 2768 and H7 fits in inches, and where tight tolerances add cost on a quote.",
       changefreq: "monthly",
