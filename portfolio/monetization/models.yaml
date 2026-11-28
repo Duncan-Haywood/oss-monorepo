@@ -693,7 +693,7 @@ products:
       the owner's Paddle secrets (apps/payapps/docs/BILLING.md, "Turning it on").
     next_owner: false
 
-  - app: private-monorepo/apps/jobshop-quote
+  - app: ventures/jobshop-quote/apps/jobshop-quote
     bet: 2
     buyer: CNC machining and metal fabrication job shops whose owner or estimator quotes RFQs by hand
     liability: medium
@@ -751,7 +751,7 @@ products:
       cost per RFQ from llm_calls before taking money.
     next_owner: false
 
-  - app: private-monorepo/apps/einvoice-preflight
+  - app: ventures/einvoice-pro/apps/einvoice-preflight
     bet: 3
     buyer: German and French SMEs facing the 2027-28 e-invoicing mandates, their accountants, and small invoicing-software vendors
     liability: medium
@@ -879,7 +879,7 @@ products:
       the Billing tab shipped in private PR 156.
     next_owner: false
 
-  - app: private-monorepo/apps/seller-books
+  - app: ventures/seller-books/apps/seller-books
     bet: 5
     buyer: multi-platform resellers (eBay, Poshmark, Mercari, Whatnot, Depop) who file a Schedule C
     liability: medium
@@ -949,7 +949,7 @@ products:
       workflow with the Paddle catalog sync, then the owner's Paddle secrets.
     next_owner: false
 
-  - app: private-monorepo/apps/wall-framing-takeoff
+  - app: ventures/residential-takeoff/apps/wall-framing-takeoff
     bet: 6
     buyer: residential remodelers, roofers and framers who take off materials from PDF plan sets
     liability: medium

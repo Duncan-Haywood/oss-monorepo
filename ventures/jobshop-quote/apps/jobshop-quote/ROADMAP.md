@@ -696,6 +696,11 @@ checks the pair. No customers yet.
   setup-only operation, which now prices at the labor markup); parts per bar from bar length, part
   length, parting kerf and remnant instead of typed by hand; a shop-wide default fallout (done
   2026-11-27, below).
+  Re-audited 2026-11-28 (`portfolio/quality/audits/2026-11-28-jobshop-quote-reaudit.json` in the
+  public repository): the fixes above hold. Still open: clearing an operation's "Setup min" box sends 0
+  (`num("")` in `src/client/routes/quote-detail.tsx`) and prices no setup with no issue; make setup
+  nullable like the cycle time (blank blocks, a typed 0 is a second operation on a machine already set
+  up).
 - Customer links: accept or decline online (2026-11-26, claim `quote-acceptance-link`). The quote
   email has a box (on by default) that adds "Accept or decline this quote online: <link>" under the
   footer, a clickable link in the HTML; "Copy a customer link" on the quote page makes one to send

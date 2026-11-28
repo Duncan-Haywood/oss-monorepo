@@ -102,6 +102,20 @@ def test_bets_come_first_in_order_and_others_say_why(tmp_path):
     assert "expected 1" in text and "needs `app: private-monorepo/apps/<slug>`" in text
 
 
+def test_private_app_that_moved_here_is_flagged(tmp_path):
+    p = tmp_path / "portfolio" / "flagships.yaml"
+    p.parent.mkdir()
+    p.write_text("flagships:\n"
+                 "  - venture: a\n    bet: 1\n    app: private-monorepo/apps/a\n    next: ok\n"
+                 "  - venture: b\n    bet: 2\n    app: private-monorepo/apps/b\n    next: ok\n")
+    (tmp_path / "ventures" / "a-pro" / "apps" / "a").mkdir(parents=True)
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1
+    assert "bet a has `app: private-monorepo/apps/a`" in errors[0]
+    assert "ventures/a-pro/apps/a" in errors[0]
+
+
 def test_file_without_bets_skips_the_bet_check(tmp_path):
     p = tmp_path / "flagships.yaml"
     p.write_text("flagships:\n  - venture: x\n    next: ok\n")
