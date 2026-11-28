@@ -142,10 +142,25 @@ def source_files():
         yield path
 
 
+# Every finding needs one of these literals somewhere in the file: the two
+# PATTERNS end in OPENS_WITH_SYMBOL, and a BODY_START finding needs
+# INTERPOLATES_AFTER_SYMBOL (OPENS_WITH_SYMBOL again) or PARAMETER_SYMBOL in its
+# body, which is a slice of the file. A file with none of them cannot produce a
+# finding, so it skips the regexes. Measured 2026-11-28: 1,201 of 9,185 files
+# (28 of 145 MB) carry one, and a `str in` scan of all of them takes 0.3 s
+# where the three regexes took 3.7 s, because a pattern that opens with an
+# alternation is tried at every offset of the 145 MB.
+# Keep this in step with OPENS_WITH_SYMBOL and PARAMETER_SYMBOL;
+# test_check_money_sign pins it against them.
+SYMBOL_NEEDLES = ("`$${", '"$"', "'$'", "\"$'", "'$\"", "${currency}${")
+
+
 def findings_in(path: Path):
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
+        return
+    if not any(needle in text for needle in SYMBOL_NEEDLES):
         return
     lines = text.splitlines()
     seen: set[int] = set()
