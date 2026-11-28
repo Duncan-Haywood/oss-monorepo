@@ -1,3 +1,7 @@
+---
+kind: note
+date: 2026-11-28
+---
 # Red team 2026-11-28: the five billing copies now share one test suite
 
 Five paid products (payapps, jobshop-quote, cmmc, seller-books, einvoice-pro)
