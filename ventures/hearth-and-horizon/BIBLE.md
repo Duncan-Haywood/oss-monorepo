@@ -396,6 +396,8 @@ before writing the first scene.
 
 **Hearth & Horizon**
 
+- *The wall built twice* *(Drafting, 2026-11-28.)* (sound insulation, the mass law and a gap; proposed 2026-11-28): Porto, February 2053. A night nurse in a split flat owned by a small Catholic housing charity can hear every word from the widower next door; the charity pays a plasterer to double the wall's mass, which by the mass law (about 6 dB per doubling of surface mass, roughly 20 log10(m f) - 47) should take it from about 46 to 52 dB at 500 Hz. It buys 0.16 dB, because a 1.4 mm crack the length of the wall under the cornice (about 60 cm² open) carries most of the sound: composite loss 10 log10(S / sum of S_i tau_i). The maintenance agent works the gap out from the shortfall; the treasurer says no to more money; the plasterer finds she may have left that head joint unpacked herself in 2012. Numbers: wall 4.2 x 2.9 m, 90 kg/m² bare, 180 doubled; 32.9 before, 33.0 after the second skin, about 47 measured once sealed (the rest round by floor and ceiling).
+
 **For Other Minds**
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
