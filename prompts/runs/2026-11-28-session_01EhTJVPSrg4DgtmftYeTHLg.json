@@ -61,7 +61,7 @@
     "docs/reports/2026-11-28-deploys-red-on-cross-venture-parity-tests.md (agent doc). No customer post, because a CI fix tells a customer nothing new."
   ],
   "goal": null,
-  "notes": "Local verification with GITHUB_WORKFLOW=payapps-deploy and calc.mjs moved away: biome ci clean (689 files), typecheck clean, unit 169 files pass + 1 skipped (1650 tests, 5 skipped), worker 100 files (636 tests) pass. CMMC deploy has the same bug (level1-parity.test.ts imports machine-shop-guides); PR #20166 by another session covers it, so my CMMC edit was reverted.",
+  "notes": "Local verification with GITHUB_WORKFLOW=payapps-deploy and calc.mjs moved away: biome ci clean (689 files), typecheck clean, unit 169 files pass + 1 skipped (1650 tests, 5 skipped), worker 100 files (636 tests) pass. CMMC deploy has the same bug (level1-parity.test.ts imports machine-shop-guides); PR #20166 by another session covers it, so my CMMC edit was reverted. Also regenerated pay-app-guides' all-guides nav (node nav.mjs): page.test.mjs was red on main because PRs #20155 and #20169 each added a guide without the other's link; changed-ventures failed on that. pay-app-guides suite: 453 pass after.",
   "corrections": [],
   "redteam": null,
   "usage": {
