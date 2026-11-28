@@ -68,17 +68,24 @@ body {
   .table-stack td {
     border: 0;
     padding: 0.125rem 0.25rem;
+    overflow-wrap: anywhere;
   }
   .table-stack td:first-child {
     font-weight: 500;
   }
+  /* The label sits left; the cell's content (a figure, a figure plus a note, a control) sits
+     together at the right. */
   .table-stack td[data-label] {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-end;
+    column-gap: 0.25rem;
   }
   .table-stack td[data-label]::before {
     content: attr(data-label);
+    margin-right: auto;
+    padding-right: 1rem;
     color: var(--color-stone-500);
     text-align: left;
     font-weight: 400;

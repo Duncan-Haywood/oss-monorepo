@@ -3,6 +3,7 @@ title: "The dormer the budget forgot"
 date: 2026-11-01
 tags: [wall-framing-takeoff, budget, construction]
 description: The framing takeoff's budget now prices a dormer's lumber by board foot and its roof by area, from typed prices only.
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 The wall-framing takeoff has a dormer engine, and its budget priced almost everything else: walls, floor, roof, foundation, stairs, drywall, siding. The dormer's framing never reached it, because dormer parts are not in the wall cutting-stock order.

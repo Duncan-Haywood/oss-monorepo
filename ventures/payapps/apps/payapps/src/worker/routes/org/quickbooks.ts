@@ -10,6 +10,7 @@ import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
 import {
   disconnect,
+  interestInvoices,
   listInvoiceItems,
   listLineItems,
   quickbooksStatus,
@@ -32,6 +33,12 @@ routes.get("/", async (c) => c.json(await quickbooksStatus(c.var.ctx, c.var.tena
 // lists them, and sending goes through the pay application's own route, editors only).
 routes.get("/unsent-payments", async (c) =>
   c.json(await unsentPayments(c.var.ctx, c.var.tenant.orgId)),
+);
+
+// Interest invoices sent (or marked as entered by hand), for the cash page's paid-late list (any
+// member; sending goes through the pay application's own route, editors only).
+routes.get("/interest-invoices", async (c) =>
+  c.json(await interestInvoices(c.var.ctx, c.var.tenant.orgId)),
 );
 
 routes.post("/connect", requireRole("admin"), async (c) =>

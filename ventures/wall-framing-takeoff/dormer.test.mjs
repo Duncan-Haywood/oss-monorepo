@@ -111,6 +111,17 @@ test("shed dormer main-roof opening, by hand", () => {
   assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, roofOpening: { depth: 5 } }).ok, false);
 });
 
+test("a shed dormer's notes say the opening is uncounted only when it is", () => {
+  // 2026-11-28: the first note said "the opening in the main roof and its headers are not counted"
+  // even with roofOpening set, two lines above the note that lists that opening's headers
+  const withOpening = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, roofOpening: true });
+  assert.ok(withOpening.ok);
+  assert.ok(withOpening.parts.some((p) => p.part.startsWith("roof opening header")));
+  assert.ok(!withOpening.notes.some((n) => /opening in the main roof and its headers are not counted/.test(n)), withOpening.notes.join(" | "));
+  const without = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8 });
+  assert.ok(without.notes.some((n) => /opening in the main roof and its headers are not counted/.test(n)));
+});
+
 test("a negative or non-numeric window sill is rejected, gable and shed", () => {
   for (const [f, pitch] of [[layoutDormer, 8], [layoutShedDormer, 3]]) {
     for (const sill of [-5, NaN]) {
@@ -125,4 +136,20 @@ test("a negative or non-numeric window sill is rejected, gable and shed", () => 
 test("2026-11-09: layoutShedDormer refuses missing settings with a reason", async () => {
   const { layoutShedDormer } = await import("./dormer.mjs");
   for (const bad of [null, 5, "x", []]) assert.equal(layoutShedDormer(bad).ok, false);
+});
+
+test("a dormer that reaches more than 20 ft up the main roof says so", () => {
+  // 7:12 on 8:12 with a 4 ft front wall: 48 x 12 / (8 - 7) = 576 in, a 48 ft shed roof, accepted
+  // without a word before 2026-11-28
+  const deep = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 7, mainPitch: 8 });
+  assert.ok(deep.ok);
+  assert.equal(deep.geometry.cheekRunToRoof, 576);
+  assert.ok(deep.notes.some((n) => /48 ft back from the front wall, deeper than 20 ft/.test(n) && /shed pitch closer/.test(n)), deep.notes.join(" | "));
+  const ok = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8 });
+  assert.ok(!ok.notes.some((n) => /deeper than 20 ft/.test(n)));
+  // gable: 96 in eave on a 3:12 main roof puts the ridge end (96 + 32) x 12 / 3 = 512 in back
+  const g = layoutDormer({ width: 96, eaveHeight: 96, pitch: 8, mainPitch: 3 });
+  assert.ok(g.ok);
+  assert.ok(g.notes.some((n) => /dormer ridge meets the main roof 42\.7 ft back/.test(n)), g.notes.join(" | "));
+  assert.ok(!layoutDormer(base).notes.some((n) => /deeper than 20 ft/.test(n)));
 });

@@ -3,6 +3,7 @@ title: "Pricing the labor on a dormer in a framing budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, budget, construction]
 description: The framing takeoff's budget now adds a dormer labor line from a typed rate per square foot of dormer roof, and leaves it unpriced when you type none.
+folded_into: writing/dormer-framing-takeoff-gable-and-shed-studs-rafters-valleys-and-roof-opening/
 ---
 
 The budget already priced a dormer's lumber (by board foot) and its roof (by area), but a builder who typed labor rates for walls, floors and roofs got no labor line for the dormer. `laborDormerSqFt` closes that: a typed dollar rate per square foot of dormer roof, multiplied by the area the dormer module already computes.

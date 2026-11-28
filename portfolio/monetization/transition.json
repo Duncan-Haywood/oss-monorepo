@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 158127,
+      "source_lines": 158765,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "cmmc",
-      "source_lines": 62026,
+      "source_lines": 64012,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 57456,
+      "source_lines": 57742,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -79,7 +79,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 18450,
+      "source_lines": 18458,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -222,7 +222,7 @@
     },
     {
       "venture": "residential-takeoff",
-      "source_lines": 24396,
+      "source_lines": 24448,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -303,7 +303,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 8611,
+      "source_lines": 8794,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -327,7 +327,7 @@
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 7047,
+      "source_lines": 7182,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",

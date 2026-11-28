@@ -17,18 +17,21 @@
 //   Soffit and fascia soffit panels (vented and solid when the ventilation sizing set them),
 //                    fascia boards, J-channel and frieze board from eaves.mjs (when the plan
 //                    has `eaves`), under the framed roof's eaves and rakes
+//   Dormer           the dormer's own board order (dormer.mjs parts, cut from the plan's
+//                    stock list by the same solver as the walls), and its roof and wall areas
+//                    (when the plan has `dormer`); its boards count in the board total
 //
 // Prices: shown only when the caller says the plan's prices are its own (`priced`); the
 // default stock price of 1 per foot is a placeholder, not a lumber price.
-import { formatLength } from "./engine.mjs";
+import { formatLength, optimizeStock } from "./engine.mjs";
 
 /** @typedef {{ section: string, item: string, size: string, length: string, qty: number, unit: string, note: string, cost?: number }} Row */
 
 const KIND_ORDER = ["stud", "precut stud", "king", "jack", "cripple", "header", "sill", "plate", "bottom plate", "top plate", "cap plate", "blocking"];
 
 /**
- * @param {any} r takeoff result (engine.mjs `takeoff`), with `sheathing`, `roof`, `roofOutline` (and `roofSheathing`, its courses), `siding` and `eaves` attached as the CLI does
- * @param {{ priced?: boolean, job?: string }} [o]
+ * @param {any} r takeoff result (engine.mjs `takeoff`), with `sheathing`, `roof`, `roofOutline` (and `roofSheathing`, its courses), `siding`, `eaves` and `dormer` attached as the CLI does
+ * @param {{ priced?: boolean, job?: string, stock?: { size: string, length: number, price: number, label?: string }[], kerf?: number }} [o] `stock` (the plan's board list) buys the dormer's pieces; without it they are listed as cut lengths
  * @returns {{ ok: boolean, errors: string[], job: string, rows: Row[], totals: { boards: number, sheets: number, squares: number | null, cost: number | null }, notes: string[] }}
  */
 export function materialList(r, o = {}) {
@@ -190,6 +193,48 @@ export function materialList(r, o = {}) {
     add("fascia length", round2(ev.eaveFeet + ev.rakeFeet), "ft", "", "eave and rake runs, before waste (for labor by the foot)", null);
     notes.push(ev.shape === "outline" ? "Soffit and fascia are counted under the all-hip roof read from the outline: one eave run on each side of its eave line, the overhang deep, no rakes; corner mitres, drip edge (on the roof's own rows), nails, caulk and paint are not counted, and panel widths and stock lengths are the figures you typed." : "Soffit and fascia are counted from the framed roof's eave and rake runs and overhangs; corner mitres, drip edge (on the roof's own rows), nails, caulk and paint are not counted, and panel widths and stock lengths are the figures you typed.");
     for (const n of ev.wingNotes || []) notes.push(n);
+  }
+  // Dormer (dormer.mjs, when the plan has one): its pieces are not wall members, so the takeoff's
+  // order never bought them; here they get their own order, cut from the same stock list
+  const dm = r.dormer;
+  if (dm && dm.ok === true && Array.isArray(dm.parts) && dm.parts.length) {
+    const stock = Array.isArray(o.stock) ? o.stock.filter((s) => s && s.length > 0) : [];
+    const kerf = Number.isFinite(o.kerf) ? Number(o.kerf) : 0.125;
+    const shape = dm.shape === "shed" ? "shed dormer" : "gable dormer";
+    const unbought = [];
+    for (const size of [...new Set(dm.parts.map((/** @type {any} */ p) => p.size))]) {
+      const parts = dm.parts.filter((/** @type {any} */ p) => p.size === size);
+      const st = stock.filter((s) => s.size === size);
+      const longest = Math.max(0, ...st.map((s) => s.length));
+      /** @type {any} */
+      let res = null;
+      if (st.length && parts.every((/** @type {any} */ p) => p.length <= longest + 1e-6)) {
+        try { res = optimizeStock(parts.map((/** @type {any} */ p) => ({ length: p.length, qty: p.count, ref: p.part })), st, kerf); } catch { res = null; }
+      }
+      if (!res) {
+        unbought.push(size);
+        for (const p of parts) rows.push({ section: "Dormer", item: `${size} ${p.part}`, size, length: formatLength(p.length), qty: p.count, unit: "pcs", note: `cut length: no ${size} board in the stock list is long enough, so no board is counted` });
+        continue;
+      }
+      const lines = new Map();
+      for (const b of res.bars) {
+        const key = `${b.length}|${b.label || ""}`;
+        const line = lines.get(key) || { length: b.length, label: b.label || "", price: b.price, qty: 0, used: new Set() };
+        line.qty++;
+        for (const c of b.cuts || []) line.used.add(c.ref);
+        lines.set(key, line);
+      }
+      for (const l of [...lines.values()].sort((a, b) => b.length - a.length)) {
+        rows.push({ section: "Dormer", item: l.label ? `${size} ${l.label}` : `${size} board`, size, length: formatLength(l.length), qty: l.qty, unit: "pcs", note: `${shape}: ${[...l.used].sort().join(", ")}`, ...(o.priced ? { cost: round2(l.qty * l.price) } : {}) });
+        boards += l.qty;
+        cost += l.qty * (l.price || 0);
+      }
+    }
+    const area = (/** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ note) => { if (Number.isFinite(qty) && qty > 0) rows.push({ section: "Dormer", item, size: "", length: "", qty, unit: "sq ft", note }); };
+    area("dormer roof area", dm.areas?.roofSqFt, "both slopes (one on a shed), no overhang, before waste: sheathing and roofing on top of the main roof's");
+    area("dormer wall area", dm.areas?.wallSqFt, dm.shape === "shed" ? "front wall and two cheeks, before waste" : "front wall, gable triangle and two cheeks, before waste");
+    if (dm.opening) rows.push({ section: "Dormer", item: "main-roof opening", size: "", length: "", qty: dm.opening.area, unit: "sq ft", note: `${dm.opening.cutMainRafters} main rafter(s) cut; its headers and trimmers are in the boards above` });
+    notes.push(`Dormer boards are the ${shape}'s own order, cut from the plan's stock list${unbought.length ? `; ${unbought.join(", ")} had no board long enough and is listed as cut lengths only` : ""}. The main roof's squares and sheets are not reduced for the opening, overhangs and flashing are not counted, and member sizes are the ones typed, not span-checked.`);
   }
   if (Array.isArray(r.skippedWalls) && r.skippedWalls.length) {
     // a wall the plan checks refused is not on this list; say so where the list is read, the CSV included
