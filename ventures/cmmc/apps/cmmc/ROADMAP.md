@@ -558,8 +558,26 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   Privacy policy wording updated to say the files can now be held as evidence (no version bump: evidence
   files were already covered).
 
+- Gauges and calibration, part 1 (2026-11-28, gauge-calibration-register): the ISO 9001 7.1.5 gauge list
+  for machine shops, the module bet #4's ISO 9001 checklist prompt named but nothing kept. A Gauges tab: each
+  gauge's id (unique per org), kind, serial, range, location, owner (company, employee's own, customer's),
+  status (in use, reference only, out of service, retired) and interval in months; each calibration with as
+  found / as left, who did it, certificate number, traceability and the certificate as an evidence file (name
+  and SHA-256 kept); due dates in calendar months; a removed gauge goes out of service and a repaired one
+  comes back. Checks: never calibrated, overdue, due in 30 days, every out-of-tolerance result with no impact
+  record (the window since the previous calibration named), no certificate or traceability on the last lab
+  calibration. Recall list, counts, gauge list CSV. Kept, never deleted once calibrated. Migration 0020;
+  `src/shared/calibration.ts`, `services/calibration`, `/gauges` routes, `Gauges.tsx`; unit, component and
+  worker tests. Privacy policy lists the new fields (POLICY_VERSION 2026-11-28.2); docs/SOURCES.md,
+  "Calibration".
+
 ## Next
 
+- Gauges and calibration, part 2 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
+  2026-11-28): due dates in the calendar file and subscribable link and a dashboard card (as documents and
+  audits have); an existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a
+  corrective action" button that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer
+  flow-down asks (gauge R&R records) if shops ask
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the

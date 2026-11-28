@@ -13,6 +13,27 @@ import {
 } from "@shared/assets";
 import { isCalendarDate } from "@shared/calendar-date";
 import {
+  AS_FOUND,
+  AS_FOUND_LABEL,
+  AS_LEFT,
+  AS_LEFT_LABEL,
+  CAL_DUE_SOON_DAYS,
+  CAL_INTERVAL_CHOICES,
+  CAL_INTERVAL_MAX,
+  CAL_INTERVAL_MIN,
+  CAL_PERFORMER_LABEL,
+  CAL_PERFORMERS,
+  CAL_TEXT_MAX,
+  GAUGE_KIND_LABEL,
+  GAUGE_KINDS,
+  GAUGE_OWNER_LABEL,
+  GAUGE_OWNERS,
+  GAUGE_STATUS_LABEL,
+  GAUGE_STATUSES,
+  GAUGE_TAG_MAX,
+  GAUGE_TEXT_MAX,
+} from "@shared/calibration";
+import {
   type CmmcLevel,
   conditionalReadiness,
   IMPLEMENTATION_STATUSES,
@@ -120,6 +141,16 @@ import {
   assertSeat,
   orgPlan,
 } from "../../services/billing";
+import {
+  createGauge,
+  deleteGauge,
+  gaugeCsv,
+  gaugeHistory,
+  gaugeList,
+  recordCalibration,
+  recordImpact,
+  updateGauge,
+} from "../../services/calibration";
 import {
   acceptDraft,
   getRecord,
@@ -1594,6 +1625,129 @@ routes.delete("/corrective-actions/:id", requireRole("editor"), async (c) => {
   await deleteCorrectiveAction(c.var.ctx, t.orgId, t.userId, c.req.param("id"));
   return c.json({ ok: true });
 });
+
+// ---- ISO 9001 gauge and instrument calibration (7.1.5) ----
+// Every member reads on every plan; recording needs the quality plan (services/calibration).
+// Calibrations are kept as recorded; a gauge with any is retired, never deleted.
+const gaugeBody = z.object({
+  tag: z.string().trim().min(1).max(GAUGE_TAG_MAX),
+  description: z.string().trim().min(1).max(GAUGE_TEXT_MAX),
+  kind: z.enum(GAUGE_KINDS),
+  manufacturer: text(GAUGE_TEXT_MAX).optional(),
+  serial: text(GAUGE_TEXT_MAX).optional(),
+  range: text(GAUGE_TEXT_MAX).optional(),
+  location: text(GAUGE_TEXT_MAX).optional(),
+  owner: z.enum(GAUGE_OWNERS).optional(),
+  assignedTo: text(GAUGE_TEXT_MAX).optional(),
+  status: z.enum(GAUGE_STATUSES).optional(),
+  intervalMonths: z
+    .number()
+    .int()
+    .min(CAL_INTERVAL_MIN)
+    .max(CAL_INTERVAL_MAX)
+    .nullable()
+    .optional(),
+  method: text(GAUGE_TEXT_MAX).optional(),
+  notes: text(CAL_TEXT_MAX).optional(),
+});
+const calibrationBody = z.object({
+  calibratedOn: date,
+  performer: z.enum(CAL_PERFORMERS),
+  performedBy: z.string().trim().min(1).max(GAUGE_TEXT_MAX),
+  asFound: z.enum(AS_FOUND),
+  asLeft: z.enum(AS_LEFT),
+  readings: text(CAL_TEXT_MAX).optional(),
+  certificateNo: text(GAUGE_TEXT_MAX).optional(),
+  traceability: text(GAUGE_TEXT_MAX).optional(),
+  evidenceId: z.string().max(64).nullable().optional(),
+  impact: text(CAL_TEXT_MAX).optional(),
+  correctiveActionRef: text(40).optional(),
+});
+const labelled = <K extends string>(keys: readonly K[], labels: Record<K, string>) =>
+  keys.map((key) => ({ key, label: labels[key] }));
+
+routes.get("/gauges", async (c) =>
+  c.json({
+    ...(await gaugeList(c.var.ctx, c.var.tenant.orgId)),
+    kinds: labelled(GAUGE_KINDS, GAUGE_KIND_LABEL),
+    statuses: labelled(GAUGE_STATUSES, GAUGE_STATUS_LABEL),
+    owners: labelled(GAUGE_OWNERS, GAUGE_OWNER_LABEL),
+    performers: labelled(CAL_PERFORMERS, CAL_PERFORMER_LABEL),
+    asFound: labelled(AS_FOUND, AS_FOUND_LABEL),
+    asLeft: labelled(AS_LEFT, AS_LEFT_LABEL),
+    intervals: CAL_INTERVAL_CHOICES,
+    dueSoonDays: CAL_DUE_SOON_DAYS,
+  }),
+);
+routes.get("/gauges/export.csv", async (c) => {
+  const csv = await gaugeCsv(c.var.ctx, c.var.tenant.orgId);
+  return new Response(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="gauge-list.csv"',
+      "Cache-Control": "private, no-store",
+    },
+  });
+});
+routes.get("/gauges/:id/calibrations", async (c) =>
+  c.json({ items: await gaugeHistory(c.var.ctx, c.var.tenant.orgId, c.req.param("id")) }),
+);
+routes.post("/gauges", requireRole("editor"), validate("json", gaugeBody), async (c) => {
+  const t = c.var.tenant;
+  return c.json(await createGauge(c.var.ctx, t.orgId, t.userId, c.req.valid("json")), 201);
+});
+routes.patch(
+  "/gauges/:id",
+  requireRole("editor"),
+  validate("json", gaugeBody.partial()),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await updateGauge(c.var.ctx, t.orgId, t.userId, c.req.param("id"), c.req.valid("json")),
+    );
+  },
+);
+routes.delete("/gauges/:id", requireRole("editor"), async (c) => {
+  const t = c.var.tenant;
+  await deleteGauge(c.var.ctx, t.orgId, t.userId, c.req.param("id"));
+  return c.json({ ok: true });
+});
+routes.post(
+  "/gauges/:id/calibrations",
+  requireRole("editor"),
+  validate("json", calibrationBody),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json(
+      await recordCalibration(c.var.ctx, t.orgId, t.userId, c.req.param("id"), c.req.valid("json")),
+      201,
+    );
+  },
+);
+routes.put(
+  "/gauges/:id/calibrations/:calId/impact",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      impact: z.string().trim().min(1).max(CAL_TEXT_MAX),
+      correctiveActionRef: text(40).optional(),
+    }),
+  ),
+  async (c) => {
+    const t = c.var.tenant;
+    return c.json({
+      items: await recordImpact(
+        c.var.ctx,
+        t.orgId,
+        t.userId,
+        c.req.param("id"),
+        c.req.param("calId"),
+        c.req.valid("json"),
+      ),
+    });
+  },
+);
 
 // ---- audit log ----
 routes.get("/audit-log", requireRole("admin"), async (c) => {

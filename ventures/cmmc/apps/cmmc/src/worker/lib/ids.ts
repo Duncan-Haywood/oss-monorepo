@@ -25,7 +25,9 @@ export type IdPrefix =
   | "dev"
   | "iau"
   | "afn"
-  | "cap";
+  | "cap"
+  | "gau"
+  | "gca";
 
 export function newId(prefix: IdPrefix): string {
   const bytes = new Uint8Array(20);
