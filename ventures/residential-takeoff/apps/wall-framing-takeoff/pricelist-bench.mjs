@@ -8,6 +8,7 @@
 //
 //   node pricelist-bench.mjs           prints the table
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { samplePlan, takeoff } from "./engine.mjs";
 import { planFromDxf } from "./dxf.mjs";
 
@@ -63,7 +64,7 @@ export function houses() {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log("| house | invented price list | optimised on length, then priced | optimised on the prices | saving | boards |");
   console.log("|---|---|---|---|---|---|");
   for (const [name, plan] of houses()) for (const [label, shape] of SHAPES) {
