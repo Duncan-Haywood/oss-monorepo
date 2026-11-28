@@ -1,0 +1,258 @@
+{
+ "date": "2026-11-28",
+ "subject": "ventures/league-schedule-generator",
+ "stratum": "venture",
+ "seed": "2026-11-28-587a",
+ "drawn_by": "reaudit",
+ "prior_audit": "portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json",
+ "auditor": "agent session (Claude), see run record prompts/runs/ for 2026-11-28 quality/0",
+ "status": "audited",
+ "professional": "a rec-league commissioner who builds seasons for a parks department, with a sports-scheduling (OR) background: they check first that every pair meets the right number of times with home and away balanced and the break count at the known minimum, then that the standings and tie-breaks follow the league's own points rules.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed with my own scripts (eval/reaudit-2026-11-28.mjs in the venture), not the author's tests: (1) volleyball set scoring head-to-head, A beats B 3-2 twice, B beats A 3-0, level on points: standings() ranks B first with h2h points 5 v 4 (hand: 1+1+3 v 2+2), and with plain win points A first 6 v 3; (2) breaks by an independent counter (byes reset a run, de Werra's convention): single n-2 at 4-12 teams, mirrored double 3(n-2), reverseLeg 2(n-2) for even and 0 for odd, every ordered pair exactly once; (3) Americano average sit-out credit equals round(pf/played*satOut,1) for all 5 players, points total 240 = 5 games x 24 x 2; (4) 3/1/0 standings for a three-team table match the hand table (C 4, A 3, B 1).",
+  "completeness": "Every earlier defect re-checked against the code: 6 of 7 real defects closed, 1 partial (README size). The reversed return leg is shipped end to end: page checkbox (index.html:94), share link, readSpec, buildSchedule, admin. 1029 of 1029 tests pass in 261 s.",
+  "verification": "node --test '*.test.mjs': 1029 pass, 0 fail. Six seeded mutations, all caught by the suite: night leaderboard tie-break order (prior survivor, now caught), h2h ignoring setScoring, average credit rounded first, reverseLeg dropped (caught by reverse-leg.test.mjs, not by calc.test.mjs alone), circle-method home/away parity flipped.",
+  "craft": "calc.mjs is now a 53-line re-export over 15 feature modules (largest carryover.mjs 2,509, divisions.mjs 2,222, schedule.mjs 1,674); the main page loads modules on demand. Remaining: README.md 6,639 lines of experiment log (4,920 at the last audit), and a rounds.mjs comment that said an odd mirrored double has n breaks (it has n-2; fixed in this PR).",
+  "claims": "README:6-7 and :20 now qualify the minimum-breaks claim (single n-2, mirrored double 3(n-2)), and README:861 table matches my measurements exactly. The home/away guide's double-round-robin answer was correct but did not mention the reversed leg the tool offers (added in this PR, with a test). Served copy: node platform/pages/served-copy.mjs league-schedule-generator reports no placeholder or retired origin (marisstella.app itself 403s through the proxy).",
+  "fitness": "The commissioner's job: paste teams, pick dates, build a double round robin with blackouts, export calendars, enter results and read standings with h2h. Walked through via the module API (buildSchedule, standings, validateSchedule in the tests and my scripts); the browser walk was not repeated this round.",
+  "domain": "Breaks at the de Werra minimum for single even round robins; the mirrored-vs-inverted second leg trade-off (breaks against an immediate rematch) is stated as an option, which is how practitioners treat it; FIVB 3-2 = 2/1 points now carried into the mini-table, as UEFA-style h2h tables use the competition's own points."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "h2h mini-table under FIVB set scoring",
+   "method": "hand calculation of FIVB 3/2/1/0 points",
+   "command": "node eval/reaudit-2026-11-28.mjs",
+   "expected": "B first, h2h 5 v 4",
+   "observed": "B first, h2h 5 v 4",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "breaks of single, mirrored double and reversed double round robins, 4-12 teams",
+   "method": "independent break counter; de Werra (1981) n-2 minimum for even single RR",
+   "command": "node eval/reaudit-2026-11-28.mjs",
+   "expected": "n-2, 3(n-2), 2(n-2); odd 0, n-2, 0",
+   "observed": "same at every size",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Americano average sit-out credit from the unrounded average",
+   "method": "hand formula round(pf/played*satOut, 1)",
+   "command": "node eval/reaudit-2026-11-28.mjs",
+   "expected": "0 mismatches; P2 41/4 = 10.3",
+   "observed": "0 mismatches; 10.3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "3/1/0 standings for a three-team table",
+   "method": "hand table",
+   "command": "node eval/reaudit-2026-11-28.mjs",
+   "expected": "C 4 (+3), A 3 (-2), B 1 (-1)",
+   "observed": "C 4 (+3), A 3 (-2), B 1 (-1)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "full suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "1029 pass, 0 fail, 261 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README headline on minimum breaks",
+   "method": "compare with measured counts",
+   "command": "sed -n 1,20p README.md",
+   "expected": "qualified for the double",
+   "observed": "'n-2 ... the mirrored double has 3(n-2)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README reverse-leg table",
+   "method": "compare with c3.mjs output",
+   "command": "sed -n 855,866p README.md",
+   "expected": "even 3(n-2)/2(n-2), odd n-2/0",
+   "observed": "same",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "home/away guide answer on double round robins",
+   "method": "read against the tool's options",
+   "command": "grep -n 'double' how-to-balance-home-and-away-games-in-a-round-robin.html",
+   "expected": "mentions the reversed-leg option",
+   "observed": "only the mirrored 3(n-2) case (fixed in this PR)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt, sitemap and canonicals",
+   "method": "deploy rewrite replayed",
+   "command": "node platform/pages/served-copy.mjs league-schedule-generator",
+   "expected": "no placeholder origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "calc.mjs monolith",
+   "method": "wc -l",
+   "command": "wc -l *.mjs",
+   "expected": "split",
+   "observed": "53-line re-export over 15 modules; largest 2,509",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "rounds.mjs reverseLeg comment",
+   "method": "compare with c3.mjs",
+   "command": "sed -n 15,20p rounds.mjs",
+   "expected": "odd mirrored double n-2",
+   "observed": "said n (fixed in this PR)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README test command",
+   "method": "read",
+   "command": "grep -n \"node --test\" README.md",
+   "expected": "node --test '*.test.mjs'",
+   "observed": "README.md:1050 says so",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "night.mjs:162",
+   "change": "y.diff - x.diff || y.wins - x.wins -> y.wins - x.wins || y.diff - x.diff",
+   "caught": true,
+   "test_cmd": "node --test night.test.mjs"
+  },
+  {
+   "where": "standings.mjs:221",
+   "change": "matchPoints(..., { win, draw, loss, setScoring }) -> matchPoints(..., { win, draw, loss }) in the h2h mini-table",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs standings.test.mjs"
+  },
+  {
+   "where": "night.mjs:158",
+   "change": "Math.round((row.pf / row.played) * row.satOut * 10) / 10 -> row.avg * row.satOut",
+   "caught": true,
+   "test_cmd": "node --test night.test.mjs"
+  },
+  {
+   "where": "rounds.mjs:42",
+   "change": "(reverseLeg ? [...first].reverse() : first) -> first",
+   "caught": true,
+   "test_cmd": "node --test reverse-leg.test.mjs (survives calc.test.mjs alone)"
+  },
+  {
+   "where": "rounds.mjs:30",
+   "change": "k % 2 === 1 -> k % 2 === 0",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "unqualified minimum-breaks headline for the double: README now says the mirrored double has 3(n-2); reverseLeg option gives 2(n-2), measured"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "h2h ignored setScoring: standings.mjs:221 now uses the league's points; recomputed B 5 v A 4"
+  },
+  {
+   "index": 2,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "average sit-out credit double rounding: night.mjs:158 uses the unrounded average, test pins it"
+  },
+  {
+   "index": 3,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "leaderboard tie-break order untested: swap now caught by night.test.mjs"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "README test command: README.md:1050 says node --test '*.test.mjs'"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "browser eval read the stale table: eval/browser-click-single.mjs:53 empties the tbody before rebuilding"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "marked",
+   "status": "partial",
+   "what": "monolith: calc.mjs split into 15 modules, but README.md grew from 4,920 to 6,639 lines of experiment log"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "open",
+   "status": "closed",
+   "what": "source-only sitemap/llms.txt hosts: served copy still clean"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "low",
+   "what": "The home/away guide's 'Does a double round robin have more breaks?' answer (visible and FAQ JSON-LD) gave only the mirrored 3(n-2) case and did not mention the reversed return leg (2(n-2), 0 for odd) that the tool has offered since 2026-11-20",
+   "where": "ventures/league-schedule-generator/how-to-balance-home-and-away-games-in-a-round-robin.html:52",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+  },
+  {
+   "severity": "low",
+   "what": "rounds.mjs doc comment said an odd league's mirrored double has n breaks; it has n-2 (3 at 5 teams, 5 at 7), as README:862 and eval/reverse-leg.txt say",
+   "where": "ventures/league-schedule-generator/rounds.mjs:18",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+  },
+  {
+   "severity": "low",
+   "what": "README.md is 6,639 lines, mostly a dated experiment log (4,920 at the 2026-11-19 audit); a user-facing README and a HISTORY/eval log would serve both readers. Carried from prior defect 6",
+   "where": "ventures/league-schedule-generator/README.md:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/PRNUM"
+ ],
+ "verdict": "Re-audit of round 87. Of its 8 defects, 7 are closed on arrival and 1 partial: the minimum-breaks headline is qualified and a reversed return leg ships (2(n-2) breaks, measured), the head-to-head table now uses volleyball set points (recomputed: B 5 v A 4), the sit-out credit rounds once, the tie-break order and the reverse leg are each caught by a seeded mutation, and calc.mjs is a 53-line re-export over 15 modules; the README has grown to 6,639 lines. 1029 of 1029 tests pass; 5 of 5 seeded bugs are caught. Four outputs recomputed independently all match. Two small doc gaps (the guide missed the reverse-leg option; a code comment had the odd count wrong) are fixed in this PR with a test. Claims and craft rise to 3, so it meets the bar for the first time; it remains finished."
+}
