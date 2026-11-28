@@ -1150,7 +1150,7 @@ describe("feature cards on the home page", () => {
     for (const f of FEATURES) {
       const card = home.match(
         new RegExp(
-          `<div class="card feature"><h3>${esc(f.title).replace(/[?()]/g, "\\$&")}</h3>.*?</div>`,
+          `<div class="card feature"><h3>${esc(f.title).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>.*?</div>`,
           "s",
         ),
       );

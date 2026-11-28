@@ -37,8 +37,8 @@ Report deposits as income and every one of those deductions disappears.
 **2. Cost each item, and split lots by expected resale value.** A $120.00
 lot of 20 pieces split equally puts $6.00 on each $5 piece, a loss booked
 before you list it. Split by expected price instead, it puts $21.82 on each
-of the two $60 pieces and $1.82 on each $5 one, and the 20 allocations still
-add to $120.00. At year end those per-item costs make Schedule C Part III a
+of the two $60 pieces, $7.27 on each of the eight $20 ones and $1.82 on each
+of the ten $5 ones, and the 20 allocations still add to $120.00. At year end those per-item costs make Schedule C Part III a
 sum rather than a guess.
 [Cost of goods sold for resellers](../../ventures/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html).
 
@@ -106,6 +106,56 @@ It is a list to act on (relist, reprice, bundle), valued at cost. Whether
 any of it should be valued lower is a question for your preparer, and none
 of this is tax advice.
 
+## Count the shelves before you sign off line 41 (added 2026-11-28)
+
+Line 41 is what your books say is on hand at December 31. Over a year, some
+of that stock walks off: a bowl breaks in the bin, a jacket gets donated with
+the rest of a bad lot, a pair of jeans goes into your own closet, a listing
+sold on a platform you never imported. The books keep counting all of it
+until you tell them otherwise, and every dollar left in line 41 by mistake is
+a dollar of cost of goods sold you did not take.
+
+[Seller Books](https://seller-books.marisstella.app/signup?from=post-stock-count)
+now has a **stock count** on its Inventory page. Pick the count's date
+(December 31 of last year is one tap). It lists every item still in stock
+that was bought on or before that day, and you tick what you find, in one of
+three ways:
+
+- **Scan or type the SKU.** With a USB or Bluetooth barcode scanner, which
+  types the code and presses Enter, each scan ticks one item. Three items
+  sharing a SKU take three scans. An unknown code is named rather than
+  ignored.
+- **Tick the row** on a phone while you walk the shelves.
+- **Use the count sheet.** Download it as a CSV, sorted by SKU with a blank
+  "Found (Y/N)" column, print it or fill it in a spreadsheet, and read it
+  back. Rows are matched by the item ID column only. A row for something sold
+  since, a row that appears twice, or a mark that is not Y or N is listed by
+  line number and never guessed.
+
+When you finish, everything not found leaves inventory on the count's date.
+You choose one outcome for the batch: *written off* (lost, damaged, thrown
+away or donated) or *kept for myself*. Before you confirm, the page says what
+each choice does to the form. Written off, the cost leaves line 41, so it
+moves into cost of goods sold (line 42). Kept for personal use, it leaves
+line 41 and also comes off line 36 (purchases), so it is not deducted at all.
+The count is all or nothing: if an item sold in another tab while you were
+counting, nothing is written and you are asked to reload. One click undoes
+the whole count.
+
+Here is the browser test's made-up shop. A wool coat ($35), a brass lamp
+($12) and a Pyrex bowl ($8) were bought in February, so line 41 at
+December 31 would be $55.00. The coat is found by scanning `coat-1`. The lamp
+is marked Y on the downloaded sheet. The bowl is not found and is written off
+on December 31, so line 41 becomes $47.00. The server tests also cover a
+230-item write-off from a 250-item pallet, personal use moving line 36, and
+another shop's items, which can never be touched.
+
+Two cautions the page also gives. Before you write anything off, check
+whether a "missing" item was sold but never linked to its sale; that belongs
+on the Sales page, so the sale shows its real profit and the stock report its real days to sell. And
+whether to keep an inventory at all, or how to value damaged stock, is a
+question for your preparer. None of this is tax advice.
+
 ## Has each lot paid for itself? (added 2026-11-26)
 
 The free tool ages what is left at December 31. Seller Books, the hosted
@@ -127,6 +177,36 @@ platform, and the 25 items you have held longest. Proceeds come before
 expenses that are not tied to one sale, such as ads bought separately,
 subscriptions and supplies, so a lot can show as paid back and still have
 lost money once those are counted. The page says so.
+
+## A lot split by what each piece should sell for (added 2026-11-28)
+
+Step 2 above says to split a mixed lot by expected resale value, and until
+today Seller Books could only split it evenly. Now each lot has a choice,
+"evenly over the items" or "by what each item should sell for", and each item
+in it can carry an expected price (typed on the lot's item lines as a fourth
+column, `title | SKU | cost | expected price`, or set later from the item's
+row). Items with a typed-in cost keep it; the rest of the lot's cost is shared
+in proportion to the expected prices, rounded so the shares still add up to
+the lot's cost to the cent.
+
+The guide's worked lot gives the same figures in the app (a unit test holds
+them): $120.00 over two pieces expected at $60, eight at $20 and ten at $5
+($330 expected in all) is $21.82, $7.27 and $1.82 a piece, where an even split
+puts $6.00 on each. That moves profit to where it was earned. Sell one of the
+$60 pieces for $60 and the even split shows $54.00 of profit; split by value it
+shows $38.18. And if only the cheap pieces sold by December 31, an even split
+leaves $12.00 of cost on the two premium pieces still on the shelf, where the
+value split leaves $43.64, so closing inventory on Schedule C line 41 follows what is
+actually left.
+
+Until every item sharing the cost has a price, the lot is split evenly and
+the lots table says how many still need one, so a half-priced lot never
+produces lopsided costs. Switching the method or changing a price re-spreads
+the lot, including items already sold, just as adding an item to a lot always
+has: settle the prices before you file the year those sales fall in. Pick one
+method, write it down and keep using it; which suits your records is a
+question for you and your preparer, not something the app decides, and none
+of this is tax advice.
 
 ## Which stores pay? Profit by where you buy (added 2026-11-27)
 

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqygHCTofB8rAW5GwUB4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:39:22Z",
+  "ended": "2026-11-28T08:46:11Z",
+  "wall_minutes": 9.66,
+  "tokens_in": 7468023,
+  "tokens_out": 31811,
+  "cost_usd": 3.2498,
+  "tool_calls": 63,
+  "task": "bet #4 front door: how to submit your SPRS score page, quoted from DoD's SPRS guides",
+  "projects": [
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20053",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "title-length.test.mjs scans every dist/ on disk, so a local `node src/build.mjs` in cmmc-site (as its README says to run) left a gitignored dist/ that failed preflight on six pages already on main; deleting dist/ cleared it. The failure message does not say the dist is local and stale."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 37 of 58 Next items wait on demand and pointed at bet #4's front door; useful, but bet #1 payapps showed 4 live claims and 29 stale ones in one long listing that took reading to rule out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #4 (front door) rather than the top bet #1: roadmap_claim --bets showed no free ungated item on any bet and named bet #4 as the least-worked front door.",
+      "did": "A search-intent page (how to submit an SPRS score) from primary DoD sources, linked from the existing calculator and DFARS pages.",
+      "result": "Page landed with 27 quotes test-checked against pinned fixtures."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not claim with roadmap_claim.py --slug: front-door page, not a ROADMAP item; slug_dupe found no duplicate.",
+      "did": "slug_dupe.py before building and before the PR.",
+      "result": "no duplicate"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-an-sprs-score-calculator-that-sums-to-minus-203.md (new section: getting the score into SPRS)"
+  ],
+  "goal": null,
+  "notes": "Local checks: cmmc-site node --test 95/95 pass; biome ci 2.6.8 clean; title-length.test.mjs 4/4 after shortening the title and removing local dist; venture-preflight cmmc: clean on rerun (EXIT 0). SPRS PDFs fetched from www.sprs.csd.disa.mil (200 through the proxy); dodcio.defense.gov 403, acq.osd.mil no answer.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3dd6a9a8-39a6-569e-a4ab-1f2bfd85daa5",
+    "transcripts": 1,
+    "first": "2026-11-28T08:39:22Z",
+    "last": "2026-11-28T08:49:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 31811,
+        "thinking": 4718,
+        "cache_read": 7324377,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143527,
+        "api_equivalent_usd": 3.2498,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 31811,
+      "thinking": 4718,
+      "cache_read": 7324377,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143527,
+      "api_equivalent_usd": 3.2498,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 59,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.66,
+      "active_minutes": 9.66,
+      "model_minutes": 5.93,
+      "tool_minutes": 3.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "reading six SPRS guides, writing a sourced step-by-step page with a quote-checking test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 153.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

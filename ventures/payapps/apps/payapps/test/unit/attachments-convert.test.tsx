@@ -14,6 +14,9 @@ vi.mock("../../src/client/lib/packet-photo", () => ({
       : { file, note: null },
 }));
 
+// The unit config shares one module registry across files (isolate: false), so another file may
+// already hold the real packet-photo and the panel built on it: drop them so this import sees the mock.
+vi.resetModules();
 const { AttachmentsPanel } = await import("../../src/client/components/attachments");
 
 afterEach(() => vi.unstubAllGlobals());

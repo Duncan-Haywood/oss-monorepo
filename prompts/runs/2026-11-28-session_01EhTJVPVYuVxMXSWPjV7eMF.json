@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVPVYuVxMXSWPjV7eMF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:56:30Z",
+  "ended": "2026-11-28T08:08:41Z",
+  "wall_minutes": 12.43,
+  "tokens_in": 13507373,
+  "tokens_out": 57275,
+  "cost_usd": 5.4235,
+  "tool_calls": 93,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20044",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First e2e run of the new browser test failed on getByLabel('To', {exact:true}): the shared Field component wraps the hint in the label, so the accessible name is 'To Commas between addresses.'; fixed with a regex locator."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "roadmap_claim.py --bets pointed at payapps #25 (more state bond-claim statutes), but this session's network policy blocks every legislature host (curl 403 at the proxy, WebFetch ENOTFOUND), so the 'free and not gated' item was not workable; the tool cannot know the session's egress, and probing cost several calls."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Nearly every Next item across bets #1-#6 is gated 'waits on demand' while no bet has a customer, so the gates can never open; the tool then reports 'Free and not gated: none' for most bets, which pushes runs toward marginal state-by-state legal content instead of the growth-path features buyers compare products on."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md",
+      "why": "Item 14 (follow-up email) was gated 'if estimators ask for it'; with zero shops signed up the gate cannot open, and quote follow-up is bet #2's first named growth topic in bets.md.",
+      "did": "Claimed it (quote-follow-up-email) and built the follow-up email part; left the Win/loss follow-up statistics gated on months of data.",
+      "result": "Shipped with unit, worker and e2e tests passing."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new blog post: the run's network policy blocked outside sources, and a sourced guide on quote follow-up practice was not possible without them.",
+      "did": "Updated the product's marketing page (/quote-follow-up-software module data and catalogue export) to describe the new feature honestly, and docs/EMAIL.md for the next run.",
+      "result": "Marketing page and llms-full.txt current."
+    }
+  ],
+  "writeups": [
+    "ventures/jobshop-quote/apps/jobshop-site/src/site/module-data.ts (quote follow-up page)",
+    "ventures/jobshop-quote/apps/jobshop-quote/docs/EMAIL.md (Follow-up emails to the customer)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 0 workable (1 claimed). Ideas inbox empty. Routed ventures/1. Payapps #25 blocked by egress (legislature hosts), so took jobshop-quote ROADMAP #14 part 2. Local verification: jobshop-quote unit 67 files/766 tests, worker 51 files/309 tests, e2e 12-quote-follow-up.spec.ts 2/2 (second run of the new test), tsc and biome clean; jobshop-site unit 174 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2d94f84-45f3-5237-a116-e1371de2b99a",
+    "transcripts": 1,
+    "first": "2026-11-28T07:56:30Z",
+    "last": "2026-11-28T08:08:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 172,
+        "output": 57275,
+        "thinking": 10095,
+        "cache_read": 13305163,
+        "cache_write_5m": 0,
+        "cache_write_1h": 202038,
+        "api_equivalent_usd": 5.4235,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 172,
+      "output": 57275,
+      "thinking": 10095,
+      "cache_read": 13305163,
+      "cache_write_5m": 0,
+      "cache_write_1h": 202038,
+      "api_equivalent_usd": 5.4235,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 85,
+      "WebFetch": 4,
+      "ToolSearch": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.43,
+      "active_minutes": 12.43,
+      "model_minutes": 9.46,
+      "tool_minutes": 2.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack dev: threaded follow-up email with service refactor, migration, UI form, unit/worker/e2e tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 184.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

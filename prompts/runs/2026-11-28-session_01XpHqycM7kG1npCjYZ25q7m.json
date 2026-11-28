@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqycM7kG1npCjYZ25q7m",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:38:26Z",
+  "ended": "2026-11-28T07:49:47Z",
+  "wall_minutes": 11.53,
+  "tokens_in": 10338692,
+  "tokens_out": 47142,
+  "cost_usd": 4.3505,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20040",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/profile.mjs",
+      "issue": "The free checker and the paid copy (ventures/einvoice-pro/apps/einvoice-preflight/profile.mjs) have drifted: the paid copy already used XR-010/011 for third-party payments, so a new rule in the free copy had to skip to XR-012 to avoid an id clash. Nothing warns about the divergence."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets correctly reported that no bet had a free, ungated item and pointed to front-door work for bet #3; that worked well, no friction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No new free tools; the page carries a small in-page Leitweg-ID check-digit field",
+      "did": "Kept it as a field on a front-door page for bet #3 that reuses the checker's own functions, not a new tool",
+      "result": "The page answers the search 'Leitweg-ID pr\u00fcfen' directly and links into the checker and the paid workspace"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Writing goes to consolidated posts",
+      "did": "Extended the existing German for-customers post with a dated section instead of a new post",
+      "result": "one post covers XRechnung vs ZUGFeRD, MINIMUM/BASIC WL and the Leitweg-ID"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md (extended: Leitweg-ID section)",
+    "ventures/einvoice-preflight/leitweg-id-pruefen.html"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (2 claimed). Routed ventures/1. All bets' ROADMAP items gated on owner or demand; --bets named bet #3 front door. Measured: official EN 16931+KoSIT rules flag 1 of 11 buyer-reference mistakes (BR-DE-15 only). Added XR-012 warning to free and paid copies, with EN/DE/FR/NL templates. run_venture_tests --changed: einvoice-preflight 2889 tests ok, einvoice-pro ok (2 own-workflow TS steps not run locally, untouched packages), site page checks ok; venture-preflight einvoice-preflight clean. Chromium 390px widget check: 7 inputs right, no page errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "151cf56e-fb02-550b-9a66-6457d202a739",
+    "transcripts": 1,
+    "first": "2026-11-28T07:38:26Z",
+    "last": "2026-11-28T07:49:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 137,
+        "output": 47142,
+        "thinking": 8097,
+        "cache_read": 10166835,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171720,
+        "api_equivalent_usd": 4.3505,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 137,
+      "output": 47142,
+      "thinking": 8097,
+      "cache_read": 10166835,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171720,
+      "api_equivalent_usd": 4.3505,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 73,
+      "Write": 3,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.53,
+      "active_minutes": 11.53,
+      "model_minutes": 7.71,
+      "tool_minutes": 3.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "bench, rule in two copies with 4-language templates, page with widget and tests, post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 137.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

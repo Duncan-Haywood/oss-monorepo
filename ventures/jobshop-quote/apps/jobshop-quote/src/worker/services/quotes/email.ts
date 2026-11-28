@@ -19,12 +19,22 @@
 //   once more without them: a refused header fails the request before anything is sent.
 // - Each attempt is a `quote_emails` row written before the send, then marked sent or failed. Logs
 //   carry ids and counts, never addresses or message text.
-import type { QuoteEmailDto, QuoteEmailsDto } from "@shared/api";
+import type {
+  FollowUpEmailFormDto,
+  FollowUpEmailResultDto,
+  QuoteEmailDto,
+  QuoteEmailsDto,
+} from "@shared/api";
+import { nextFollowUpError } from "@shared/follow-up";
 import {
   cleanSignature,
+  composeFollowUpEmail,
   composeQuoteEmail,
   composeSenderCopy,
+  defaultFollowUpMessage,
   defaultQuoteEmailMessage,
+  followUpSubject,
+  followUpThread,
   isEmailable,
   oneLine,
   parseRecipients,
@@ -34,16 +44,18 @@ import {
   type ThreadableRfq,
 } from "@shared/quote-email";
 import { quoteFileLabel, quoteLabel } from "@shared/quote-label";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { shopDay } from "@shared/time-zone";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { quoteEmails, quoteLinks, quotes, rfqs, user } from "../../db/schema";
+import { quoteEmails, quoteLinks, quotes, rfqs, shopSettings, user } from "../../db/schema";
 import { AppError, badRequest, conflict, forbidden, notFound } from "../../lib/errors";
 import { sha256Hex } from "../../lib/hash";
 import { newId } from "../../lib/ids";
-import { toBase64 } from "../../ports/email";
+import { type EmailAttachment, type EmailMessage, toBase64 } from "../../ports/email";
 import { requiresEmailVerification } from "../auth/auth";
 import { getSettings } from "../ratecard";
 import { createCustomerLink } from "./customer-link";
+import { quoteFollowUpLog, recordFollowUp, shopToday } from "./follow-ups";
 import { pdfChanges } from "./index";
 
 const HOUR = 60 * 60 * 1000;
@@ -116,6 +128,7 @@ function emailDto(row: typeof quoteEmails.$inferSelect, sentByName: string | nul
     error: row.error,
     sentByName,
     senderCopy: row.senderCopy ?? null,
+    kind: row.kind,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -217,45 +230,8 @@ export async function emailQuote(
   }
 
   const now = ctx.now();
-  const perShop = await countSince(
-    ctx,
-    and(eq(quoteEmails.orgId, orgId), gt(quoteEmails.createdAt, new Date(now.getTime() - HOUR))),
-  );
-  if (perShop >= QUOTE_EMAIL_LIMITS.perShopPerHour) {
-    throw new AppError(
-      429,
-      "rate_limited",
-      `Your shop has emailed ${QUOTE_EMAIL_LIMITS.perShopPerHour} quotes in the last hour; try again later`,
-    );
-  }
-  const perQuote = await countSince(
-    ctx,
-    and(
-      eq(quoteEmails.orgId, orgId),
-      eq(quoteEmails.quoteId, quoteId),
-      gt(quoteEmails.createdAt, new Date(now.getTime() - 24 * HOUR)),
-    ),
-  );
-  if (perQuote >= QUOTE_EMAIL_LIMITS.perQuotePerDay) {
-    throw new AppError(
-      429,
-      "rate_limited",
-      `This quote was emailed ${QUOTE_EMAIL_LIMITS.perQuotePerDay} times today; try again tomorrow`,
-    );
-  }
-
-  // The exact sent document, checked against the hash recorded when it was frozen.
-  const key = q.sentPdfKey;
-  if (!key?.startsWith(`orgs/${orgId}/`) || !q.sentPdfSha256) {
-    throw conflict("The sent PDF of this quote is missing");
-  }
-  const obj = await ctx.env.FILES.get(key);
-  if (!obj) throw conflict("The sent PDF of this quote is missing");
-  const bytes = new Uint8Array(await obj.arrayBuffer());
-  if ((await sha256Hex(bytes)) !== q.sentPdfSha256) {
-    ctx.logger.error("quote.email_pdf_hash_mismatch", { orgId, quoteId });
-    throw conflict("The stored PDF does not match the one recorded as sent; not emailing it");
-  }
+  await checkSendLimits(ctx, orgId, quoteId);
+  const { bytes, sha256 } = await loadSentPdf(ctx, orgId, q);
 
   const settings = await getSettings(ctx, orgId);
   // Its own customer link for this email (customer-link.ts); tied to the email row below, and
@@ -291,7 +267,7 @@ export async function emailQuote(
     toAddresses: recipients.to,
     replyTo: me.email,
     subject: mail.subject,
-    pdfSha256: q.sentPdfSha256,
+    pdfSha256: sha256,
     status: "sending",
     delivered: false,
     createdAt: now,
@@ -318,22 +294,7 @@ export async function emailQuote(
       fromName,
       attachments,
     };
-    let res: { id: string };
-    if (thread) {
-      try {
-        res = await ctx.email.send({
-          ...message,
-          headers: { "In-Reply-To": thread.inReplyTo, References: thread.references },
-        });
-      } catch (e) {
-        // A provider that refuses a header refuses the whole request, so nothing went out.
-        if (!/header/i.test(String(e instanceof Error ? e.message : e))) throw e;
-        ctx.logger.warn("quote.email_thread_headers_refused", { orgId, quoteId });
-        res = await ctx.email.send(message);
-      }
-    } else {
-      res = await ctx.email.send(message);
-    }
+    const res = await sendThreaded(ctx, message, thread, orgId, quoteId);
     update = { status: "sent", delivered: ctx.email.delivers, providerMessageId: res.id };
     ctx.logger.info("quote.emailed", {
       orgId,
@@ -344,9 +305,7 @@ export async function emailQuote(
     });
   } catch (e) {
     // Provider errors can quote the recipient; keep addresses out of the row and the log.
-    const error = String(e instanceof Error ? e.message : e)
-      .replace(/[^\s@<>"']+@[^\s@<>"']+/g, "[address]")
-      .slice(0, 300);
+    const error = scrubError(e);
     update = { status: "failed", error };
     ctx.logger.warn("quote.email_failed", { orgId, quoteId, error });
     if (link) {
@@ -358,28 +317,28 @@ export async function emailQuote(
   }
   if (update.status === "sent" && input.copyMe) {
     // Only after the customer's send went through: a copy of a failed send would mislead.
-    const copy = composeSenderCopy(mail, recipients.to);
-    try {
-      await ctx.email.send({
-        to: [me.email],
-        subject: copy.subject,
-        text: copy.text,
-        html: copy.html,
-        fromName,
-        attachments,
-      });
-      update.senderCopy = "sent";
-    } catch (e) {
-      update.senderCopy = "failed";
-      ctx.logger.warn("quote.email_copy_failed", {
-        orgId,
-        quoteId,
-        error: String(e instanceof Error ? e.message : e)
-          .replace(/[^\s@<>"']+@[^\s@<>"']+/g, "[address]")
-          .slice(0, 300),
-      });
-    }
+    update.senderCopy = await sendSenderCopy(
+      ctx,
+      mail,
+      recipients.to,
+      me.email,
+      fromName,
+      attachments,
+      orgId,
+      quoteId,
+    );
   }
+  return finishEmailRow(ctx, orgId, id, update, me.name);
+}
+
+/** Writes the attempt's outcome on its row; a failed send becomes a 502 carrying the row. */
+async function finishEmailRow(
+  ctx: AppContext,
+  orgId: string,
+  id: string,
+  update: Partial<typeof quoteEmails.$inferInsert>,
+  senderName: string,
+): Promise<QuoteEmailDto> {
   await ctx.db
     .update(quoteEmails)
     .set(update)
@@ -392,9 +351,358 @@ export async function emailQuote(
       "email_failed",
       "The email could not be sent; nothing reached the customer",
       {
-        email: emailDto(row, me.name),
+        email: emailDto(row, senderName),
       },
     );
   }
-  return emailDto(row, me.name);
+  return emailDto(row, senderName);
+}
+
+/** A provider error made safe for the row and the log: addresses removed, length capped. */
+function scrubError(e: unknown): string {
+  return String(e instanceof Error ? e.message : e)
+    .replace(/[^\s@<>"']+@[^\s@<>"']+/g, "[address]")
+    .slice(0, 300);
+}
+
+/** 30 emails per shop per rolling hour and 5 per quote per rolling day, quote and follow-up alike. */
+async function checkSendLimits(ctx: AppContext, orgId: string, quoteId: string) {
+  const now = ctx.now();
+  const perShop = await countSince(
+    ctx,
+    and(eq(quoteEmails.orgId, orgId), gt(quoteEmails.createdAt, new Date(now.getTime() - HOUR))),
+  );
+  if (perShop >= QUOTE_EMAIL_LIMITS.perShopPerHour) {
+    throw new AppError(
+      429,
+      "rate_limited",
+      `Your shop has emailed ${QUOTE_EMAIL_LIMITS.perShopPerHour} quotes in the last hour; try again later`,
+    );
+  }
+  const perQuote = await countSince(
+    ctx,
+    and(
+      eq(quoteEmails.orgId, orgId),
+      eq(quoteEmails.quoteId, quoteId),
+      gt(quoteEmails.createdAt, new Date(now.getTime() - 24 * HOUR)),
+    ),
+  );
+  if (perQuote >= QUOTE_EMAIL_LIMITS.perQuotePerDay) {
+    throw new AppError(
+      429,
+      "rate_limited",
+      `This quote was emailed ${QUOTE_EMAIL_LIMITS.perQuotePerDay} times today; try again tomorrow`,
+    );
+  }
+}
+
+/** The exact sent document, checked against the hash recorded when it was frozen. */
+async function loadSentPdf(ctx: AppContext, orgId: string, q: typeof quotes.$inferSelect) {
+  const key = q.sentPdfKey;
+  if (!key?.startsWith(`orgs/${orgId}/`) || !q.sentPdfSha256) {
+    throw conflict("The sent PDF of this quote is missing");
+  }
+  const obj = await ctx.env.FILES.get(key);
+  if (!obj) throw conflict("The sent PDF of this quote is missing");
+  const bytes = new Uint8Array(await obj.arrayBuffer());
+  if ((await sha256Hex(bytes)) !== q.sentPdfSha256) {
+    ctx.logger.error("quote.email_pdf_hash_mismatch", { orgId, quoteId: q.id });
+    throw conflict("The stored PDF does not match the one recorded as sent; not emailing it");
+  }
+  return { bytes, sha256: q.sentPdfSha256 };
+}
+
+/**
+ * Sends, as a reply in `thread` when there is one. If the provider refuses those headers, the same
+ * message goes once more without them: a refused header fails the request before anything is sent.
+ */
+async function sendThreaded(
+  ctx: AppContext,
+  message: EmailMessage,
+  thread: { inReplyTo: string; references: string } | null,
+  orgId: string,
+  quoteId: string,
+): Promise<{ id: string }> {
+  if (!thread) return ctx.email.send(message);
+  try {
+    return await ctx.email.send({
+      ...message,
+      headers: { "In-Reply-To": thread.inReplyTo, References: thread.references },
+    });
+  } catch (e) {
+    // A provider that refuses a header refuses the whole request, so nothing went out.
+    if (!/header/i.test(String(e instanceof Error ? e.message : e))) throw e;
+    ctx.logger.warn("quote.email_thread_headers_refused", { orgId, quoteId });
+    return ctx.email.send(message);
+  }
+}
+
+/** The estimator's own copy, after the customer's send went through; never fails the send. */
+async function sendSenderCopy(
+  ctx: AppContext,
+  mail: ReturnType<typeof composeQuoteEmail>,
+  to: string[],
+  senderEmail: string,
+  fromName: string,
+  attachments: EmailAttachment[],
+  orgId: string,
+  quoteId: string,
+): Promise<"sent" | "failed"> {
+  const copy = composeSenderCopy(mail, to);
+  try {
+    await ctx.email.send({
+      to: [senderEmail],
+      subject: copy.subject,
+      text: copy.text,
+      html: copy.html,
+      fromName,
+      ...(attachments.length ? { attachments } : {}),
+    });
+    return "sent";
+  } catch (e) {
+    ctx.logger.warn("quote.email_copy_failed", { orgId, quoteId, error: scrubError(e) });
+    return "failed";
+  }
+}
+
+// ---- Following up on a sent quote by email (ROADMAP "Quote follow-up, part 2") -----------------
+//
+// The estimator's follow-up goes to the customer from the quote page's Follow-up card: a message
+// drafted from the quote, edited before it goes, threaded on the emails already sent for the quote
+// (shared/quote-email.ts `followUpThread`), optionally with the frozen PDF again. Same sender rules
+// and the same limits as the quote email (one shared count). Once it is sent, the follow-up is
+// logged on the quote ("Emailed a follow-up to ...") with the next day the estimator picked, so
+// the morning list and the quote log move on without a second click. If the send fails nothing is
+// logged; if the quote was decided while the email went, the email stands and no day is set.
+
+/** The emails sent for the quote (status "sent"), oldest first. */
+async function sentEmailsFor(ctx: AppContext, orgId: string, quoteId: string) {
+  return ctx.db
+    .select({
+      kind: quoteEmails.kind,
+      to: quoteEmails.toAddresses,
+      subject: quoteEmails.subject,
+      providerMessageId: quoteEmails.providerMessageId,
+    })
+    .from(quoteEmails)
+    .where(
+      and(
+        eq(quoteEmails.orgId, orgId),
+        eq(quoteEmails.quoteId, quoteId),
+        eq(quoteEmails.status, "sent"),
+      ),
+    )
+    .orderBy(asc(quoteEmails.createdAt), asc(quoteEmails.id))
+    .limit(50)
+    .all();
+}
+
+/** How the follow-up threads for these recipients, and the subject it goes with. */
+async function followUpThreading(
+  ctx: AppContext,
+  orgId: string,
+  q: typeof quotes.$inferSelect,
+  to: string[],
+  shopName: string,
+) {
+  const prior = await sentEmailsFor(ctx, orgId, q.id);
+  const rfqThread = quoteEmailThread(await threadableRfq(ctx, orgId, q.rfqId), to);
+  const thread = followUpThread(
+    rfqThread,
+    prior.map((p) => p.providerMessageId),
+  );
+  const lastSubject = prior[prior.length - 1]?.subject ?? null;
+  const subject = followUpSubject(lastSubject, {
+    shopName,
+    quoteLabel: quoteLabel(q.quoteNumber, q.revNumber),
+  });
+  return { prior, thread, subject, lastSubject };
+}
+
+async function sentDayOf(ctx: AppContext, orgId: string, q: typeof quotes.$inferSelect) {
+  if (!q.sentAt) return null;
+  const tz = await ctx.db
+    .select({ timeZone: shopSettings.timeZone })
+    .from(shopSettings)
+    .where(eq(shopSettings.orgId, orgId))
+    .get();
+  return shopDay(q.sentAt, tz?.timeZone ?? null);
+}
+
+/** GET /quotes/:id/follow-up-email: the form's prefills. */
+export async function followUpEmailForm(
+  ctx: AppContext,
+  orgId: string,
+  userId: string,
+  quoteId: string,
+): Promise<FollowUpEmailFormDto> {
+  const q = await quoteRow(ctx, orgId, quoteId);
+  const me = await sender(ctx, userId);
+  const settings = await getSettings(ctx, orgId);
+  const prior = await sentEmailsFor(ctx, orgId, quoteId);
+  const last = prior[prior.length - 1];
+  const defaultTo = last ? last.to.join(", ") : (q.customerEmail ?? "");
+  const parsed = parseRecipients(defaultTo);
+  const { thread, subject } = await followUpThreading(
+    ctx,
+    orgId,
+    q,
+    parsed.ok ? parsed.to : [],
+    settings.displayName,
+  );
+  const followUpEmails = prior.filter((p) => p.kind === "follow_up").length;
+  return {
+    canDeliver: canDeliver(ctx),
+    defaultTo,
+    defaultMessage: defaultFollowUpMessage({
+      customerName: q.customerContact,
+      quoteLabel: quoteLabel(q.quoteNumber, q.revNumber),
+      sentDay: await sentDayOf(ctx, orgId, q),
+      senderName: me.name,
+      previous: followUpEmails,
+    }),
+    subject,
+    threaded: thread !== null,
+    replyTo: me.email,
+    signature: cleanSignature(settings.emailSignature),
+    followUpEmails,
+  };
+}
+
+/** POST /quotes/:id/follow-up-email: send the follow-up, then log it with the next day. */
+export async function emailFollowUp(
+  ctx: AppContext,
+  orgId: string,
+  userId: string,
+  quoteId: string,
+  input: {
+    to: string | string[];
+    message: string;
+    attachPdf?: boolean;
+    copyMe?: boolean;
+    note?: string;
+    nextOn: string | null;
+  },
+): Promise<FollowUpEmailResultDto> {
+  const q = await quoteRow(ctx, orgId, quoteId);
+  if (!isEmailable(q.status)) {
+    throw conflict(
+      q.status === "draft"
+        ? "Mark the quote sent first: a follow-up is about a quote the customer has"
+        : `This quote is ${q.status}; follow-ups are for open, sent quotes`,
+    );
+  }
+  const recipients = parseRecipients(input.to);
+  if (!recipients.ok) throw badRequest(recipients.error);
+  if (!input.message.trim()) throw badRequest("Write the message to the customer");
+  const nextError = nextFollowUpError(input.nextOn, await shopToday(ctx, orgId));
+  if (nextError) throw badRequest(nextError);
+
+  const me = await sender(ctx, userId);
+  if (!me.emailVerified && senderMustBeVerified(ctx.env)) {
+    throw forbidden("Confirm your email address first: customers' replies go to it");
+  }
+  if (!canRecord(ctx)) {
+    throw new AppError(503, "email_not_configured", "Email is not set up on this server");
+  }
+  await checkSendLimits(ctx, orgId, quoteId);
+  // The PDF is checked even when it is not attached: the row records which sent document the
+  // follow-up was about, and a quote whose frozen file is missing should not be chased.
+  const { bytes, sha256 } = await loadSentPdf(ctx, orgId, q);
+
+  const settings = await getSettings(ctx, orgId);
+  const label = quoteLabel(q.quoteNumber, q.revNumber);
+  const fileName = `${quoteFileLabel(q.quoteNumber, q.revNumber)}.pdf`;
+  const { thread, lastSubject } = await followUpThreading(
+    ctx,
+    orgId,
+    q,
+    recipients.to,
+    settings.displayName,
+  );
+  const mail = composeFollowUpEmail(
+    {
+      shopName: settings.displayName,
+      quoteLabel: label,
+      attachedFileName: input.attachPdf ? fileName : null,
+      senderName: me.name,
+      senderEmail: me.email,
+      sentDay: await sentDayOf(ctx, orgId, q),
+      validUntil: q.validUntil,
+      signature: settings.emailSignature,
+    },
+    lastSubject,
+    input.message,
+  );
+
+  const id = newId("qem");
+  await ctx.db.insert(quoteEmails).values({
+    id,
+    orgId,
+    quoteId,
+    sentBy: userId,
+    toAddresses: recipients.to,
+    replyTo: me.email,
+    subject: mail.subject,
+    pdfSha256: sha256,
+    status: "sending",
+    delivered: false,
+    kind: "follow_up",
+    createdAt: ctx.now(),
+  });
+
+  const attachments: EmailAttachment[] = input.attachPdf
+    ? [{ filename: fileName, content: toBase64(bytes), contentType: "application/pdf" }]
+    : [];
+  const fromName = `${oneLine(settings.displayName, 80)} via Job Shop Quote`;
+  let update: Partial<typeof quoteEmails.$inferInsert>;
+  try {
+    const res = await sendThreaded(
+      ctx,
+      {
+        to: recipients.to,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+        replyTo: me.email,
+        fromName,
+        ...(attachments.length ? { attachments } : {}),
+      },
+      thread,
+      orgId,
+      quoteId,
+    );
+    update = { status: "sent", delivered: ctx.email.delivers, providerMessageId: res.id };
+    ctx.logger.info("quote.follow_up_emailed", {
+      orgId,
+      quoteId,
+      recipients: recipients.to.length,
+      delivered: ctx.email.delivers,
+      threaded: thread !== null,
+      attached: attachments.length > 0,
+    });
+  } catch (e) {
+    const error = scrubError(e);
+    update = { status: "failed", error };
+    ctx.logger.warn("quote.follow_up_email_failed", { orgId, quoteId, error });
+  }
+  if (update.status === "sent" && input.copyMe) {
+    update.senderCopy = await sendSenderCopy(
+      ctx,
+      mail,
+      recipients.to,
+      me.email,
+      fromName,
+      attachments,
+      orgId,
+      quoteId,
+    );
+  }
+  // Throws (502) on a failed send, before anything is logged.
+  const email = await finishEmailRow(ctx, orgId, id, update, me.name);
+
+  const extra = (input.note ?? "").replace(/\r\n?/g, "\n").trim();
+  const note = `Emailed a follow-up to ${recipients.to.join(", ")}.${extra ? `\n${extra}` : ""}`;
+  await recordFollowUp(ctx, orgId, userId, quoteId, note, input.nextOn);
+  return { email, followUps: await quoteFollowUpLog(ctx, orgId, quoteId) };
 }
