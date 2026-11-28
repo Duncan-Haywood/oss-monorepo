@@ -16,14 +16,35 @@ export interface DrawingPdfInput {
   titleBlock: string[];
   /** Rows in the notes (top left). */
   notes?: string[];
+  /**
+   * Zone labels outside the border, ASME Y14.1 style: letters A-D up the left and right edges from
+   * the bottom, numbers 6-1 along the top and bottom from the left (zone 1 at the right).
+   */
+  zones?: boolean;
 }
 
-export function drawingPdf({ titleBlock, notes = [] }: DrawingPdfInput): Buffer {
+/** The zone labels as text: rows A-D (y centres 91.5 ... 520.5), columns 6-1 (x 82.67 ... 709.33). */
+function zoneLabels(): string {
+  let s = "";
+  for (let i = 0; i < 4; i++) {
+    const y = 20 + (572 * (i + 0.5)) / 4 - 3;
+    const l = "ABCD"[i];
+    s += `BT /F1 8 Tf 7 ${y} Td (${l}) Tj ET\nBT /F1 8 Tf 778 ${y} Td (${l}) Tj ET\n`;
+  }
+  for (let i = 0; i < 6; i++) {
+    const x = 20 + (752 * (i + 0.5)) / 6 - 2;
+    s += `BT /F1 8 Tf ${x} 6 Td (${6 - i}) Tj ET\nBT /F1 8 Tf ${x} 600 Td (${6 - i}) Tj ET\n`;
+  }
+  return s;
+}
+
+export function drawingPdf({ titleBlock, notes = [], zones = false }: DrawingPdfInput): Buffer {
   // A border and a part outline, so the page is a drawing and not only text.
   const page = deflateSync(
     Buffer.from(
       `0.5 w 20 20 752 572 re S 120 300 m 420 300 l 420 450 l 120 450 l h S\n` +
         (notes.length ? lines(40, 560, ["NOTES:", ...notes]) : "") +
+        (zones ? zoneLabels() : "") +
         `q 1 0 0 1 520 40 cm /TB Do Q\n`,
       "latin1",
     ),

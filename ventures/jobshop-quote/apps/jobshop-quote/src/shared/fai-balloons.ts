@@ -18,6 +18,8 @@
 // drawn as geometry, a note that wraps differently) gets no balloon and is reported in `unplaced`,
 // never guessed at a position. A repeated feature ("4X", rows 4.1 ... 4.4) gets one balloon, "4", at
 // the callout, the usual practice. Encrypted files and files the reader cannot parse are refused.
+
+import { zoneReader } from "./drawing-zones";
 import { type CharacteristicDraft, draftCharacteristics } from "./fai-characteristics";
 import { latin1 } from "./pdf-pages";
 import { balanced, type PdfLayout, type PdfPage, readPdfLayout, type TextRun } from "./pdf-text";
@@ -31,12 +33,35 @@ export interface BalloonPlacement {
   x: number;
   y: number;
   r: number;
+  /**
+   * The drawing zone the characteristic's text lies in ("C4", "SH2 C4" on a multi-sheet file), read
+   * from the border's zone labels (drawing-zones.ts); null when the sheet has no readable zoned border.
+   */
+  zone: string | null;
 }
 
 export interface BalloonResult {
   placements: BalloonPlacement[];
   /** Balloon numbers whose text was not found on any page. */
   unplaced: string[];
+}
+
+/**
+ * Each characteristic's drawing zone, by its number (the rows of a repeat share the callout's zone),
+ * for Form 3's Reference Location. Characteristics not found, or on a sheet with no zoned border, are
+ * left out.
+ */
+export function zonesByNo(
+  draft: CharacteristicDraft,
+  result: BalloonResult,
+): Record<string, string> {
+  const byLabel = new Map(result.placements.map((p) => [p.label, p.zone]));
+  const out: Record<string, string> = {};
+  for (const c of draft.characteristics) {
+    const zone = byLabel.get(c.no.split(".")[0] ?? c.no);
+    if (zone) out[c.no] = zone;
+  }
+  return out;
 }
 
 /** Balloon colour (a dark red that prints legibly in greyscale). */
@@ -120,6 +145,7 @@ function searchKey(requirement: string, kind: string): string {
 /** Where to draw each balloon; a pure function of the layout and the draft (tested directly). */
 export function placeBalloons(layout: PdfLayout, draft: CharacteristicDraft): BalloonResult {
   const lines = linesOf(layout.runs);
+  const zoneOf = zoneReader(layout);
   // Used match starts per line, so two characteristics with the same text take different places.
   const used = new Map<number, Set<number>>();
   const placements: BalloonPlacement[] = [];
@@ -166,11 +192,28 @@ export function placeBalloons(layout: PdfLayout, draft: CharacteristicDraft): Ba
       unplaced.push(label);
       continue;
     }
-    placements.push(
-      place(label, hit.line.glyphs[anchor] as Glyph, page, hit.line.page, placements),
+    // The zone is where the text itself lies: the middle of the matched text's first and last glyph.
+    const first = glyphPoint(hit.line.glyphs[hit.at] as Glyph);
+    const last = glyphPoint(
+      (hit.line.glyphs[hit.at + key.length - 1] ?? hit.line.glyphs[hit.at]) as Glyph,
     );
+    const zone = zoneOf(hit.line.page, (first.x + last.x) / 2, (first.y + last.y) / 2);
+    placements.push({
+      ...place(label, hit.line.glyphs[anchor] as Glyph, page, hit.line.page, placements),
+      zone,
+    });
   }
   return { placements, unplaced };
+}
+
+/** Where a glyph starts on the page, raised to half its height (the text's middle line). */
+function glyphPoint(g: Glyph): { x: number; y: number } {
+  const run = g.run;
+  const t = g.at / Math.max(1, [...run.text].length);
+  return {
+    x: run.x0 + (run.x1 - run.x0) * t + (run.upX * run.size) / 2,
+    y: run.y0 + (run.y1 - run.y0) * t + (run.upY * run.size) / 2,
+  };
 }
 
 /** The balloon's centre: before the text's first glyph, along the text direction, clear of others. */
@@ -180,7 +223,7 @@ function place(
   page: PdfPage,
   pageIndex: number,
   others: BalloonPlacement[],
-): BalloonPlacement {
+): Omit<BalloonPlacement, "zone"> {
   const run = g.run;
   const n = Math.max(1, [...run.text].length);
   const t = g.at / n;

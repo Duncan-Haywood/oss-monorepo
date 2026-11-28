@@ -64,9 +64,15 @@ The positions come from the PDF's own text layer: where each callout's text is d
 
 It shares the list's limits. Anything not written as text, and every scanned drawing, has nothing to balloon. Check the sheet against the list before it goes in the report.
 
+## The drawing zone, read from the border (added 28 November 2026)
+
+Form 3 has a Reference Location column, and on a zoned drawing that is the zone: `C4`, the row letter and column number printed around the border. Filling it in means finding each callout and reading across to the edges, once per row. Job Shop Quote now reads it. When a drawing PDF prints its zone letters and numbers as text, the app finds them along the edges of the sheet and works out which zone each callout's text sits in. The CSV's Reference Location is filled in. The inspection screen shows the zone as a suggestion in each row, with a **Fill zones from the drawing's border** button. A zone the inspector types always wins over the one that was read.
+
+The app doesn't assume a layout. It works out which way the labels run from the labels themselves. ASME drawings letter the rows from the bottom up and number the columns from the right. ISO drawings letter from the top down and number from the left. Both sheets of the two-sheet test drawing read correctly. A multi-sheet file gets the sheet too (`SH2 C4`). Borders that skip I and O are read as well. If a border's labels are drawn as lines, if an axis has fewer than three labels, or if the labels aren't evenly spaced, no zone is read. The zone is then left blank for the inspector. It is never guessed.
+
 ## Then the results, in the same list (added 28 November 2026)
 
-Beside the CSV link there is now **Inspect first article**, which opens the same list as a screen in the app. For each row, the inspector types the drawing zone, the result, the gauge and, on a reject, the nonconformance number. A row turns accept, reject or open as it's typed, using the same rules as the checker above:
+Beside the CSV link there is now **Inspect first article**, which opens the same list as a screen in the app. For each row, the inspector checks the drawing zone (read from the border where it can be, above), types the result, the gauge and, on a reject, the nonconformance number. A row turns accept, reject or open as it's typed, using the same rules as the checker above:
 
 - a measured row accepts when every reading is inside its limits, limits included. `3.250 3.251 3.256` against `3.250 ±.005` rejects, and the row says `3.256 is over the upper limit 3.255 in`;
 - a surface finish has only a maximum, so only the maximum is checked;

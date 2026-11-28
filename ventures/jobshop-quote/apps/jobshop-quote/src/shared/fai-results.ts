@@ -239,6 +239,11 @@ export interface FaiRowDto {
 
 export interface FaiSheetDto {
   fileName: string;
+  /**
+   * Drawing zones read from the PDF's zoned border, by row number ("C4"; "SH2 C4" on a multi-sheet
+   * file): a suggestion for the Zone column, used in the CSV where the inspector entered none.
+   */
+  zones: Record<string, string>;
   partNumber: string | null;
   revision: string | null;
   general: string[];

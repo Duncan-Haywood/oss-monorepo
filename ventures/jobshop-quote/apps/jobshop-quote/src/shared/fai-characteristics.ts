@@ -9,8 +9,10 @@
 //
 // It reads, never decides: a draft for a person to check, never a finished Form 3. What a text layer
 // cannot show is said, not guessed: dimensions drawn as geometry with no text, basic dimensions in
-// boxes, feature control frames drawn as lines, and the drawing zone of each characteristic (text has
-// no position), which the inspector fills in. Nothing is judged and no result is invented.
+// boxes and feature control frames drawn as lines. The drawing zone of each characteristic is not in
+// the text either; where the PDF has a zoned border it is read from the text positions instead
+// (drawing-zones.ts, passed to form3Csv), and otherwise the inspector fills it in. Nothing is judged
+// and no result is invented.
 //
 // What it finds, one characteristic per item, in the order written:
 //   dimension   a nominal with its tolerance: 1.250 ±.005, Ø.500 +.002/-.000, 12.00 +0.1 -0.05 mm,
@@ -463,8 +465,9 @@ export interface Form3Header {
 
 /**
  * The draft as CSV: a few header rows (part, source, general tolerance, the draft warning), a blank
- * row, then one row per characteristic. Reference Location, Characteristic Designator, Results,
- * tooling and nonconformance are left blank for the inspector: the text cannot say them. With
+ * row, then one row per characteristic. Characteristic Designator, Results, tooling and
+ * nonconformance are left blank for the inspector: the text cannot say them. Reference Location
+ * carries the zone read from the drawing's border (`zones`, by row number) where one was read. With
  * `rows` (the inspection screen's rows, shared/fai-results buildRows), those columns carry what the
  * inspector entered, the added rows follow the draft's, and a verdict and its reason end each row.
  */
@@ -473,6 +476,7 @@ export function form3Csv(
   header: Form3Header,
   rows?: FaiRowDto[],
   summary?: FaiSummary,
+  zones: Record<string, string> = {},
 ): string {
   const out: string[] = [];
   const row = (cells: (string | number | null)[]) => out.push(cells.map(cell).join(","));
@@ -485,9 +489,14 @@ export function form3Csv(
   row(["Revision", header.revision ?? ""]);
   row(["Read from", header.fileName]);
   for (const g of draft.general) row(["General tolerance", g.text]);
+  const zoned = Object.keys(zones).length > 0;
   row([
     "Draft",
-    "Listed from the drawing's text by Job Shop Quote. Check every row against the drawing: dimensions drawn without text, basic dimensions and frames drawn as lines are not in the text. Add the drawing zone, any key characteristic designator, the results and the tooling.",
+    `Listed from the drawing's text by Job Shop Quote. Check every row against the drawing: dimensions drawn without text, basic dimensions and frames drawn as lines are not in the text. ${
+      zoned
+        ? "Reference Location is the zone read from the border's zone letters and numbers where the text was found; check it, and add the zones left blank, any key characteristic designator, the results and the tooling."
+        : "Add the drawing zone, any key characteristic designator, the results and the tooling."
+    }`,
   ]);
   if (summary) {
     row([
@@ -508,7 +517,7 @@ export function form3Csv(
     for (const c of draft.characteristics) {
       row([
         c.no,
-        "",
+        zones[c.no] ?? "",
         "",
         c.requirement,
         "",
@@ -529,7 +538,7 @@ export function form3Csv(
     const e = r.entry;
     row([
       r.no,
-      e.location ?? "",
+      e.location ?? zones[r.no] ?? "",
       e.designator ?? "",
       r.requirement,
       e.notApplicable ? "N/A" : (e.result ?? ""),
