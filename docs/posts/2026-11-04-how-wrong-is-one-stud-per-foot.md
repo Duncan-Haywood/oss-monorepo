@@ -3,7 +3,7 @@ title: "How wrong is one stud per foot, and how much waste to add? Measured on t
 seo_title: "Framing lumber waste factor and the stud-per-foot rule, measured"
 date: 2026-11-04
 updated: 2026-11-28
-description: "A counted framing order against the one-stud-per-foot rule, and how much of the order is cutting waste: 0.2 to 0.4% with a cut plan, 19 to 30% without one."
+description: "A counted framing order against the one-stud-per-foot rule, the cutting waste in a framing order, and hip vs. gable roof sheathing waste, measured."
 tags: [wall-framing-takeoff, for-customers, construction, framing, estimating]
 ---
 
@@ -75,3 +75,27 @@ out (hip roofs among them) are on the
 [roof sheathing page](https://marisstella.app/wall-framing-takeoff/roof-sheathing-sheets.html);
 the [roof calculator](https://marisstella.app/wall-framing-takeoff/roof-calculator.html)
 counts your own roof the same way. Generated roofs, not a builder's order.
+
+## Hip roofs: what the hip offcuts cost (2026-11-28)
+
+The count above leaves hip roofs out. For a hip, a flat 15% is the common
+allowance against a gable's 10%. We laid out 4x8 sheets on 16 invented rectangular roofs (24 x
+36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all round), each as a gable and
+as a hip, and counted the sheet area bought over the roof's surface
+(`roof-waste-bench.mjs`):
+
+| Layout | Extra over the surface | Average |
+|---|---|---|
+| Gable | 3.3 to 16.2% | 7.8% |
+| Hip, the triangle cut off each course at the hips thrown away | 12.7 to 30.4% | 19.5% |
+| Hip, those triangles reused to start or fill other courses | 4.4 to 16.2% | 9.0% |
+
+Thrown away, the hip offcuts cost 4 to 10 more sheets than the gable on every
+roof, and a flat 15% ran short on 14 of the 16. Reused, the hip came within 3
+sheets of the gable on every roof. Most of the spread is the top course: a
+slope length just over a multiple of 4 ft still takes a row of sheets at the
+ridge, which no percentage of area can see. The free roof calculator orders the
+first hip layout; the paid edition, Residential Takeoff, orders the second.
+No valleys, dormers or damaged sheets; the table is on
+`ventures/wall-framing-takeoff/roof-sheathing-waste-factor.html`, pinned to the
+benchmark by a test.
