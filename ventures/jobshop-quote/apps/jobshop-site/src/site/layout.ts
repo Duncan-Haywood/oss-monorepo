@@ -128,6 +128,7 @@ ${body}
             <li><a href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">Estimating machining time</a></li>
             <li><a href="${href(ctx, "/machining-material-cost")}">Material cost</a></li>
             <li><a href="${href(ctx, "/how-to-quote-first-article-inspection")}">First article inspection</a></li>
+            <li><a href="${href(ctx, "/machining-tolerances")}">Tolerances and cost</a></li>
             <li><a href="${href(ctx, "/machine-shop-quote-template")}">Quote template</a></li>
             <li><a href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a></li>
             <li><a href="${href(ctx, "/how-to-price-a-rush-job")}">Pricing a rush job</a></li>
