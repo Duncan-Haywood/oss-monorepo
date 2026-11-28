@@ -2,6 +2,7 @@
 title: "How to quote a laser or plasma cutting job from a DXF: cut length, pierces and sheets"
 seo_title: "How to quote laser cutting from a DXF: price per part"
 date: 2026-11-25
+updated: 2026-11-27
 description: "Price a laser, plasma or waterjet job from its DXF files: nest the parts, time cut length and pierces at your speeds, charge the sheets, price each part."
 tags: [jobshop-quote, dxf-nesting, for-customers, manufacturing, sheet-metal]
 ---
@@ -82,10 +83,17 @@ the sheet count is a cautious estimate ([how it was measured](https://marisstell
 
 ## Where this is going
 
-We are building an RFQ-to-quote assistant for CNC and fabrication shops. It turns a drawing and an
-email into a priced quote from your own rates, and it already reads STEP and DXF files to size a
-blank. A sheet-metal path that prices from cut length, pierces and bends is next on its list, and
-this pricing engine (`ventures/dxf-nesting/quote.mjs`, tested by hand-worked totals) is the public
-half of it. The assistant is not released yet; the
-[manufacturing page](https://marisstella.app/industries/manufacturing/) says what is planned and
-how to get early access.
+*Updated 2026-11-27.* The RFQ-to-quote app this post looked ahead to is open:
+[Job Shop Quote](https://marisstella.app/jobshop/) turns an RFQ and its drawings into a priced quote
+from your own rate card, on a free Early access plan with no card (paid plans are not on sale yet).
+The sheet-metal path is in it: an ASCII DXF flat pattern on the RFQ gives the blank size, the cut
+length, the pierces and the bend lines; each machine can carry a cutting speed, a pierce time and
+seconds per bend, with speeds per material and gauge imported from your cut chart; and a material
+bought by the sheet gets its parts per sheet from a rectangular nest. The quote line starts with
+"Cut from DXF" and "Bend from DXF" operations timed from those numbers, which the estimator can change.
+
+A step-by-step guide with a worked laser-cut, bent and powder-coated bracket at 10, 100 and 500
+parts, priced to the cent the app gives, is at
+[How to quote sheet metal and laser cut parts](https://marisstella.app/jobshop/how-to-quote-sheet-metal).
+This free nesting page stays free, and is still the quickest way to price a whole nest of mixed
+parts without an account.

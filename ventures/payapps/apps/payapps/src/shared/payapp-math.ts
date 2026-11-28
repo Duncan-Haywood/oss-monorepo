@@ -274,6 +274,8 @@ export function computeApplications(
   // Running per-line state across periods.
   const completedToDate = new Map<string, number>(); // Σ work (D + E), excluding stored materials
   const releasedToDate = new Map<string, number>();
+  // Per line, the part of releasedToDate that an earlier application held enough to cover.
+  const acceptedReleased = new Map<string, number>();
   const opening = project.opening ?? null;
   for (const line of lines) {
     if (line.openingCompletedCents) completedToDate.set(line.id, line.openingCompletedCents);
@@ -307,6 +309,7 @@ export function computeApplications(
     }
     const adjustments = changeOrderAdjustments(changeOrders, period.periodTo);
     const out: ContinuationLine[] = [];
+    const acceptedNow = new Map<string, number>();
     let retainageOnWork = 0;
     let retainageOnStored = 0;
 
@@ -328,9 +331,19 @@ export function computeApplications(
       const ownRate = line.retainagePctBps ?? null;
       const grossWork = applyBps(workToDate, ownRate ?? period.retainagePctBps);
       const grossStored = applyBps(stored, ownRate ?? period.storedRetainagePctBps);
+      // Earlier releases that an earlier application already accepted (the line held at least as
+      // much then) are capped at what the line holds now: when the rate is later cut (10% to 5% at
+      // half complete, or 0% on the final application), a line already released in full stays at
+      // zero instead of going negative and paying the difference out again. Releases never checked
+      // against a held amount (the opening balance on the first application here, or one that was
+      // already over) still count in full, so an over-release is still flagged.
       const releasedBefore = releasedToDate.get(line.id) ?? 0;
-      const releasedTotal = releasedBefore + releasedNow;
+      const accepted = Math.min(acceptedReleased.get(line.id) ?? 0, releasedBefore);
+      const releasedBeforeNow =
+        Math.min(accepted, Math.max(grossWork + grossStored, 0)) + (releasedBefore - accepted);
+      const releasedTotal = releasedBeforeNow + releasedNow;
       const held = grossWork + grossStored - releasedTotal;
+      if (held >= 0) acceptedNow.set(line.id, releasedBefore + releasedNow);
       if (held < 0) {
         warnings.push({
           code: "retainage_release_exceeds_held",
@@ -444,6 +457,7 @@ export function computeApplications(
         (releasedToDate.get(line.id) ?? 0) + entry.retainageReleasedCents,
       );
     }
+    for (const [id, cents] of acceptedNow) acceptedReleased.set(id, cents);
     previousEarnedLessRetainage = earnedLessRetainage;
     previousPeriodTo = period.periodTo;
   }

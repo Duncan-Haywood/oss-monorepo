@@ -1,17 +1,24 @@
 // The arithmetic behind the /how-to-quote-sheet-metal guide. The page prints a worked example whose
 // figures come from here, so the prose, the table and the tests cannot disagree. It follows Job Shop
-// Quote's costing engine (apps/jobshop-quote/src/shared/costing.ts) for what a laser-cut and bent part
-// uses: sheet material bought by the sheet, parts per sheet from a nest, a cut time from the flat
-// pattern's cut length and pierces, a bend time from its bend lines, several machines at their own
-// rates, one outside service, purchased hardware, fallout, markups and a line minimum.
-// apps/jobshop-quote/test/unit/site-sheet-metal-example.test.ts checks that the engine (and its nest
-// and DXF suggestions) gives the same numbers. The inputs are made up for illustration (labelled so on
-// the page), never presented as industry figures.
+// Quote's costing engine (apps/jobshop-quote/src/shared/costing.ts) for the parts a laser-cut and
+// bent part uses: the "Cut from DXF" and "Bend from DXF" times (suggestCuttingOperation,
+// suggestBendingOperation), sheets bought whole (a per_stock material), one machine rate per
+// operation, an outside powder coat, fallout, markups and a line minimum.
+// apps/jobshop-quote/test/unit/site-sheet-metal-example.test.ts prices EXAMPLE with the real engine
+// and checks every figure to the cent. The inputs are made up for illustration (labelled so on the
+// page), never presented as industry figures.
+
+import { startsFor } from "./quote-example";
+
+export interface SheetMachine {
+  name: string;
+  hourlyRateCents: number;
+}
 
 export interface SheetOperation {
   label: string;
-  machine: string;
-  hourlyRateCents: number;
+  /** Index into SheetMetalExample.machines. */
+  machine: number;
   setupMinutes: number;
   cycleMinutesPerPart: number;
 }
@@ -19,26 +26,35 @@ export interface SheetOperation {
 export interface SheetMetalExample {
   partName: string;
   quantities: number[];
-  /** The DXF flat pattern: overall size, cut path, closed contours (pierces) and bend lines. */
-  flat: { widthIn: number; heightIn: number; cutLengthIn: number; pierces: number; bends: number };
+  /** What the flat-pattern DXF measures (inches). */
+  flat: {
+    widthIn: number;
+    heightIn: number;
+    cutLengthIn: number;
+    pierceCount: number;
+    bendLines: number;
+  };
   materialName: string;
-  sheet: { widthIn: number; lengthIn: number; gapIn: number };
+  sheetDescription: string;
   sheetPriceCents: number;
-  /** Parts per sheet from the app's rectangular nest (checked against nestYield by the app's test). */
+  /** The sheet and the gap the rate card's material row nests on (inches). */
+  sheet: { widthIn: number; lengthIn: number; gapIn: number };
+  /**
+   * The app's rectangular nest of the flat blank (rounded up to 1/8 in) on that sheet
+   * (apps/jobshop-quote/src/shared/nest.ts); the parity test checks this count.
+   */
   partsPerSheet: number;
-  materialMinChargeCents: number;
-  laser: { name: string; hourlyRateCents: number; cutSpeedInPerMin: number; pierceSeconds: number };
-  brake: { name: string; hourlyRateCents: number; secondsPerBend: number };
-  /** Setup-only and hand operations entered by the estimator. */
-  laserSetupMinutes: number;
-  programMinutes: number;
-  brakeSetupMinutes: number;
-  bench: { name: string; hourlyRateCents: number; minutesPerPart: number };
+  laser: { cutSpeedInPerMin: number; pierceSeconds: number; setupMinutes: number };
+  brake: { secondsPerBend: number; setupMinutes: number };
+  machines: SheetMachine[];
+  /** Index of the laser and the press brake in `machines`. */
+  laserMachine: number;
+  brakeMachine: number;
+  /** Operations the estimator adds by hand (programming, deburr), in quote order after cut and bend. */
+  otherOperations: SheetOperation[];
   finishingName: string;
   finishingPerPartCents: number;
   finishingLotChargeCents: number;
-  hardwareLabel: string;
-  hardwarePerPartCents: number;
   falloutBps: number;
   laborMarkupBps: number;
   materialMarkupBps: number;
@@ -54,7 +70,6 @@ export interface SheetBreak {
   setupCents: number;
   runCents: number;
   finishingCents: number;
-  extrasCents: number;
   costCents: number;
   markupCents: number;
   minimumAdjustmentCents: number;
@@ -63,97 +78,77 @@ export interface SheetBreak {
 }
 
 export interface SheetResult {
-  cutMinutesPerPart: number;
-  bendMinutesPerPart: number;
+  /** Laser minutes per part, before rounding up to the hundredth. */
+  cutMinutesExact: number;
+  cutMinutes: number;
+  bendMinutes: number;
   operations: SheetOperation[];
   breaks: SheetBreak[];
 }
 
 const roundCents = (x: number) => Math.round(x + Number.EPSILON * Math.sign(x));
 const pct = (bps: number) => bps / 10_000;
-/** Minutes rounded UP to the hundredth, as the app's DXF suggestions do. */
-const upToHundredth = (min: number) => Math.ceil(min * 100 - 1e-9) / 100;
+/** The app's rule: cycle minutes rounded UP to the hundredth, so a short cut is never lost. */
+export const upToHundredth = (min: number) => Math.ceil(min * 100 - 1e-9) / 100;
 
-export function startsFor(quantity: number, falloutBps: number): number {
-  if (falloutBps <= 0) return quantity;
-  return Math.ceil((quantity * 10_000) / (10_000 - falloutBps) - 1e-9);
-}
-
-/** Cut time per part: cut length ÷ cut speed + pierces × pierce seconds. */
-export function cutMinutes(e: SheetMetalExample): number {
-  return upToHundredth(
-    e.flat.cutLengthIn / e.laser.cutSpeedInPerMin + (e.flat.pierces * e.laser.pierceSeconds) / 60,
-  );
-}
-
-/** Bend time per part: bend lines × seconds per bend. */
-export function bendMinutes(e: SheetMetalExample): number {
-  return upToHundredth((e.flat.bends * e.brake.secondsPerBend) / 60);
-}
-
-/** The operations in the order the app lists them on the line. */
-export function operationsOf(e: SheetMetalExample): SheetOperation[] {
-  return [
-    {
-      label: "Program and nest",
-      machine: e.laser.name,
-      hourlyRateCents: e.laser.hourlyRateCents,
-      setupMinutes: e.programMinutes,
-      cycleMinutesPerPart: 0,
-    },
-    {
-      label: "Laser cut",
-      machine: e.laser.name,
-      hourlyRateCents: e.laser.hourlyRateCents,
-      setupMinutes: e.laserSetupMinutes,
-      cycleMinutesPerPart: cutMinutes(e),
-    },
-    {
-      label: "Bend",
-      machine: e.brake.name,
-      hourlyRateCents: e.brake.hourlyRateCents,
-      setupMinutes: e.brakeSetupMinutes,
-      cycleMinutesPerPart: bendMinutes(e),
-    },
-    {
-      label: "Deburr, insert hardware, inspect",
-      machine: e.bench.name,
-      hourlyRateCents: e.bench.hourlyRateCents,
-      setupMinutes: 0,
-      cycleMinutesPerPart: e.bench.minutesPerPart,
-    },
+/** The flat blank the app sizes from the DXF: each side rounded up to the next 1/8 in. */
+export function flatBlank(e: SheetMetalExample): { widthIn: number; lengthIn: number } {
+  const up = (v: number) => Math.ceil(v * 8 - 1e-9) / 8;
+  const [widthIn, lengthIn] = [up(e.flat.widthIn), up(e.flat.heightIn)].sort((a, b) => a - b) as [
+    number,
+    number,
   ];
+  return { widthIn, lengthIn };
+}
+
+/** The laser's minutes per part: cut length at the cut speed plus every pierce. */
+export function cutMinutes(e: SheetMetalExample): number {
+  return (
+    e.flat.cutLengthIn / e.laser.cutSpeedInPerMin +
+    (e.flat.pierceCount * e.laser.pierceSeconds) / 60
+  );
 }
 
 export function priceSheetExample(e: SheetMetalExample): SheetResult {
   if (e.falloutBps < 0 || e.falloutBps >= 10_000) throw new Error("fallout is below 100%");
-  if (e.quantities.some((q) => !Number.isInteger(q) || q < 1))
-    throw new Error("quantities are whole numbers of parts");
   if (!Number.isInteger(e.partsPerSheet) || e.partsPerSheet < 1)
-    throw new Error("at least one part fits a sheet");
-  const operations = operationsOf(e);
+    throw new Error("parts per sheet is a whole number");
+  const cutMinutesExact = cutMinutes(e);
+  const cut = upToHundredth(cutMinutesExact);
+  const bend = upToHundredth((e.flat.bendLines * e.brake.secondsPerBend) / 60);
+  const operations: SheetOperation[] = [
+    {
+      label: "Laser cut from the DXF",
+      machine: e.laserMachine,
+      setupMinutes: e.laser.setupMinutes,
+      cycleMinutesPerPart: cut,
+    },
+    {
+      label: "Press brake from the bend lines",
+      machine: e.brakeMachine,
+      setupMinutes: e.brake.setupMinutes,
+      cycleMinutesPerPart: bend,
+    },
+    ...e.otherOperations,
+  ];
   const breaks = e.quantities.map((quantity) => {
     const starts = startsFor(quantity, e.falloutBps);
     const sheets = Math.ceil(starts / e.partsPerSheet);
-    const materialCents = Math.max(
-      roundCents(sheets * e.sheetPriceCents),
-      e.materialMinChargeCents,
-    );
+    const materialCents = roundCents(sheets * e.sheetPriceCents);
     let setupCents = 0;
     let runCents = 0;
     for (const op of operations) {
-      setupCents += roundCents((op.setupMinutes / 60) * op.hourlyRateCents);
-      runCents += roundCents((op.cycleMinutesPerPart / 60) * op.hourlyRateCents * starts);
+      const rate = e.machines[op.machine]?.hourlyRateCents;
+      if (rate === undefined) throw new Error(`no machine ${op.machine}`);
+      setupCents += roundCents((op.setupMinutes / 60) * rate);
+      runCents += roundCents((op.cycleMinutesPerPart / 60) * rate * starts);
     }
     const finishingCents = Math.max(e.finishingPerPartCents * starts, e.finishingLotChargeCents);
-    // Hardware goes on the parts shipped, not the parts started (the engine's extras).
-    const extrasCents = e.hardwarePerPartCents * quantity;
-    const costCents = materialCents + setupCents + runCents + finishingCents + extrasCents;
+    const costCents = materialCents + setupCents + runCents + finishingCents;
     const markupCents =
       roundCents(materialCents * pct(e.materialMarkupBps)) +
       roundCents((setupCents + runCents) * pct(e.laborMarkupBps)) +
-      roundCents(finishingCents * pct(e.outsideServiceMarkupBps)) +
-      roundCents(extrasCents * pct(e.materialMarkupBps));
+      roundCents(finishingCents * pct(e.outsideServiceMarkupBps));
     const priced = costCents + markupCents;
     const minimumAdjustmentCents = Math.max(0, e.minimumLineCents - priced);
     const unitPriceCents = Math.ceil((priced + minimumAdjustmentCents) / quantity);
@@ -165,7 +160,6 @@ export function priceSheetExample(e: SheetMetalExample): SheetResult {
       setupCents,
       runCents,
       finishingCents,
-      extrasCents,
       costCents,
       markupCents,
       minimumAdjustmentCents,
@@ -173,47 +167,42 @@ export function priceSheetExample(e: SheetMetalExample): SheetResult {
       totalCents: unitPriceCents * quantity,
     };
   });
-  return {
-    cutMinutesPerPart: cutMinutes(e),
-    bendMinutesPerPart: bendMinutes(e),
-    operations,
-    breaks,
-  };
+  return { cutMinutesExact, cutMinutes: cut, bendMinutes: bend, operations, breaks };
 }
 
 /**
- * The made-up job on the page: a 14 gauge steel mounting bracket, laser cut from a 4 × 10 ft sheet,
- * three bends, four press-in nuts, powder coated by a vendor, quoted at 10, 100 and 500. Labor markup
- * is 0 because each machine rate already holds the margin (the /machine-shop-hourly-rate method).
+ * The made-up job on the page: a powder-coated 14 gauge steel mounting bracket, laser cut, bent
+ * twice and deburred, quoted at 10, 100 and 500. Every rate, speed and price here is invented to show
+ * the arithmetic; labor markup is 0 because the machine rates are taken to hold the margin already.
  */
-export const SHEET_EXAMPLE: SheetMetalExample = {
-  partName: "electrical box mounting bracket",
+export const EXAMPLE: SheetMetalExample = {
+  partName: "mounting bracket",
   quantities: [10, 100, 500],
-  flat: { widthIn: 6.5, heightIn: 9.25, cutLengthIn: 62.4, pierces: 9, bends: 3 },
+  flat: { widthIn: 6.3, heightIn: 9.1, cutLengthIn: 41.8, pierceCount: 7, bendLines: 2 },
   materialName: "14 ga (0.075 in) cold-rolled steel",
+  sheetDescription: "48 × 120 in sheet",
+  sheetPriceCents: 9_800,
   sheet: { widthIn: 48, lengthIn: 120, gapIn: 0.25 },
-  sheetPriceCents: 18_000,
-  partsPerSheet: 88,
-  materialMinChargeCents: 4_000,
-  laser: {
-    name: "Fiber laser",
-    hourlyRateCents: 18_000,
-    cutSpeedInPerMin: 200,
-    pierceSeconds: 0.5,
-  },
-  brake: { name: "Press brake", hourlyRateCents: 9_500, secondsPerBend: 8 },
-  laserSetupMinutes: 10,
-  programMinutes: 20,
-  brakeSetupMinutes: 25,
-  bench: { name: "Bench", hourlyRateCents: 7_000, minutesPerPart: 1.5 },
+  partsPerSheet: 90,
+  laser: { cutSpeedInPerMin: 160, pierceSeconds: 0.8, setupMinutes: 15 },
+  brake: { secondsPerBend: 9, setupMinutes: 20 },
+  machines: [
+    { name: "Fiber laser", hourlyRateCents: 16_500 },
+    { name: "Press brake", hourlyRateCents: 9_500 },
+    { name: "Bench", hourlyRateCents: 6_500 },
+  ],
+  laserMachine: 0,
+  brakeMachine: 1,
+  otherOperations: [
+    { label: "Program and nest", machine: 0, setupMinutes: 30, cycleMinutesPerPart: 0 },
+    { label: "Deburr and inspect", machine: 2, setupMinutes: 0, cycleMinutesPerPart: 0.75 },
+  ],
   finishingName: "Black powder coat (outside vendor)",
-  finishingPerPartCents: 450,
+  finishingPerPartCents: 275,
   finishingLotChargeCents: 17_500,
-  hardwareLabel: "Press-in nuts, 4 per part",
-  hardwarePerPartCents: 72,
   falloutBps: 200,
   laborMarkupBps: 0,
-  materialMarkupBps: 1_500,
+  materialMarkupBps: 2_000,
   outsideServiceMarkupBps: 1_500,
   minimumLineCents: 15_000,
 };

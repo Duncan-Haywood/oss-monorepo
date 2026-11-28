@@ -122,6 +122,27 @@ test('a sitemap URL that did not ship is caught', async () => {
   assert.equal(mentioning(problems, 'did not ship -> /ventures/tool/').length, 1);
 });
 
+test('a sitemap listing a noindex page is caught, by its served and its file path', async () => {
+  // The real defect: einvoice-preflight/sample-audit-pack (2026-11-27), listed
+  // and noindex, which Search Console reports as "Submitted URL marked 'noindex'".
+  const noindex = '<meta name="robots" content="noindex"><p>sample</p><footer>No warranty.</footer>';
+  for (const listedAs of ['tool/sample', 'tool/sample.html']) {
+    const problems = await problemsFor({
+      'tool/sample.html': noindex,
+      'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html', listedAs),
+    });
+    assert.equal(mentioning(problems, `lists a noindex page -> /${listedAs}`).length, 1, problems.join('\n'));
+  }
+});
+
+test('a noindex page left out of every sitemap is correct', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<p>Tool</p><a href="sample.html">Sample</a><footer>No warranty.</footer>',
+    'tool/sample.html': '<meta name="robots" content="noindex"><p>sample</p><footer>No warranty.</footer>',
+  });
+  assert.deepEqual(problems, []);
+});
+
 test('a relative <loc> is caught', async () => {
   // `<loc>` must be a full absolute URL; crawlers reject a relative one, so a
   // sitemap full of them covers nothing at all.

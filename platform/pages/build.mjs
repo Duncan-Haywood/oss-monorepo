@@ -6157,6 +6157,15 @@ export async function publishedPages(dir, prefix = '') {
   return parts.flat().sort();
 }
 
+/** `publishedPages` less the ones whose robots meta says `noindex`: what a venture's sitemap lists. */
+export async function sitemapPages(dir) {
+  const pages = await publishedPages(dir);
+  const indexable = await Promise.all(
+    pages.map(async (page) => !/noindex/i.test(metaContent(await fs.readFile(path.join(dir, page), 'utf8'), 'name', 'robots'))),
+  );
+  return pages.filter((_, i) => indexable[i]);
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -13796,8 +13805,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     const destination = path.join(outDir, surface.slug);
 
     // Overwrite whatever sitemap the venture shipped with one generated from
-    // what actually published. See `renderVentureSitemap` for why.
-    const pages = await publishedPages(destination);
+    // what actually published. See `renderVentureSitemap` for why. A page that
+    // says `noindex` (a sample report, an admin screen) stays out: listing it
+    // asks a crawler to index what the page refuses, which Search Console
+    // reports as "Submitted URL marked 'noindex'" (11 pages, 2026-11-27).
+    const pages = await sitemapPages(destination);
     await fs.writeFile(
       path.join(destination, 'sitemap.xml'),
       renderVentureSitemap(

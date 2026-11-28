@@ -329,6 +329,7 @@ const FAQ_PAGES = [
   "electrical-contractor-billing.html", "mechanical-contractor-billing.html", "drywall-contractor-billing.html", "concrete-contractor-billing.html",
   "site-work-contractor-billing.html", "roofing-contractor-billing.html", "masonry-contractor-billing.html", "painting-contractor-billing.html",
   "finish-carpentry-contractor-billing.html", "flooring-contractor-billing.html", "glazing-contractor-billing.html", "steel-contractor-billing.html",
+  "fire-protection-contractor-billing.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html", "progress-billing.html",
   "how-to-write-an-rfi.html", "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
   "lien-waiver-log.html", "lien-waiver-form.html", "miller-act-payment-bond-claims.html", "state-payment-bond-claims.html",

@@ -677,9 +677,10 @@ estimator enters the blank, the operations and their times, and the quantity bre
 break follows, every figure showing the rate it came from, and a line missing a time or a material is
 blocked rather than priced as if it were free. The example above is priced to the cent the app gives
 for the same inputs, checked by a test in its code. You can
-see how a quote is built,
-compare it with other quoting software, or read
-how to quote a sheet metal part.
+see how a quote is built or
+compare it with other quoting software. Laser,
+plasma or press-brake work: see how to
+quote sheet metal and laser cut parts.
 
 This page explains a common costing method. It is not accounting, tax or
 financial advice, and the prices, times and rates in it are made up. Check every quote before you send
@@ -691,7 +692,7 @@ The Early access plan is free and needs no card.
 
 Start free
 
-## How to quote sheet metal
+## How to quote sheet metal and laser cut parts
 
 Source: https://marisstella.app/jobshop/how-to-quote-sheet-metal
 
@@ -699,142 +700,148 @@ Guide
 
 ## How to quote sheet metal and laser cut parts
 
-A sheet metal quote is built from the flat pattern: how many parts fit a sheet, how
-long the cut path is, how many holes the laser pierces and how many bends the brake makes, then
-hardware, finishing and your markup at each quantity. Here is the method, a worked example at 10, 100
-and 500 parts, and the mistakes that cost money on parts you win.
+A sheet-metal quote comes from the flat pattern: how long the cut path is, how many
+times the head pierces, how many bends, and how many parts nest on a sheet you buy whole. Here is the
+method, a worked example at 10, 100 and 500 parts, and the
+mistakes that lose money on jobs you win.
 
-### The method in seven steps
+### The method in six steps
 
-- Get the flat pattern. A DXF of the part flattened, or a 3D model you unfold.
-Its overall size sets the nest, its cut path the laser time, its closed contours the pierces and its
-bend lines the brake time. Check the gauge, the material, the bend radii and the tolerances on the
-drawing; anything missing is a question for the customer.
+- Read the RFQ for what changes the price. Material, gauge and finish,
+quantities, hardware to insert, weld or powder-coat requirements, flatness and tolerance callouts,
+certifications and the delivery date. A missing gauge or grade is a question to the customer, not a
+guess.
 
-- Work out parts per sheet. Lay the flat pattern's rectangle out on the sheet size
-you buy, leaving the gap your laser needs between parts and at the sheet edge, and try it both ways
-round. The sheet's price divided by that count is the material in each part.
+- Measure the flat pattern. From the DXF: the blank's overall size, the total
+cut length (outline plus every hole and slot), the number of pierces (one per closed contour) and the
+bend lines. A STEP model of a bent part has to be unfolded first; quote from the flat.
 
-- Price the sheets you will open. Parts started divided by parts per sheet, rounded
-up. A small order still opens a whole sheet unless you keep the rest as stock and decide to charge
-less for it.
+- Nest the blank and count sheets. How many blanks fit on the sheet size you
+stock at the gap your material needs. Material is the number of sheets the lot uses, bought whole,
+unless you have a real use for the remnant.
 
-- Time the cut from the cut length and the pierces. Cut length ÷ cut speed for
-that material and thickness, plus one pierce for the outline and each hole at your pierce time.
-On a small part with many holes the pierces can be a large share of the cut time.
+- Time the cut at your own speed for that material and gauge. Cut minutes = cut
+length ÷ cutting speed, plus pierces × pierce time. Cutting speed changes several-fold with alloy
+and thickness, so one speed per machine is wrong for most parts; use your machine's cut chart.
 
-- Time the bends. Bends per part × seconds per bend at the brake, plus a setup
-for each tooling change and a first-piece check. Count bend lines, not parts.
+- Time the bends and the rest. Seconds per bend times the bends, a brake setup
+per lot, programming and nesting once per job, deburring and inspection per part, each at that
+machine's or bench's own rate.
 
-- Add the hand work, hardware and finishing. Deburring, hardware insertion,
-welding and inspection are minutes per part on the bench. Press-in nuts and studs are bought per
-part; powder coat and plating vendors charge per part with a lot minimum.
-
-- Plan for scrap, add markup, quote every quantity. Start enough parts to ship the
-order good, mark up material and bought-in services, apply your line minimum and work the whole sum
-at each quantity break.
+- Add outside processes, plan for scrap, add markup and quote every quantity.
+Powder coat and plating carry lot minimums; start enough parts to ship the order good; repeat the
+sum at each break, since sheets, setups and minimums spread differently at each.
 
 ### A worked example
 
-An electrical box mounting bracket in 14 ga (0.075 in) cold-rolled steel, laser cut, 3 bends, four press-in nuts and a
-powder coat from a vendor. Every number here is made up to show the arithmetic; they
-are not typical prices, speeds, times or rates for any region or trade. Use your own.
+A mounting bracket in 14 ga (0.075 in) cold-rolled steel, laser cut, bent twice, deburred and powder coated by a vendor.
+Every number here is made up to show the arithmetic; they are not typical speeds,
+prices or rates for any machine, region or trade. Use your own.
 
-- Flat pattern: 6.5 × 9.25 in, 62.4 in
-of cut path, 9 closed contours (the outline and 8 holes) and
-3 bend lines.
+- Flat pattern (from the DXF): 6.3 × 9.1 in overall,
+41.8 in of cut path, 7 pierces (the outline and six holes),
+2 bend lines. Rounded up to the next 1/8 in, the blank is 6.375 ×
+9.125 in.
 
-- Sheet: 48 × 120 in at $180.00
-a sheet, 0.25 in between parts and at the edge. The flat rectangle fits
-88 times (92% of the sheet), so each part carries
-$2.05 of steel when the sheets are full. A
-$40.00 material minimum applies.
+- Material: 48 × 120 in sheet at $98.00 a sheet. A
+rectangular nest at a 0.25 in gap fits 90 blanks a sheet.
 
-- Fiber laser at $180.00 an hour, cutting this
-gauge at 200 in/min with 0.5 s per pierce:
-62.4 ÷ 200 + 9 × 0.5 s
-= 0.39 min a part, after 20 minutes to program and nest
-and a 10 minute setup.
+- Fiber laser at $165.00 an hour:
+160 in/min in this gauge and 0.8 s a pierce, so
+41.8 ÷ 160 + 7 × 0.8
+s = 0.355 min, rounded up to 0.36 min a part;
+15 min to load the sheet program, plus a one-time
+30 min to program and nest the job.
 
 - Press brake at $95.00 an hour:
-3 bends × 8 s = 0.4 min a part,
-25 minutes to set up the tooling and check the first piece.
+2 bends × 9 s = 0.30 min a part,
+20 min to set up the tooling and back gauge.
 
-- Bench at $70.00 an hour:
-1.5 min a part to deburr, press in the nuts and inspect.
+- Bench at
+$65.00 an hour: deburr and inspect,
+0.75 min a part.
 
-- Press-in nuts, 4 per part: $0.72 a part, bought for the
-parts shipped.
-
-- Black powder coat (outside vendor): $4.50 a part, minimum
+- Black powder coat (outside vendor): $2.75 a part, minimum
 $175.00 a lot.
 
-- Fallout 2%; markup
-15% on material, hardware and the outside service (the machine rates
-already hold the margin); a $150.00 minimum per line.
+- Fallout: 2% of parts started are expected to scrap.
+
+- Markup: 20% on material,
+15% on the outside service, none on labor (the machine rates are
+taken to hold the margin already); a $150.00 minimum per line.
 
 The made-up bracket at three quantities. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.
 Line10 parts100 parts500 parts
 
-Parts started11103511Sheets126Material$180.00$360.00$1,080.00Setup and programming$129.58$129.58$129.58Cut, bend and bench time$39.09$365.99$1,815.75Powder coat (outside)$175.00$463.50$2,299.50Hardware$7.20$72.00$360.00Cost$530.87$1,391.07$5,684.83Markup$54.33$134.33$560.93Price each$58.52$15.26$12.50Line total$585.20$1,526.00$6,250.00
+Parts started11103511Sheets126Material$98.00$196.00$588.00Setup and programming$155.42$155.42$155.42Run time$25.06$234.59$1,163.81Powder coat (outside)$175.00$283.25$1,405.25Cost$453.48$869.26$3,312.48Markup$45.85$81.69$328.39Price each$49.94$9.51$7.29Line total$499.40$951.00$3,645.00
 
 What the table shows:
 
-- The nest is the material price. Area alone says 95 parts fit the sheet;
-the gap between parts and at the edge leaves 88. At 10 parts the
-order opens one whole sheet, so the steel is $18.00 a part instead of
-$2.05. At 500 parts, 511 starts need
-6 sheets.
+- Small lots buy a whole sheet. 11 parts need one sheet that holds
+90: the $98.00 sheet is the material charge whether you
+cut 11 blanks or 90. At 500 parts the same material is
+6 sheets, and the last one carries only 61 parts.
 
-- The laser is not the expensive part. Cutting takes 0.39
-minutes a part, and the 9 pierces are 19% of it. The costliest minutes
-per part are on the bench: $1.75 a
-part for deburr, insert hardware, inspect. Hand work is where sheet metal quotes go wrong.
+- The vendor's minimum decides the small lot. At 10 parts the powder
+coater's $175.00 lot minimum is
+39% of the cost; at 500 the
+per-part charge has long passed it.
 
-- Setup and minimums decide the small lot. The same $129.58
-of programming and setup is on every line, and at 10 parts the powder coater's
-$175.00 minimum is the whole finishing charge. The price each falls from
-$58.52 to $15.26 to $12.50.
+- Fixed charges spread out. The same $155.42 of setup and
+programming, the first sheet and the coater's minimum are shared by 10,
+100 or 500 parts. Together they are why the price each falls from
+$49.94 to $9.51 to
+$7.29, while the run time per part stays the same.
 
-### Mistakes that lose money on parts you win
+- Laser time is short; it still adds up. 0.36 min a part is
+$0.99 at
+this rate. Leave out the pierces and the cut drops to
+0.261 min; on thick plate, where a pierce
+takes seconds, the pierces can be most of the cut.
 
-- Pricing material from the part's area. The gap between parts, the sheet edge and
-the skeleton are steel you bought. Price from the nest count, and the whole sheet on a small order.
+### Mistakes that lose money on jobs you win
 
-- Timing the cut from the length alone. Every hole is a pierce, and pierce time grows
-with thickness.
+- Pricing material by the part's area. You buy sheets. Unless the skeleton and
+remnant really go back on the rack and get used, the lot pays for the sheets it consumes.
 
-- One cut speed for every job. Speed changes with material and thickness; a speed
-for 14 gauge steel is wrong for quarter-inch plate or for aluminum.
+- One cutting speed for everything. A speed from thin mild steel will badly
+under-time stainless or thick plate. Keep speeds per material and gauge.
 
-- Leaving out the brake setup. A tooling change and a first-piece check happen on
-every lot, however few bends the part has.
+- Forgetting pierces. A part with many small holes can spend more time piercing
+than cutting, especially in thicker material.
 
-- Forgetting hardware and the minutes to insert it. Press-in fasteners are a cost
-per part and a press cycle per fastener.
+- Leaving out programming and nesting. It is real time on every new part number,
+once per job, not per part.
 
-- Ignoring the finisher's minimum. A powder coat or plating minimum often costs more
-than the part on a short run.
+- Ignoring the brake setup. A new tool change and back-gauge setup is the same on
+ten parts or a thousand; price it once per lot.
+
+- Quoting from a 3D model nobody unfolded. The flat pattern sets the blank, the cut
+length and the bends; check the bend allowance your brake actually gives.
 
 ### Doing it in Job Shop Quote
 
-Upload the customer's DXF to an RFQ in Job Shop Quote and it reads the flat pattern's size, cut length,
-closed contours and bend lines, each with a confidence. For a material priced by the sheet with a sheet
-size and nest gap on your rate card, it counts parts per sheet with a rectangular nest. With a cut speed
-and pierce time on your laser (or a speed for that material) it suggests the cut operation, and with
-seconds per bend on your brake the bend operation, each labelled with the figures it used. The
-estimator checks them, adds the bench time, hardware and finishing, and the price at each break
-follows. The example above is the app's own nest count, cut and bend times and price, to the cent,
-checked by a test in its code. You can
-see how a quote is built, read
-how to quote a machining job,
-or work out your machine rates.
+Job Shop Quote reads an ASCII DXF flat pattern attached to the RFQ by fixed rules in its own code,
+with no AI involved: the overall size, the cut length, the pierces and the bend lines drawn on a layer
+named for bends. On your rate card each machine can carry a cutting speed, a pierce time and seconds
+per bend, and a cutting machine can carry its own speed per material and gauge (typed, or imported
+from your cut chart as a spreadsheet). A quote line then starts with a "Cut from DXF" and a "Bend from
+DXF" operation timed exactly as above, a blank sized from the flat pattern and, for a material you buy
+by the sheet, the parts per sheet from a rectangular nest at your gap. Every figure shows the rate it
+came from, the estimator can change any of them, and nothing is suggested when the drawing was read
+with low confidence or two machines could run the job. The example above is priced to the cent the
+app gives for the same inputs, checked by a test in its code.
 
-This page explains a common costing method. It is not accounting, tax,
-engineering or financial advice, and the prices, speeds, times and rates in it are made up. Check
-every quote before you send it.
+No account needed to try the arithmetic: the free
+DXF nesting tool nests your parts in the
+browser and prices the nest from your rates. For machined parts, see
+how to quote a CNC machining job.
 
-### Quote your next sheet metal RFQ this way
+This page explains a common costing method. It is not accounting, tax or
+financial advice, and the speeds, prices, times and rates in it are made up. Check every quote before
+you send it.
+
+### Quote your next sheet-metal RFQ this way
 
 The Early access plan is free and needs no card.
 
