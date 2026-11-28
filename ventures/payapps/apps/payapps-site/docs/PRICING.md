@@ -8,7 +8,7 @@ discount and fails when the site shows a different name, price, job, user or sto
 price. **Change a price in the app first, then here.** `src/shared/plans.test.ts` fails the build if a
 paid plan leaves the $99–$249 range or the cost-plus band below.
 
-History: the first version of this site (PR #18, 2026-11-24) proposed Solo $99 / Crew $169 / Office
+History: the first version of this site (PR #18, 2026-11-24) proposed Solo $99 / Crew $169 / Office <!-- price-claims: ok -->
 $249 with an AI cost per job. The app landed its own catalog the same day (Free, Solo $99, Crew $179,
 Company $249) and makes no AI calls, so on 2026-11-25 the site was brought in line with the app.
 

@@ -27,7 +27,7 @@ test("an invited viewer joins by link, reads the books, cannot write, and loses 
       "eBay: Transaction report (Payments > Reports)",
       "ebay-transaction-report.csv",
     );
-    await expect(page.getByText(/other charges imported/)).toContainText("3 sales");
+    await expect(page.getByText(/other charges? imported/)).toContainText("3 sales");
 
     // Free is for one person: the invitation is refused with the way out, and no link is shown.
     const invitee = uniqueEmail("inv-viewer");

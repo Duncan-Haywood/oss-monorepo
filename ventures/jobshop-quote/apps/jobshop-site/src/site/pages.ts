@@ -51,6 +51,13 @@ import {
   UTILISATION_HOURS,
   usd,
 } from "./shop-rate";
+import {
+  ISO2768_RANGES,
+  ISO2768_ROWS,
+  inchZone,
+  BANDS as TOLERANCE_BANDS,
+  CALLOUTS as TOLERANCE_CALLOUTS,
+} from "./tolerance-example";
 import { priceTurningExample, EXAMPLE as TURN_EXAMPLE } from "./turning-example";
 import { priceWeldingExample, STEEL_LB_PER_IN3, EXAMPLE as WELD_EXAMPLE } from "./welding-example";
 
@@ -3428,6 +3435,130 @@ export function faiGuidePage(ctx: RenderContext): Html {
 ${ctaBand(ctx, "Put the first article on the quote, every time", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
 }
 
+export function toleranceGuidePage(ctx: RenderContext): Html {
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How tolerances change a machining quote</h1>
+    <p class="lead">Two drawings of the same part can cost very different amounts to make, and the
+    difference is often one callout: a bore at ±.005 is a drill and a pass, the same bore at ±.0005 can be
+    a reamer, a slower finish, a gauge and a check on every part. Here is how to read a tolerance as a
+    zone, the four bands estimators sort them into, what ISO 2768 and fits like H7 mean in inches, and
+    where the cost goes on the quote.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Read a tolerance as a zone</h2>
+    <p>A tolerance is the room a dimension has to vary. What decides how hard it is to hold is the full
+    width of that room, the <strong>tolerance zone</strong>, not how it is written. ±.001 is a zone of
+    .002 in; +.002/-.000 is a zone of .002 in too, with all of it on one side. A tight one-sided tolerance
+    can be as hard as a looser-looking bilateral one, so convert every callout to its zone before you
+    compare them. On a drawing, the tightest zone usually sets the process, the machine and the inspection
+    for the whole part.</p>
+
+    <h2>Four bands, and what each asks of the shop</h2>
+    <p>Estimators sort tolerances into rough bands. The limits below are shop-floor rules of thumb, not a
+    standard: what counts as tight depends on the material, the feature, its size and your machines. They
+    are the defaults ${SITE_NAME}'s tolerance check uses.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Tolerance bands by zone, in inches. Rules of thumb, not a standard.</caption>
+        <thead><tr><th scope="col">Band</th><th scope="col">Tolerance</th><th scope="col">What it usually asks</th></tr></thead>
+        <tbody>
+          ${TOLERANCE_BANDS.map((b) => html`<tr><th scope="row">${b.label}</th><td>${b.range}</td><td>${b.asks}</td></tr>`)}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Callouts as they arrive, read as zones</h2>
+    <p>RFQs bring tolerances in every form: thousandths in an email, millimetres with a comma decimal from
+    a European customer, a general tolerance class in the title block, a fit symbol on a bore. Each row
+    below is read by the same code that reads an RFQ in ${SITE_NAME}, and a test in the app checks that
+    this table matches what it shows.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">Each callout's full zone in inches and millimetres, and its band. * The zone depends on the feature's size; shown for the size named.</caption>
+        <thead><tr><th scope="col">Callout</th><th scope="col">Means</th><th scope="col">Zone</th><th scope="col">Band</th></tr></thead>
+        <tbody>
+          ${TOLERANCE_CALLOUTS.map(
+            (c) =>
+              html`<tr><th scope="row"><code>${c.callout}</code></th><td>${c.means}</td><td>${inchZone(c.zoneIn)} in<br><span class="fineprint">${(c.zoneIn * 25.4).toFixed(3)} mm</span>${c.sizeAssumed ? " *" : ""}</td><td>${TOLERANCE_BANDS.find((b) => b.band === c.band)?.label ?? c.band}</td></tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>ISO 2768: the general tolerance in the title block</h2>
+    <p>A drawing that says "ISO 2768-m" (often with a second letter, K, H or L, for the geometric
+    tolerances) sets the tolerance of every dimension that has none of its own. The value grows with the
+    size of the dimension. The linear values from ISO 2768-1, in millimetres either way:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">ISO 2768-1 general tolerances for linear dimensions, ± mm, by nominal size in mm. Larger sizes are in the standard.</caption>
+        <thead><tr><th scope="col">Class</th>${ISO2768_RANGES.map((r) => html`<th scope="col">over ${r}</th>`)}</tr></thead>
+        <tbody>
+          ${ISO2768_ROWS.map(
+            (r) =>
+              html`<tr><th scope="row">${r.cls} (${r.name})</th>${r.plusMinusMm.map((v) => html`<td>${v === null ? "—" : `±${v}`}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>The first column starts at 0.5 mm and the others start just above the size named, so "over 6–30"
+    means over 6 up to 30 mm. A general class rarely sets the price on its own: "fine" on a 20 mm dimension
+    is ±0.1 mm, about ±.004 in, a close tolerance most CNC work holds. The dimensions toleranced on their
+    own are the ones to look for.</p>
+
+    <h2>Fits: H7, g6 and the rest</h2>
+    <p>A letter and number on a bore or a pin (H7, h6, H7/g6) is an ISO 286 fit. The letter places the
+    zone relative to the nominal size; the number is the IT grade, which sets its width, and that width
+    grows with the size. On an 18 to 30 mm feature, IT6 is 13 µm (about .0005 in) and IT7 is 21 µm
+    (about .0008 in): an H7 bore of that size is a precision feature by the bands above, which is why it
+    usually means a reamer or a boring bar and a bore gauge, not a drill. Look up the size you have in
+    the standard's tables before you quote it.</p>
+
+    <h2>Where the cost goes on the quote</h2>
+    <p>Tolerance has no price of its own. It costs money through the work it adds, and that work belongs
+    on the quote line where you can see it:</p>
+    <ul>
+      <li><strong>Run time.</strong> Finish passes at a lighter cut, a slower feed, a spring pass, tool
+      changes to keep wear in check. Add the minutes to the operation's cycle time; the
+      <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">machining time guide</a>
+      shows how cycle time builds up.</li>
+      <li><strong>An extra operation.</strong> Reaming, honing or grinding to size is an operation of its
+      own, in house or as an
+      <a class="link" href="${href(ctx, "/how-to-quote-outside-processing")}">outside process</a>.</li>
+      <li><strong>Inspection.</strong> A gauge you need to buy or calibrate, a CMM program, checking every
+      part instead of a sample. Inspection time is setup minutes on an inspection machine, charged once
+      per line, the same way the
+      <a class="link" href="${href(ctx, "/how-to-quote-first-article-inspection")}">first article guide</a>
+      prices it.</li>
+      <li><strong>Fallout.</strong> The tighter the zone, the more parts land outside it. Start more parts
+      than the order: a fallout percentage on the line does this.</li>
+      <li><strong>Or a question.</strong> A tolerance tighter than the part's function needs is common.
+      Asking the customer whether ±.0005 on a clearance hole could be ±.002 can be worth more than
+      pricing it.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>The RFQ review reads the tolerance text from the customer's email or drawing (the AI reader keeps it
+    exactly as written) and, when the tightest tolerance is tighter than ±.005 in, names it with its zone
+    and band and says what to check: "Precision: +.0005/-.0000, a 0.00050 in (0.013 mm) zone." It reads
+    ±, +/-, one-sided limits, inches and millimetres (comma decimals too), ISO 2768 classes and ISO 286 fits,
+    and skips angles. It never changes a price: the minutes, operations and fallout above are yours to
+    add, and the quote is priced from your rate card. Fits and ISO 2768 classes are read at a typical size
+    (the note says which), because the RFQ does not say how big the feature is. The
+    <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the
+    tolerance questions to ask before you price.</p>
+    <p class="fineprint">This page explains common estimating practice and summarises published
+    standards in plain words. It is not engineering advice and not a substitute for ISO 2768, ISO 286 or
+    your customer's drawing. The band limits are rules of thumb. Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "See the tightest tolerance before you price the part", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
 /** Path → body renderer. The Worker uses earlyAccessPage directly for error re-renders. */
 export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/": homePage,
@@ -3449,6 +3580,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/rfq-review-checklist": rfqChecklistPage,
   "/how-to-price-a-rush-job": rushGuidePage,
   "/how-to-quote-first-article-inspection": faiGuidePage,
+  "/machining-tolerances": toleranceGuidePage,
   "/faq": faqPage,
   "/early-access": (ctx) => earlyAccessPage(ctx),
   "/early-access/thanks": thanksPage,

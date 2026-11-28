@@ -11,6 +11,7 @@ import { useState } from "react";
 import { MappedImport } from "../components/mapped-import";
 import { PayoutCheck } from "../components/payout-check";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
+import { count } from "../lib/count";
 import { useOrgId } from "./org";
 import { ErrorText } from "./public";
 
@@ -119,9 +120,9 @@ export function ImportsPage() {
         {s && (
           <div className="rounded-md bg-brand-50 p-3 text-sm">
             <p>
-              {s.salesCreated} sales and {s.chargesCreated} other charges imported;{" "}
-              {s.duplicatesSkipped} already imported; {s.rowsSkipped} rows skipped; {s.itemsLinked}{" "}
-              sales matched to inventory by SKU.
+              {count(s.salesCreated, "sale")} and {count(s.chargesCreated, "other charge")}{" "}
+              imported; {s.duplicatesSkipped} already imported; {count(s.rowsSkipped, "row")}{" "}
+              skipped; {count(s.itemsLinked, "sale")} matched to inventory by SKU.
             </p>
             {s.warnings.map((w) => (
               <p key={w} className="text-accent-700">
