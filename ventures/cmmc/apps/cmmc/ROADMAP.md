@@ -465,7 +465,8 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   descriptions, prices, annual prices, feature lines), the paid ones "not on sale yet"; the privacy
   notice says the site keeps nothing and links the app's policy; the security page no longer says
   files are in R2 and names the app's four roles; a no-warranty footer. The old proposed prices
-  ($39/$149/$249) no longer appear anywhere. The catalogue builds the site straight from source
+  ($39/$149/$249) were meant to appear nowhere; the pre-launch pricing branch and `docs/PRICING.md` kept
+  them until 2026-11-28, when `platform/ci/check_price_claims.py` found them and both moved to the catalog. The catalogue builds the site straight from source
   (`platform/pages/cmmc-site.mjs`, no committed export) into `marisstella.app/cmmc/`, listed in the
   sitemap index. On that static host the SPRS calculator scores in the browser: `build.mjs` ships
   `sprs.mjs` itself as `sprs.js` with the official data inlined, and `sprs-page.js` applies it to the

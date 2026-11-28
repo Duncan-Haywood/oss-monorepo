@@ -380,22 +380,26 @@ ${cta}`,
           path: "/pricing",
           kind: "pricing",
           title: `Pricing (proposed, early access) · ${SITE_NAME}`,
-          description:
-            "Proposed plans from $39/month for Level 1 and $149/month for Level 2 with SSP, POA&M and SPRS score, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.",
+          description: `Proposed plans: Level 1 free, Level 2 with SSP, POA&M and SPRS score ${usd(publicPlans().find((p) => p.priceCents > 0).priceCents)}/month, compared with FutureFeed, PreVeil Pass and consultant fees. Free during early access.`,
           changefreq: "monthly",
           priority: 0.8,
           body: `<h1>Pricing</h1>
 <p class="lead">Early access is free. These are the prices we propose to charge after launch, billed annually;
 they may change before then, and we will tell everyone on the list first.</p>
 <ul class="plans">
-  <li><h2>Level 1</h2><p class="price">$39<span>/month</span></p><p class="muted">$468 billed annually</p>
-  <ul><li>The 15 FAR 52.204-21 requirements, with evidence</li><li>Annual self-assessment and affirmation reminders</li><li>2 users</li></ul></li>
-  <li class="featured"><h2>Level 2 self-assessment</h2><p class="price">$149<span>/month</span></p><p class="muted">$1,788 billed annually</p>
-  <ul><li>Everything in Level 1</li><li>110 NIST SP 800-171 requirements</li><li>SSP, POA&amp;M and SPRS score</li><li>5 users</li></ul></li>
-  <li><h2>Level 2 + Quality</h2><p class="price">$249<span>/month</span></p><p class="muted">$2,988 billed annually</p>
-  <ul><li>Everything in Level 2</li><li>ISO 9001 / AS9100 document control, internal audits and corrective actions</li><li>10 users</li></ul></li>
+${publicPlans()
+  .map(
+    (p) =>
+      `  <li${p.key === "level2" ? ' class="featured"' : ""}><h2>${p.name}</h2>${
+        p.priceCents === 0
+          ? `<p class="price">$0<span>/month</span></p><p class="muted">Free, no card</p>`
+          : `<p class="price">${usd(p.priceCents)}<span>/month</span></p><p class="muted">or ${usd(p.annualPriceCents)} a year</p>`
+      }
+  <ul>${p.features.map((f) => `<li>${f}</li>`).join("")}</ul></li>`,
+  )
+  .join("\n")}
 </ul>
-<p>Monthly billing, when offered, will cost 20% more. No plan certifies your shop or guarantees a score.</p>
+<p>The prices come from the workspace's own plan catalog, so this page and checkout cannot disagree. No plan certifies your shop or guarantees a score.</p>
 <h2>How this compares</h2>
 <div class="table-wrap"><table>
   <caption>Published prices, checked ${humanDate(STATUS_CHECKED)}</caption>
@@ -407,9 +411,9 @@ they may change before then, and we will tell everyone on the list first.</p>
   </tbody>
 </table></div>
 <h2>Why these numbers</h2>
-<p>A Level 2 shop on our plan pays less than FutureFeed's Innovator plan with its Level 2 add-on, and a full year costs less than
-the low end of a consultant engagement, while the documents stay current as your shop changes. Level 1 is priced low because
-it is 15 requirements and no score. If you handle CUI you still need a place to store it; we do not replace that.</p>
+<p>Level 1 is 15 requirements and a pass or fail, so it is free. A year of Level 2 costs less than the low end of a consultant
+engagement, and the documents stay current as your shop changes. FutureFeed costs less for Level 2 if a compliance checklist
+is all you need. If you handle CUI you still need a place to store it; we do not replace that.</p>
 ${cta}`,
         },
     {
