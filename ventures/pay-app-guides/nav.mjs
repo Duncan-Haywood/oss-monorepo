@@ -52,6 +52,7 @@ export const GROUPS = [
     ["michigan-notice-of-furnishing.html", "Michigan notice of furnishing (20 days)"],
     ["utah-preliminary-notice.html", "Utah preliminary notice (20 days, registry)"],
     ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
+    ["notice-of-intent-to-lien.html", "Notice of intent to lien (CO, MO, ND, WY)"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],

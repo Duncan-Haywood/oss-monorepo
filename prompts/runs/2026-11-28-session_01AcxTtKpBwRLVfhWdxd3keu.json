@@ -42,7 +42,7 @@
     },
     {
       "file": ".github/workflows/price-claims-ci.yml",
-      "issue": "Its 'git sparse-checkout set' run: step (PR #20091, today) was replayed by run_workflow_locally.py --for-changes in the session's own clone, leaving it sparse; every later workflow failed on missing files (platform/pages/build.mjs, venture trees) and the clone stayed sparse until 'git sparse-checkout disable'. Fixed in this PR: the runner now skips run: steps that narrow the checkout."
+      "issue": "Its 'git sparse-checkout set' run: step (PR #20091, today) was replayed by run_workflow_locally.py --for-changes in the session's own clone, leaving it sparse; every later workflow failed on missing files (platform/pages/build.mjs, venture trees) and the clone stayed sparse until 'git sparse-checkout disable'. Fixed in this PR: the runner now skips run: steps that narrow the checkout. Same fix had landed on main from another session (#20142) while this PR waited for runners; main's copy kept, this PR's duplicate dropped at merge."
     }
   ],
   "deviations": [
@@ -56,14 +56,14 @@
       "file": "prompts/creative/prompt-0.md",
       "why": "A creative run is scoped to a story, but the local verification tool was sparsifying every session's clone and failing every later workflow, a bug that would mislead the next runs.",
       "did": "Added a small skip for git sparse-checkout run: steps in platform/ci/run_workflow_locally.py with a unit test, in the same PR.",
-      "result": "Re-run --for-changes: price-claims, conflict-markers, readme-live-links, sibling-links, pages.yml, ventures-tests and portfolio-validate (110/110) all pass, and the clone stays full; test_run_workflow_locally 285/285 before the new test, the new test included in the passing run."
+      "result": "Verified locally (sweep green, clone stays full), then superseded: main already carried an equivalent fix (#20142, NARROWS_CHECKOUT), so the merge took main's copy and this PR ships only the story."
     }
   ],
   "writeups": [
     "docs/posts/2026-10-27-a-bell-with-a-coat-on.md (extended)"
   ],
   "goal": null,
-  "notes": "Project: Hearth & Horizon. Piece: the-wall-built-twice (Porto 2053, mass law and a gap; text only, audio 581 MB of 400 MB cap). Security queue: nothing workable (1 claimed). IDEAS.md and requests empty. Checks: node --test in ventures/hearth-and-horizon 22/22 pass; run_venture_tests.py hearth-and-horizon ok incl. site page checks; check_posts ok; risk_review blocked nothing (page carries the same cookieless usage beacon as every story page). Numbers re-run in Python: weekdays, Easter 2053 (6 Apr, Ash Wed 19 Feb), mass law 46.1/52.1 dB, composite 32.9/33.0, equivalent holes 3.0/0.75/61/2.4 cm². Also: run_workflow_locally.py fix (sparse-checkout replay).",
+  "notes": "Project: Hearth & Horizon. Piece: the-wall-built-twice (Porto 2053, mass law and a gap; text only, audio 581 MB of 400 MB cap). Security queue: nothing workable (1 claimed). IDEAS.md and requests empty. Checks: node --test in ventures/hearth-and-horizon 22/22 pass; run_venture_tests.py hearth-and-horizon ok incl. site page checks; check_posts ok; risk_review blocked nothing (page carries the same cookieless usage beacon as every story page). Numbers re-run in Python: weekdays, Easter 2053 (6 Apr, Ash Wed 19 Feb), mass law 46.1/52.1 dB, composite 32.9/33.0, equivalent holes 3.0/0.75/61/2.4 cm². Found the run_workflow_locally sparse-checkout replay bug; an equivalent fix landed on main first (#20142), so this PR's copy was dropped.",
   "corrections": [],
   "redteam": null,
   "usage": {

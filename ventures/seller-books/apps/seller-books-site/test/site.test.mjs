@@ -38,8 +38,16 @@ import {
   HOME_OFFICE_RATE_CENTS,
   homeOfficeLines,
   MARKETPLACE_SELLER_STATES,
+  MERCARI_1099K_URL,
+  MERCARI_CHECKED_ON,
+  MERCARI_COMPLETED_QUOTE,
+  MERCARI_EXAMPLE,
+  MERCARI_GROSS_QUOTE,
+  MERCARI_SALES_TAX_QUOTE,
+  MERCARI_SALES_TAX_URL,
   MILEAGE_EXAMPLE,
   MILEAGE_RATES,
+  mercariLines,
   mileageLines,
   PERSONAL_ITEM_EXAMPLE,
   POSH_REMIT_QUOTE,
@@ -1177,6 +1185,106 @@ describe("the Whatnot taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));
+  });
+});
+
+describe("the Mercari taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/mercari-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture: its completed rows, dated by Completed Date", () => {
+    const [head, ...lines] = appFile("test/fixtures/mercari-sales-report.csv").trim().split("\n");
+    const cells = (l) => l.slice(1, -1).split('","');
+    const cols = cells(head);
+    const at = (row, name) => cells(row)[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v) * 100);
+    const done = lines.filter(
+      (l) =>
+        at(l, "Order Status") === "Completed" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(at(l, "Completed Date")),
+    );
+    assert.equal(done.length, MERCARI_EXAMPLE.length);
+    done.forEach((l, i) => {
+      const r = MERCARI_EXAMPLE[i];
+      assert.equal(r.title, at(l, "Item Title"));
+      assert.equal(r.sold, at(l, "Sold Date"));
+      assert.equal(r.completed, at(l, "Completed Date"));
+      assert.equal(r.itemCents, money(at(l, "Item Price")));
+      assert.equal(r.buyerShipCents, money(at(l, "Buyer Shipping Fee")));
+      assert.equal(r.sellerShipCents, money(at(l, "Seller Shipping Fee")));
+      assert.equal(r.feeCents, money(at(l, "Mercari Selling Fee")));
+      assert.equal(money(at(l, "Payment Processing Fee")), 0);
+      assert.equal(r.adjustmentCents, money(at(l, "Shipping Adjustment Fee")));
+      assert.equal(r.salesTaxCents, money(at(l, "Sales Tax Charged to Buyer")));
+      assert.equal(r.netCents, money(at(l, "Net Seller Proceeds")));
+      // Each row reconciles as the importer checks it: item − fees − seller shipping = net.
+      assert.equal(r.itemCents - r.feeCents - r.adjustmentCents - r.sellerShipCents, r.netCents);
+    });
+    // The rules the page describes are the importer's and the worksheet's.
+    const imp = appFile("src/worker/services/importers/mercari.ts");
+    assert.match(imp, /completedText !== "" \? "completedDate" : "soldDate"/);
+    assert.match(imp, /shippingLabelCents: sellerShip \+ buyerShip/);
+    assert.match(imp, /shippingChargedCents: buyerShip/);
+    assert.match(imp, /Order not completed yet/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /add\("27a:postage", s\.shippingLabelCents\)/);
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+  });
+
+  test("the Schedule C lines, by hand", () => {
+    assert.deepEqual(mercariLines(), {
+      items: 8000,
+      buyerShip: 599,
+      line1: 8599,
+      line10: 985,
+      line27a: 1849,
+      salesTax: 640,
+      net: 5765,
+    });
+    const L = mercariLines();
+    assert.equal(L.line1 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$85.99", "$9.85", "$18.49", "$57.65", "$6.40", "$92.39", "2026-01-03"])
+      assert.ok(html.includes(s), s);
+    assert.ok(html.includes("so it is a 2026 sale"));
+  });
+
+  test("Mercari's own words, sourced and dated; no fee rate stated", () => {
+    const html = htmlOf(page());
+    assert.match(MERCARI_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    for (const s of [
+      MERCARI_1099K_URL,
+      MERCARI_SALES_TAX_URL,
+      MERCARI_COMPLETED_QUOTE,
+      MERCARI_GROSS_QUOTE,
+      MERCARI_SALES_TAX_QUOTE,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      "We state no Mercari fee rate",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.ok(!/\d+(\.\d+)?% (selling )?fee/i.test(html));
+    // Mercari's tax is the marketplace's in the app's sales tax report.
+    const st = appFile("src/shared/sales-tax.ts");
+    assert.match(st, /eBay, Poshmark, Mercari/);
+    assert.ok(!/"mercari"/.test(st.slice(st.indexOf("SELLER_COLLECTED"), st.indexOf("]);"))));
+  });
+
+  test("linked from the Mercari platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/mercari-taxes"`;
+    const platform = htmlOf(pages.find((p) => p.path === "/platforms/mercari"));
+    assert.ok(platform.includes(link));
+    assert.ok(platform.includes("three sales worked through"));
+    assert.ok(
+      !htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes(
+        `${link}>Mercari taxes</a>.</p>`,
+      ),
+    );
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/mercari-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/mercari-taxes`));
   });
 });
 

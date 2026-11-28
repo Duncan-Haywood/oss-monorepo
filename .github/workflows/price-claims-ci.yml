@@ -7,6 +7,7 @@ name: Price claims
 # leave pages promising a price checkout does not charge (prompts/goals.md, "Honest marketing").
 # Its first run found the CMMC site's pre-launch pricing page and pricing doc still on the
 # 2026-11-24 proposal ($39/$149/$249) after the app's catalog moved to free/$249/$399.
+# A venture with no plans.ts is read from its billing/paddle-catalog.json (E-invoice, in euros).
 # Pure Python standard library, no network, no secrets, a second or two.
 
 on:
@@ -21,6 +22,7 @@ on:
     branches: [main]
     paths:
       - "ventures/**/src/shared/plans.ts"
+      - "ventures/**/billing/paddle-catalog.json"
       - "platform/ci/check_price_claims.py"
       - ".github/workflows/price-claims-ci.yml"
   workflow_dispatch:
@@ -52,6 +54,7 @@ jobs:
             /platform/ci/
             /docs/posts/
             /ventures/*/apps/*/src/shared/plans.ts
+            /ventures/*/apps/*/billing/paddle-catalog.json
             !*.mp3
             !*.mp4
             !*.gz
@@ -71,8 +74,8 @@ jobs:
       - name: Check out each venture with a plan catalog
         run: |
           set -euo pipefail
-          ventures=$(git ls-files 'ventures/*/apps/*/src/shared/plans.ts' | cut -d/ -f2 | sort -u)
-          if [ -z "$ventures" ]; then echo "no plans.ts found under ventures/" >&2; exit 1; fi
+          ventures=$(git ls-files 'ventures/*/apps/*/src/shared/plans.ts' 'ventures/*/apps/*/billing/paddle-catalog.json' | cut -d/ -f2 | sort -u)
+          if [ -z "$ventures" ]; then echo "no plans.ts or paddle-catalog.json found under ventures/" >&2; exit 1; fi
           echo "ventures with a catalog:" $ventures
           patterns=(/platform/ci/ /docs/posts/)
           for v in $ventures; do patterns+=("/ventures/$v/"); done
