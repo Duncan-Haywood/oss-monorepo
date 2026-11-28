@@ -1053,6 +1053,16 @@ ${NOT_TAX_ADVICE}`;
 // its sums.
 const IRS_SC_INSTRUCTIONS = "https://www.irs.gov/instructions/i1040sc";
 const IRS_PUB_334 = "https://www.irs.gov/publications/p334";
+const IRS_PUB_583 = "https://www.irs.gov/publications/p583";
+// Publication 583, "Supporting Business Documents", Inventory (read 2026-11-28).
+const INVENTORY_DOCS_QUOTE =
+  "Your supporting documents should show the amount paid and that the amount was for inventory.";
+const INVENTORY_DOCS = [
+  "Canceled checks",
+  "Cash register tape receipts",
+  "Credit card sales slips",
+  "Invoices",
+];
 const IRS_FORM_3115 = "https://www.irs.gov/forms-pubs/about-form-3115";
 // Schedule C instructions (2025), Part III, "Exception for small business taxpayers".
 const NO_INVENTORY_QUOTE =
@@ -1207,6 +1217,13 @@ ${lineRows}
   </div>
   <h2>Bulk lots, bins and mystery boxes</h2>
   <p>Part III needs a cost for each item that sold and each item still unsold, but a lot is bought for one price. ${esc(SITE_NAME)} spreads a lot's cost evenly over the items in it unless you type a cost for an item yourself; leftover cents go to the first items, so the shares always add back up to exactly what you paid. Whether an even split suits a particular lot is your call: give the one valuable piece in a box its own cost and the rest is shared by the others. The stock report then shows <a href="${href("/reseller-sell-through-rate")}">whether each lot has paid for itself</a>, along with sell-through and days to sell. Keeping purchases in a spreadsheet for now? The free <a href="${href("/reseller-inventory-spreadsheet")}">reseller inventory spreadsheet</a> has a row per purchase, the lot rule and a year summary of these lines, and imports into ${esc(SITE_NAME)} later.</p>
+  <h2>Receipts for what you paid</h2>
+  <p>Line 36 is only as good as the records behind it. <a href="${IRS_PUB_583}">IRS Publication 583</a> on inventory: &ldquo;${esc(INVENTORY_DOCS_QUOTE)}&rdquo; The documents it names are ${esc(
+    INVENTORY_DOCS.map((d) => d.toLowerCase())
+      .join(", ")
+      .replace(/, ([^,]*)$/, " and $1"),
+  )}. A thrift-store or estate-sale receipt is the cash register tape; a pallet or wholesale order is the invoice. Photograph it the day you buy, because thermal paper fades.</p>
+  <p>In ${esc(SITE_NAME)} the receipt goes on the purchase it paid for: a lot's receipt covers every item in the lot, and an item bought on its own carries its own. The Inventory page counts the year's items that have one and lists the costliest without, so you know which receipts to find before you file, and the year-end ZIP has them in a <code>purchase-receipts/</code> folder named by date, vendor and amount.</p>
   <h2>Keeping an inventory, or not</h2>
   <p>The <a href="${IRS_SC_INSTRUCTIONS}">Schedule C instructions</a> start Part III with the general rule, that a business selling merchandise must take inventories into account at the start and end of the year, then an exception: &ldquo;${esc(NO_INVENTORY_QUOTE)}&rdquo; You are a small business taxpayer if you &ldquo;${esc(SMALL_BUSINESS_QUOTE)}&rdquo; and are not a tax shelter.</p>
   <p>Without an inventory, the instructions name two methods the IRS accepts as clearly reflecting income: treating inventory as non-incidental materials and supplies, deducted &ldquo;${esc(SUPPLIES_QUOTE)},&rdquo; or following how your own books treat it. When goods bought to resell count as used or consumed is a point to settle with your preparer. Switching methods is a change of accounting method, made with <a href="${IRS_FORM_3115}">Form 3115</a>. Which method fits you is a question for your tax preparer.</p>
@@ -1240,6 +1257,10 @@ An invented example: line 35 ${usd(l.line35)}; purchases ${usd(ex.purchases)} le
 ## Bulk lots
 
 ${SITE_NAME} spreads a lot's cost evenly over its items unless an item has a typed-in cost; the shares add back up to the lot total.
+
+## Receipts for what you paid
+
+IRS Publication 583 (${IRS_PUB_583}) on inventory: "${INVENTORY_DOCS_QUOTE}" It names ${INVENTORY_DOCS.join(", ").toLowerCase()}. In ${SITE_NAME} a lot's receipt covers every item in it; an item bought alone carries its own. The Inventory page counts the year's items with and without one, and the year-end ZIP holds them in purchase-receipts/.
 
 ## Keeping an inventory, or not
 

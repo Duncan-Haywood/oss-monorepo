@@ -25,6 +25,10 @@ ai-bookkeeper's tested engine). It takes each payment typed in as sent by its da
 Each expense can carry its receipts (up to five photos or PDFs, 10 MB each, kept in the app's database; a file whose first
 bytes are not what its name says is refused), downloaded from the expense's row and, for a year, in the year-end ZIP's `receipts/`
 folder, each named by the expense's date, vendor and amount (`src/shared/receipts.ts`, `services/books/receipts.ts`).
+The stock bought for resale carries its receipts the same way (purchase receipts): on a lot, where one estate-sale or
+pallet receipt covers every item in it, or on an item bought on its own. The Inventory page counts the year's purchases
+that have a receipt behind their cost and lists the costliest that do not, and the year-end ZIP has them in
+`purchase-receipts/`, named by purchase date, vendor and amount (`services/books/purchase-receipts.ts`, migration 0019).
 Expenses can be typed in or read from a bank or card statement CSV, each line with a suggested category and
 the ones that are really inventory, marketplace fees or fuel left unticked with the reason; a merchant filed
 before starts with the seller's own latest category.
