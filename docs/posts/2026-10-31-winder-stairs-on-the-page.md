@@ -4,6 +4,7 @@ seo_title: "Winder stair calculator: 6 in and 10 in tread depth rules"
 date: 2026-10-31
 tags: [construction, stairs, wall-framing-takeoff]
 description: "The wall-framing takeoff page now checks winder treads against the 6 in and 10 in depth rules and solves the smallest inner radius that passes."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

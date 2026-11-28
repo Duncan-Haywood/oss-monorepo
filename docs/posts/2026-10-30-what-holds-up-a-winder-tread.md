@@ -3,6 +3,7 @@ title: "What holds up a winder tread: counting the supports"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs, framing]
 description: "Three winder treads need four radial supports, and each tread board spans the whole stair width between two of them."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The [winder post](2026-10-30-winder-stairs-arc-vs-straight-edge.md) gave each wedge tread its corners and blank size. A tread still needs something under it. The takeoff now counts that framing.

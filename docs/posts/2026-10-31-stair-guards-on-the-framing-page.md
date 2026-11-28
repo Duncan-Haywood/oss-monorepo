@@ -4,6 +4,7 @@ seo_title: "Stair guard and handrail lumber takeoff in the browser"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, stairs]
 description: "The wall-framing takeoff page now lays out a stair guard and handrail from two typed numbers and adds the rails to the lumber order."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

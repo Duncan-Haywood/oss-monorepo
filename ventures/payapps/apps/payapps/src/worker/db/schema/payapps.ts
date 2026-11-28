@@ -15,6 +15,7 @@ import {
   GA_CONTRACTOR_COPY,
   GA_CONTRACTOR_COPY_METHODS,
   GA_COPY_METHODS,
+  INTEREST_SETTLEMENTS,
   PAY_APP_STATUSES,
   PAY_TERMS_BASES,
   SHORT_CLOSE_REASONS,
@@ -340,6 +341,16 @@ export const payApps = sqliteTable(
      * known yet). The due date counts from it (src/shared/cash-report.ts, payDueOn).
      */
     ownerPaidOn: text("owner_paid_on"),
+    /**
+     * Interest earned by a late payment (src/shared/cash-report.ts, paidLateApps), once the
+     * contractor dealt with it: billed or waived, the day, the interest figure at that moment and an
+     * optional note (an invoice number, "let it go for the next job"). Null: still to decide.
+     * Deleting a payment (the application reopens) clears all four.
+     */
+    interestSettlement: text("interest_settlement", { enum: INTEREST_SETTLEMENTS }),
+    interestSettledOn: text("interest_settled_on"),
+    interestSettledCents: cents("interest_settled_cents"),
+    interestSettledNote: text("interest_settled_note"),
     notes: text("notes"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

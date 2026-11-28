@@ -4,6 +4,7 @@ seo_title: "Maximum stair rise in one flight: IRC 12 ft 7 in"
 date: 2026-11-04
 description: "wall-framing-takeoff split stairs at 147 inches. The residential code figure is 151 inches (12 ft 7 in); the default is fixed."
 tags: [wall-framing-takeoff, construction, stairs]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 # We had the one-flight stair limit wrong

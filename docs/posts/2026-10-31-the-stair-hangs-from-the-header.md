@@ -3,6 +3,7 @@ title: "A stair hangs from the header: adding its load to the stairwell check"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, engineering]
 description: "The wall-framing takeoff now carries a stair's top reaction into the stairwell header check as a point load, with hand-checked arithmetic."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

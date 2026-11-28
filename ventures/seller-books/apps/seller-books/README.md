@@ -17,7 +17,11 @@ profit to each Form 2210 period's end into what to have paid by each 1040-ES due
 the annualized (Schedule AI) methods (an estimate, not tax advice); the owner's own figures there (wages,
 last year's tax, the payments sent) are saved to the shop for its owner and admins. An owner or admin can ask for a
 reminder email a week before each due date, carrying what is still to pay by then; a date already covered
-sends nothing, and each email has a one-click stop link.
+sends nothing, and each email has a one-click stop link. Once a due date has passed short, the page also shows the underpayment
+penalty so far (Form 2210, Part III: each shortfall at the IRS underpayment rate for each quarter, for the days
+it stays unpaid, later payments applied to the earliest date first, by the regular or the annualized installments,
+whichever is lower) and what 30 more days unpaid would add (`src/shared/penalty-2210.ts`, ported from
+ai-bookkeeper's tested engine). It takes each payment typed in as sent by its date.
 Each expense can carry its receipts (up to five photos or PDFs, 10 MB each, kept in the app's database; a file whose first
 bytes are not what its name says is refused), downloaded from the expense's row and, for a year, in the year-end ZIP's `receipts/`
 folder, each named by the expense's date, vendor and amount (`src/shared/receipts.ts`, `services/books/receipts.ts`).

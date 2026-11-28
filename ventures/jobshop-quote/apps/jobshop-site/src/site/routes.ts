@@ -186,6 +186,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/quantity-price-breaks",
+      label: "How to set quantity price breaks",
+      title: `How to set quantity price breaks on machined parts · ${SITE_NAME}`,
+      description:
+        "Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/machine-shop-quote-template",
       label: "Machine shop quote template",
       title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,
@@ -211,6 +221,26 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       title: `How to calculate material cost for a machining quote · ${SITE_NAME}`,
       description:
         "Price CNC material from the blank: size and weigh it, price it by the pound, the foot, whole bars or the piece, then fallout, minimums and markup.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
+      path: "/how-to-price-a-rush-job",
+      label: "How to price a rush job",
+      title: `How to price a rush job in a machine shop · ${SITE_NAME}`,
+      description:
+        "Cost a rush or expedite order line by line: overtime rate, the bumped job's setup, same-day material, expedited finishing, and why a flat fee misprices it.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
+      path: "/how-to-quote-first-article-inspection",
+      label: "How to quote first article inspection",
+      title: `How to quote first article inspection (AS9102) · ${SITE_NAME}`,
+      description:
+        "Price an AS9102 first article: ballooning, measuring, the three forms and certs, a partial FAI after a revision, and what it adds per part at 1, 10 and 100.",
       changefreq: "monthly",
       priority: 0.7,
       lastmod: "2026-11-28",

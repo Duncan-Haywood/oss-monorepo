@@ -4,6 +4,7 @@ seo_title: "Stair stringer strength check: bending, shear, deflection"
 date: 2026-10-31
 tags: [construction, stairs, wall-framing-takeoff]
 description: "The wall-framing takeoff tool now checks a stair stringer's throat for bending, shear and deflection from stresses you type in."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

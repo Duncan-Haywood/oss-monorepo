@@ -3,6 +3,7 @@ title: "Open-riser stairs and the 4-inch gap"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs, framing]
 description: "The stair layout in the framing takeoff now flags open risers whose gap between treads is too wide, with the hand arithmetic."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 Open-riser stairs look light and cost less lumber, but the model residential code limits the opening between treads so a 4 in sphere cannot pass. The [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) laid out open-riser stairs without checking that.

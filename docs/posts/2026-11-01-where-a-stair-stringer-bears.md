@@ -3,6 +3,7 @@ title: "Where a stair stringer bears: a check on the support end"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff's stringer check now reports bearing stress at the support from a typed compression-perpendicular allowable.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 A stringer's end reaction has to go somewhere, and wood crushes across the grain long before it breaks along it. `stringerCheck` already reported the reaction and how many connectors carry it. It now also divides that reaction by the stringer's thickness times a bearing length (3.5 in unless you type `bearingLength`) and compares the result with a `bearingFcPerp` you type from your lumber table. Nothing is shipped as a default.

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to do a framing takeoff from plans: a worked house</title>
+  <meta name="description" content="A wall framing takeoff from a floor plan, step by step: plates, studs, kings, jacks, headers, cripples, corners and the board order, on a 220 ft house.">
+  <meta property="og:title" content="How to do a framing takeoff from plans">
+  <meta property="og:description" content="Six steps from a floor plan to a lumber order, worked on one generated house: 436 pieces bought as 276 boards.">
+  <link rel="canonical" href="./how-to-do-a-framing-takeoff.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Do a wall framing takeoff from a floor plan", "step": [{"@type": "HowToStep", "text": "List every wall from the floor plan with its length, stud size and whether it is exterior."}, {"@type": "HowToStep", "text": "Take off the plates: one bottom plate (treated on a slab) and a double top plate per wall, in lineal feet."}, {"@type": "HowToStep", "text": "Lay out the studs at 16 or 24 inches on center from one end of each wall, plus an end stud."}, {"@type": "HowToStep", "text": "For each door and window, add kings, jacks, a header, a rough sill and cripples."}, {"@type": "HowToStep", "text": "Add backing studs at every corner and every place an interior wall tees in."}, {"@type": "HowToStep", "text": "Pack every piece into the board lengths the yard sells, then add a cull allowance."}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you do a framing takeoff from plans?", "acceptedAnswer": {"@type": "Answer", "text": "Work the plan set in order: list every wall with its length and stud size, take the plates off as lineal feet (one bottom, two top), lay the studs out at the spacing from one end, add a king and jack on each side of every door and window with its header, sill and cripples, add backing studs at every corner and tee, then pack all the pieces into the board lengths your yard sells and add your cull allowance."}}, {"@type": "Question", "name": "How many pieces are in a framing takeoff for a small house?", "acceptedAnswer": {"@type": "Answer", "text": "On Open House Plans 1, a generated 34 by 26 ft single-storey plan with 220 ft of wall, 8 doors and 10 windows, the walls came to 436 pieces at 16 inches on center: 130 layout studs, 35 kings, 36 jacks, 36 header plies, 87 cripples, 10 rough sills, 32 corner and tee backing studs and 70 plate pieces, bought as 276 boards."}}, {"@type": "Question", "name": "Is one stud per foot close enough for a takeoff?", "acceptedAnswer": {"@type": "Answer", "text": "Not on this house. One stud per foot says 220; the layout has 197 full-height members (layout studs, kings and corner and tee backing) plus 36 jacks and 87 cripples cut from other boards. The rule can be over or under on a given house, which is why a takeoff counts by layout."}}, {"@type": "Question", "name": "How much lumber does 24 inch spacing save?", "acceptedAnswer": {"@type": "Answer", "text": "On this house, 24 inches on center cut the layout studs from 130 to 91 and the cripples from 87 to 64, and the 2x4 and header lumber bought from about 2,679 to 2,356 lineal feet, 12% less. Use it only where your design and code allow that spacing."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+    .scroll-note { font-size: .86rem; color: #555044; margin-top: 4px; }
+    table { display: block; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>How to do a framing takeoff from plans: one house, worked step by step</h1>
+  <p>A framing takeoff turns a floor plan into a list of every stud, plate, header and cripple, then into the boards you order. This page works one house through the six steps a framer or estimator follows, with every count computed by the tool's layout engine from <code>takeoff-example.mjs</code> in its repository (measured 2026-11-28), so you can check your own method against it.</p>
+  <p>The house is <strong>Open House Plans 1</strong>, a generated single-storey plan released CC0: four exterior walls in a 34 by 26 ft rectangle, ten interior walls, 8 doors and 10 windows. Walls are 2x4 with 92-5/8 in precut studs, a treated bottom plate on the exterior walls, 2x10 headers (the plan's default, not checked against a span table) and studs at 16 inches on center.</p>
+  <p><a class="cta" href="index.html">Run the takeoff on your own plan</a></p>
+
+  <h2>1. Make the wall schedule</h2>
+  <p>Go round the floor plan and list each wall once, with its length, stud size, and the doors and windows in it. Measure exterior walls to the outside of the framing and decide which walls run through at the corners, so no length is counted twice.</p>
+  <table>
+    <thead><tr><th>Walls</th><th class="n">Count</th><th class="n">Length, ft</th></tr></thead>
+    <tbody>
+      <tr><td>Exterior</td><td class="n">4</td><td class="n">120</td></tr>
+      <tr><td>Interior</td><td class="n">10</td><td class="n">100</td></tr>
+      <tr><td>Total</td><td class="n">14</td><td class="n">220</td></tr>
+    </tbody>
+  </table>
+  <p>The same pass counts the joints: 4 exterior corners and 12 places an interior wall tees into another wall.</p>
+
+  <h2>2. Take off the plates</h2>
+  <p>Each wall has a bottom plate and a double top plate. Bottom plates on a slab or in contact with concrete are usually pressure treated, and are cut out at door openings. The top plates lap at corners and tees and are spliced over studs, so the pieces are a little longer than three times the wall length less the doors.</p>
+  <table>
+    <thead><tr><th>Plate</th><th class="n">Lineal ft</th></tr></thead>
+    <tbody>
+      <tr><td>Treated 2x4 bottom plate (exterior walls)</td><td class="n">114</td></tr>
+      <tr><td>2x4 top plates, cap plates and interior bottom plates</td><td class="n">515</td></tr>
+    </tbody>
+  </table>
+  <p>That is 70 plate pieces in all.</p>
+
+  <h2>3. Lay out the studs</h2>
+  <p>On each wall, put a stud at both ends and one on every 16 inch mark from the start end, so sheathing breaks on a stud. Studs that land inside a door or window come out. This house gets <strong>130 layout and end studs</strong> at 16 inches on center (91 at 24). The <a href="how-many-studs-for-a-wall.html">stud count page</a> shows the rule on a single 12 ft wall.</p>
+
+  <h2>4. Frame every door and window</h2>
+  <p>Each opening gets a full-height king stud and a jack stud on each side, a header across the jacks, and short cripples on the layout above the header. Windows also get a rough sill with cripples under it. Over the house's 18 openings:</p>
+  <table>
+    <thead><tr><th>Member</th><th class="n">Pieces</th></tr></thead>
+    <tbody>
+      <tr><td>King studs</td><td class="n">35</td></tr>
+      <tr><td>Jack studs</td><td class="n">36</td></tr>
+      <tr><td>Header plies (2x10, two per opening)</td><td class="n">36</td></tr>
+      <tr><td>Cripples (above headers and under sills)</td><td class="n">87</td></tr>
+      <tr><td>Rough sills</td><td class="n">10</td></tr>
+    </tbody>
+  </table>
+  <p>There are 35 kings, not 36, because one door sits so close to a wall end that the end stud serves as its king. Three doors are wider than 4 ft and are framed here with one jack a side; wide openings usually need more, so set jacks per opening from your span table or engineer.</p>
+
+  <h2>5. Add corners and tees</h2>
+  <p>Where walls meet, add backing so both walls have nailing for drywall and the walls tie together. With two backing studs at each corner wall end and two at each tee, this house adds <strong>8 corner and 24 tee backing studs</strong>. Framers differ here (three-stud corners, ladder blocking, California corners), so use what your crew builds.</p>
+
+  <h2>6. Turn the pieces into a board order</h2>
+  <p>The house now has <strong>436 pieces</strong>, 197 of them full-height members (layout studs, kings and backing). Most full-height members come from precut studs (190 here); jacks, cripples, sills, headers and plates are cut from longer boards, short pieces from the offcuts of long ones. Packing them into the lengths the yard sells gives this order at 16 inches on center:</p>
+  <table>
+    <thead><tr><th>Lumber</th><th class="n">Boards</th></tr></thead>
+    <tbody>
+      <tr><td>2x10, 16 ft</td><td class="n">7</td></tr>
+      <tr><td>2x10, 12 ft</td><td class="n">1</td></tr>
+      <tr><td>2x10, 10 ft</td><td class="n">1</td></tr>
+      <tr><td>2x4, 16 ft</td><td class="n">33</td></tr>
+      <tr><td>2x4, 14 ft</td><td class="n">17</td></tr>
+      <tr><td>2x4, 12 ft</td><td class="n">12</td></tr>
+      <tr><td>2x4, 10 ft</td><td class="n">2</td></tr>
+      <tr><td>2x4, 8 ft</td><td class="n">4</td></tr>
+      <tr><td>2x4, 92-5/8 in precut stud</td><td class="n">190</td></tr>
+      <tr><td>2x4 PT, 16 ft</td><td class="n">3</td></tr>
+      <tr><td>2x4 PT, 14 ft</td><td class="n">1</td></tr>
+      <tr><td>2x4 PT, 12 ft</td><td class="n">3</td></tr>
+      <tr><td>2x4 PT, 10 ft</td><td class="n">1</td></tr>
+      <tr><td>2x4 PT, 8 ft</td><td class="n">1</td></tr>
+    </tbody>
+  </table>
+  <p>276 boards, about 2,679 lineal feet for 2,669 feet of pieces and saw kerf: 0.35% cutting waste, within 0.06% of the shortest order that could exist for these pieces. Then add your own allowance for culls and mistakes, which a plan cannot measure (<a href="lumber-waste-factor.html">how big the cutting share is for each way of buying</a>).</p>
+
+  <h2>Checks before you send it</h2>
+  <ul>
+    <li><strong>Against one stud per foot:</strong> the rule says 220 studs; the layout has 197 full-height members plus 36 jacks and 87 cripples. If your count is far from the layout, look for missed openings or tees (<a href="vs-stud-per-foot-rule.html">the rule against a counted order on three houses</a>).</li>
+    <li><strong>Headers and jacks:</strong> every header size and jack count is an input. Check each against your span table, plans or engineer.</li>
+    <li><strong>What this leaves out:</strong> sheathing, blocking, fireblocking, nails, floor and roof framing are separate takeoffs (the <a href="sheathing-calculator.html">sheathing</a>, <a href="fireblock-calculator.html">fireblocking</a> and <a href="nail-calculator.html">nail</a> calculators use the same walls).</li>
+  </ul>
+
+  <h2>Doing it without the hand count</h2>
+  <p>The free tool does steps 2 to 6 from the wall schedule: type or import the walls (a DXF floor plan, or a plan PDF traced at its printed scale), and it lays out every stud, prints shop drawings and cuts the order. The <a href="../residential-takeoff/">paid edition, Residential Takeoff</a>, adds roofs, one supplier material list and a branded bid package; it is in early access and nothing is for sale yet.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do you do a framing takeoff from plans?</h3>
+  <p>Work the plan set in order: list every wall with its length and stud size, take the plates off as lineal feet (one bottom, two top), lay the studs out at the spacing from one end, add a king and jack on each side of every door and window with its header, sill and cripples, add backing studs at every corner and tee, then pack all the pieces into the board lengths your yard sells and add your cull allowance.</p>
+  <h3>How many pieces are in a framing takeoff for a small house?</h3>
+  <p>On Open House Plans 1, a generated 34 by 26 ft single-storey plan with 220 ft of wall, 8 doors and 10 windows, the walls came to 436 pieces at 16 inches on center: 130 layout studs, 35 kings, 36 jacks, 36 header plies, 87 cripples, 10 rough sills, 32 corner and tee backing studs and 70 plate pieces, bought as 276 boards.</p>
+  <h3>Is one stud per foot close enough for a takeoff?</h3>
+  <p>Not on this house. One stud per foot says 220; the layout has 197 full-height members (layout studs, kings and corner and tee backing) plus 36 jacks and 87 cripples cut from other boards. The rule can be over or under on a given house, which is why a takeoff counts by layout.</p>
+  <h3>How much lumber does 24 inch spacing save?</h3>
+  <p>On this house, 24 inches on center cut the layout studs from 130 to 91 and the cripples from 87 to 64, and the 2x4 and header lumber bought from about 2,679 to 2,356 lineal feet, 12% less. Use it only where your design and code allow that spacing.</p>
+
+  <p><a class="cta" href="index.html">Run the takeoff on your own plan</a></p>
+  <p>Related: <a href="how-many-studs-for-a-wall.html">how many studs for a wall</a>, <a href="lumber-waste-factor.html">framing lumber waste factor</a>, <a href="vs-ordering-lumber-by-hand.html">takeoff vs. ordering lumber by hand</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:0 28px"><div><h3 style="font-size:1rem;margin:16px 0 4px">Walls and framing</h3><ul style="margin:0;padding-left:1.1em"><li><a href="index.html">Wall framing takeoff</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="header-calculator.html">Header size checker</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator</a></li><li><a href="brace-calculator.html">Wall brace calculator</a></li><li><a href="panel-calculator.html">Wall panel calculator</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator</a></li><li><a href="nail-calculator.html">Framing nail calculator</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud?</a></li><li><a href="board-foot-calculator.html">Board foot calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Floors, stairs and roofs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="floor-calculator.html">Floor joist and subfloor calculator</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="roof-calculator.html">Roof calculator</a></li><li><a href="dormer-calculator.html">Dormer framing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Foundation and concrete</h3><ul style="margin:0;padding-left:1.1em"><li><a href="foundation-calculator.html">Foundation calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Exterior and envelope</h3><ul style="margin:0;padding-left:1.1em"><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="stucco-calculator.html">Stucco calculator</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator</a></li><li><a href="gutter-calculator.html">Gutter calculator</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Interior finishes</h3><ul style="margin:0;padding-left:1.1em"><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="paint-calculator.html">Paint calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="flooring-calculator.html">Flooring calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Plumbing, electrical and HVAC</h3><ul style="margin:0;padding-left:1.1em"><li><a href="plumbing-calculator.html">Plumbing rough-in calculator</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Site and landscape</h3><ul style="margin:0;padding-left:1.1em"><li><a href="fence-calculator.html">Fence calculator</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator</a></li><li><a href="paver-calculator.html">Paver patio calculator</a></li><li><a href="mulch-topsoil-gravel-calculator.html">Mulch, topsoil and gravel calculator</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Schedule, bids and costs</h3><ul style="margin:0;padding-left:1.1em"><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling calculator</a></li><li><a href="change-order-calculator.html">Change order calculator</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity</a></li><li><a href="branded-bid-package-for-framers.html">Branded bid package for framers</a></li></ul></div><div><h3 style="font-size:1rem;margin:16px 0 4px">Measured against the alternatives</h3><ul style="margin:0;padding-left:1.1em"><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="vs-ordering-lumber-by-hand.html">Takeoff vs. ordering lumber by hand</a></li><li><a href="lumber-waste-factor.html">Framing lumber waste factor, measured</a></li><li><a href="roof-sheathing-sheets.html">Roof sheathing sheets, counted</a></li><li><a href="wall-sheathing-sheets.html">Wall sheathing sheets, counted</a></li><li><a href="roof-sheathing-waste-factor.html">Roof sheathing waste factor, hip vs. gable</a></li></ul></div></div></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Open House Plans 1 is a generated CC0 plan, not a real permit set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free to use and source visible under an <a href="LICENSE" rel="noopener">all-rights-reserved notice</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -4,6 +4,7 @@ seo_title: "Stair tread span between stringers: how far can a tread board run?"
 date: 2026-10-29
 description: "The wall-framing takeoff now warns when stringers are too far apart for the tread thickness, with a worked example."
 tags: [wall-framing-takeoff, stairs, construction]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 # Do your stair treads span too far between stringers?

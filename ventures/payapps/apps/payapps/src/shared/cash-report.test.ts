@@ -1022,6 +1022,7 @@ describe("interest earned on applications paid late", () => {
           daysLate: 30,
           paidCents: 2_700_000,
           interestCents: 33_500,
+          settled: null,
         },
       ]);
       expect(r.paidLateInterestCents).toBe(33_500);
@@ -1068,6 +1069,34 @@ describe("interest earned on applications paid late", () => {
     ).toEqual([]);
   });
 
+  it("moves an application whose interest was billed or waived off the to-do list", () => {
+    const marked = (kind: "billed" | "waived") => {
+      const input = paidLate(twoChecks);
+      const app = input.apps[0];
+      if (!app) throw new Error("fixture");
+      app.interestSettled = { kind, on: "2026-04-10", cents: 33_500, note: "Invoice 1042" };
+      return input;
+    };
+    const billed = projectCash(marked("billed"), "2026-05-01");
+    expect(billed.paidLate).toEqual([]);
+    expect(billed.paidLateInterestCents).toBe(0);
+    expect(billed.paidLateSettled).toMatchObject([
+      { number: 1, interestCents: 33_500, settled: { kind: "billed", note: "Invoice 1042" } },
+    ]);
+    expect(billed.paidLateBilledCents).toBe(33_500);
+    expect(billed.actions.join(" ")).not.toContain("paid 30 days late");
+    const waived = projectCash(marked("waived"), "2026-05-01");
+    expect(waived.paidLate).toEqual([]);
+    expect(waived.paidLateSettled).toHaveLength(1);
+    expect(waived.paidLateBilledCents).toBe(0);
+    const totals = cashReport([marked("billed"), paidLate(twoChecks)], "2026-05-01").totals;
+    expect(totals.paidLateInterestCents).toBe(33_500);
+    expect(totals.paidLateBilledCents).toBe(33_500);
+    // Past the window both lists drop it.
+    const late = projectCash(marked("billed"), "2027-04-02");
+    expect(late.paidLateSettled).toEqual([]);
+  });
+
   it("runs on what was paid when a balance was closed short", () => {
     const input = paidLate([
       { amountCents: 700_000, receivedOn: "2026-03-12" },
@@ -1094,6 +1123,7 @@ describe("interest earned on applications paid late", () => {
           daysLate: 18,
           paidCents: 1,
           interestCents: 1_000,
+          settled: null,
         },
         {
           payAppId: "b",
@@ -1105,6 +1135,7 @@ describe("interest earned on applications paid late", () => {
           daysLate: 10,
           paidCents: 1,
           interestCents: 500,
+          settled: null,
         },
       ],
       { ...tx, source: null },

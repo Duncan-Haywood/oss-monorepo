@@ -338,6 +338,17 @@ Culls, mistakes and theft are not measured (they are the typed `culls` allowance
 `lumber-waste-factor.html` shows the tables; `waste-bench.test.mjs` fails if a figure on it drifts
 from the bench. Invented and generated plans, flat prices per foot, not a builder's real order.
 
+## A worked takeoff, step by step (2026-11-28)
+
+`node takeoff-example.mjs` takes Open House Plans 1 (CC0, generated; 14 walls, 220 ft, 8 doors, 10
+windows) through the six steps of a framing takeoff and prints each step's figures: the wall
+schedule, plate lineal feet, layout studs, the members of every opening, corner and tee backing,
+and the board order. At 16 in: 436 pieces (130 studs, 35 kings, 36 jacks, 36 header plies, 87
+cripples, 10 sills, 32 backing, 70 plates) bought as 276 boards with 0.35% cutting waste. The guide
+`how-to-do-a-framing-takeoff.html` quotes them; `takeoff-example.test.mjs` fails if a figure on it
+drifts from the engine. Header sizes are the plan's default 2x10, not checked; a generated plan,
+not a permit set.
+
 ## Roof sheathing, counted against area / 32 + 10% (measured 2026-11-28)
 
 `node roof-sheathing-bench.mjs` lays 4x8 sheets on 20 generated gable roofs (24 x 40, 28 x 48,
@@ -360,6 +371,15 @@ plus 0 to 2); the net-area rule is short on all 32 cases (2 to 19 sheets); laid 
 course on the 97-1/8 in wall and a 25-1/8 in top course on 10 ft walls put the gross rule 5 to 10
 short. The page `wall-sheathing-sheets.html` shows both tables; `wall-sheathing-bench.test.mjs` fails
 if a figure or summary sentence drifts. Generated houses, not a builder's order.
+`ventures/residential-takeoff/apps/wall-framing-takeoff/roof-waste-bench.mjs` (in the paid folder,
+which is not published, so the served copy of this one never imports a file the site lacks) lays out
+4x8 roof sheathing on 16 rectangular roofs (24 x 36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all
+round), each as a gable and as a hip, and reports the sheet area bought over the roof surface. Gable
+3.3 to 16.2% (mean 7.8%); hip with every hip-end triangle thrown away, as `roof.mjs` here orders it,
+12.7 to 30.4% (mean 19.5%); hip with the triangles reused to start or fill other courses, as the paid
+edition's `roof.mjs` orders it, 4.4 to 16.2% (mean 9.0%). This folder's
+`roof-sheathing-waste-factor.html` shows the table; the bench's test beside it fails if a figure on
+the page drifts, and checks that the paid layout with `hipStarts: false` orders what this edition orders.
 
 ## DXF floor plan import (2026-10-27)
 
@@ -587,6 +607,7 @@ The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with 
 - 2026-11-01: stringer notched at the support (`stringerCheck.notchedSupport`: `true` for the throat, or the inches left): end shear is compared with (2/3) Fv b dn (dn/d), the NDS notched-member form for a tension-face notch, d the board depth; reported as `notchCapacity` and warns when the reaction exceeds it. Typed Fv, none shipped; hand sums in `stairs.test.mjs` (5 of 9-1/4 in left: 486.5 lb against a 277.8 lb reaction; 3 in left: 175.1 lb fails). Not code-checked: the engineer of record governs.
 - 2026-11-01: the stair card has a page field for `stringerCheck.connectorCapacity`, `bearingFcPerp` and `bearingLength` (`#stCheck2`; needs the strength check; refused when malformed; restored from a saved plan). Source-tested in `page.test.mjs`, and clicked in Chromium 2026-11-01 (`eval-browser-click.mjs`: typed figures reach the saved plan, a lone connector figure is refused).
 - 2026-11-01: the stair card has a page field for `stringerCheck.notchedSupport` (`#stCheck3`: `throat` or inches left; refused when not a positive number; restored from a saved plan). Source-tested in `page.test.mjs`, and clicked in Chromium 2026-11-05 (`eval-browser-click.mjs`: `5` saves as 5, `throat` as true, `-2` is refused).
+- 2026-11-28 (fix): that field never worked on a real stair. `layoutStair` passed `checkStringer` no board depth, so every `notchedSupport` value was refused, and a refused stringer check (any missing value) made `stairText` throw, which blanked the stairs card and stopped the CLI's stair printout. The layout now passes the stringer's depth (2x12: 3 in left allows 2/3 x 180 x 1.5 x 3 x 3/11.25 = 144 lb at Fv 180), and the refusal is printed as a note. Test in `stairs.test.mjs`; found while re-running every figure for the consolidated stair guide (`docs/posts/2026-11-28-how-to-lay-out-a-stair-stringers-headroom-and-guards.md`).
 
 - 2026-11-01: `budget` reports the bid price per sq ft of floor framed (`bidPerFloorSqFt`) when typed overhead or profit lifts the bid above cost; builders quote by the square foot. Checked by `budget.test.mjs` (33 pass).
 - **Insulation fuzz test** (2026-11-02, `insulation-fuzz.test.mjs`): 300 seeded random wall sets and bag settings are refused with a reason or give non-negative cavity, size groups summing to the total, whole bags covering cavity plus waste, cost = bags x price, and a printable report. No bug found; still no real order compared.

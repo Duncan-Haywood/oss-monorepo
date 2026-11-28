@@ -78,7 +78,7 @@ Limits: quantities come from the plan the user typed or drew. Nothing checks hea
 - [The app](${at}): walls, openings, roof, sheathing, siding, the material list and the bid package.
 - [Branded bid package for framers](${baseUrl}${FREE_EDITION_DIR}/branded-bid-package-for-framers.html): the proposal on your letterhead with a quantities appendix and no unit prices.
 - [Sample bid package](${baseUrl}${FREE_EDITION_DIR}/sample-bid-package.html): the package for an invented house.
-- [Free edition: Wall Framing Takeoff](${baseUrl}${FREE_EDITION_DIR}/): stud layout, cut list, board order and the building calculators, free and MIT licensed.
+- [Free edition: Wall Framing Takeoff](${baseUrl}${FREE_EDITION_DIR}/): stud layout, cut list, board order and the building calculators, free to use, source visible (all rights reserved).
 `;
 }
 

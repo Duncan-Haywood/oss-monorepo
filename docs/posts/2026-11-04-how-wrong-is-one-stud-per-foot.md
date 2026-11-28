@@ -3,7 +3,7 @@ title: "How wrong is one stud per foot, and how much waste to add? Measured on t
 seo_title: "Framing lumber waste factor and the stud-per-foot rule, measured"
 date: 2026-11-04
 updated: 2026-11-28
-description: "A counted framing order against the one-stud-per-foot rule, and how much of the order is cutting waste: 0.2 to 0.4% with a cut plan, 19 to 30% without one."
+description: "A counted framing order against the one-stud-per-foot rule, the cutting waste in a framing order, and hip vs. gable roof sheathing waste, measured."
 tags: [wall-framing-takeoff, for-customers, construction, framing, estimating]
 ---
 
@@ -53,6 +53,26 @@ The tables are on
 figure on that page to the benchmark's output.
 
 
+## One house taken off step by step (2026-11-28)
+
+The counts above are totals. A new guide, "How to do a framing takeoff from plans"
+(`ventures/wall-framing-takeoff/how-to-do-a-framing-takeoff.html`), shows where they come from on Open House Plans 1 (CC0, generated: four
+exterior and ten interior walls, 220 ft, 8 doors and 10 windows), in the six
+steps a framer works a plan set: wall schedule, plates, layout studs, openings,
+corners and tees, then the board order.
+
+At 16 inches on center the walls come to 436 pieces: 130 layout and end studs,
+35 kings, 36 jacks, 36 header plies, 87 cripples, 10 sills, 32 corner and tee
+backing studs and 70 plate pieces. The stud-per-foot rule says 220; the layout
+has 197 full-height members plus the jacks and cripples. Packed into board
+lengths, that is 276 boards (190 of them precut studs) with 0.35% cutting
+waste. At 24 inches the bought length falls 12%.
+
+Every figure on the page is computed by `takeoff-example.mjs` and pinned by its
+test, so a change to the engine that moves a count fails until the page is
+rerun. Header sizes (2x10 here) and jack counts are inputs, and three doors on
+this plan are wider than 4 ft with one jack a side, which a real plan would
+usually not allow.
 ## Roof sheathing: area / 32 plus 10%, against a count (2026-11-28)
 
 The same question for the roof deck. The usual order is the roof's area divided
@@ -98,3 +118,27 @@ The tables are on the
 [wall sheathing page](https://marisstella.app/wall-framing-takeoff/wall-sheathing-sheets.html);
 the [wall sheathing calculator](https://marisstella.app/wall-framing-takeoff/sheathing-calculator.html)
 counts your own house.
+
+## Hip roofs: what the hip offcuts cost (2026-11-28)
+
+The count above leaves hip roofs out. For a hip, a flat 15% is the common
+allowance against a gable's 10%. We laid out 4x8 sheets on 16 invented rectangular roofs (24 x
+36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all round), each as a gable and
+as a hip, and counted the sheet area bought over the roof's surface
+(`roof-waste-bench.mjs`):
+
+| Layout | Extra over the surface | Average |
+|---|---|---|
+| Gable | 3.3 to 16.2% | 7.8% |
+| Hip, the triangle cut off each course at the hips thrown away | 12.7 to 30.4% | 19.5% |
+| Hip, those triangles reused to start or fill other courses | 4.4 to 16.2% | 9.0% |
+
+Thrown away, the hip offcuts cost 4 to 10 more sheets than the gable on every
+roof, and a flat 15% ran short on 14 of the 16. Reused, the hip came within 3
+sheets of the gable on every roof. Most of the spread is the top course: a
+slope length just over a multiple of 4 ft still takes a row of sheets at the
+ridge, which no percentage of area can see. The free roof calculator orders the
+first hip layout; the paid edition, Residential Takeoff, orders the second.
+No valleys, dormers or damaged sheets; the table is on
+`ventures/wall-framing-takeoff/roof-sheathing-waste-factor.html`, pinned to the
+benchmark by a test.
