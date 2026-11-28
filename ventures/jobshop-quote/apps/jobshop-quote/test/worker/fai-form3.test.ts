@@ -40,7 +40,7 @@ describe("first article list", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toContain("text/csv");
     expect(res.headers.get("content-disposition")).toContain("BRK-1001-form3-draft.csv");
-    const csv = (await res.text()).replace(/^﻿/, "");
+    const csv = (await res.text()).replace(new RegExp(`^${String.fromCharCode(0xfeff)}`), "");
     const rows = csv.trimEnd().split("\r\n");
     expect(rows).toContain("General tolerance,UNLESS OTHERWISE SPECIFIED: .XXX ±.005");
     const head = rows.findIndex((r) => r.startsWith("Char. No.,"));
