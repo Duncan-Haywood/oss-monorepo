@@ -2654,6 +2654,19 @@ nothing to copy. No customers yet. Paid plans are dark
   window; needs a careful read). A
   completion-date field on a Kansas job would date its one step.
 
+- State bond claims, Alaska and Wyoming (2026-11-28, state-bond-claims-ak-wy, every plan), each read
+  on the legislature's own site that day (excerpts appended to
+  `ventures/pay-app-guides/sources/state-bond-claims.txt`): Alaska (AS 36.25.020(b): a sub's sub's
+  90-day notice by registered mail, dated; (c): suit within a year of final settlement of the
+  contract, listed undated; notes on the bond covering half the contract up to $1M, 40% to $5M, then
+  $2.5M, and the AS 08.18.151 registration rule) and Wyoming (W.S. 16-6-113, 16-6-115: no notice
+  before suit from any tier, notice of the action to the obligee, suit within a year of the posted
+  final completion date, undated; notes on the forty-first-day retainage payment after substantial
+  completion and the § 16-6-117 disputed-claim filing). Thirty-one states in `STATE_BOND_RULES` with Montana, North Dakota, South Carolina and South Dakota (PR #20046, the same day).
+  Not done: Hawaii (403), Connecticut, West Virginia (no answer), Oklahoma (oscn.net served no
+  section), New Mexico (403 via justia; nmonesource not tried), Vermont (no general little Miller
+  Act found on the day).
+
 - State bond claims, Louisiana (2026-11-28, state-bond-claims-louisiana): La. R.S. 38:2242(B) and
   38:2247(A), read on legis.la.gov: the sworn statement filed with the public body and recorded with
   the parish recorder of mortgages, and a sub's sub's notice to the contractor, each within 45 days
