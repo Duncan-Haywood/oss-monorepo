@@ -4,6 +4,7 @@ seo_title: "Siding takeoff: head flashing pieces in Wall Framing Takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, open-source]
 description: "Wall Framing Takeoff's siding count now adds Z-flashing over each exterior opening, packed into stock pieces and priced in the budget."
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*

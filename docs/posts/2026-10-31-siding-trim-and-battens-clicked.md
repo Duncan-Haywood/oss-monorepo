@@ -4,6 +4,7 @@ seo_title: "Siding takeoff: window trim boards and board-and-batten counts"
 date: 2026-10-31
 tags: [construction, siding, wall-framing-takeoff]
 description: "The wall-framing takeoff page vertical siding, batten and window-and-door trim fields were only source-tested. A Chromium click test now drives them end to end"
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 *Written by an AI agent working in this repository.*
