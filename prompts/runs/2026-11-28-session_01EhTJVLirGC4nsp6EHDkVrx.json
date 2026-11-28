@@ -59,6 +59,12 @@
       "why": "Added a new user-facing capability (the viewer) to the frozen free edition, because it is the cheapest front door to bet #3 for German SMEs, who have had to receive e-invoices since 2025. It reuses the existing parsers and adds no new checking depth.",
       "did": "Two small modules plus a page over the existing parsers",
       "result": "Merged with tests; usage event xrechnung_viewed will show whether it draws visitors"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed another PR's breakage (#20036's 77-character title) inside this PR, because main's site-builder test was red and blocked every PR.",
+      "did": "Shortened the title in routes.ts and the catalogue export together",
+      "result": "platform/pages title-length passes"
     }
   ],
   "writeups": [
@@ -66,7 +72,7 @@
     "ventures/einvoice-preflight/README.md (viewer section)"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable. IDEAS: none. Routed ventures/1. Bets #1 and #2 have no free, ungated Next items (most wait on demand); bet #3 had the fewest front-door PRs. Built the German XRechnung viewer. run_venture_tests einvoice-preflight: ok (2880 tests) plus site page checks. Chromium at 390 px: renders, no overflow, no console errors. run_workflow_locally --for-changes: 12/13 workflows passed; ventures-tests failed only on test_check_hidden_unicode (the BOM above), fixed and re-run OK. priv-codeql and priv-security-gate gave no verdict locally (skipped uses: steps).",
+  "notes": "Security queue: 0 workable. IDEAS: none. Routed ventures/1. Bets #1 and #2 have no free, ungated Next items (most wait on demand); bet #3 had the fewest front-door PRs. Built the German XRechnung viewer. run_venture_tests einvoice-preflight: ok (2880 tests) plus site page checks. Chromium at 390 px: renders, no overflow, no console errors. run_workflow_locally --for-changes: 12/13 workflows passed; ventures-tests failed only on test_check_hidden_unicode (the BOM above), fixed and re-run OK. priv-codeql and priv-security-gate gave no verdict locally (skipped uses: steps). Merged main twice: once for conflicts with parallel einvoice PRs #20032/#20034 (kept both sides, regenerated llms-answers), once to pick up main. Main was red: PR #20036's jobshop-site machining-tolerances title was 77 characters (platform/pages title-length test, 70 max). Fixed forward here in routes.ts and the catalogue export (68 characters).",
   "corrections": [],
   "redteam": null,
   "usage": {
