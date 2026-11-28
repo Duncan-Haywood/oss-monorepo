@@ -194,6 +194,16 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   with them is told why, and the xrechnung profile checks BR-DEX-10 to -14 as XR-010 and XR-011
   (README, "Third-party payments in the extension"). The suite's last INV-029 false positive is gone.
 
+- Skonto in BT-20 (2026-11-28, skonto-br-de-18): KoSIT's BR-DE-18 tests only payment-terms lines that
+  begin with "#", so Skonto in words or a `SKONTO#…` line without its leading "#" passed the official rules
+  and no buyer system could read it; `XR-013` (a warning, both copies) now reports both and names the line
+  to add, explained from templates in EN/DE/FR/NL. The creator (`generate.mjs`, also the PDF converter's
+  writer) trimmed the line break BR-DE-18 needs after a Skonto line, so a correct line came out failing; it
+  now keeps it (`paymentTermsText`). The UBL and CII readers carry BT-20 as `payment.terms_note`. The paid
+  `skonto-form` safe fix rewrites slips of writing (decimal comma, lower case, spaces, a missing "#" at
+  either end, two entries on one line, no closing break) and leaves Skonto in words to a human.
+  `skonto.test.mjs` here; `ventures/einvoice-preflight/skonto-bench.mjs` measures 16 forms in UBL and CII.
+
 ## Must do before a public launch
 
 - Owner: the licence decision on the third-party rule sets in `plain/` (EUPL-1.2, MPL-2.0,

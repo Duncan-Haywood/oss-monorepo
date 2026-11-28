@@ -129,3 +129,21 @@ test("GA ninety days: counted in calendar days from the waiver's date", () => {
   assert.equal(gaNinetyDays("2028-01-15", "2028-01-15").endsOn, "2028-04-14");
   assert.equal(gaAffidavitCopyDueOn("2026-12-29"), "2027-01-05");
 });
+
+test("GA ninety days refuses a date that is not YYYY-MM-DD instead of counting from a rolled-over day", () => {
+  // "2026-02-30" used to roll over to 2 March, "" to 1900, and "12/01/2026" to a NaN `daysLeft`
+  // with `ended: false`.
+  for (const bad of ["", "2026", "2026-12", "2026-02-30", "12/01/2026", "2026-1-5"]) {
+    assert.throws(
+      () => gaNinetyDays("2026-10-05", bad),
+      RangeError,
+      `today ${JSON.stringify(bad)}`,
+    );
+    assert.throws(
+      () => gaNinetyDays(bad, "2026-11-26"),
+      RangeError,
+      `signedOn ${JSON.stringify(bad)}`,
+    );
+    assert.throws(() => gaAffidavitCopyDueOn(bad), RangeError, `filedOn ${JSON.stringify(bad)}`);
+  }
+});

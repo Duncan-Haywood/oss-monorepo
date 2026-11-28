@@ -55,10 +55,26 @@ function footer(page: PdfPage, data: ApplicationDocumentData, label: string) {
   });
 }
 
-function draftBanner(page: PdfPage, data: ApplicationDocumentData) {
+/**
+ * The mark on a pencil draft: the copy a GC asks for before the official application, to review and
+ * mark up (src/shared/pencil-review.ts). Only a draft can carry it.
+ */
+export const PENCIL_DRAFT_MARK = "PENCIL DRAFT - FOR GC REVIEW, NOT FOR PAYMENT";
+
+export interface ApplicationPdfOptions {
+  /** Print a draft as the pencil copy for the GC's review (ignored once submitted). */
+  pencil?: boolean;
+}
+
+function draftMark(data: ApplicationDocumentData, opts: ApplicationPdfOptions): string | null {
+  if (data.payApp.status !== "draft") return null;
+  return opts.pencil ? PENCIL_DRAFT_MARK : "DRAFT - NOT SUBMITTED";
+}
+
+function draftBanner(page: PdfPage, data: ApplicationDocumentData, opts: ApplicationPdfOptions) {
   const marks = [
     data.project.sample ? SAMPLE_APPLICATION_MARK : null,
-    data.payApp.status === "draft" ? "DRAFT - NOT SUBMITTED" : null,
+    draftMark(data, opts),
   ].filter(Boolean);
   if (!marks.length) return;
   page.text(page.width - M, 30, marks.join("  |  "), { size: 9, font: "bold", align: "right" });
@@ -69,12 +85,12 @@ function labelValue(page: PdfPage, x: number, y: number, label: string, value: s
   page.text(x, y + 11, fitText(value || "-", w, 9.5, "bold"), { size: 9.5, font: "bold" });
 }
 
-function summaryPage(doc: PdfDocument, data: ApplicationDocumentData) {
+function summaryPage(doc: PdfDocument, data: ApplicationDocumentData, opts: ApplicationPdfOptions) {
   const page = doc.addPage(612, 792);
   const { project, payApp, contractor } = data;
   const s = data.computed.summary;
   const sp = project.notaryBlock ? SPACING.notary : SPACING.normal;
-  draftBanner(page, data);
+  draftBanner(page, data, opts);
   page.text(M, 46, "Contractor's Application for Payment", { size: 16, font: "bold" });
   page.text(M, 62, "Summary of contract, change orders, work to date and retainage", { size: 8.5 });
 
@@ -272,7 +288,11 @@ const COLS: Col[] = [
   { key: "I", title: "Retainage", w: 60, align: "right" },
 ];
 
-function continuationPages(doc: PdfDocument, data: ApplicationDocumentData) {
+function continuationPages(
+  doc: PdfDocument,
+  data: ApplicationDocumentData,
+  opts: ApplicationPdfOptions,
+) {
   const W = 792;
   const H = 612;
   const rowH = 15;
@@ -324,7 +344,7 @@ function continuationPages(doc: PdfDocument, data: ApplicationDocumentData) {
 
   chunks.forEach((chunk, pageIndex) => {
     const page = doc.addPage(W, H);
-    draftBanner(page, data);
+    draftBanner(page, data, opts);
     page.text(M, 46, "Continuation Sheet", { size: 14, font: "bold" });
     page.text(
       M,
@@ -404,12 +424,16 @@ export function quantityNote(q: LineQuantityDto): string {
   return `${period}${toDate} @ ${formatUnitPrice(q.unitPriceMicros)}`;
 }
 
-export function applicationPdf(data: ApplicationDocumentData): Uint8Array {
+export function applicationPdf(
+  data: ApplicationDocumentData,
+  opts: ApplicationPdfOptions = {},
+): Uint8Array {
+  const pencil = opts.pencil === true && data.payApp.status === "draft";
   const doc = new PdfDocument({
-    title: `Application for Payment #${data.payApp.number} - ${data.project.name}`,
+    title: `${pencil ? "Pencil draft of " : ""}Application for Payment #${data.payApp.number} - ${data.project.name}`,
     producer: "PayApps",
   });
-  summaryPage(doc, data);
-  continuationPages(doc, data);
+  summaryPage(doc, data, opts);
+  continuationPages(doc, data, opts);
   return doc.toBytes();
 }

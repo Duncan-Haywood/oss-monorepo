@@ -35,6 +35,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets pointed at bet #6's front door and einvoice's accountant dashboard, but slug_dupe then showed open PRs for siding, drywall and header guides (#20102, #20106, #20107), and einvoice's BR-DE rule pages already existed (PR #18700). Three candidate picks cost about 10 minutes before an unclaimed item turned up."
+    },
+    {
+      "file": "ventures/cmmc/apps/cmmc/README.md, ventures/cmmc/apps/cmmc-site/src/pages.mjs",
+      "issue": "Every cmmc feature edits the same one-line README table row and the same single <li> sentence on the site. With the required gates taking about 1.5 h per head (runners starved), three parallel cmmc merges conflicted with this PR, and each conflict reset the gates. Splitting those into one line or bullet per feature would let parallel PRs merge cleanly."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
     "docs/posts/2026-11-24-one-page-for-machine-shops.md (extended: 'each audit in the workspace downloads as its report')"
   ],
   "goal": null,
-  "notes": "Local checks: vitest unit 550/550, worker 179/179, tsc clean, biome clean, run_venture_tests --changed ok (cmmc, machine-shop-guides, site page checks). risk_review: nothing blocked.",
+  "notes": "Local checks: vitest unit 550/550, worker 179/179, tsc clean, biome clean, run_venture_tests --changed ok (cmmc, machine-shop-guides, site page checks). risk_review: nothing blocked. Merged main three times to resolve conflicts on those lines. After the last merge: tsc clean, unit 603/603, worker 194/194, cmmc-site node --test 112/112.",
   "corrections": [],
   "redteam": null,
   "usage": {

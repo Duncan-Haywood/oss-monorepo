@@ -84,6 +84,70 @@ class Claims(unittest.TestCase):
         self.assertEqual(seen("Shopify charges $39"), [])
 
 
+CATALOG_JSON = """{
+  "app": "euro", "productName": "Euro App", "currency": "EUR", "taxCategory": "saas",
+  "plans": [
+    {"key": "starter", "name": "Firm S", "description": "x", "monthlyCents": 1900, "annualCents": null},
+    {"key": "plus", "name": "Firm L", "description": "x", "monthlyCents": 4900, "annualCents": null},
+    {"key": "api", "name": "API, metered", "description": "x", "monthlyCents": 1900, "annualCents": null}
+  ]
+}"""
+
+
+def euro_plans():
+    with tempfile.TemporaryDirectory() as d:
+        f = Path(d) / "ventures/euro/apps/euro/billing/paddle-catalog.json"
+        f.parent.mkdir(parents=True)
+        f.write_text(CATALOG_JSON)
+        return c.catalog_plans(Path(d) / "ventures/euro", Path(d))
+
+
+def euro_bad(line):
+    return [(p.name, fig) for p, cents, fig in c.claims(line, euro_plans()) if cents not in p.charges()]
+
+
+class EuroCatalog(unittest.TestCase):
+    def test_reads_catalog_and_skips_metered(self):
+        got = {p.name: (p.monthly_cents, p.currency) for p in euro_plans()}
+        self.assertEqual(got, {"Firm S": (1900, "EUR"), "Firm L": (4900, "EUR")})
+
+    def test_euro_forms_pass_when_right(self):
+        for line in ["Firm S €19 a month", "| Firm L | €49 |", "Firm S: 19 € pro Monat",
+                     "Firm L EUR 49", "Firm S 19,00 €", "€49/month for Firm L"]:
+            self.assertEqual(euro_bad(line), [], line)
+            self.assertTrue(list(c.claims(line, euro_plans())), f"claim not recognised: {line}")
+
+    def test_wrong_amount_or_currency_flagged(self):
+        self.assertEqual(euro_bad("Firm S €25 a month"), [("Firm S", "€25")])
+        self.assertEqual(euro_bad("Firm L: 39 €"), [("Firm L", "39 €")])
+        self.assertEqual(euro_bad("Firm S $19"), [("Firm S", "$19")])
+
+    def test_dollar_plan_rejects_euro_figure(self):
+        self.assertEqual(bad("Shop €199"), [("Shop", "€199")])
+
+    def test_plans_ts_wins_over_catalog(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            app = root / "ventures/demo/apps/demo"
+            (app / "src/shared").mkdir(parents=True)
+            (app / "src/shared/plans.ts").write_text(PLANS_TS)
+            (app / "billing").mkdir()
+            (app / "billing/paddle-catalog.json").write_text(CATALOG_JSON)
+            prods = c.load_products(root)
+            self.assertEqual([p.name for p in prods[0].plans], ["Level 1", "Shop", "Shop Plus"])
+
+    def test_catalog_only_venture_is_scanned(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            f = root / "ventures/euro/apps/euro/billing/paddle-catalog.json"
+            f.parent.mkdir(parents=True)
+            f.write_text(CATALOG_JSON)
+            (root / "ventures/euro/README.md").write_text("Firm S €19, Firm L €59 a month.\n")
+            _, findings = c.scan(root)
+            self.assertEqual([(x["file"], x["found"]) for x in findings],
+                             [("ventures/euro/README.md", "€59")])
+
+
 class Scan(unittest.TestCase):
     def test_scan_tree_with_waivers(self):
         with tempfile.TemporaryDirectory() as d:

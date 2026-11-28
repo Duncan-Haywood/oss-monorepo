@@ -1,0 +1,173 @@
+Notice of intent to lien: statute text, read 2026-11-28 on each legislature's own site.
+Kept so notice-of-intent-to-lien.html's quotes and noi.mjs's rules can be checked (noi.test.mjs).
+
+=== Colorado: C.R.S. 38-22-109 (1) to (5). Colorado Revised Statutes 2024, Title 38, uncertified printout,
+https://content.leg.colorado.gov/sites/default/files/images/olls/crs2024-title-38.pdf ===
+38-22-109. Lien statement. (1) Any person wishing to use the provisions of this article
+shall file for record, in the office of the county clerk and recorder of the county wherein the
+property, or the principal part thereof, to be affected by the lien is situated, a statement
+containing:
+(a) The name of the owner or reputed owner of such property, or in case such name is
+not known to him, a statement to that effect;
+(b) The name of the person claiming the lien, the name of the person who furnished the
+laborers or materials or performed the labor for which the lien is claimed, and the name of the
+contractor when the lien is claimed by a subcontractor or by the assignee of a subcontractor, or,
+in case the name of such contractor is not known to a lien claimant, a statement to that effect;
+(c) A description of the property to be charged with the lien, sufficient to identify the
+same; and
+(d) A statement of the amount due or owing such claimant.
+(2) Such statement shall be signed and sworn to by the party, or by one of the parties,
+claiming such lien, or by some other person in his or their behalf, to the best knowledge,
+information, and belief of the affiant; and the signature of any such affiant to any such
+verification shall be a sufficient signing of the statement.
+(3) In order to preserve any lien for work performed or laborers or materials furnished,
+there must be a notice of intent to file a lien statement served upon the owner or reputed owner
+of the property or the owner's agent and the principal or prime contractor or his or her agent at
+least ten days before the time of filing the lien statement with the county clerk and recorder.
+Such notice of intent shall be served by personal service or by registered or certified mail, return
+receipt requested, addressed to the last-known address of such persons, and an affidavit of such
+service or mailing at least ten days before filing of the lien statement with the county clerk and
+recorder shall be filed for record with said statement and shall constitute proof of such service.
+(4) All such lien statements claimed for labor and work by the day or piece, but without
+furnishing laborers or materials therefor, must be filed for record after the last labor for which
+the lien claimed has been performed and at any time before the expiration of two months next
+after the completion of the building, structure, or other improvement.
+(5) Except as provided in subsections (10) and (11) of this section, the lien statements of
+all other lien claimants must be filed for record at any time before the expiration of four months
+after the day on which the last labor is performed or the last laborers or materials are furnished
+by such lien claimant.
+
+=== Missouri: RSMo 429.080, https://revisor.mo.gov/main/OneSection.aspx?section=429.080 ===
+429.080. Lien filed with circuit clerk, when. — It shall be the duty of every original contractor, every journeyman and day laborer, including persons who use rented machinery or equipment in performing such work or labor, and every other person seeking to obtain the benefit of the provisions of sections 429.010 to 429.340 , within six months after the indebtedness shall have accrued, or, with respect to rental equipment or machinery rented to others, then, within sixty days after the date the last of the rental equipment or machinery was last removed from the property, to file with the clerk of the circuit court of the proper county a just and true account of the demand due him or them after all just credits have been given, which is to be a lien upon such building or other improvements, and a true description of the property, or so near as to identify the same, upon which the lien is intended to apply, with the name of the owner or contractor, or both, if known to the person filing the lien, which shall, in all cases, be verified by the oath of himself or some credible person for him.
+
+=== Missouri: RSMo 429.100, https://revisor.mo.gov/main/OneSection.aspx?section=429.100 ===
+429.100. Notification by subcontractors and others. — Every person except the original contractor, who may wish to avail himself of the benefit of the provisions of sections 429.010 to 429.340 , shall give ten days' notice before the filing of the lien, as herein required, to the owner, owners or agent, or either of them, that he holds a claim against such building or improvement, setting forth the amount and from whom the same is due. Such notice may be served by any officer authorized by law to serve process in civil actions, or by any person who would be a competent witness. When served by an officer, his official return endorsed thereon shall be proof thereof, and when served by any other person, the fact of such service shall be verified by affidavit of the person so serving.
+
+=== North Dakota: N.D.C.C. 35-27-02, 35-27-13, 35-27-14, https://www.ndlegis.gov/cencode/t35c27.pdf ===
+35-27-02. Persons entitled to construction lien - Notice - Prohibition.
+1. Any person that improves real estate under a contract with the owner of the real estate
+or under contract with any agent, trustee, contractor, or subcontractor of the owner,
+has a lien upon the improvement and upon the land on which the improvement is
+situated or to which the improvement may be removed for the price or value of the
+contribution.
+2. The amount of the lien is limited to the difference between the price paid by the owner,
+trustee, or agent and the price or value of the contribution. If the owner, trustee, or
+agent has paid the full price or value of the contribution, no lien is allowed.
+3. If the owner, trustee, or agent of the owner has received a valid waiver of lien, signed
+by the person that improves the real estate, a lien is not allowed.
+4. Any person that extends credit or makes a contract with any agent, trustee, contractor,
+or subcontractor of the owner for the improvement of real estate, upon demand, has
+the right to request and secure evidence of the legal description of the real estate upon
+which the improvement is located, including the name of the legal or equitable owner
+of the real estate. Written notice a lien will be claimed must be given to the legal or
+equitable owner of the real estate by certified mail at least ten days before the
+recording of the construction lien.
+5.   Notwithstanding any provision in this section, any person that performs labor or
+furnishes materials or services under chapter 35-24 is prohibited from claiming or
+maintaining a lien under this chapter.
+
+35-27-13. How lien perfected - Construction lien recorded.
+Every person desiring to perfect the person's lien shall record with the recorder of the
+county in which the property to be charged with the lien is situated, within ninety days after all
+the person's contribution is done, and having complied with the provisions of this chapter, a lien
+describing the property and stating the amount due, the dates of the first and last contribution,
+and the person with which the claimant contracted. Unless the owner of the freehold estate also
+is the owner of the leasehold for wind turbines or an electric energy conversion facility for which
+the labor, materials, or services were supplied, if a recorded lien is for a wind turbine or
+associated facility under section 17-04-07, the recorded lien must contain the following
+statement in at least sixteen-point type:
+The lien in this chapter attaches only to the leasehold for an electric energy conversion
+facility or wind turbines for which labor, materials, or services were supplied. This lien
+does not attach to or encumber the real property or freehold estate.
+Failure to include the statement required under this section in the statement of the lien does not
+invalidate a lien on the leasehold or electric energy conversion facility.
+
+35-27-14. Lien not lost for failure to file within time - Exception.
+A failure to file within ninety days does not defeat the lien except as against purchasers or
+encumbrancers in good faith and for value whose rights accrue before the lien is filed, and as
+against the owner to the extent of the amount paid to a contractor before the recording of the
+lien. A lien may not be filed more than three years after the date of the first item of material is
+furnished.
+
+=== Wyoming: W.S. 29-2-106(a), 29-2-107, 29-10-102, https://wyoleg.gov/statutes/compress/title29.pdf ===
+29-2-106. When statement lien to be filed; rights of
+subcontractor not abridged by contract between owner and
+contractor; agreement to extend filing period.
+(a) Except as provided in subsection (c) of this section,
+any contractor asserting a lien under this chapter shall file
+his lien statement within one hundred fifty (150) days and every
+other person asserting a lien under this chapter shall file
+within one hundred twenty (120) days:
+(i)     Of the earlier of:
+(A) After the last day when work was performed
+or materials furnished under contract;
+(B) From the date of substantial completion of
+the project on which work was performed or materials were
+furnished under contract; or
+(ii) With respect to a subcontractor, after the last
+day he performed work at the direction of the contractor or
+other person authorized to provide direction.
+(b) No contract made between the record owner and the
+contractor shall be construed to affect or restrict the right of
+any subcontractor or materialman to file a lien.
+(c) The record owner may record a notice of substantial
+completion of the project in the records of the county clerk in
+the county where the project is located. If a notice of
+substantial completion of the project is recorded under this
+subsection, the date the notice is recorded shall be presumed to
+be the date of substantial completion of the project. After the
+notice has been duly recorded, the record owner shall send a
+copy of the notice within five (5) days to all contractors,
+subcontractors and materialmen who provided the record owner
+with preliminary notice pursuant to W.S. 29-2-112. The notice
+shall not extend the date by which a lien statement shall be
+filed as may otherwise be provided in this section. The time to
+file a lien statement by any contractor, subcontractor or
+materialman shall not be affected if the record owner fails to
+send the notice of substantial completion of the project.
+
+29-2-107.   Notice of intention to file lien.
+(a) Before filing a lien pursuant to this chapter a lien
+claimant shall send written notice to the record owner or his
+agent of any claim against real property, a building or an
+improvement stating the amount of any claim and from whom it is
+due. The notice shall be sent no later than twenty (20) days
+prior to filing a lien statement.
+(b) The notice under this section shall be in
+substantially the same format and contain the same information
+as the notice form specified in W.S. 29-10-102. The notice
+forms shall be made available and may be obtained at the county
+clerk's office of each county.
+
+29-10-102.     Form for notice of intention to file lien.
+(a) Notice of intention to file a lien shall be sent to
+the record owner of the property against which the lien may be
+filed or his agent and shall be completed in substantially the
+following form:
+Note to lien claimant: This form, if filled out correctly and
+sent within the time periods specified in W.S. 29-2-107
+constitutes prima facie evidence that you have provided the
+contents of the notice required by W.S. 29-2-107(a). If you
+have any questions regarding how to fill out this form or
+whether it has been filled out properly, you should consult an
+attorney.
+CERTIFIED MAIL, RETURN RECEIPT REQUESTED
+To:   ____________________________
+Record owner or agent of owner (note: If there is more than one
+(1) owner, use a form for each owner)
+Date: _______________, 20___
+Re:   Notice of Intention to File Lien
+You are hereby notified pursuant to W.S. 29-2-107 that
+______________________ (hereinafter the "lien claimant") intends
+to file a lien against your property.
+The amount of the lien claim is $_______________. This amount
+is due from _______________________ (person/entity whose actions
+have caused a lien to be filed) pursuant to a contract with the
+lien claimant under which the lien claimant performed work or
+supplied materials for the work.
+If we are unable to resolve this matter within twenty (20) days
+from the date of this notice, the lien claimant intends to file
+the lien statement asserting a lien against your property.
+cc:   _________________________
+_________________________
+_________________________
