@@ -100,6 +100,16 @@ export const FAQ = {
     ["When is the next CMMC assessment due?",
       "A year after the CMMC Status Date for Level 1 (Self), and three years after it for Level 2, by yourself or by a C3PAO. A POA&M closeout does not restart the three years: they count from the original status date."],
   ],
+  "how-to-submit-sprs-score.html": [
+    ["How do I submit my SPRS score?",
+      "Log in to PIEE with the SPRS Cyber Vendor User role, open SPRS, then Cyber Reports, pick your CAGE hierarchy and run it. For a NIST SP 800-171 Basic Assessment, choose Add New Assessment on the NIST SP 800-171 Assessments tab and enter the date, score, scope, plan of action completion date, CAGE codes and the SSP's name, version and date. SPRS stores the result; it does not perform the assessment."],
+    ["What PIEE role do I need to enter an SPRS score?",
+      "SPRS Cyber Vendor User. It lets you enter, edit or delete NIST SP 800-171 and CMMC information for every CAGE in your company hierarchy. The Contractor/Vendor (Support Role) is view only. Your company's Contractor Account Administrator (CAM) approves the request; until then the SPRS tile can show but not work."],
+    ["What CMMC Level 2 self-assessment score can be affirmed in SPRS?",
+      "Only 110, which gives a Final Level 2 Self-Assessment valid three years with annual affirmations, and 88 to 109, which gives a Conditional status valid 180 days. If an open requirement is one that may not go on a POA&M, SPRS gives No CMMC Status whatever the score."],
+    ["Who affirms a CMMC self-assessment in SPRS?",
+      "The Affirming Official: the senior person responsible for the company's CMMC compliance, with their own PIEE account and the Cyber Vendor User role. Whoever entered the assessment can send it to them with Transfer to AO; the AO reviews it, ticks the affirmation statement and chooses Affirm."],
+  ],
   "cmmc-cost.html": [
     ["How much does CMMC certification cost a small business?",
       "DoD's own estimate in the CMMC final rule (89 FR 83092) is $104,670 over three years for a small business at Level 2 (C3PAO): $101,752 for the assessment and its affirmation, of which $31,234 is the C3PAO, plus two annual affirmations of $1,459. Level 2 (Self) is $37,196 over three years and Level 1 (Self) $5,977 a year. This page recomputes those lines with your own rates."],
