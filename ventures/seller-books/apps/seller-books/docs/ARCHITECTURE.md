@@ -245,6 +245,11 @@ Public / account
 - `ALL /api/auth/*`: Better Auth (`/sign-up/email`, `/sign-in/email`, `/sign-out`, `/get-session`,
   `/verify-email`, `/send-verification-email`, `/request-password-reset`, `/reset-password`)
 - `GET /api/me` → `{ user, memberships: [{ orgId, orgName, role }] }`
+- `POST /api/me/signup-source` `{ source }` → `{ recorded, source? | reason? }`: the page a new account came
+  from (the free tools' and marketing site's `?from=`), kept in local storage until sign-in, posted once by the shop
+  picker or shop layout, stored once within 14 days of sign-up (`signup_source`, migration 0017); 400 when it is
+  not one of our page names in shape; nothing is kept under Do Not Track or GPC. Counted by source in
+  `GET /api/admin/metrics` → `sources` (outcome: the shop imported a report). Same code as PayApps.
 - `POST /api/orgs` `{ name }` → 201 `{ orgId }`; `GET /api/orgs` → `{ items: [{ id, name, role }] }`
 - `POST /api/invitations/accept` `{ token }` → `{ orgId }`
 - `GET /api/reference/reports` → `{ items: [{ key, platform, platformLabel, label }] }`
@@ -417,6 +422,10 @@ apps/jobshop-quote, apps/payapps and apps/cmmc):
   it ticks itself for every member and device and nothing about it is stored; editors and above see it,
   it goes once all four are done, and "Hide" is a per-browser convenience. Next, once real shops are
   counted: which step most of them stall on (an admin-metrics count per step) and change that step.
+- Sign-ups by source (2026-11-28, `signup-source`): the 15 free marketplace tools, the marketing site and the
+  online sellers, products and about pages send `from=`; the owner metrics' `sources` rows say which page brought
+  accounts, how many have a shop, imported a report and pay. Next, once rows exist: put effort behind the pages
+  that bring shops that import, not the ones that bring sign-ups only.
 - Year-end records (2026-11-26, `services/books/year-end.ts`): `GET /reports/closing-inventory.csv?year=`,
   `/reports/mileage-log.csv?year=&mileageRate=` and `/reports/expenses.csv?year=`, linked from the Schedule C
   page. The inventory list and line 41 share one rule (`onHandAt` in `schedule-c.ts`), so its total is line
