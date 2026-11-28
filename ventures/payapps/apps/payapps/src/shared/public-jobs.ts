@@ -8,7 +8,7 @@
 //    Act"): there it shows no lien date, and lists the bond claim steps in the thirty states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
-//    checked against the cap in the 23 states the public guide lists.
+//    checked against the cap in the 25 states the public guide lists.
 //
 // Sources. Miller Act rules ported from ventures/pay-app-guides/millerbond.mjs (40 U.S.C. 3131 and
 // 3133 read on govinfo.gov and law.cornell.edu on 2026-11-25; J.W. Bateson Co. v. United States,
@@ -283,6 +283,19 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     notes:
       "Limits on further retainage once the project is 50% complete. Small projects carry no retainage: the text read says under $150,000, and a 2025 session bill (H1123) changes that threshold, so check the current section.",
   },
+  ND: {
+    name: "North Dakota",
+    citation: "N.D. Cent. Code \u00a7 48-01.2-13",
+    url: "https://ndlegis.gov/cencode/t48c01-2.pdf",
+    cap: "10% of each estimate until 50% complete, then no more",
+    capBps: 1000,
+    lowerBps: 0,
+    lowerWhen:
+      "on estimates after the project is 50% complete (unless unsatisfactory progress or performance is documented)",
+    flowsDown: false,
+    notes:
+      "At 95% complete the governing body may pay up to 95% of what it has retained; the rest is paid when the architect or engineer approves. Retained money may be invested for the contractor's benefit. An estimate unpaid more than 30 days after approval earns interest (\u00a7 48-01.2-14).",
+  },
   NV: {
     name: "Nevada",
     citation: "NRS 338.515",
@@ -337,6 +350,16 @@ export const RETAINAGE_CAPS: Record<string, RetainageCap> = {
     lowerWhen: "once the job is 50% complete (half the retained amount is returned then)",
     flowsDown: false,
     notes: "Department of General Services contracts: 6%, then 3%.",
+  },
+  SC: {
+    name: "South Carolina",
+    citation: "S.C. Code \u00a7 11-35-3030(4)",
+    url: "https://www.scstatehouse.gov/code/t11c035.php",
+    cap: "3.5% of each progress payment",
+    capBps: 350,
+    flowsDown: true,
+    notes:
+      "The State Consolidated Procurement Code; it applies the same 3.5% to what a general contractor holds in a subcontract. On a state job, each contractor's or sub's work is its own division: its retainage is released when that division is certified complete, and the prime pays the sub within ten days of receiving it.",
   },
   TX: {
     name: "Texas",
@@ -402,7 +425,7 @@ export type RetainageCapCheck =
       text: string;
     };
 
-const pct = (bps: number) => `${bps % 100 === 0 ? bps / 100 : (bps / 100).toFixed(2)}%`;
+const pct = (bps: number) => `${Number((bps / 100).toFixed(2))}%`;
 
 /**
  * The job's retainage against the state's cap on public work. `rates` are every rate the job holds
