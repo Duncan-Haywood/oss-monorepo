@@ -1203,12 +1203,17 @@ describe("the Whatnot taxes page", () => {
         );
         assert.equal(r.sellerShippingCents, money(at(l, "Shipping Fee")), r.what);
         assert.equal(
-          r.priceCents - r.commissionCents - r.processingCents - r.feeTaxCents - r.sellerShippingCents,
+          r.priceCents -
+            r.commissionCents -
+            r.processingCents -
+            r.feeTaxCents -
+            r.sellerShippingCents,
           r.amountCents,
           r.what,
         );
       }
-      if (r.type === "Tips") assert.equal(r.processingCents, money(at(l, "Payment Processing Fee")));
+      if (r.type === "Tips")
+        assert.equal(r.processingCents, money(at(l, "Payment Processing Fee")));
     });
     // The importer and the worksheet file them as the page says.
     const imp = appFile("src/worker/services/importers/whatnot.ts");
@@ -1231,11 +1236,30 @@ describe("the Whatnot taxes page", () => {
     });
     const L = whatnotLines();
     assert.equal(L.line1 - L.line2 - L.line10 - L.line27a, L.net);
-    assert.deepEqual(WHATNOT_FEE, { commissionRate: 0.08, processingRate: 0.029, processingFixedCents: 30 });
+    assert.deepEqual(WHATNOT_FEE, {
+      commissionRate: 0.08,
+      processingRate: 0.029,
+      processingFixedCents: 30,
+    });
     for (const r of WHATNOT_EXAMPLE.filter((x) => x.priceCents > 0))
-      assert.deepEqual(whatnotPublishedFeesCents(r), [r.commissionCents, r.processingCents], r.what);
+      assert.deepEqual(
+        whatnotPublishedFeesCents(r),
+        [r.commissionCents, r.processingCents],
+        r.what,
+      );
     const html = htmlOf(page());
-    for (const s of ["$105.00", "$40.00", "$12.75", "$6.24", "$46.01", "$2.00", "$1.23", "$6.00", "$2.94", "$5.00"])
+    for (const s of [
+      "$105.00",
+      "$40.00",
+      "$12.75",
+      "$6.24",
+      "$46.01",
+      "$2.00",
+      "$1.23",
+      "$6.00",
+      "$2.94",
+      "$5.00",
+    ])
       assert.ok(html.includes(s), s);
   });
 
@@ -1254,7 +1278,12 @@ describe("the Whatnot taxes page", () => {
       '"@type":"FAQPage"',
     ])
       assert.ok(html.includes(s), s);
-    for (const u of [WHATNOT_FEES_URL, WHATNOT_SALES_TAX_URL, WHATNOT_FEE_TAX_URL, WHATNOT_1099K_URL])
+    for (const u of [
+      WHATNOT_FEES_URL,
+      WHATNOT_SALES_TAX_URL,
+      WHATNOT_FEE_TAX_URL,
+      WHATNOT_1099K_URL,
+    ])
       assert.match(u, /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/\d+-/);
     // Whatnot's tax is the marketplace's in the app's sales tax report.
     const st = appFile("src/shared/sales-tax.ts");
@@ -1265,7 +1294,9 @@ describe("the Whatnot taxes page", () => {
   test("linked from the Whatnot platform page, every footer, llms.txt and the sitemap", () => {
     const link = `href="${BASE_PATH}/whatnot-taxes"`;
     assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/whatnot")).includes(link));
-    assert.ok(!htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes("one week of a report"));
+    assert.ok(
+      !htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes("one week of a report"),
+    );
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));

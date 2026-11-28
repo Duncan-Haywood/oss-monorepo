@@ -1072,7 +1072,11 @@ export const WHATNOT_FEE_TAX_URL =
 export const WHATNOT_1099K_URL =
   "https://help.whatnot.com/hc/en-us/articles/31543985599245-2026-Form-1099-K-for-U-S-Sellers";
 /** Whatnot's published US rates: standard-tier commission on the sale price; processing on the buyer's total. */
-export const WHATNOT_FEE = { commissionRate: 0.08, processingRate: 0.029, processingFixedCents: 30 };
+export const WHATNOT_FEE = {
+  commissionRate: 0.08,
+  processingRate: 0.029,
+  processingFixedCents: 30,
+};
 /** The six USD rows of the app's Whatnot fixture, in file order. Amounts in cents; fees as positive costs. */
 export const WHATNOT_EXAMPLE = [
   {
