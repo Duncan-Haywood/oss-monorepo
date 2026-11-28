@@ -182,12 +182,13 @@ test("importSaleEventsFromCsv reads an offset-less closed_at as the store's wall
     "S-1,2026-08-19T23:30:00,X,1,1000\n" + // CEST, UTC+2
     "W-1,2026-01-15 09:05,X,1,1000\n" + // CET, UTC+1
     "D-1,2026-03-29T03:15:00,X,1,1000\n" + // the morning clocks went forward
+    "E-1,2026-03-29T01:30:00,X,1,1000\n" + // still CET, 30 min before the change: needs the second pass
     "Z-1,2026-08-19T23:30:00Z,X,1,1000\n";
   const { events, issues } = importSaleEventsFromCsv(csv, "pilot-leather-01");
   assert.deepEqual(issues, []);
   assert.deepEqual(
     events.map((e) => e.closed_at),
-    ["2026-08-19T21:30:00.000Z", "2026-01-15T08:05:00.000Z", "2026-03-29T01:15:00.000Z", "2026-08-19T23:30:00.000Z"],
+    ["2026-08-19T21:30:00.000Z", "2026-01-15T08:05:00.000Z", "2026-03-29T01:15:00.000Z", "2026-03-29T00:30:00.000Z", "2026-08-19T23:30:00.000Z"],
   );
   const ny = importSaleEventsFromCsv(csv, "s", { timeZone: "America/New_York" });
   assert.equal(ny.events[0]!.closed_at, "2026-08-20T03:30:00.000Z");
