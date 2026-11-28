@@ -43,6 +43,7 @@ import {
   getFiledInventory,
   getHomeOffice,
   pnlReport,
+  pricingReport,
   profitToDateByPeriod,
   putFiledInventory,
   putHomeOffice,
@@ -86,6 +87,12 @@ routes.get(
     return c.json(await stockReport(c.var.ctx, c.var.tenant.orgId, asOf, from, to));
   },
 );
+
+routes.get("/pricing", validate("query", z.object({ from: isoDate, to: isoDate })), async (c) => {
+  const { from, to } = c.req.valid("query");
+  if (from > to) throw badRequest("from must be on or before to");
+  return c.json(await pricingReport(c.var.ctx, c.var.tenant.orgId, from, to));
+});
 
 routes.get(
   "/sales-ledger.csv",

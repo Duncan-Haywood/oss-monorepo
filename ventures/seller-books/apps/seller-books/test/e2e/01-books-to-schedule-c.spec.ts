@@ -140,7 +140,7 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
   await expect(dueRows.filter({ hasText: "2027-01-15" })).toBeVisible();
 
   // The stock report: the lot's two unsold items and its payback from the vase's Etsy order
-  // ($34.20 + $6.50 shipping = $40.70 against $30.00, 136%), the figures test/worker/books.test.ts
+  // ($34.20 + $6.50 shipping − $1.47 card processing = $39.23 against $30.00, 131%), the figures test/worker/books.test.ts
   // ("stock report") checks through the API.
   await nav(page, "Stock report");
   await expect(page.getByRole("heading", { name: "Stock report" })).toBeVisible();
@@ -148,7 +148,20 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
     name: /Estate sale haul/,
   });
   await expect(lotRow).toContainText("1 / 3");
-  await expect(lotRow).toContainText("$40.70");
-  await expect(lotRow).toContainText("136%");
+  await expect(lotRow).toContainText("$39.23");
+  await expect(lotRow).toContainText("131%");
   await expect(lotRow).toContainText("$20.00");
+
+  // Price an item, from the shop's own fees (shared/pricing.ts): one Etsy order in the last year, so its
+  // row is marked rough, and the quote follows what is typed.
+  const pricing = card(page, /Price an item/);
+  await labelled(page, "Item cost").fill("10.00");
+  await labelled(page, "List price").fill("40.00");
+  await labelled(page, "Profit you want").fill("15.00");
+  const etsy = pricing.getByRole("row", { name: /Etsy/ });
+  await expect(etsy).toContainText("few orders: rough");
+  await expect(pricing.getByRole("columnheader", { name: "Nets at $40.00" })).toBeVisible();
+  await expect(pricing.getByRole("columnheader", { name: "Price for $15.00 profit" })).toBeVisible();
+  if (process.env.E2E_SHOT_DIR)
+    await pricing.screenshot({ path: `${process.env.E2E_SHOT_DIR}/price-an-item.png` });
 });

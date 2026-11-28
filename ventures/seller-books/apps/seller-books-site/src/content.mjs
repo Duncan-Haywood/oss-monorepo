@@ -371,7 +371,7 @@ export const FEATURES = [
   {
     key: "stock",
     title: "Know what's sitting unsold, and whether a lot paid off",
-    body: "A stock report shows how long your unsold items have been on the shelf and what they cost you, your sell-through and median days to sell on each platform, for every bin, pallet or estate-sale haul how much of its cost its sales have earned back, and profit and return on cost by where you bought (which thrift store, estate sale or supplier pays). Computed from your own imports and purchase records, nothing estimated.",
+    body: "A stock report shows how long your unsold items have been on the shelf and what they cost you, your sell-through and median days to sell on each platform, for every bin, pallet or estate-sale haul how much of its cost its sales have earned back, and profit and return on cost by where you bought (which thrift store, estate sale or supplier pays). Computed from your own imports and purchase records, nothing estimated. Beside it, “price an item” takes the fees each platform actually charged on your last year of orders, ads and postage included, and shows what an item would net on each one and the price that leaves the profit you want.",
   },
   {
     key: "mileage",
