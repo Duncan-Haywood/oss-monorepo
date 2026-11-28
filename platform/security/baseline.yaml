@@ -170,19 +170,19 @@ accepted:
     rule: generic-api-key
     path: platform/billing/billing.test.mjs
     fingerprint: 3dd6f6bdd725c659
-    reason: "placeholder Paddle client tokens in a unit test (test_0123456789abcdef, pdl_sk_secretkey123); no real Paddle key exists in the tree"
+    reason: "placeholder Paddle client tokens in a unit test (counting digits and the word secretkey); no real Paddle key exists in the tree"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: platform/billing/billing.test.mjs
     fingerprint: 516001dba4f8cb6c
-    reason: "placeholder Paddle client tokens in a unit test (test_0123456789abcdef, pdl_sk_secretkey123); no real Paddle key exists in the tree"
+    reason: "placeholder Paddle client tokens in a unit test (counting digits and the word secretkey); no real Paddle key exists in the tree"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: platform/ci/cloudflare_mint/mint.test.mjs
     fingerprint: 98a08a66f4761154
-    reason: "placeholder minter token 'abcdef0123456789' in a unit test of the Cloudflare token minter"
+    reason: "placeholder minter token (hex counting digits) in a unit test of the Cloudflare token minter"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -248,13 +248,13 @@ accepted:
     rule: generic-api-key
     path: ventures/babysitting-business-kit/intake.test.mjs
     fingerprint: 952159574d415aee
-    reason: "placeholder token 0123456789abcdef... in a unit test"
+    reason: "placeholder token (hex counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/babysitting-business-kit/invoices.test.mjs
     fingerprint: c53a8b756e05b4a2
-    reason: "placeholder token 0123456789abcdef... in a unit test"
+    reason: "placeholder token (hex counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -290,85 +290,85 @@ accepted:
     rule: generic-api-key
     path: ventures/changepoint-detector/mixpanel-metrics.test.mjs
     fingerprint: 97086761048de539
-    reason: "placeholder secret 'mp-test-secret-...' in a unit test of the Mixpanel client"
+    reason: "placeholder secret in a unit test of the Mixpanel client"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/changepoint-detector/plausible-metrics.test.mjs
     fingerprint: 41bae4c0cfa11c02
-    reason: "placeholder key 'plausible-test-key-...' in a unit test of the Plausible client"
+    reason: "placeholder key in a unit test of the Plausible client"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/changepoint-detector/umami-metrics.test.mjs
     fingerprint: ae621e540fe43ffa
-    reason: "placeholder key 'umami_test-key-...' in a unit test of the Umami client"
+    reason: "placeholder key in a unit test of the Umami client"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/churn-radar/server.test.mjs
     fingerprint: 4807fb426bd27a39
-    reason: "placeholder API key 'api-key-1234567890' in a server unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/ai.test.mjs
     fingerprint: 82b96d32c3d5d975
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/ai.test.mjs
     fingerprint: fbc3ad298c29fd01
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/connectors.test.mjs
     fingerprint: d30f94cf1434f97f
-    reason: "placeholder API keys ('api-key-1234567890', 'wrong-key-123456789') in a unit test"
+    reason: "placeholder API keys (the words api key or wrong key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/connectors.test.mjs
     fingerprint: dc4616003c59b7d4
-    reason: "placeholder API keys ('api-key-1234567890', 'wrong-key-123456789') in a unit test"
+    reason: "placeholder API keys (the words api key or wrong key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/import.test.mjs
     fingerprint: 82b96d32c3d5d975
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/import.test.mjs
     fingerprint: f119d8bd3073f734
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/import.test.mjs
     fingerprint: 8a5859a13fdbfd66
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/deal-keeper/server.test.mjs
     fingerprint: 6c767c53b5142c80
-    reason: "placeholder API key 'api-key-1234567890' in a server unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/dotenv-exposure-check/index.html
     fingerprint: 67a568139b9ba337
-    reason: "the sample .env (STRIPE_SECRET_KEY=sk_live_abc123) the exposure checker shows as an example of what it detects; not a Stripe key"
+    reason: "the sample .env (a Stripe-shaped value ending abc123) the exposure checker shows as an example of what it detects; not a Stripe key"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/dotenv-exposure-check/probe.test.mjs
     fingerprint: d9740a003d852c8f
-    reason: "the sample .env value sk_live_abc123 the probe's test expects to flag; not a Stripe key"
+    reason: "the sample .env value (Stripe-shaped, ending abc123) the probe's test expects to flag; not a Stripe key"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -476,7 +476,7 @@ accepted:
     rule: aws-access-token
     path: ventures/liability-audit/audit.test.mjs
     fingerprint: 2db7f70180aee3c7
-    reason: "synthetic AWS key id AKIAABCDEFGHIJKLMNOP the audit's test expects to flag"
+    reason: "a synthetic AWS key id (AKIA then the letters A to P) the audit's test expects to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -524,7 +524,7 @@ accepted:
     rule: generic-api-key
     path: ventures/local-site-studio/src/lib/email/resend-env-readiness.test.ts
     fingerprint: 3bebb7773f7a4e3c
-    reason: "placeholder RESEND_API_KEY 're_live_abc123' in a test of the env readiness check"
+    reason: "placeholder RESEND_API_KEY (Resend-shaped, ending abc123) in a test of the env readiness check"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -572,19 +572,19 @@ accepted:
     rule: generic-api-key
     path: ventures/meter-keeper/sdk.test.mjs
     fingerprint: 840a4c2ff4577fa4
-    reason: "placeholder API key 'api-key-1234567890' in a unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/meter-keeper/server.test.mjs
     fingerprint: 6c767c53b5142c80
-    reason: "placeholder API key 'api-key-1234567890' in a server unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/pql-radar/server.test.mjs
     fingerprint: 4807fb426bd27a39
-    reason: "placeholder API key 'api-key-1234567890' in a server unit test"
+    reason: "placeholder API key (the words api key and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
@@ -638,89 +638,89 @@ accepted:
     rule: generic-api-key
     path: ventures/status-keeper/server.test.mjs
     fingerprint: c61f9ada991a5088
-    reason: "placeholder token 'tok-123456789012' in a server unit test"
+    reason: "placeholder token (tok and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: generic-api-key
     path: ventures/status-keeper/server.test.mjs
     fingerprint: 0bcf0b077d05de38
-    reason: "placeholder token 'tok-123456789012' in a server unit test"
+    reason: "placeholder token (tok and counting digits) in a server unit test"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/cli.test.mjs
     fingerprint: 75f6bfc98be660d8
-    reason: "synthetic AWS key id AKIAABCDEFGHIJKLMNOP the checker's test expects to flag"
+    reason: "a synthetic AWS key id (AKIA then the letters A to P) the checker's test expects to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/cli.test.mjs
     fingerprint: f2c9b34893b8630e
-    reason: "synthetic AWS key id AKIAABCDEFGHIJKLMNOP the checker's test expects to flag"
+    reason: "a synthetic AWS key id (AKIA then the letters A to P) the checker's test expects to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 048d589f7683f77d
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: c3e2196eb8022fe0
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 1a38bfd1bbfbe210
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 2b45ac4906ba914f
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 34ff8a058c3ed16d
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: jwt
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: ffcb167d4901fe45
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 4e3da6adf8974cfb
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 75f6bfc98be660d8
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: jwt
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: 6c55e9db50b0dbac
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/engine.test.mjs
     fingerprint: f6d766dd2cacfe71
-    reason: "synthetic AWS key ids (AKIAABCDEFGHIJKLMNOP) and the public jwt.io example JWTs the checker's tests expect to flag"
+    reason: "synthetic AWS key ids (AKIA then the letters A to P) and the public jwt.io example JWTs the checker's tests expect to flag"
     added: 2026-11-28
   - tool: gitleaks
     rule: aws-access-token
     path: ventures/terraform-plan-secret-exposure-check/index.html
     fingerprint: dff2b9e843de127c
-    reason: "synthetic AWS key id AKIAABCDEFGHIJKLMNOP in the checker's built-in sample plan"
+    reason: "a synthetic AWS key id (AKIA then the letters A to P) in the checker's built-in sample plan"
     added: 2026-11-28
