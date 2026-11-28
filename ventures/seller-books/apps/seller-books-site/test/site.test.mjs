@@ -44,6 +44,16 @@ import {
   SHOTS,
   STOCK_EXAMPLE,
   stockExampleFigures,
+  WHATNOT_1099K_URL,
+  WHATNOT_CHECKED_ON,
+  WHATNOT_EXAMPLE,
+  WHATNOT_FEE,
+  WHATNOT_FEE_TAX_URL,
+  WHATNOT_FEES_URL,
+  WHATNOT_SALES_TAX_QUOTE,
+  WHATNOT_SALES_TAX_URL,
+  whatnotLines,
+  whatnotPublishedFeesCents,
 } from "../src/pages.mjs";
 
 let out;
@@ -1162,5 +1172,102 @@ describe("feature cards on the home page", () => {
       if (f.guide) assert.ok(linksTo(card[0], `${BASE_PATH}${f.guide}`), `${f.key}: no guide link`);
     }
     assert.ok(read("llms-full.txt").includes(FEATURES[0].body.slice(0, 80)));
+  });
+});
+
+describe("the Whatnot taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/whatnot-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const [head, ...lines] = appFile("test/fixtures/whatnot-orders-report.csv").trim().split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => (v === "" ? undefined : Math.round(Number(v) * 100));
+    const usd = lines.filter((l) => at(l, "Transaction Currency") === "USD");
+    assert.equal(lines.length - usd.length, 1, "one non-USD row, skipped");
+    assert.equal(usd.length, WHATNOT_EXAMPLE.length);
+    usd.forEach((l, i) => {
+      const r = WHATNOT_EXAMPLE[i];
+      assert.equal(r.type, at(l, "Transaction Type"), r.what);
+      assert.equal(r.amountCents, money(at(l, "Transaction Amount")), r.what);
+      if (r.type === "Order Earnings") {
+        assert.equal(r.priceCents, money(at(l, "Post Coupon Price")), r.what);
+        assert.equal(r.buyerPaidCents, money(at(l, "Buyer Paid")), r.what);
+        assert.equal(r.commissionCents, money(at(l, "Commission Fee")), r.what);
+        assert.equal(r.processingCents, money(at(l, "Payment Processing Fee")), r.what);
+        assert.equal(
+          r.feeTaxCents,
+          money(at(l, "Tax on Commission")) + money(at(l, "Tax on Payment Processing Fee")),
+        );
+        assert.equal(r.sellerShippingCents, money(at(l, "Shipping Fee")), r.what);
+        assert.equal(
+          r.priceCents - r.commissionCents - r.processingCents - r.feeTaxCents - r.sellerShippingCents,
+          r.amountCents,
+          r.what,
+        );
+      }
+      if (r.type === "Tips") assert.equal(r.processingCents, money(at(l, "Payment Processing Fee")));
+    });
+    // The importer and the worksheet file them as the page says.
+    const imp = appFile("src/worker/services/importers/whatnot.ts");
+    assert.match(imp, /price = amount \+ sumFees\(fees\) \+ sellerShip/);
+    assert.match(imp, /shippingLabelCents: sellerShip/);
+    assert.match(imp, /kind: "shipping_label"/);
+    assert.match(imp, /refundCents: Math\.abs\(amount\)/);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /else returns \+= s\.refundCents/);
+    assert.match(sc, /if \(c\.kind === "shipping_label"\) add\("27a:postage", c\.amountCents\)/);
+  });
+
+  test("the Schedule C lines by hand, and the fees against Whatnot's published US rates", () => {
+    assert.deepEqual(whatnotLines(), {
+      line1: 10500,
+      line2: 4000,
+      line10: 1275,
+      line27a: 624,
+      net: 4601,
+    });
+    const L = whatnotLines();
+    assert.equal(L.line1 - L.line2 - L.line10 - L.line27a, L.net);
+    assert.deepEqual(WHATNOT_FEE, { commissionRate: 0.08, processingRate: 0.029, processingFixedCents: 30 });
+    for (const r of WHATNOT_EXAMPLE.filter((x) => x.priceCents > 0))
+      assert.deepEqual(whatnotPublishedFeesCents(r), [r.commissionCents, r.processingCents], r.what);
+    const html = htmlOf(page());
+    for (const s of ["$105.00", "$40.00", "$12.75", "$6.24", "$46.01", "$2.00", "$1.23", "$6.00", "$2.94", "$5.00"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("sources quoted and dated", () => {
+    const html = htmlOf(page());
+    assert.match(WHATNOT_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    for (const s of [
+      WHATNOT_FEES_URL,
+      WHATNOT_SALES_TAX_URL,
+      WHATNOT_SALES_TAX_QUOTE,
+      WHATNOT_FEE_TAX_URL,
+      WHATNOT_1099K_URL,
+      `checked ${WHATNOT_CHECKED_ON}`,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    for (const u of [WHATNOT_FEES_URL, WHATNOT_SALES_TAX_URL, WHATNOT_FEE_TAX_URL, WHATNOT_1099K_URL])
+      assert.match(u, /^https:\/\/help\.whatnot\.com\/hc\/en-us\/articles\/\d+-/);
+    // Whatnot's tax is the marketplace's in the app's sales tax report.
+    const st = appFile("src/shared/sales-tax.ts");
+    assert.match(st, /Poshmark, Mercari, Whatnot/);
+    assert.ok(!/"whatnot"/.test(st.slice(st.indexOf("SELLER_COLLECTED"), st.indexOf("]);"))));
+  });
+
+  test("linked from the Whatnot platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/whatnot-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/whatnot")).includes(link));
+    assert.ok(!htmlOf(pages.find((p) => p.path === "/platforms/ebay")).includes("one week of a report"));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/whatnot-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/whatnot-taxes`));
   });
 });
