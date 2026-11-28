@@ -1725,6 +1725,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     if (stat) newestSitemap = Math.max(newestSitemap, stat.mtimeMs);
   }
   const newerThanSitemaps = [];
+  const servedSet = new Set(servedPages);
 
   // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
   // site is broken.
@@ -1732,8 +1733,18 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // Cloudflare serves `page.html` at `page` (`served-path.mjs`), which is
     // how build.mjs lists it, so an extensionless URL resolves to that file.
     const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
-    if (!(await present(path.join(siteRoot, target))) && !(await present(path.join(siteRoot, `${target}.html`)))) {
+    const asIs = await present(path.join(siteRoot, target));
+    if (!asIs && !(await present(path.join(siteRoot, `${target}.html`)))) {
       problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
+      continue;
+    }
+    // A sitemap is a request to index; `noindex` on the page refuses it. Search
+    // Console reports the pair as "Submitted URL marked 'noindex'" and counts it
+    // against the sitemap (einvoice-preflight/sample-audit-pack, 2026-11-27).
+    // Redirect stubs are noindex by design and are never listed, so any hit is real.
+    const file = asIs ? target : `${target}.html`;
+    if (file.endsWith('.html') && servedSet.has(file) && NOINDEX_RE.test(readPage(file))) {
+      problems.push(`${source}: lists a noindex page -> /${urlPath} (drop it from the sitemap, or drop the noindex)`);
     }
   }
 
