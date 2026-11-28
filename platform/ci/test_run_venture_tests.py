@@ -304,6 +304,13 @@ class FakeVentures(unittest.TestCase):
         self.assertIn("llms-answers.test.mjs", rvt.PAGE_CHECKS)
         self.assertTrue((rvt.ROOT / "platform" / "pages" / "llms-answers.test.mjs").is_file())
 
+    def test_page_checks_include_the_length_ratchets(self):
+        # PR #20062 merged a page over the title and description bars (main red).
+        for name in ("title-length.test.mjs", "description-length.test.mjs",
+                     "og-description-length.test.mjs"):
+            self.assertIn(name, rvt.PAGE_CHECKS)
+            self.assertTrue((rvt.ROOT / "platform" / "pages" / name).is_file(), name)
+
 
 class Report(unittest.TestCase):
     UNITTEST_RED = ("F\n" + "=" * 70 + "\nFAIL: test_host (tests.test_host.T.test_host)\n" + "-" * 70
