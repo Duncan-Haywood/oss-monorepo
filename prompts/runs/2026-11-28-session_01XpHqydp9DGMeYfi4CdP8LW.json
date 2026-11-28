@@ -32,13 +32,18 @@
   "errors": [
     "iso-clauses-sync.mjs first sliced the ROWS literal from its type annotation's '[' (Row[]); fixed by slicing from '= ['",
     "two test assertions were wrong (own-work expectation inverted; '<img' regex matched the escaped '\\<img'); fixed",
-    "inherited_keys check flagged FINDING_KIND_LABEL[...] lookups; guarded with Object.hasOwn"
+    "inherited_keys check flagged FINDING_KIND_LABEL[...] lookups; guarded with Object.hasOwn",
+    "CI validate failed: portfolio/monetization/transition.json goes stale when a venture's line count reorders the proprietary list; regenerated with transition.py --write. Renamed iso-clauses-sync.mjs to iso-clauses-gen.mjs since SUBSCRIPTION_FILE treats a '-sync' file as a server-side part (the venture was already so classified via pdf-parser-sync.test.mjs, a test file)"
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets says 'Start here: bet #5 seller-books (0 claims)' because it has no ROADMAP.md, while the same output says bet #4 has the fewest front-door PRs; two different 'start here' signals, chose the latter since seller-books' growth-path topics are already built"
+    },
+    {
+      "file": "portfolio/monetization/transition.py",
+      "issue": "SUBSCRIPTION_FILE matches '-sync' in test and build-script names (pdf-parser-sync.test.mjs), so the free static machine-shop-guides is classified 'subscription: runs a server-side part'; and any line growth that reorders ventures makes transition.json stale, failing validate on unrelated PRs, which local --for-changes did not run (deferred portfolio-validate.yml)"
     }
   ],
   "deviations": [

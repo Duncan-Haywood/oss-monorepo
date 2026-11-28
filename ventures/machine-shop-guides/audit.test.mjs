@@ -2,15 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { CLAUSES, FINDING_KIND_LABEL, AUDIT_COVERAGE_MONTHS, review, summary, toMarkdown, toCsv, csvCell, carLink, blankChecklist, planProgramme, normalise, EXAMPLE } from "./audit.mjs";
-import { SOURCE, parse, render } from "./iso-clauses-sync.mjs";
+import { SOURCE, parse, render } from "./iso-clauses-gen.mjs";
 
 const TODAY = "2026-11-28";
 const APP = readFileSync(new URL("../cmmc/apps/cmmc/src/shared/internal-audits.ts", import.meta.url), "utf8");
 const msgs = (res, kind) => res.findings.filter((f) => !kind || f.kind === kind).map((f) => f.message);
 
-test("iso-clauses.mjs is what iso-clauses-sync.mjs writes from the workspace's clause library", () => {
+test("iso-clauses.mjs is what iso-clauses-gen.mjs writes from the workspace's clause library", () => {
   const written = readFileSync(new URL("./iso-clauses.mjs", import.meta.url), "utf8");
-  assert.equal(written, render(parse(readFileSync(SOURCE, "utf8"))), "run node iso-clauses-sync.mjs");
+  assert.equal(written, render(parse(readFileSync(SOURCE, "utf8"))), "run node iso-clauses-gen.mjs");
   assert.equal(CLAUSES.length, 47);
   assert.equal(CLAUSES[0].number, "4.1");
   assert.equal(CLAUSES.at(-1).number, "10.3");
