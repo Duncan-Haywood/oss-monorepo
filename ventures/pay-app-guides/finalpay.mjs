@@ -181,6 +181,8 @@ export function coverEmail(result, s = {}) {
   return lines.join("\n").replace(/\n+$/, "\n");
 }
 
+// csvCell (calc.mjs) quotes commas and is the CSV formula-injection guard: a cell starting =, +, -, @ is
+// prefixed with an apostrophe (finalpay.test.mjs checks a name like "=HYPERLINK(1)").
 const money = (c) => (c / 100).toFixed(2);
 export function toCsv(result) {
   const head = ["Name", "Role", "Contract", "Paid to date", "Unpaid", "Open claim", "Final waiver held", "Waiver to collect now", "Note"];
