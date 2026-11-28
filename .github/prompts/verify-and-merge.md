@@ -29,6 +29,7 @@ node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, conse
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
 node --test platform/counter/*.test.mjs
 node --test platform/analytics/*.test.mjs
+node --test platform/theme/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/email/*.test.mjs          # the agent-managed inboxes Worker (platform/email)
 node --test platform/email/aws/*.test.mjs      # its SES inbound adapter (the AWS move)
