@@ -33,7 +33,9 @@
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "jobshop-site catalogue-export was stale on main (pre-existing); fixed in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -55,7 +57,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Campaigns: retainage.ts 8/8 caught, billing grace.ts 6/6, qbo-sync costs.ts 6/8 (two FakeCostBook escapes, both now caught). Guard added (step 4b): platform/ci/check_shared_package_drift.py + test, run by unwired_checks.py on every PR. It requires every src file shared by two or more ventures' copies of a package to be byte-identical unless KNOWN_DIVERGENT names it with a reason (billing/src/index.ts, admin-metrics/src/contract.ts). First run: with the old jobshop-quote money.ts restored it reports qbo-sync/src/money.ts as 2 versions; green after the port. Checks run: qbo-sync node suites in both ventures (95/95 each), run_venture_tests.py jobshop-quote payapps (0 failed), test_check_shared_package_drift.py OK.",
+  "notes": "Campaigns: retainage.ts 8/8 caught, billing grace.ts 6/6, qbo-sync costs.ts 6/8 (two FakeCostBook escapes, both now caught). Guard added (step 4b): platform/ci/check_shared_package_drift.py + test, run by unwired_checks.py on every PR. It requires every src file shared by two or more ventures' copies of a package to be byte-identical unless KNOWN_DIVERGENT names it with a reason (billing/src/index.ts, admin-metrics/src/contract.ts). First run: with the old jobshop-quote money.ts restored it reports qbo-sync/src/money.ts as 2 versions; green after the port. Checks run: qbo-sync node suites in both ventures (95/95 each), run_venture_tests.py jobshop-quote payapps (0 failed), test_check_shared_package_drift.py OK. Local run_workflow_locally --for-changes: jobshop-quote-ci site step was red on main (catalogue-export stale: two guide links added without `pnpm export:catalogue`); re-exported, site unit 164/164. pay-app-guides xlsx tests fail locally only because soffice is not installed in the container. prompts-ci validate was red only because the local run started before `pr` was filled.",
   "corrections": [],
   "redteam": {
     "campaigns": [
