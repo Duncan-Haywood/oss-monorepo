@@ -73,6 +73,66 @@ const sourcesList = (ids) =>
 const CTA_MARKER = "<!--cta-->";
 const cta = CTA_MARKER;
 
+/**
+ * Stills of the real app (apps/cmmc/scripts/stills.mjs), taken from one invented shop on a fresh
+ * local database: 106 of the 110 Level 2 requirements recorded implemented and four 1-point gaps on
+ * the POA&M, a score that script asserts on the page before each shot. Width and height are the
+ * WebP's own; test/site.test.mjs checks them against the files in assets/.
+ */
+export const SHOTS = {
+  dashboard: {
+    file: "shot-dashboard-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The CMMC Workspace dashboard for an invented shop's Level 2 self-assessment: SPRS score 106 of 110, status counts of 106 implemented and 4 not implemented, and a POA&M check saying every open gap may sit on a POA&M and the score is at least 88.",
+  },
+  dashboardPhone: {
+    file: "shot-dashboard-phone.webp",
+    width: 390,
+    height: 844,
+    alt: "The same dashboard on a phone: SPRS score 106 of 110, then the status counts, one card under another.",
+  },
+  controls: {
+    file: "shot-controls-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The Controls page: the Level 2 requirements listed with their point values and status, and requirement AC.L2-3.1.10, session lock, open on the right as not implemented, with its three NIST SP 800-171A assessment objectives and the shop's notes.",
+  },
+  poam: {
+    file: "shot-poam-desktop.webp",
+    width: 1280,
+    height: 860,
+    alt: "The plan of action and milestones: four open items (screen lock, remote session time-out, unencrypted off-site backup drives, safeguards for working from home), each with a due date, a remediation plan and a note that the 1-point requirement may sit on a POA&M.",
+  },
+};
+
+const attr = (t) => t.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const shotImg = (s) =>
+  `<img src="/${s.file}" width="${s.width}" height="${s.height}" alt="${attr(s.alt)}" loading="lazy" decoding="async">`;
+const shotLink = (s) => `<a href="/${s.file}">${shotImg(s)}</a>`;
+
+function shotsSection() {
+  return `<section class="shots" aria-labelledby="shots-h">
+  <h2 id="shots-h">What it looks like in the workspace</h2>
+  <p>Screenshots of the app with one made-up shop working through Level 2. The shop, its gaps and its dates are invented; the score is the app's own arithmetic. Level 2 recording needs a paid plan, which is not on sale yet; Level 1 is free.</p>
+  <figure class="shot-hero">
+    <div class="shot-frame shot-wide">${shotLink(SHOTS.dashboard)}</div>
+    <div class="shot-frame shot-phone">${shotLink(SHOTS.dashboardPhone)}</div>
+    <figcaption>The dashboard: your SPRS score as you record each requirement, the count by status, and whether your open gaps would allow a conditional status under 32 CFR 170.21.</figcaption>
+  </figure>
+  <div class="shot-pair">
+    <figure>
+      <div class="shot-frame">${shotLink(SHOTS.controls)}</div>
+      <figcaption>Each requirement in its official wording, its point value and its assessment objectives, with your notes and the statement that goes in the SSP.</figcaption>
+    </figure>
+    <figure>
+      <div class="shot-frame">${shotLink(SHOTS.poam)}</div>
+      <figcaption>The POA&amp;M: each open item with a due date, a plan and whether the rule lets it sit on a POA&amp;M at all.</figcaption>
+    </figure>
+  </div>
+</section>`;
+}
+
 /** The call to action for one page: the early-access list before launch, the app's sign-up after. */
 export function ctaFor(launch, path) {
   if (!launch.open)
@@ -162,6 +222,7 @@ export function buildPages(launch = launchState()) {
   ${cta}
 </section>
 ${statusBox()}
+${open ? shotsSection() : ""}
 <section>
   <h2>What you get out of it</h2>
   <ul class="cards">
