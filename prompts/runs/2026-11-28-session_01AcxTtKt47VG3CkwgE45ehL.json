@@ -39,6 +39,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "The eCFR versioner API returns 406 unless curl sends --compressed (Accept-Encoding). Earlier fixtures did not say how they were fetched, so this had to be found again."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "The 4 MiB per-category offline bound turns red when any venture in the category grows, so the merge that trips it is often unrelated (here a CMMC page PR). It took a custom gzip-by-venture script to find the cause; the test could print the top contributors when it fails."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
     "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (update section, 28 Nov)"
   ],
   "goal": null,
-  "notes": "Security queue had no workable alerts and the ideas inbox was empty; routed to ventures. Built /cmmc/fci-vs-cui. Quotations come from fixtures: Part 2002 read from the eCFR versioner API (2026-11-01 point in time, compressed request) and saved under fixtures/cui with sha256 pinned. cmmc-site: node --test 95/95 passed. run_venture_tests cmmc: 0 failed. biome clean. A DoDI 5230.24 link was dropped because esd.whs.mil returned 403 through the proxy, so the page makes no claim about Distribution Statement A.",
+  "notes": "Security queue had no workable alerts and the ideas inbox was empty; routed to ventures. Built /cmmc/fci-vs-cui. Quotations come from fixtures: Part 2002 read from the eCFR versioner API (2026-11-01 point in time, compressed request) and saved under fixtures/cui with sha256 pinned. cmmc-site: node --test 95/95 passed. run_venture_tests cmmc: 0 failed. biome clean. A DoDI 5230.24 link was dropped because esd.whs.mil returned 403 through the proxy, so the page makes no claim about Distribution Statement A. After merging main for a conflict in pages.mjs (another run's SPRS submission page), the pages 'test' job went red on main's own content: PR #20062's SPRS guide had a 77-character title and a 174-character description, and the services offline bundle was 9.5 KB over 4 MiB. Fixed in this PR: shortened the title and description, and isNodeOnlyScript now leaves out *.test.mjs and a venture's root server.mjs (Node-only, imported by no page). The offline-bundle tests pass 12/12 locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
