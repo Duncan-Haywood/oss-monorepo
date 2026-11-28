@@ -108,7 +108,7 @@ def mutate_text(text: str, old: str, new: str, occurrence: int | None) -> tuple[
     """Replace one occurrence of `old`; return the new text and its 1-based line."""
     count = text.count(old)
     if count == 0:
-        raise ValueError("--old does not occur in the file")
+        raise ValueError("--old does not occur in the file" + absent_hint(text, old))
     if occurrence is None:
         if count > 1:
             raise ValueError(f"--old occurs {count} times; widen it or pass --occurrence N")
@@ -119,6 +119,53 @@ def mutate_text(text: str, old: str, new: str, occurrence: int | None) -> tuple[
     for _ in range(occurrence):
         at = text.index(old, at + 1)
     return text[:at] + new + text[at + len(old):], text.count("\n", 0, at) + 1
+
+
+def absent_hint(text: str, old: str) -> str:
+    """Why a multi-line --old may not match, or "". A 2026-11-27 auditor's
+    multi-line --old read as absent although the lines were in the file: bash's
+    "a\\nb" passes a backslash and an n, not a newline, and a pasted block
+    rarely keeps the file's exact indentation."""
+    if "\\n" in old and old.replace("\\n", "\n") in text:
+        return ("; it holds a literal backslash-n: bash's \"...\\n...\" is not a newline, "
+                "so write $'...\\n...' or put the real line break inside the quotes")
+    if "\n" in old and old.replace("\n", "\r\n") in text:
+        return "; the file has CRLF line endings: write \\r\\n between the lines ($'...\\r\\n...')"
+    squash = lambda t: re.sub(r"\s+", " ", t).strip()
+    if "\n" in old and squash(old) and squash(old) in squash(text):
+        return ("; it matches only with different whitespace (indentation or line breaks): "
+                "copy the lines exactly, or seed a one-line --old")
+    return ""
+
+
+INSTALL = (("pnpm-lock.yaml", "pnpm install --frozen-lockfile"), ("package-lock.json", "npm ci"),
+           ("yarn.lock", "yarn install --frozen-lockfile"))
+
+
+def missing_install(repo: Path, cwd: Path) -> tuple[Path, str] | None:
+    """(directory, install command) when the JavaScript dependencies the tests need were
+    never installed in this checkout, else None. The copy links `node_modules` from the
+    repository, so a fresh clone gives the copy none either, and the baseline failed with
+    only "the suite is red": three audits of pnpm workspace ventures (2026-11-25 to 27,
+    ventures/cmmc among them) seeded mutants by hand for it. Installing once in the
+    checkout (about 6 s for ventures/cmmc) serves every later mutant."""
+    here, top = (repo / cwd).resolve(), repo.resolve()
+    # Up to the checkout's top, not the subject's: a private-monorepo app's
+    # pnpm-lock.yaml sits at the clone's root, above apps/<name>.
+    chain = [here, *[p for p in here.parents if p == top or top in p.parents]]
+    for d in chain:
+        for lock, how in INSTALL:
+            if (d / lock).is_file():
+                return None if (d / "node_modules").is_dir() else (d, how)
+    pkg = here / "package.json"
+    try:
+        spec = json.loads(pkg.read_text(encoding="utf-8")) if pkg.is_file() else {}
+    except (OSError, ValueError):
+        return None
+    wants = isinstance(spec, dict) and (spec.get("dependencies") or spec.get("devDependencies"))
+    if wants and not any((d / "node_modules").is_dir() for d in chain):
+        return here, "npm install"
+    return None
 
 
 ENV_ASSIGN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
@@ -188,8 +235,11 @@ def run(cmd: list[str], cwd: Path, timeout: float) -> tuple[str, float, str]:
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     start = time.monotonic()
     argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else shell_words(cmd, cwd)
-    p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                         text=True, errors="replace", start_new_session=True)
+    try:
+        p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             text=True, errors="replace", start_new_session=True)
+    except OSError as e:  # `./node_modules/.bin/vitest` before an install: a red baseline, not a traceback
+        return "fail", time.monotonic() - start, f"cannot start {argv[0]}: {e.strerror}\n"
     try:
         out, _ = p.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -310,6 +360,12 @@ def main(argv: list[str] | None = None) -> int:
             if state != "pass":
                 print(tail, file=sys.stderr)
                 hints = [] if from_top else repo_relative_args(cmd, cwd)
+                need = missing_install(repo, cwd)
+                if need:
+                    where = need[0].relative_to(repo).as_posix() if need[0] != repo else "."
+                    print(f"hint: {where}/ has no node_modules, so its dependencies were never "
+                          f"installed in this checkout: run `cd {where} && {need[1]}` first (the copy "
+                          f"links it, so one install serves every mutant).", file=sys.stderr)
                 for arg, local in hints:
                     print(f"hint: the command runs in {cwd.as_posix()}/, so `{arg}` is written from the "
                           f"repository root; write `{local}` (or prefix the command with "
