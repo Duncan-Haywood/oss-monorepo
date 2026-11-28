@@ -337,6 +337,12 @@ function paymentFrom(settlement) {
   if (remittance) payment.remittance = remittance;
   const termsDays = paymentTermsDays(settlement);
   if (termsDays) payment.terms_days = termsDays;
+  // BT-20, the payment terms text, where XRechnung writes Skonto (BR-DE-18).
+  const termsNote = descendants(settlement, "SpecifiedTradePaymentTerms")
+    .map((terms) => textOf(terms, "Description"))
+    .filter(Boolean)
+    .join("\n");
+  if (termsNote) payment.terms_note = termsNote;
   return Object.keys(payment).length ? payment : null;
 }
 
