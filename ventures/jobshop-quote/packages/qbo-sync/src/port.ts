@@ -355,7 +355,7 @@ export function validateInvoiceInput(input: InvoiceInput): void {
   let total = 0;
   for (const [i, line] of input.lines.entries()) {
     if (!line.itemId) throw new AccountingValidationError(`line ${i}: itemId is required`);
-    if (!Number.isInteger(line.amountCents)) {
+    if (!Number.isSafeInteger(line.amountCents)) {
       throw new AccountingValidationError(`line ${i}: amountCents must be an integer`);
     }
     if (line.unitPriceCents !== undefined && line.qty !== undefined) {
@@ -367,6 +367,9 @@ export function validateInvoiceInput(input: InvoiceInput): void {
       }
     }
     total += line.amountCents;
+  }
+  if (!Number.isSafeInteger(total)) {
+    throw new AccountingValidationError("invoice total is too large to total exactly in cents");
   }
   if (total < 0) {
     throw new AccountingValidationError(`invoice total is negative (${total} cents)`);
@@ -383,15 +386,18 @@ export function validateInvoiceInput(input: InvoiceInput): void {
 
 export function validatePaymentInput(input: PaymentInput): void {
   if (!input.customerId) throw new AccountingValidationError("customerId is required");
-  if (!Number.isInteger(input.totalCents) || input.totalCents <= 0) {
+  if (!Number.isSafeInteger(input.totalCents) || input.totalCents <= 0) {
     throw new AccountingValidationError("totalCents must be a positive integer");
   }
   let applied = 0;
   for (const a of input.applyTo) {
-    if (!Number.isInteger(a.amountCents) || a.amountCents <= 0) {
+    if (!Number.isSafeInteger(a.amountCents) || a.amountCents <= 0) {
       throw new AccountingValidationError("each applied amount must be a positive integer");
     }
     applied += a.amountCents;
+  }
+  if (!Number.isSafeInteger(applied)) {
+    throw new AccountingValidationError("applied amounts are too large to total exactly in cents");
   }
   if (applied > input.totalCents) {
     throw new AccountingValidationError(
@@ -413,7 +419,7 @@ export function validateCreditMemoInput(input: CreditMemoInput): void {
   }
   for (const [i, line] of input.lines.entries()) {
     if (!line.itemId) throw new AccountingValidationError(`line ${i}: itemId is required`);
-    if (!Number.isInteger(line.amountCents) || line.amountCents <= 0) {
+    if (!Number.isSafeInteger(line.amountCents) || line.amountCents <= 0) {
       throw new AccountingValidationError(`line ${i}: amountCents must be a positive integer`);
     }
   }
@@ -429,7 +435,7 @@ export function validateCreditApplicationInput(input: CreditApplicationInput): v
   if (!input.customerId) throw new AccountingValidationError("customerId is required");
   if (!input.invoiceId) throw new AccountingValidationError("invoiceId is required");
   if (!input.creditMemoId) throw new AccountingValidationError("creditMemoId is required");
-  if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
+  if (!Number.isSafeInteger(input.amountCents) || input.amountCents <= 0) {
     throw new AccountingValidationError("amountCents must be a positive integer");
   }
   if (input.txnDate !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(input.txnDate)) {

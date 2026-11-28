@@ -108,3 +108,28 @@ test("the profile is opt-in on preflightDocuments", async () => {
   assert.ok(!plain.reports[0].errors.some((e) => e.rule.startsWith("XR-")));
   assert.ok(withProfile.reports[0].errors.some((e) => e.rule === "XR-001"));
 });
+
+test("XR-012 warns on a Leitweg-ID with a label, wrong separators or no hyphens", () => {
+  const warn = (ref) => {
+    const inv = good();
+    inv.buyer_reference = ref;
+    return inspectXrechnungProfile(inv).map((f) => `${f.rule}:${f.severity || ""}`);
+  };
+  for (const ref of ["Leitweg-ID: 04011000-12345-03", "leitweg-id 04011000-12345-03", "04011000 12345 03", "04011000.12345.03", "040110001234503"]) {
+    assert.deepEqual(warn(ref), ["XR-012:warning"], ref);
+  }
+  // a label in front of a mistyped id is a check-digit error, not a form note
+  assert.deepEqual(warn("Leitweg-ID: 04011000-12354-03"), ["XR-002:"]);
+  // ordinary references stay silent: cost centres, order numbers, a short number that fails MOD 97
+  for (const ref of ["Kostenstelle 4711", "PO-77", "4711", "12345", "04011000-12345"]) assert.deepEqual(warn(ref), [], ref);
+});
+
+test("XR-012 on runs of digits: about 1 in 97 pass by chance, so it stays a warning", () => {
+  let hits = 0;
+  for (let n = 100000; n < 110000; n++) {
+    const inv = good();
+    inv.buyer_reference = String(n);
+    if (ids(inv).includes("XR-012")) hits++;
+  }
+  assert.equal(hits, 104); // quoted on leitweg-id-pruefen.html
+});

@@ -209,7 +209,8 @@ export class FakeEmailSender implements EmailSender {
   readonly sent: EmailMessage[] = [];
   async send(msg: EmailMessage) {
     this.sent.push(msg);
-    return { id: `fake-email-${this.sent.length}` };
+    // Shaped like a provider's Message-ID, so follow-ups can be seen threading on it in tests.
+    return { id: `fake-email-${this.sent.length}@fake.invalid` };
   }
 }
 

@@ -4,6 +4,7 @@ seo_title: "Pipe boot count in a roof material takeoff"
 date: 2026-11-05
 tags: [ventures, wall-framing-takeoff, construction, roofing]
 description: "The wall-framing-takeoff roof order now carries plumbing vent pipe boots from a count you type, with a spare, and prices them in the budget."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The roof order in `wall-framing-takeoff` covered shingles, underlayment, drip edge, ridge, starter, nails, ice shield and valley flashing, but not the flashing around plumbing vents. It now takes `roofing.pipeBoots`, the number of roof penetrations you read off the plumbing plan, and adds `pipeBootSpares` (default one) for a miscut or a bad seal. Without the field nothing changes.

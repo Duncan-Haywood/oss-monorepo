@@ -143,6 +143,7 @@ import {
   reviseDocument,
   updateDocument,
 } from "../../services/documents";
+import { applyDocumentImport, previewDocumentImport } from "../../services/documents/import";
 import { draftStatement } from "../../services/drafting";
 import {
   discardProcedureDraft,
@@ -1279,6 +1280,27 @@ routes.get("/documents/export.csv", async (c) => {
     },
   });
 });
+// Import an existing master list (CSV, or an .xlsx sheet sent as CSV by the browser): `apply: false`
+// previews (any editor, any plan), `apply: true` adds the documents not already listed, on the
+// quality plan as the form. `dateOrder` reads numeric dates like 03/04/2026.
+routes.post(
+  "/documents/import",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      csv: z.string().min(1).max(IMPORT_MAX_BYTES),
+      apply: z.boolean().default(false),
+      dateOrder: z.enum(["mdy", "dmy"]).optional(),
+    }),
+  ),
+  async (c) => {
+    const t = c.var.tenant;
+    const { csv, apply, dateOrder } = c.req.valid("json");
+    if (!apply) return c.json(await previewDocumentImport(c.var.ctx, t.orgId, csv, dateOrder));
+    return c.json(await applyDocumentImport(c.var.ctx, t.orgId, t.userId, csv, dateOrder));
+  },
+);
 routes.get("/documents/:id/history", async (c) =>
   c.json({
     items: await documentHistory(c.var.ctx, c.var.tenant.orgId, c.req.param("id")),

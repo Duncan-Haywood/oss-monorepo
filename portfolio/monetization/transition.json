@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 156676,
+      "source_lines": 156831,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 93852,
+      "source_lines": 94560,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -38,7 +38,7 @@
     },
     {
       "venture": "einvoice-preflight",
-      "source_lines": 37175,
+      "source_lines": 37228,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "cmmc",
-      "source_lines": 56875,
+      "source_lines": 58530,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "subscription",
@@ -68,7 +68,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 55570,
+      "source_lines": 56321,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -207,7 +207,7 @@
     },
     {
       "venture": "einvoice-pro",
-      "source_lines": 51394,
+      "source_lines": 51445,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -303,7 +303,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 8227,
+      "source_lines": 8601,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",

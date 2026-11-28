@@ -3,6 +3,7 @@ title: "Four hundred random roofs against the gutter count"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: A seeded property test throws random gable and hip roofs and gutter settings at the gutter engine and checks sections, downspouts, hangers and caps.
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 The gutter count in wall-framing-takeoff packs each eave run into stock sections, then adds downspouts by run length and roof area, hangers, end caps, elbows and straps. A new seeded fuzz test builds 400 random gable and hip roofs with random overhangs and pitches, picks random stock lengths, hanger spacing, downspout rules, waste and prices, and checks the result.

@@ -212,3 +212,11 @@ examples of legacy markings are our reading of 2002.4's definition of legacy mat
 treat-as-CUI rule for statements B to F is ours, from 252.204-7012's definition of controlled
 technical information and the Registry's CTI description; the page says so and asks the buyer.
 
+## ISO 9001 internal audit checklist (2026-11-28)
+
+| Claim | Source and status |
+|---|---|
+| The 47 clause numbers and headings of ISO 9001:2015, clauses 4 to 10 | CMMC Workspace's clause library (`ventures/cmmc/apps/cmmc/src/shared/quality/iso9001.ts`), checked there on 2026-11-26 against the contents page of ISO 9001:2015(E), fifth edition, in the publisher-licensed preview (that app's docs/SOURCES.md, "ISO 9001"). No requirement text is reproduced. |
+| Clause 9.2 asks for an audit programme at planned intervals and auditors chosen for objectivity and impartiality; nonconformities lead to corrective action under 10.2 | Paraphrased in our words from the clause structure as commonly cited; the standard is paywalled and was not re-read in the building session. Re-check against a licensed copy. |
+| Major / minor / observation / opportunity for improvement | Not in the standard: registrar and customer practice, and the four grades CMMC Workspace's Audits tab records (`internal-audits.ts`, pinned by `audit.test.mjs`). The page says the standard does not grade findings. |
+| "Four audits a year" | Offered as one workable pattern, not as a requirement or a measured norm; ISO 9001 sets no interval. |

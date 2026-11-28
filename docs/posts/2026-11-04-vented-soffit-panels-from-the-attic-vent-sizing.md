@@ -4,6 +4,7 @@ date: 2026-11-04
 updated: 2026-11-26
 description: "Turn the intake vent area an attic needs into vented soffit panels, by hand, for a rectangle and for an odd-shaped all-hip roof with several ridges."
 tags: [wall-framing-takeoff, for-customers, construction, ventilation, soffit]
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 # How many vented soffit panels? From attic vent area, on any hip roof

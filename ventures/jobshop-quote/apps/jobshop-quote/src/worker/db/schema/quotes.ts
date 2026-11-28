@@ -189,6 +189,11 @@ export const quoteEmails = sqliteTable(
      * null when not asked for, "sent" or "failed". A failed copy never fails the send.
      */
     senderCopy: text("sender_copy").$type<"sent" | "failed">(),
+    /**
+     * "quote": the quote itself, its PDF attached. "follow_up": a follow-up to the customer about
+     * the sent quote (services/quotes/email.ts `emailFollowUp`), threaded on the emails before it.
+     */
+    kind: text("kind").$type<"quote" | "follow_up">().notNull().default("quote"),
     createdAt: createdAt(),
   },
   (t) => [

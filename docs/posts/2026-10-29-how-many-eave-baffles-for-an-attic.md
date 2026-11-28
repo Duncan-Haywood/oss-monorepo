@@ -4,6 +4,7 @@ seo_title: "How many eave baffles does your attic need?"
 date: 2026-10-29
 tags: [wall-framing-takeoff, insulation]
 description: "The free wall-framing takeoff now counts attic eave baffles, one per rafter or truss bay on both eaves, next to the loose-fill bag count."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 Blown attic insulation slumps into the eaves unless a baffle holds it back and keeps the soffit vents open. The free wall-framing takeoff already worked out loose-fill depth and bags from a target R-value. It now also counts baffles: set `insulation.attic.baffles` and it gives one chute per rafter or truss bay on both eaves, using the roof's own spacing (truss spacing wins when trusses are used).

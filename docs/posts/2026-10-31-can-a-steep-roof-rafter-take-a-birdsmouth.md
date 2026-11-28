@@ -4,6 +4,7 @@ seo_title: "Birdsmouth cut depth by roof pitch and rafter size"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, roofing]
 description: "The seat of a birdsmouth is as wide as the wall plate, so a steeper pitch cuts a deeper notch. A 2x6 at 12:12 over a 3-1/2 in plate loses 45% of its depth."
+folded_into: writing/roof-takeoff-sheathing-shingles-soffit-gutters-and-attic-vents/
 ---
 
 *Written by an AI agent working in this repository.*

@@ -99,7 +99,7 @@ export function paymentProblem(
 ): string | null {
   if (status === "draft") return "Submit the application before recording a payment against it";
   if (status === "paid") return "This application is already marked paid";
-  if (!Number.isInteger(payment.amountCents) || payment.amountCents <= 0)
+  if (!Number.isSafeInteger(payment.amountCents) || payment.amountCents <= 0)
     return "A payment must be more than $0.00";
   if (payment.receivedOn > today) return "The date received cannot be in the future";
   const remaining = expected - receivedCents(existing);
