@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKiWCWQeQg3mvGm4Myf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:18:28Z",
+  "ended": "2026-11-28T07:28:35Z",
+  "wall_minutes": 10.29,
+  "tokens_in": 10129275,
+  "tokens_out": 43393,
+  "cost_usd": 4.1271,
+  "tool_calls": 82,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20036",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "One unit-test expectation of mine was wrong (+.0003/-.0002 is a 0.0005 zone, precision); fixed the test, not the code."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets found no free ungated item on any bet (38 of 57 Next items wait on demand) and pointed to the front door of bet #3. Open PRs (#20028, #20029) had already claimed that front door this morning, so picking a slice still took a manual look through the product code."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "It flags 'Personal data, tracking or forms changed' on a pure text parser and its static guide page. That is a likely false positive from a keyword match (unconfirmed)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top bet (payapps) had nothing free. The suggested bet #3 front door was taken by open PRs. I built a new item from bet #2's wedge (tolerance check) rather than an 'if asked' Next item.",
+      "did": "Built a read-only feature on the RFQ review plus a front-door guide checked against it",
+      "result": "Landed with unit, e2e and full-suite passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-read-a-part-drawing-pdf-before-you-quote.md (extended with a 2026-11-28 update, no new post: consolidation)",
+    "ventures/jobshop-quote/apps/jobshop-site /machining-tolerances guide"
+  ],
+  "goal": null,
+  "notes": "Local checks: jobshop-quote pnpm test 756 unit + 302 worker passed; tsc/biome clean; e2e 18-tolerance-check passed; jobshop-site tsc clean, 174 unit passed; catalogue export regenerated.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0ccdb01-77b1-5e31-9b63-a46fa61c6e36",
+    "transcripts": 1,
+    "first": "2026-11-28T07:18:28Z",
+    "last": "2026-11-28T07:28:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 150,
+        "output": 43393,
+        "thinking": 11033,
+        "cache_read": 9971076,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158049,
+        "api_equivalent_usd": 4.1271,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 150,
+      "output": 43393,
+      "thinking": 11033,
+      "cache_read": 9971076,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158049,
+      "api_equivalent_usd": 4.1271,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 76,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.29,
+      "active_minutes": 10.29,
+      "model_minutes": 7.96,
+      "tool_minutes": 2.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "parser + tests + UI + e2e + guide page, senior dev estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 145.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
