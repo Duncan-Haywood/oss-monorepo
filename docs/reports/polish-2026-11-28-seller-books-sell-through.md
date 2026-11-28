@@ -33,8 +33,8 @@ age) had no guide page to link to, and "sell-through rate" is a phrase resellers
 - **Honest framing:** "There is no one standard" for a good sell-through rate; no platform fee
   rates are claimed (the example says its fees are only the example's); write-off advice is left
   to the tax preparer.
-- **Internal link** from the cost of goods sold page's lot paragraph. The home page's stock
-  card links here once PR #20015 lands its `guide` field (see next).
+- **Internal links** from the cost of goods sold page's lot paragraph and, after merging main
+  once PR #20015 landed its `guide` field, from the home page's stock report card (with a test).
 
 ## Measured
 
@@ -46,7 +46,7 @@ Chromium, `node build.mjs --out` from this branch, served locally:
 | `scrollWidth` at 390 / 1280, light and dark | 390 / 1280 (the item table scrolls inside its wrapper on a phone) |
 | `h1` count, page errors, failed requests | 1, 0, 0 |
 | description length | 156 characters (the site's test caps it at 160) |
-| seller-books-site tests | 102 → 106, all pass |
+| seller-books-site tests | 106 on the branch, 113 after merging main (with #20015's), all pass |
 | `node --test platform/pages/seller-books-site.test.mjs` | 5 pass |
 | `biome check apps/seller-books-site` | clean |
 
@@ -56,10 +56,8 @@ Chromium, `node build.mjs --out` from this branch, served locally:
 
 ## Still weakest, next
 
-1. Once PR #20015 merges, set the home page stock card's `guide` to `/reseller-sell-through-rate`
-   (one line in `FEATURES`; its test then checks the link).
-2. The deposit check ("Did I import everything?") still has no guide page: "did I report all my
+1. The deposit check ("Did I import everything?") still has no guide page: "did I report all my
    eBay sales" / "1099-K vs bank deposits" is the search.
-3. The "1 orders" plural and the phone lot table in the Seller Books app (app fixes, then rerun
+2. The "1 orders" plural and the phone lot table in the Seller Books app (app fixes, then rerun
    `pnpm stills`).
-4. CMMC Workspace's site (bet #4) has no screenshot of the app: the `pnpm stills` treatment.
+3. CMMC Workspace's site (bet #4) has no screenshot of the app: the `pnpm stills` treatment.

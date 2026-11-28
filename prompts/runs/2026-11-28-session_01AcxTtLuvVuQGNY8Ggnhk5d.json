@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtLuvVuQGNY8Ggnhk5d",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T06:07:10Z",
+  "ended": "2026-11-28T06:28:57Z",
+  "wall_minutes": 22.08,
+  "tokens_in": 11935326,
+  "tokens_out": 32910,
+  "cost_usd": 4.214,
+  "tool_calls": 95,
+  "task": "scan-repo-baseline step 3: osv-scanner, trivy-config, zizmor and checkov over the whole repo; fix the real findings",
+  "projects": [
+    "platform/security",
+    "ventures/ai-first-markets",
+    "ventures/local-site-studio",
+    "ventures/print-atelier",
+    "ventures/vendor-watch",
+    "ventures/photo-editing",
+    "ventures/quick-pick-survey",
+    "ventures/real-estate-agent-photo-app",
+    "ventures/retail-pilot-intel"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20020",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/2026-11-27-full-repo-security-scan.md",
+      "issue": "Says checkov did not install on this container's Python; the real cause is python3 being 3.11 while checkov's lock needs >=3.12. python3.12 is installed and `python3.12 -I scan.py install --tools checkov` works."
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "scan-repo-baseline step 3 said the remaining tools need a runner dispatch; all four install and run in a cloud session (about 10 minutes)."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Every bet's ROADMAP Next list is gated (waits on demand/owner) and bet #6's front-door slugs were already claimed by parallel runs (siding-waste-factor PR #20007), so the router's ventures default had no free item; took the top security-first work task instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet's next slice; no bet had a free ungated item and the front-door suggestions were already claimed. Security-first is the owner's standing top priority (prompt.md step 0), and workctl ranked scan-repo-baseline first.",
+      "did": "Ran the remaining full-repo scanners, patched vulnerable deps in 11 web lockfiles (critical Next.js advisories in deployed apps), pinned 4 action refs, wrote the triage for the rest.",
+      "result": "Blocking findings 276 -> 142; every changed app passes typecheck/lint/tests/build locally."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Most PRs carry a customer post; a dependency patch has no customer story to tell.",
+      "did": "Wrote an agent doc (docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md) instead of a post.",
+      "result": "Next run has a per-finding recommendation."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md"
+  ],
+  "goal": null,
+  "notes": "Local verification (npm ci then each script): ai-first-markets typecheck/lint/60 tests/next build ok; print-atelier, vendor-watch lint/test/build ok; local-site-studio typecheck/lint/4049 tests/build ok; photo-editing docs-site lint/build ok; quick-pick-survey typecheck/lint/576 tests/build ok; real-estate-agent-photo-app docs-site lint/build ok; retail-pilot-intel pnpm typecheck/test/build ok. Rescan after fixes: osv/trivy/zizmor 142 blocking (none in venture npm lockfiles); checkov 63 findings, 0 blocking. Not fixed here (control-plane workflows, research pins): see the report.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c4ce638-3d6d-5649-b660-d061174d9d7c",
+    "transcripts": 1,
+    "first": "2026-11-28T06:07:10Z",
+    "last": "2026-11-28T06:29:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 175,
+        "output": 32910,
+        "thinking": 8438,
+        "cache_read": 11785397,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149754,
+        "api_equivalent_usd": 4.214,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 175,
+      "output": 32910,
+      "thinking": 8438,
+      "cache_read": 11785397,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149754,
+      "api_equivalent_usd": 4.214,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 92,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.08,
+      "active_minutes": 22.08,
+      "model_minutes": 6.38,
+      "tool_minutes": 15.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer running four scanners, patching 11 lockfiles and building each app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 118.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

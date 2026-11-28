@@ -2,7 +2,7 @@
 title: "How many days a GC has to pay you, read from seven states' prompt payment laws"
 seo_title: "Prompt payment laws for subcontractors: 7 states, deadlines, interest"
 date: 2026-11-25
-updated: 2026-11-27
+updated: 2026-11-28
 tags: [for-customers, payapps, construction, prompt-payment, pay-if-paid, joint-checks, pay-app-guides]
 description: "Texas gives a GC 7 days, Illinois 15. Prompt payment deadlines in seven states, and which states void pay-if-paid clauses, with a clause reader."
 ---
@@ -134,6 +134,17 @@ twenty on $30,000, $525 in all. North Carolina's rule is counted its own way, ea
 in full on the highest balance owed in it. The second follow-up email to the GC names the rate,
 where it comes from and the amount so far; the first reminder leaves it out, since most late
 payments are a missing waiver, not a dispute.
+
+Interest on a payment that came in late is a different kind of number: it stopped growing the
+day the check arrived, so it is a fixed sum you either ask for or let go. The cash report lists
+each application paid after its due date in the last year with the interest it earned and a
+draft email asking for it. Since 2026-11-28 each one can be marked billed (on the next
+application or a separate invoice, with a note such as the invoice number) or waived (a release
+you signed, a clause that rules it out, or a GC you would rather keep), with the day. A marked
+application leaves the list and the job's next steps, so what remains is only the money nobody
+has decided about yet; the marked ones sit under "Billed or waived", with an undo, and the
+application's history and the cash report's CSV keep the decision. PayApps records it; it does
+not bill anything itself.
 
 **Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
 every pay application, payment and retainage balance per job and shows what is owed, when it was
