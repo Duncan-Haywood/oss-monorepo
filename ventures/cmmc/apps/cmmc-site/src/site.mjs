@@ -279,6 +279,51 @@ export const SOURCES = [
     checked: "2026-11-28",
     note: "No published price (tailored packages); a cyber self-assessment against NIST SP 800-171 and CMMC Levels 1 and 2, training and advisory services.",
   },
+  {
+    id: "sprs-nist-qeg",
+    title: "SPRS NIST SP 800-171 Quick Entry Guide, Version 4.0 (May 2024)",
+    url: "https://www.sprs.csd.disa.mil/pdf/NISTSP800-171QuickEntryGuide.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+    note: "How a vendor enters a Basic Assessment in SPRS's Cyber Reports module; read 28 Nov 2026.",
+  },
+  {
+    id: "sprs-cmmc-l1-qeg",
+    title: "SPRS CMMC Level 1 Self-Assessment Quick Entry Guide, Version 4.0 (Dec 2024)",
+    url: "https://www.sprs.csd.disa.mil/pdf/CMMCQuickEntryGuide.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+    note: "Entering and affirming a Level 1 self-assessment; a Final Level 1 expires after 1 year.",
+  },
+  {
+    id: "sprs-cmmc-l2-qeg",
+    title: "SPRS CMMC Level 2 Self-Assessment Quick Entry Guide, Version 4.0 (Feb 2025)",
+    url: "https://www.sprs.csd.disa.mil/pdf/CMMCL2SelfQuickEntryGuide.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+    note: "Only scores of 88 to 109 (Conditional) or 110 (Final) can be affirmed.",
+  },
+  {
+    id: "sprs-access-piee",
+    title: "SPRS Vendor Access, New User with a PIEE account, Version 4.1 (Jul 2025)",
+    url: "https://www.sprs.csd.disa.mil/pdf/SPRS_Access_NewUser_withPIEE_Vendor.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+  },
+  {
+    id: "sprs-access-new",
+    title: "SPRS Vendor Access, New User without a PIEE account, Version 4.1 (Jul 2025)",
+    url: "https://www.sprs.csd.disa.mil/pdf/SPRS_Access_NewUser_withoutPIEE_Vendor.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+  },
+  {
+    id: "sprs-ao-tutorial",
+    title: "SPRS Affirming Official (AO) for CMMC Tutorial, transcript",
+    url: "https://www.sprs.csd.disa.mil/pdf/training/AffirmingOfficialTutorialforCMMC-Transcript.pdf",
+    publisher: "DoD SPRS (NSLC Portsmouth)",
+    checked: "2026-11-28",
+  },
 ];
 
 /** @param {string} id */

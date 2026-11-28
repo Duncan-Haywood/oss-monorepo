@@ -20,6 +20,7 @@ import {
   source,
 } from "./site.mjs";
 import { MIN_SCORE, RESULT_MARKER, renderForm } from "./sprs.mjs";
+import { SPRS_SUBMIT_PATH, sprsSubmitPage } from "./sprs-submit.mjs";
 
 /** "2026-11-24" -> "24 Nov 2026" */
 export function humanDate(iso) {
@@ -360,6 +361,9 @@ but without one no score can be produced. With every point-bearing requirement o
 ${renderForm()}
 <h2>Common questions</h2>
 ${sprsFaq.map((f) => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join("\n")}
+<h2>Posting the score</h2>
+<p>Once you have a number, <a href="${SPRS_SUBMIT_PATH}">how to submit your SPRS score</a> walks the PIEE role, the Basic
+Assessment or CMMC self-assessment entry, and the affirmation, from DoD's own SPRS guides.</p>
 <section class="sibling">
   <h2>Keep the score current instead of recalculating it</h2>
   <p>${SHORT_NAME} keeps each requirement's status, owner and evidence next to your SSP and POA&amp;M, so the score moves as
@@ -372,6 +376,7 @@ ${cta}`,
     level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
+    sprsSubmitPage({ cite, statusBox, sourcesList, cta }),
     assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     comparePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     open
