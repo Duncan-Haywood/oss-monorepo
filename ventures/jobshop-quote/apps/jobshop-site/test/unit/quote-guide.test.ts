@@ -70,3 +70,15 @@ describe("/how-to-quote-cnc-machining", () => {
     expect(page).toContain('href="https://app.example.test/sign-up"');
   });
 });
+
+describe("/how-to-quote-sheet-metal", () => {
+  const files = buildSite({ siteUrl: SITE, basePath: "/jobshop", launch: OPEN });
+  it("is built, in the sitemap and llms.txt, and linked from every page's footer", () => {
+    expect(files.get(fileFor("/how-to-quote-sheet-metal"))).toContain("<h1>");
+    expect(files.get("sitemap.xml")).toContain(`${SITE}/how-to-quote-sheet-metal`);
+    expect(files.get("llms.txt")).toContain(`${SITE}/how-to-quote-sheet-metal`);
+    for (const path of ["/", "/pricing", "/machine-shop-hourly-rate"]) {
+      expect(files.get(fileFor(path))).toContain('href="/jobshop/how-to-quote-sheet-metal"');
+    }
+  });
+});
