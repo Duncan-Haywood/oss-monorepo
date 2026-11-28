@@ -5,7 +5,7 @@
 //    dates PayApps counts here: the 90-day notice a second-tier claimant gives the prime, and the
 //    one-year limit on the suit. They take the lien deadline's place on the job page, the cash page
 //    and the weekly email. State and local jobs have each state's own bond law ("little Miller
-//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-five states of
+//    Act"): there it shows no lien date, and lists the bond claim steps in the twenty-seven states of
 //    STATE_BOND_RULES (stateBondClaim, at the end of this file) on the job page.
 // 2. Retainage caps. Many states cap the retainage a public owner may hold. The job's rates are
 //    checked against the cap in the 23 states the public guide lists.
@@ -512,6 +512,18 @@ function step(
 const days = (n: number) => (iso: string) => addDays(iso, n);
 
 export const STATE_BOND_RULES: Record<string, StateBondRule> = {
+  AK: {
+    name: "Alaska",
+    law: "AS 36.25.010, 36.25.020",
+    url: "https://www.akleg.gov/basis/statutes.asp#36.25.020",
+    checkedOn: "2026-11-28",
+    notes: [
+      "A suit may be brought once you are unpaid 90 days after your last day (AS 36.25.020(a)).",
+      "The notice goes by registered mail to the contractor's office, place of business or residence (or is served as a summons may be), and states with substantial accuracy the amount claimed and who you worked for (AS 36.25.020(b)).",
+      "The suit limit is one year after the date of final settlement of the contract (AS 36.25.020(c)), a day PayApps does not know: ask the public body for it. The suit is brought in the name of the state or political subdivision for your use, and is subject to the contractor registration rule of AS 08.18.151.",
+      "Payment bonds are required on contracts over $100,000 and cover one-half of a contract up to $1,000,000, 40% up to $5,000,000 and $2,500,000 above that (AS 36.25.010(a)(2)): on a large job the bond may not cover every claim. A municipality may exempt some contractors on projects up to $400,000 (AS 36.25.025).",
+    ],
+  },
   AZ: {
     name: "Arizona",
     law: "A.R.S. § 34-223",
@@ -795,6 +807,19 @@ export const STATE_BOND_RULES: Record<string, StateBondRule> = {
       "This section states no suit deadline; read the bond and ask a construction attorney.",
     ],
   },
+  WY: {
+    name: "Wyoming",
+    law: "W.S. 16-6-112 to 16-6-117",
+    url: "https://wyoleg.gov/statutes/compress/title16.pdf",
+    checkedOn: "2026-11-28",
+    notes: [
+      "The statute asks for no notice before suit, from any tier. When you sue, notify the obligee named in the bond (the public entity) of the action, the parties, the bond and the amount and nature of your claim; no judgment is entered for 30 days after that notice (W.S. 16-6-113).",
+      "The suit limit is one year after the date of final completion, which the public entity posts on the state procurement website or its own (W.S. 16-6-115, 16-6-116(a)(iv)): look it up there.",
+      "Watch for the notice of substantial completion the public entity publishes for two weeks: on the forty-first day after it the GC is paid its retainage (W.S. 16-6-116(a)(ii), (iii)), so raise an unpaid balance before then.",
+      "Before that payment the contractor files a sworn statement that every claim is paid or disputed; a disputed claim may be filed as a claim against the contractor's surety bond (W.S. 16-6-117).",
+      "Bonds are required on contracts over $150,000; smaller contracts may carry another guarantee the public entity approves (W.S. 16-6-112(a)).",
+    ],
+  },
 };
 
 export const STATE_BOND_STATES = Object.keys(STATE_BOND_RULES).sort();
@@ -803,6 +828,45 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
   const L = d.lastOn;
   const A = d.acceptedOn;
   switch (state) {
+    case "AK":
+      return [
+        step(
+          {
+            who: "not-prime",
+            act: "Give the contractor written notice of your claim by registered mail",
+            citation: "AS 36.25.020(b)",
+            rule: `within 90 days from ${LAST}`,
+          },
+          L,
+          days(90),
+          LAST,
+        ),
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the payment bond in the name of the state or political subdivision",
+            citation: "AS 36.25.020(c)",
+            rule: "within one year after the date of final settlement of the contract",
+          },
+          null,
+          null,
+          "the final settlement of the prime contract",
+        ),
+      ];
+    case "WY":
+      return [
+        step(
+          {
+            who: "all",
+            act: "Bring suit on the bond, and notify the public entity named in it of the action",
+            citation: "W.S. 16-6-113, 16-6-115",
+            rule: "within one year after the date of final completion the public entity posts",
+          },
+          null,
+          null,
+          "the final completion date the public entity posts",
+        ),
+      ];
     case "AZ":
       return [
         step(
