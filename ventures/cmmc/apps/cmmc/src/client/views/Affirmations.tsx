@@ -514,8 +514,8 @@ function CalendarFeedSetting({ orgId }: { orgId: string }) {
         are due for each training, how many suppliers' records run out on each date and how many
         documents, audits, corrective actions, gauge calibrations or management review actions fall
         due on each date, and when the next management review is due (no names, titles, gauge ids,
-        action text, policy text or scores), so share it only with people who should. Calendar
-        apps refresh it on their own schedule, often every few hours to a day.
+        action text, policy text or scores), so share it only with people who should. Calendar apps
+        refresh it on their own schedule, often every few hours to a day.
       </p>
       {shown && (
         <div className="space-y-1 rounded border border-stone-200 bg-stone-50 p-3">
