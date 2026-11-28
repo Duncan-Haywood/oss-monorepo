@@ -34,7 +34,7 @@ import { launch } from "./launch.mjs";
 export const TAGLINE = "True profit and Schedule C books for resellers";
 
 const SUMMARY_BASE =
-  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App, and Grailed, StockX, Vinted or any other marketplace whose sales file you can download as CSV. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
+  "Seller Books is bookkeeping for people who resell on eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App, and Grailed, StockX, Vinted, Reverb or any other marketplace whose sales file you can download as CSV. It brings your sales from every platform into one ledger, takes out the fees each platform actually charged, matches what you paid for each item, logs your sourcing miles, and builds a Schedule C worksheet you or your tax preparer can work from.";
 
 /**
  * The Free plan, as apps/seller-books/src/shared/plans.ts sets it (test/site.test.mjs reads that file
@@ -328,6 +328,25 @@ export const PLATFORMS = [
     ],
     report: "any CSV of your Vinted sales, with its columns matched once",
   },
+  // Reverb lists its orders export's fields in its help centre but not their exact header text, so it
+  // imports through the column-mapped CSV too (apps/seller-books/docs/IMPORTERS.md, "Reverb").
+  {
+    slug: "reverb",
+    name: "Reverb",
+    what: "guitars, amps, pedals, synths and other music gear",
+    fees: [
+      "Reverb's selling fee, payment processing fee and Bump fee, from the fee columns of your orders export, each filed on its own line",
+      "Shipping labels you bought through Reverb, from the Shipping Label Fee column",
+      "The order payout, to check the books against what Reverb sent your bank",
+    ],
+    quirks: [
+      "Reverb's orders export has an order total but no item price. Tick that the total includes shipping and sales tax, and Seller Books takes the shipping and tax columns back out, so shipping is not counted twice and tax never lands in your income.",
+      "The export also has a Total Fees column. Seller Books suggests the separate fees and leaves the total out, so no fee is counted twice. Cancelled orders are left out when you choose the order status column.",
+      "Reverb collects and sends the sales tax itself in the states with marketplace facilitator laws, so that tax is kept out of your income and off the tax you collected yourself.",
+    ],
+    report:
+      "the orders CSV from the Orders page in your Reverb shop (pick a start and end date, then Export), with its columns matched once",
+  },
 ];
 /**
  * What the product does (home page and llms.txt). Every item is in the app today
@@ -337,7 +356,7 @@ export const FEATURES = [
   {
     key: "profit",
     title: "True profit per sale, across every platform",
-    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App. Grailed, StockX, Vinted and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Zelle) are typed in and counted the same way.",
+    body: "One ledger for eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo and Cash App. Grailed, StockX, Vinted, Reverb and any other marketplace come in from their own CSV: you say once which column is which, and Seller Books keeps the choice. Each sale shows what the buyer paid, every fee the platform took, shipping you paid, and what the item cost you, so the number at the bottom is profit, not payout. Sales with no marketplace report (cash at a market, a local pickup paid by Zelle) are typed in and counted the same way.",
   },
   {
     key: "fees",
@@ -459,7 +478,7 @@ export const TIERS = [
     platforms: "Every platform",
     for: "Reselling is your main work and you crosslist",
     includes: [
-      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo, Cash App, and Grailed, StockX, Vinted or any other marketplace by matching its columns",
+      "Every platform: eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok Shop, Square, PayPal, Venmo, Cash App, and Grailed, StockX, Vinted, Reverb or any other marketplace by matching its columns",
       "About 600 orders a month (going over never locks anything)",
       "Monthly profit by platform",
       "Year-end inventory at cost",

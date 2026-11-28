@@ -88,6 +88,7 @@ describe("pages", () => {
         "Grailed",
         "StockX",
         "Vinted",
+        "Reverb",
       ],
     );
     for (const f of ["llms.txt", "llms-full.txt", "sitemap.xml", "robots.txt", "404.html"]) {
@@ -674,6 +675,7 @@ describe("the sales tax for resellers page", () => {
       "grailed",
       "stockx",
       "vinted",
+      "reverb",
     ])
       assert.ok(!channels.includes(m), m);
   });
