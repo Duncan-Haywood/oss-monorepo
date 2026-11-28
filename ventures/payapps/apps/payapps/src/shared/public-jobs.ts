@@ -1047,7 +1047,8 @@ function stateBondSteps(state: string, d: BondDays): BondClaimStep[] {
       // § 9356(a): 30 days after a recorded notice of completion, which may be recorded the day of
       // completion: the earliest the stop payment notice period can end, counted from acceptance.
       const spnEnds = A ? addDays(A, 30) : null;
-      const PERIOD = "the end of the stop payment notice period (30 days after acceptance at the earliest)";
+      const PERIOD =
+        "the end of the stop payment notice period (30 days after acceptance at the earliest)";
       return [
         step(
           {
