@@ -449,6 +449,7 @@ const NOTICE = {
   AZ: ["arizona-preliminary-notice.html", "preliminary twenty day notice"],
   CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
   FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
+  MI: ["michigan-notice-of-furnishing.html", "notice of furnishing (20 days)"],
   TX: ["texas-lien-notice.html", "monthly notice of claim"],
 };
 
