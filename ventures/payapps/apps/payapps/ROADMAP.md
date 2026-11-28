@@ -2745,6 +2745,18 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Sworn statement saved with the job (2026-11-28, every plan, sworn-statement-saved): the statement's
+  parties, paid and owing columns were kept in one browser's storage, so the next month's statement
+  started blank on any other computer and for anyone else in the company. Now an editor's changes are
+  saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
+  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
+  and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
+  A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and
+  saved. "Clear" deletes it for everyone. Tests: `test/worker/sworn-statement.test.ts` (save, read as a
+  viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
+  `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2845,9 +2857,10 @@ nothing to copy. No customers yet. Paid plans are dark
   Illinois 770 ILCS 60/5 and Michigan MCL 570.1110, and a lender's or title company's draw, done
   2026-11-26: `src/shared/sworn-statement.ts`, the job's "Sworn statement" page, parties prefilled from
   its purchase orders and subcontracts with invoiced to date as a cross-check, checked against the
-  contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; nothing
-  stored. Next, if people ask: saving the paid column per pay app instead of in the browser, and the
-  Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
+  contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; the
+  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved. Next, if
+  people ask: a saved copy per pay application (each month's statement kept, not only the latest), and
+  the Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
   upload) are done
