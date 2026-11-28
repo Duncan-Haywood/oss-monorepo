@@ -4,6 +4,7 @@ seo_title: "Winder stair walkline uniformity: the 3/8 in rule"
 date: 2026-10-31
 tags: [construction, stairs, wall-framing-takeoff]
 description: "The wall-framing takeoff now compares a winder's walkline depth with the straight tread and flags a difference over 3/8 in."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

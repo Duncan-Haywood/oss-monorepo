@@ -4,6 +4,7 @@ seo_title: "A stair that rises 13 ft 4 in needs a landing"
 date: 2026-10-28
 description: "wall-framing-takeoff now splits a stair rising over 147 inches into two flights around a landing and adds the landing lumber to the order."
 tags: [wall-framing-takeoff, construction, stairs]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 # A stair that rises 13 ft 4 in needs a landing

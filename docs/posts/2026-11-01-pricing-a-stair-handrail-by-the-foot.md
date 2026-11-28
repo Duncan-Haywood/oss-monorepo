@@ -3,6 +3,7 @@ title: "Pricing a stair handrail by the foot in a framing budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, budget]
 description: The framing takeoff's budget now prices the handrail run in linear feet from the stair's own rail layout, using a price you type.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 A stair budget that counts balusters, guard posts and wall brackets but skips the handrail itself understates the job. The stair module already lays out the handrail: the pitch length, plus 12 in past the top riser and one tread past the bottom. The budget now turns that into feet.

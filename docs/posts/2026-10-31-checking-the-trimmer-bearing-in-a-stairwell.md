@@ -4,6 +4,7 @@ seo_title: "Stairwell trimmer joist end reaction check in a framing takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, floor-framing]
 description: "wall-framing-takeoff now fails a stairwell trimmer whose larger end reaction exceeds a bearing capacity you type in."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

@@ -3,6 +3,7 @@ title: "Winder stairs: a tread that passes by arc can fail by straight edge"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs, geometry]
 description: "Three 30-degree winders at the smallest radius that passes the 6 in rule measured along the arc come up short when you measure with a tape across the wedge."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 A winder is a wedge-shaped stair tread that turns a corner without a landing. The model stair code asks for a minimum depth at the narrow end (6 in) and 10 in of depth 12 in out from the narrow side. The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already solved the smallest inner radius that meets those depths, but it measured depth along the arc: radius times angle.

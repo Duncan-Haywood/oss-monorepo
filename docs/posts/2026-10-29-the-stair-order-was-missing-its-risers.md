@@ -4,6 +4,7 @@ seo_title: "Stair lumber takeoff: risers and handrail now in the order"
 date: 2026-10-29
 description: "The wall-framing takeoff laid out stair risers and a handrail but never bought them. Now solid risers and the handrail join the lumber order."
 tags: [wall-framing-takeoff, stairs, construction]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 # The stair order was missing its risers
