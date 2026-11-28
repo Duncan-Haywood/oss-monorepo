@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { insertAggregate, insertSale, openDb } from "../db.js";
-import { kpisForDate, kpisForLatest, kpisForToday } from "../kpi.js";
+import { avgBasketCents, kpisForDate, kpisForLatest, kpisForToday } from "../kpi.js";
 import { startKpiServer } from "../kpi-server.js";
 import { latestDayWithActivity, shiftIsoDate } from "../report.js";
 import { aggregateEvent, saleEvent, withTempDb } from "./test-db.js";
@@ -29,6 +29,12 @@ test("latestDayWithActivity is null when the database is empty", () => {
     assert.equal(latestDayWithActivity(dbPath), null);
     assert.equal(kpisForLatest(dbPath), null);
   });
+});
+
+test("avgBasketCents rounds half up: 3 baskets of 103801 cents average 34600.33, 2 of 1001 average 500.5 -> 501", () => {
+  const day = { date: "2026-08-19", store_id: "s", time_zone: "Europe/Rome", currency: "EUR", entries: 0, bounces: 0, conversion_rate: 0, revenue_per_entrant_cents: 0 };
+  assert.equal(avgBasketCents({ ...day, purchases: 3, revenue_cents: 103801 }), 34600);
+  assert.equal(avgBasketCents({ ...day, purchases: 2, revenue_cents: 1001 }), 501);
 });
 
 test("live KPI payload includes avg basket and a prior-week comparison when that day has activity", () => {
