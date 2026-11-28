@@ -514,6 +514,18 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   and `planImport` (110 rows, each column on its field). Linked from the SPRS calculator and the Level 2 page.
   Next: read whether its `from=` sign-ups lead to Level 2 once checkout is on; a Level 1 version if asked.
 
+- POA&M template (2026-11-28, cmmc-site): `/cmmc-poam-template` gives away `cmmc-poam-template.xlsx`, built
+  with the site (`src/poam-template.mjs`, nothing committed): 60 item rows with the columns the POA&M
+  "Import spreadsheet" reads (Requirement, Weakness, Remediation plan, Milestones, Responsible, Scheduled
+  completion, Status), and worked out per row: points while open (3.13.11 at 3), "On a POA&M?" from
+  `poamVerdict` and a Check (not allowed, missing weakness or date, after the 180-day close-out). A Summary
+  sheet takes the conditional status date and gives the deadline, open items, points, score with them open
+  and the verdict. The requirement lists sit on a Rules sheet as `|3.1.1|...|` strings so the importer's
+  most-ids sheet choice always lands on the POA&M sheet. `test/poam-template.test.mjs` recalculates seven
+  cases in LibreOffice, every one of the 110 ids among them; `test/unit/poam-template-import.test.ts` here
+  imports it with `readWorkbookForImport` and `planPoamImport` (text and Excel-number dates). Linked from
+  the POA&M rules page. Next: the same `from=` read once checkout is on.
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report

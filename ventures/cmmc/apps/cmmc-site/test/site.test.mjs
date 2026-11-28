@@ -10,6 +10,7 @@ import { SHEET_FILE } from "../src/assessment-sheet.mjs";
 import { build, fileFor, htmlToText, normalizeBasePath, withBase } from "../src/build.mjs";
 import { APP_URL, launchState } from "../src/launch.mjs";
 import { buildPages } from "../src/pages.mjs";
+import { TEMPLATE_FILE } from "../src/poam-template.mjs";
 import { JOBSHOP, SOURCES, STATUS_CHECKED } from "../src/site.mjs";
 
 const SITE = "https://marisstella.app/cmmc";
@@ -98,6 +99,7 @@ for (const [mode, launch] of MODES) {
       "/llms.txt",
       "/api/early-access",
       `/${SHEET_FILE}`,
+      `/${TEMPLATE_FILE}`,
     ]);
     if (launch.open)
       assert.ok(
