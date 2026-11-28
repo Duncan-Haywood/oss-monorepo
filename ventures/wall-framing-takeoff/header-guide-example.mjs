@@ -1,5 +1,6 @@
 // Worked examples for the header guide (docs/posts/2026-11-28-window-and-door-headers-...).
 // Every figure the guide quotes comes from this file; header-guide-example.test.mjs pins them.
+import { pathToFileURL } from "node:url";
 import { layoutWall, openingGeometry, takeoff, defaultStock, PRECUT } from "./engine.mjs";
 import { resolveHeaders } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
@@ -98,6 +99,6 @@ export function shallow() {
   return { topCripple: g.topCripple, newHeader: wall.openings[0].header, notes };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log(JSON.stringify({ checker: checkerExample(), tooWide: tooWide(), doorHeaders: doorHeaders(), garageDoor: garageDoor(), wideWindow: wideWindow(), ganged: ganged(), shallow: shallow() }, null, 2));
 }

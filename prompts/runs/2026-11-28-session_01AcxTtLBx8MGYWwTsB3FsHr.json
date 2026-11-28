@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "header-guide-example.mjs first read members by m.role; layoutWall members carry kind. Fixed before commit."
+    "header-guide-example.mjs first read members by m.role; layoutWall members carry kind. Fixed before commit.",
+    "check_cli_entry refused the file:// entry guard in header-guide-example.mjs (found by run_workflow_locally --for-changes, not by run_venture_tests <slug>); switched to pathToFileURL."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "--bets says every bet has no free, ungated item, and payapps has 8 live claims. The real choice came from its last lines (fewest front-door PRs: bet #6), and those sat below a long listing."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Running it with a slug passed, but with --since (the CI form) it also runs the unwired tree checks, and those caught the entry-guard rule. Run --changed or --for-changes before pushing."
     }
   ],
   "deviations": [
