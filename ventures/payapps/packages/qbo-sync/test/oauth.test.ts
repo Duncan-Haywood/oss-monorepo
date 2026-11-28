@@ -224,3 +224,32 @@ describe("createTokenManager", () => {
     assert.equal(http.requests.length, 0);
   });
 });
+
+describe("createTokenManager boundaries (red-team 2026-11-28)", () => {
+  it("a missing connection is a 401 IntuitOAuthError, so the app shows the reconnect flow", async () => {
+    const tm = createTokenManager({ config: cfg, store: memoryStore(null), realmId: "9130", fetch: scriptedFetch([]).fetch, now: () => NOW });
+    await assert.rejects(tm.getAccessToken(), (e: unknown) => e instanceof IntuitOAuthError && e.status === 401);
+  });
+
+  it("refreshes when the token expires exactly at the skew edge, not one millisecond later", async () => {
+    const skewMs = 5 * 60_000;
+    const http = scriptedFetch([{ fixture: "token-refresh.json" }]);
+    const edge = createTokenManager({
+      config: cfg,
+      store: memoryStore({ ...stored, accessTokenExpiresAt: NOW + skewMs }),
+      realmId: "9130",
+      fetch: http.fetch,
+      now: () => NOW,
+    });
+    assert.equal(await edge.getAccessToken(), "fixture-access-token-2");
+    assert.equal(http.requests.length, 1);
+    const fresh = createTokenManager({
+      config: cfg,
+      store: memoryStore({ ...stored, accessTokenExpiresAt: NOW + skewMs + 1 }),
+      realmId: "9130",
+      fetch: scriptedFetch([]).fetch,
+      now: () => NOW,
+    });
+    assert.equal(await fresh.getAccessToken(), "stored-access");
+  });
+});
