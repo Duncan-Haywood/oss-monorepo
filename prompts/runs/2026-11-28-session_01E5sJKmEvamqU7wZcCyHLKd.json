@@ -56,6 +56,12 @@
       "why": "No new post: extended the existing customer post (consolidation default) instead.",
       "did": "Added a 'Sheathing the bay' section to the L-shaped hip roof post",
       "result": "one consolidated post"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "main was red in pay-app-guides (PR #20155 landed final-payment-affidavit.html without re-running nav.mjs), which failed this PR's changed-ventures job",
+      "did": "ran node ventures/pay-app-guides/nav.mjs in this PR (generated nav blocks only)",
+      "result": "pay-app-guides 442 tests ok locally"
     }
   ],
   "writeups": [
