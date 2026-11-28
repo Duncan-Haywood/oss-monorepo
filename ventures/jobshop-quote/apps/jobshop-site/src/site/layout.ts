@@ -123,6 +123,7 @@ ${body}
             <li><a href="${href(ctx, "/how-to-quote-sheet-metal")}">How to quote sheet metal</a></li>
             <li><a href="${href(ctx, "/how-to-quote-welding")}">How to quote welding</a></li>
             <li><a href="${href(ctx, "/how-to-quote-cnc-turning")}">How to quote turned parts</a></li>
+            <li><a href="${href(ctx, "/how-to-quote-outside-processing")}">How to quote outside processing</a></li>
             <li><a href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">Estimating machining time</a></li>
             <li><a href="${href(ctx, "/machining-material-cost")}">Material cost</a></li>
             <li><a href="${href(ctx, "/how-to-quote-first-article-inspection")}">First article inspection</a></li>

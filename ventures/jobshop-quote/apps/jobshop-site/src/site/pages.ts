@@ -36,6 +36,7 @@ import {
   markupCents as materialMarkupCents,
 } from "./material-cost-example";
 import { MODULES } from "./module-data";
+import { EXAMPLE as OUTSIDE_EXAMPLE, priceOutsideExample } from "./outside-processing-example";
 import { priceExample, EXAMPLE as QUOTE_EXAMPLE, usdCents } from "./quote-example";
 import { CSV_COLUMNS, CSV_FILE, exampleQuote, TERMS_CHECKLIST } from "./quote-template";
 import { RFQ_CHECKS, RFQ_CSV_COLUMNS, RFQ_CSV_FILE, RFQ_SECTIONS } from "./rfq-checklist";
@@ -1960,6 +1961,230 @@ ${ctaBand(ctx, "Quote your next turned part this way", ctx.launch.open ? "The Ea
 }
 
 /**
+ * A guide aimed at the searches estimators make for work sent to a vendor ("how to quote outside
+ * processing", "heat treat cost per pound", "how to quote anodizing", "outside service markup machine
+ * shop", "plating lot charge"). Method plus one made-up steel block hardened by a heat treater who
+ * charges by the pound and black oxided by a second vendor, priced in ./outside-processing-example to
+ * the cent the app's costing engine gives, next to the "naive" quote that multiplies the vendors'
+ * per-part prices by the quantity (apps/jobshop-quote/test/unit/site-outside-processing-example.test.ts).
+ * No industry prices are quoted.
+ */
+export function outsideProcessingGuidePage(ctx: RenderContext): Html {
+  const e = OUTSIDE_EXAMPLE;
+  const r = priceOutsideExample(e);
+  const [small, mid, large] = r.breaks;
+  const [nSmall, nMid, nLarge] = r.naiveBreaks;
+  const [heat, coat] = r.charges;
+  const [heatSvc, coatSvc] = r.services;
+  if (!small || !mid || !large || !nSmall || !nMid || !nLarge)
+    throw new Error("the outside processing guide example quotes three quantities");
+  if (!heat || !coat || !heatSvc || !coatSvc)
+    throw new Error("the example has two outside services");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const pctOf = (part: number, whole: number) => `${Math.round((part / whole) * 100)}%`;
+  const rateOf = (i: number) => usdCents(e.machines[i]?.hourlyRateCents ?? 0);
+  const machineName = (i: number) => e.machines[i]?.name ?? "";
+  const qty = (n: number) => n.toLocaleString("en-US");
+  const outsideOf = (b: (typeof r.breaks)[number]) => b.finishingCents + b.extrasCents;
+  const extrasTotal = e.extras.reduce((s, x) => s + x.lotCents, 0);
+  const lines: [string, (b: (typeof r.breaks)[number], i: number) => string][] = [
+    ["Parts started", (b) => qty(b.starts)],
+    ["Material", (b) => usdCents(b.materialCents)],
+    ["Setup and first article", (b) => usdCents(b.setupCents)],
+    ["Run time", (b) => usdCents(b.runCents)],
+    [
+      "Heat treat (outside)",
+      (_b, i) => `${usdCents(heat.cents[i] ?? 0)}${heat.atMinimum[i] ? " (minimum)" : ""}`,
+    ],
+    [
+      "Black oxide (outside)",
+      (_b, i) => `${usdCents(coat.cents[i] ?? 0)}${coat.atMinimum[i] ? " (minimum)" : ""}`,
+    ],
+    ["Freight and certificate", (b) => usdCents(b.extrasCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  const naiveRow = (label: string, f: (n: (typeof r.naiveBreaks)[number], i: number) => string) =>
+    html`<tr><th scope="row">${label}</th>${r.naiveBreaks.map((n, i) => html`<td>${f(n, i)}</td>`)}</tr>`;
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote outside processing: heat treat, anodize and plating</h1>
+    <p class="lead">Work you send out is the one part of a quote whose price someone else sets, and the
+    vendor's minimum charge is easy to miss. On a short run it can be most of the price. Here is the
+    method, a worked example at ${small.quantity}, ${mid.quantity} and ${large.quantity} parts, and what
+    the quote looks like if you just multiply the vendor's per-part price by the quantity.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in six steps</h2>
+    <ol>
+      <li><strong>Read the drawing for every process after machining.</strong> Heat treat and the
+      hardness, anodize type, class and colour, plating and thickness, black oxide, passivation, paint or
+      powder coat, and the spec each one calls out (for example MIL-A-8625 for anodize or AMS 2759 for
+      steel heat treat). Note masked surfaces, threads to protect and any certificate the customer wants
+      back. A finish with no spec is a question to the customer, not a guess.</li>
+      <li><strong>Get each vendor's price in the unit they bill.</strong> Heat treaters often price by the
+      pound of parts, platers and anodizers by the part, the rack or the area, and nearly all of them
+      have a minimum charge per lot. Ask for masking, racking, stripping and certificate charges and the
+      turnaround as well.</li>
+      <li><strong>Turn it into a price per part and a lot minimum.</strong> A per-pound price times the
+      finished part's weight (what goes in the furnace, not the blank) is the per-part charge. The
+      vendor bills the larger of per-part × parts sent and the lot minimum.</li>
+      <li><strong>Count the parts you send, not the parts you ship.</strong> With fallout, you machine
+      and send more parts than the order, and the vendor charges for each one.</li>
+      <li><strong>Add the cost of getting it there and back.</strong> Freight or the driver's time to each
+      vendor and back, packaging, and the certificates. These are per lot, so they hit a small order
+      hardest.</li>
+      <li><strong>Mark it up and quote every quantity.</strong> A markup on outside work pays for
+      chasing the vendor, the parts' time off your floor and the risk of a rejected lot. Repeat the sum
+      at each break: the minimums spread differently at each.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A ${e.partName}: ${e.materialName}, milled from a ${e.blank.lengthIn} × ${e.blank.widthIn} ×
+    ${e.blank.thicknessIn} in blank in two setups, deburred and inspected, then hardened and tempered
+    by a heat treater who charges by the pound and black oxided by a second vendor.
+    <strong>Every number here is made up to show the arithmetic</strong>; they are not prices, rates
+    or minimums for any vendor, process or region. Use your own vendors' quotes.</p>
+    <h3>The outside services</h3>
+    <ul>
+      <li><strong>${heatSvc.name}:</strong> ${usdCents(e.heatTreatPerLbCents)} a pound. The machined
+      block weighs ${e.finishedWeightLb} lb (from the model; the blank was ${r.blankWeightLb.toFixed(2)}
+      lb), so ${e.finishedWeightLb} × ${usdCents(e.heatTreatPerLbCents)} = ${usdCents(heatSvc.perPartCents)}
+      a part, with a ${usdCents(heatSvc.lotChargeCents)} minimum a lot. The minimum stops binding at
+      ${usdCents(heatSvc.lotChargeCents)} ÷ ${usdCents(heatSvc.perPartCents)} = ${heat.crossoverStarts}
+      parts sent.</li>
+      <li><strong>${coatSvc.name}:</strong> ${usdCents(coatSvc.perPartCents)} a part, minimum
+      ${usdCents(coatSvc.lotChargeCents)} a lot, which stops binding at ${coat.crossoverStarts} parts.</li>
+      ${e.extras.map((x) => html`<li><strong>${x.label}:</strong> ${usdCents(x.lotCents)} a lot.</li>`)}
+    </ul>
+    <h3>The rest</h3>
+    <ul>
+      <li><strong>Material:</strong> ${r.blankWeightLb.toFixed(2)} lb a blank at
+      ${usdCents(e.pricePerLbCents)} a pound plus ${pctBps(e.scrapBps)} for kerf and facing, at least
+      ${usdCents(e.materialMinChargeCents)} a line.</li>
+      ${e.operations.map(
+        (o) =>
+          html`<li><strong>${o.label}</strong> on the ${machineName(o.machine).toLowerCase()} at
+          ${rateOf(o.machine)} an hour: ${[
+            o.setupMinutes ? `${o.setupMinutes} min setup` : "",
+            o.cycleMinutesPerPart ? `${o.cycleMinutesPerPart} min a part` : "",
+          ]
+            .filter(Boolean)
+            .join(", ")}.</li>`,
+      )}
+      <li><strong>Fallout:</strong> ${pctBps(e.falloutBps)}, so ${small.quantity} parts start
+      ${small.starts}, ${mid.quantity} start ${mid.starts} and ${large.quantity} start ${large.starts},
+      and both vendors are paid on the parts started.</li>
+      <li><strong>Markup:</strong> ${pctBps(e.outsideServiceMarkupBps)} on the outside services,
+      ${pctBps(e.materialMarkupBps)} on material, freight and the certificate (bought-in costs), none on
+      labor (the shop rates are taken to hold the margin already); a ${usdCents(e.minimumLineCents)}
+      minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up steel block at three quantities. "(minimum)" marks a vendor's lot minimum setting the charge. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${qty(b.quantity)} parts</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b, i) => html`<td>${cell(b, i)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>The quote you get by multiplying</h2>
+    <p>The common shortcut is to take each vendor's per-part price, multiply it by the quantity and add
+    it at cost: no minimums, no freight, no certificate, no markup. Priced that way, with everything
+    else the same:</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The same block with the outside work priced as per-part × parts only. Shortfall = the full quote's line total less this one's.</caption>
+        <thead><tr><th scope="col">Line</th>${r.naiveBreaks.map((n) => html`<th scope="col">${qty(n.quantity)} parts</th>`)}</tr></thead>
+        <tbody>
+          ${naiveRow("Outside work", (n) => usdCents(n.finishingCents))}
+          ${naiveRow("Price each", (n) => usdCents(n.unitPriceCents))}
+          ${naiveRow("Line total", (n) => usdCents(n.totalCents))}
+          ${naiveRow("Shortfall", (n, i) => usdCents((r.breaks[i]?.totalCents ?? 0) - n.totalCents))}
+        </tbody>
+      </table>
+    </div>
+    <p>What the two tables show:</p>
+    <ul>
+      <li><strong>On a short run the minimums are the outside price.</strong> At ${small.quantity} parts
+      the vendors would bill ${usdCents(heatSvc.perPartCents * small.starts)} and
+      ${usdCents(coatSvc.perPartCents * small.starts)} by the part; they bill
+      ${usdCents(heatSvc.lotChargeCents)} and ${usdCents(coatSvc.lotChargeCents)}. With freight and the
+      certificate, outside costs are ${usdCents(outsideOf(small))}, ${pctOf(outsideOf(small), small.costCents)}
+      of the cost. The multiplied quote comes to ${usdCents(nSmall.totalCents)} against
+      ${usdCents(small.totalCents)}: ${pctOf(nSmall.totalCents, small.totalCents)} of what the job
+      should be priced at.</li>
+      <li><strong>The minimums still bind at ${mid.quantity}.</strong> ${mid.starts} parts sent is below
+      both break-even counts (${coat.crossoverStarts} and ${heat.crossoverStarts}), so the outside
+      charge is the same ${usdCents(mid.finishingCents)} as at ${small.quantity}. The shortfall is
+      ${usdCents(mid.totalCents - nMid.totalCents)}, about ${usdCents(Math.round((mid.totalCents - nMid.totalCents) / mid.quantity))}
+      a part, which is easy to miss in a ${usdCents(mid.totalCents)} quote.</li>
+      <li><strong>At volume the gap is the freight and the markup.</strong> At ${large.quantity} parts
+      both vendors bill by the part, so the multiplied outside cost is right; what is still missing is
+      ${usdCents(extrasTotal)} of freight and certificate and the markup on outside work, a shortfall of
+      ${usdCents(large.totalCents - nLarge.totalCents)}.</li>
+      <li><strong>The price each falls</strong> from ${usdCents(small.unitPriceCents)} to
+      ${usdCents(mid.unitPriceCents)} to ${usdCents(large.unitPriceCents)}, and the lot minimums and
+      freight are a large part of why. When a customer orders small lots of a repeat part, it can pay to
+      offer a larger run held in stock, or to send it out with other jobs going to the same vendor.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on jobs you win</h2>
+    <ul>
+      <li><strong>Pricing the vendor's per-part rate without the lot minimum.</strong> Above: the
+      smaller the order, the bigger the miss.</li>
+      <li><strong>Weighing the blank, or nothing.</strong> A per-pound price applies to what goes in the
+      furnace. Use the finished weight, and include any fixture or basket weight the vendor charges
+      for.</li>
+      <li><strong>Sending the order quantity.</strong> Spares for fallout and first articles go through
+      the vendor too, and are billed.</li>
+      <li><strong>Forgetting the trip.</strong> Freight or a driver's half day each way, packaging, and the
+      certificate are real costs on every lot.</li>
+      <li><strong>Quoting a stale vendor price.</strong> Platers and heat treaters change prices and
+      minimums; keep their current quotes on file and date them.</li>
+      <li><strong>Leaving vendor days out of the lead time.</strong> The parts are off your floor for the
+      vendor's turnaround plus the trips. Add it to the date you promise; see
+      <a class="link" href="${href(ctx, "/machine-shop-lead-time")}">quoting lead times from shop
+      load</a>.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>In ${SITE_NAME} each finishing step is a rate-card entry with a per-part charge and a lot minimum,
+    marked as an outside service or done in house. Outside services take their own markup, separate
+    from labor and material, and freight, certificates and other bought-in items go on a line as extras,
+    per part or per lot. A quote line prices each break the way the tables above do: the vendor's charge
+    is the larger of per-part × parts started and the lot minimum, and the quote's basis prints each
+    finish's per-part charge and minimum. ${SITE_NAME} does not price a finish by the pound or by area: type
+    the per-part charge you work out from the vendor's quote. The example above is priced to the cent
+    the app gives for the same inputs, both ways, checked by a test in its code. Finishing entries can
+    be imported from a CSV with the rest of the rate card, and a
+    won quote's <a class="link" href="${href(ctx, "/job-traveler-software")}">job traveler</a> lists the
+    finishing and outside services after the operations.</p>
+    <p>For the rest of the quote, see <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how
+    to quote a CNC machining job</a>, <a class="link" href="${href(ctx, "/how-to-quote-cnc-turning")}">how
+    to quote turned parts</a> and <a class="link" href="${href(ctx, "/how-to-quote-sheet-metal")}">sheet
+    metal</a>; for your shop rate, <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to
+    work out a machine shop hourly rate</a>; for what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax,
+    engineering or financial advice, and the prices, minimums, times and rates in it are made up.
+    Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next outside-processed part this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
  * A guide aimed at the searches estimators make for machining time ("how to estimate CNC machining
  * time", "CNC cycle time calculation", "machining time formula", "material removal rate"). Method plus
  * one made-up manifold block: spindle speed and feed from surface speed and chip load, removal rate
@@ -2858,6 +3083,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,
   "/how-to-quote-cnc-turning": turningGuidePage,
+  "/how-to-quote-outside-processing": outsideProcessingGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/machining-material-cost": materialCostGuidePage,
