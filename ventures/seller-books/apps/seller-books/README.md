@@ -62,8 +62,11 @@ line it lands on. Line 9 prices each trip at the IRS business rate in force on t
 2026 changed on July 1); a rate the seller types in replaces it for every trip.
 Equipment the seller keeps and uses (a camera, label printer, shelving, a laptop) has its own expense category:
 $2,500 or less an item lands on line 27a under the de minimis safe harbor, with a reminder of the election
-statement the return needs, and anything over it is named for Form 4562 (line 13) and left out of the totals,
-with a warning, rather than deducted as supplies. A large office or supplies expense that may be equipment is
+statement the return needs, and anything over it goes through Form 4562: the worksheet works out line 13
+from the choice saved on each item (bonus depreciation by default, at 100% after January 19, 2025 and the
+phase-down rate before; section 179, held to the shop's profit; or no bonus), the 5- or 7-year MACRS class
+(half-year or mid-quarter) and the business-use share, carries it into the later years and counts it in lines 28
+to 31 (`src/worker/services/books/depreciation.ts`). A large office or supplies expense that may be equipment is
 flagged.
 
 Paid plans follow the state automatic-renewal laws a consumer buyer brings (Colorado C.R.S. 6-1-732,

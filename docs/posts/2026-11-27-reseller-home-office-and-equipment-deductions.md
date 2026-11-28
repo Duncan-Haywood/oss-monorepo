@@ -3,7 +3,7 @@ title: "Home office and equipment deductions for resellers: the storage room and
 seo_title: "Reseller home office and equipment deductions"
 date: 2026-11-27
 tags: [seller-books, for-customers, resellers, schedule-c, home-office, de-minimis, online-sellers]
-description: "Stock stored at home on Schedule C line 30 by the simplified method, and a camera or label printer under the $2,500 de minimis safe harbor, with worked numbers."
+description: "Stock stored at home on Schedule C line 30 by the simplified method, a camera or label printer under the $2,500 de minimis safe harbor, and a laptop or shelving through Form 4562 (bonus, section 179, MACRS), with worked numbers."
 ---
 
 *Written by an AI agent working in this repository. Not tax advice: a worksheet for you or your tax preparer.*
@@ -66,23 +66,64 @@ is depreciated, or expensed by election, on
 Stock you buy to resell never goes on this line. It is inventory, and it goes through cost of
 goods sold.
 
+## The laptop: Form 4562 and line 13
+
+*Added 2026-11-28, when the worksheet started working this out.*
+
+Over $2,500, there are three ways the cost reaches line 13
+([Publication 946](https://www.irs.gov/publications/p946)):
+
+- **Bonus depreciation** applies unless you elect out. For equipment bought after January 19,
+  2025 it is 100%, so the whole cost is deducted the year you start using it. The 2025 tax law
+  (P.L. 119-21) made that permanent. Before that date the rate was stepping down: 40% for
+  January 1 to 19, 2025, 60% in 2024 and 80% in 2023.
+- **Section 179** is an election to deduct the cost that year. It can never be more than the
+  business's taxable income. Wages count toward that income, and anything over it carries
+  forward to the next year.
+- **No bonus** (electing out) spreads the cost over the years by the MACRS tables: 5 years for a
+  computer, printer or camera, 7 for shelving or furniture. The election covers every item in a
+  class for the year, not one item.
+
+Whatever bonus leaves goes through the same tables. Equipment you also use personally counts only
+at its business share. At 50% business use or less, a camera (which counts as "listed property")
+gets no bonus or section 179 at all.
+
+Invented examples:
+
+| Purchase | Choice | First year | Second year |
+|---|---|---|---|
+| Laptop, $2,799.00, bought March 2026 | Bonus (default), 100% | $2,799.00 | $0.00 |
+| Shelving, $3,200.00, bought January 10, 2025 | Bonus at 40%, 7-year class | $1,280.00 + $274.37 = $1,554.37 | $470.21 |
+| Laptop, $2,799.00, bought March 2026, profit before it $1,500.00 | Section 179 | $1,500.00 ($1,299.00 carries forward) | — |
+
+The shelving's $1,920.00 left after bonus is taken at 14.29% the first year and 24.49% the
+second. Those are the 7-year half-year rates, rounded so that every year adds up to the cost.
+
 ## What Seller Books does with it
 
 You save the storage space once for the year: its square feet, the whole home's square feet, and
 the months you used it. The worksheet then works out line 30 and holds it to line 29, and says so
 when the limit applies. The quarterly estimates take line 30 month by month to each period's end.
 Equipment has its own expense category. Purchases at or under the limit land on line 27a with a
-reminder about the election statement. Anything over it is named for Form 4562 and left out of
-the totals, with a warning, so nothing is deducted twice. A large office or supplies expense that
-may really be equipment is flagged.
+reminder about the election statement. Anything over it gets a row in the worksheet's Form 4562
+section. There you choose bonus, section 179 or no bonus, the 5- or 7-year class and the
+business-use share. Line 13 is worked out from those choices, carried into later years and
+counted in the totals. It uses the mid-quarter tables when more than 40% of a year's equipment
+went into service in October to December, holds section 179 to the shop's profit and flags a
+class that mixes bonus with no bonus. A large office or supplies expense that may really be
+equipment is flagged.
 
-The regular method (Form 8829) and the depreciation itself are not built. Your preparer does
-those.
+The regular home office method (Form 8829) is not built. Equipment you sold or threw away still
+gets depreciated in the worksheet, because an expense has no disposal date. Tell your preparer
+about those, and have them check the Form 4562 figures, which are a worksheet, not a filing.
 
 **How these figures were checked.** irs.gov could not be loaded from the build environment. The
 rules above were read on 2026-11-27 through search excerpts of the IRS pages linked here. The
 rate, the 300 square foot cap, the $2,500 limit and the statement title on the product page are
-copied from the worksheet's own code, and a test fails if the two ever differ. Check the current
+copied from the worksheet's own code, and a test fails if the two ever differ. The MACRS rates
+are from Publication 946's tables as this repository already used them. A test regenerates each
+table by the 200% declining balance method the IRS uses and checks every year to within 0.05 of
+a point. Check the current
 year's instructions before you file.
 
 The free [Reseller Books](https://marisstella.app/reseller-books/) tool turns your marketplace

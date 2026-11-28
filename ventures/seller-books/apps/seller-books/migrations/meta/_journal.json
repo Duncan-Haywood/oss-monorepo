@@ -113,6 +113,13 @@
       "when": 1795824132080,
       "tag": "0015_expense_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1795827728422,
+      "tag": "0016_expense_depreciation",
+      "breakpoints": true
     }
   ]
 }

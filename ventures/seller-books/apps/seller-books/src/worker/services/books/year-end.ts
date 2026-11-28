@@ -244,7 +244,7 @@ export function expenseList(
     rows.push([
       `Equipment of $${dollars(DE_MINIMIS_LIMIT_CENTS)} or less an item is on line 27a under the de minimis safe harbor, which needs a statement titled "${DE_MINIMIS_ELECTION_TITLE}" with the return.${
         over.length > 0
-          ? ` ${over.length} over that ($${dollars(overCents)}) ${over.length === 1 ? "is" : "are"} for Form 4562 (depreciation or section 179), whose result is line 13; the worksheet leaves ${over.length === 1 ? "it" : "them"} out.`
+          ? ` ${over.length} over that ($${dollars(overCents)}) ${over.length === 1 ? "is" : "are"} for Form 4562 (depreciation or section 179), whose result is line 13; the worksheet works line 13 out from the choice saved on each (bonus depreciation unless section 179 or no bonus is chosen) and lists ${over.length === 1 ? "it" : "them"} in its Form 4562 section.`
           : ""
       }`,
     ]);

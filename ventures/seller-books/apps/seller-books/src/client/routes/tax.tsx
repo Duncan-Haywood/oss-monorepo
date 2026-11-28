@@ -43,6 +43,198 @@ interface Worksheet {
     itemsOnHand: number;
     itemsOnHandCents: number;
   } | null;
+  depreciation: Depreciation | null;
+}
+
+type DepMethod = "bonus" | "section_179" | "no_bonus";
+
+interface DepRow {
+  id: string;
+  date: string;
+  vendor: string | null;
+  memo: string | null;
+  amountCents: number;
+  method: DepMethod;
+  recoveryYears: 5 | 7 | null;
+  businessUsePct: number;
+  basisCents: number;
+  section179Cents: number | null;
+  bonusCents: number | null;
+  macrsCents: number | null;
+  totalCents: number | null;
+  convention: "half-year" | "mid-quarter" | null;
+  reason: string | null;
+}
+
+interface Depreciation {
+  year: number;
+  rows: DepRow[];
+  section179ElectedCents: number;
+  section179AllowedCents: number;
+  section179CarryoverCents: number;
+  otherCents: number;
+  line13Cents: number;
+}
+
+const METHOD_LABEL: Record<DepMethod, string> = {
+  bonus: "Bonus depreciation (the default)",
+  section_179: "Section 179 (expense it this year)",
+  no_bonus: "No bonus: depreciate over the years",
+};
+
+/** One piece of equipment over $2,500: its choice, saved on the expense, and this year's amounts. */
+function DepreciationRow({ orgId, year, row }: { orgId: string; year: number; row: DepRow }) {
+  const qc = useQueryClient();
+  const [method, setMethod] = useState<DepMethod>(row.method);
+  const [years, setYears] = useState(row.recoveryYears == null ? "" : String(row.recoveryYears));
+  const [pct, setPct] = useState(String(row.businessUsePct));
+  const placedThisYear = row.date.startsWith(String(year));
+  const save = useMutation({
+    mutationFn: () =>
+      api(orgPath(orgId, `/expenses/${row.id}/depreciation`), {
+        method: "PATCH",
+        body: {
+          method,
+          recoveryYears: years ? Number(years) : null,
+          businessUsePct: Math.round(Number(pct)),
+        },
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["schedule-c", orgId, year] }),
+  });
+  const pctOk = Number.isInteger(Number(pct)) && Number(pct) >= 1 && Number(pct) <= 100;
+  return (
+    <tr data-testid="depreciation-row">
+      <td className="align-top">
+        <div>{row.date}</div>
+        <div className="text-xs text-stone-500">
+          {[row.vendor, row.memo].filter(Boolean).join(" · ") || "Equipment"}
+        </div>
+      </td>
+      <td className="num align-top">{usd(row.amountCents)}</td>
+      <td className="align-top">
+        {placedThisYear ? (
+          <form
+            className="flex flex-wrap items-end gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              save.mutate();
+            }}
+          >
+            <label>
+              <span className="label">Treatment</span>
+              <select
+                className="input"
+                value={method}
+                onChange={(e) => setMethod(e.target.value as DepMethod)}
+              >
+                {(Object.keys(METHOD_LABEL) as DepMethod[]).map((m) => (
+                  <option key={m} value={m}>
+                    {METHOD_LABEL[m]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="label">Class</span>
+              <select className="input" value={years} onChange={(e) => setYears(e.target.value)}>
+                <option value="">Not chosen</option>
+                <option value="5">5 years (computer, printer, camera)</option>
+                <option value="7">7 years (shelving, furniture)</option>
+              </select>
+            </label>
+            <label>
+              <span className="label">Business use %</span>
+              <input
+                className="input w-20"
+                inputMode="numeric"
+                value={pct}
+                onChange={(e) => setPct(e.target.value)}
+              />
+            </label>
+            <button className="btn-secondary" type="submit" disabled={save.isPending || !pctOk}>
+              Save
+            </button>
+            <ErrorText error={save.error} />
+          </form>
+        ) : (
+          <span className="text-sm">
+            Placed in service {row.date.slice(0, 4)}: {METHOD_LABEL[row.method].toLowerCase()},{" "}
+            {row.recoveryYears ?? "?"}-year class, {row.businessUsePct}% business use (change it in
+            that year's worksheet)
+          </span>
+        )}
+        {row.reason && <p className="mt-1 text-xs text-accent-700">{row.reason}</p>}
+      </td>
+      <td className="num align-top">
+        {row.totalCents == null ? (
+          "—"
+        ) : (
+          <>
+            {usd(row.totalCents)}
+            <div className="text-xs text-stone-500">
+              {[
+                row.section179Cents ? `179 ${usd(row.section179Cents)}` : "",
+                row.bonusCents ? `bonus ${usd(row.bonusCents)}` : "",
+                row.macrsCents ? `MACRS ${usd(row.macrsCents)} (${row.convention})` : "",
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </div>
+          </>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+/** Form 4562, worked out for line 13 from the equipment over the de minimis limit. */
+function DepreciationCard({
+  orgId,
+  year,
+  dep,
+}: {
+  orgId: string;
+  year: number;
+  dep: Depreciation;
+}) {
+  return (
+    <section className="card space-y-3 overflow-x-auto" data-testid="depreciation">
+      <h2 className="font-medium">Line 13: equipment over $2,500 (Form 4562)</h2>
+      <p className="text-sm text-stone-600">
+        Equipment you keep and use is depreciated. Bonus depreciation applies unless you elect out:
+        100% for equipment bought after January 19, 2025, less before. Section 179 is an election to
+        expense the cost this year, up to your business income. With no bonus, the cost is spread
+        over 5 or 7 years by the IRS MACRS tables (IRS Publication 946). Electing out of bonus
+        applies to every item in a class for the year. Equipment you also use personally counts only
+        at its business share. Which choice is best for you is a question for your preparer.
+      </p>
+      <table className="table">
+        <thead>
+          <tr className="text-left">
+            <th className="font-normal">Bought</th>
+            <th className="font-normal">Cost</th>
+            <th className="font-normal">How it is depreciated</th>
+            <th className="font-normal">{year}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dep.rows.map((r) => (
+            <DepreciationRow
+              key={`${r.id}-${r.method}-${r.recoveryYears}-${r.businessUsePct}`}
+              orgId={orgId}
+              year={year}
+              row={r}
+            />
+          ))}
+        </tbody>
+      </table>
+      <p className="text-sm">
+        Line 13: <strong>{usd(dep.line13Cents)}</strong>
+        {dep.section179CarryoverCents > 0 &&
+          ` (${usd(dep.section179CarryoverCents)} of section 179 carries forward to ${year + 1})`}
+      </p>
+    </section>
+  );
 }
 
 interface HomeOffice {
@@ -376,6 +568,7 @@ export function ScheduleCPage() {
             <h2 className="mb-2 font-medium">Parts I and II: income and expenses</h2>
             <Lines lines={ws.lines} />
           </section>
+          {ws.depreciation && <DepreciationCard orgId={orgId} year={year} dep={ws.depreciation} />}
           <section className="card">
             <h2 className="mb-2 font-medium">Part III: cost of goods sold (inventory at cost)</h2>
             <Lines lines={ws.partIII} />

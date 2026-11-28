@@ -11,6 +11,7 @@ import { badRequest, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { validate } from "../../lib/validate";
 import { requireRole } from "../../middleware/tenant";
+import { DEPRECIATION_METHODS } from "../../services/books/depreciation";
 import {
   addReceipt,
   deleteReceipt,
@@ -19,6 +20,7 @@ import {
   receiptCounts,
   receiptUsage,
 } from "../../services/books/receipts";
+import { DE_MINIMIS_LIMIT_CENTS } from "../../services/books/schedule-c";
 import { ImportFormatError } from "../../services/importers/parse";
 import { MAX_STATEMENT_ROWS, parseStatement } from "../../services/importers/statement";
 import {
@@ -415,6 +417,45 @@ routes.delete("/:id/receipts/:receiptId", requireRole("editor"), async (c) => {
   await deleteReceipt(c.var.ctx, c.var.tenant.orgId, c.req.param("id"), c.req.param("receiptId"));
   return c.json({ ok: true });
 });
+
+// How one piece of equipment over the de minimis limit is depreciated (services/books/depreciation.ts):
+// bonus (the default), section 179 or no bonus; 5 or 7 years; and the business-use percent.
+routes.patch(
+  "/:id/depreciation",
+  requireRole("editor"),
+  validate(
+    "json",
+    z.object({
+      method: z.enum(DEPRECIATION_METHODS),
+      recoveryYears: z.union([z.literal(5), z.literal(7)]).nullable(),
+      businessUsePct: z.number().int().min(1).max(100),
+    }),
+  ),
+  async (c) => {
+    const { orgId } = c.var.tenant;
+    const b = c.req.valid("json");
+    const row = await c.var.ctx.db
+      .select({ category: expense.category, amountCents: expense.amountCents })
+      .from(expense)
+      .where(and(eq(expense.id, c.req.param("id")), eq(expense.orgId, orgId)))
+      .get();
+    if (!row) throw notFound("Expense");
+    if (row.category !== "equipment" || row.amountCents <= DE_MINIMIS_LIMIT_CENTS) {
+      throw badRequest(
+        "Only equipment over the de minimis limit is depreciated; this expense is deducted on its own line.",
+      );
+    }
+    await c.var.ctx.db
+      .update(expense)
+      .set({
+        depreciationMethod: b.method,
+        recoveryYears: b.recoveryYears,
+        businessUsePct: b.businessUsePct,
+      })
+      .where(and(eq(expense.id, c.req.param("id")), eq(expense.orgId, orgId)));
+    return c.json({ ok: true });
+  },
+);
 
 routes.delete("/:id", requireRole("editor"), async (c) => {
   const { orgId } = c.var.tenant;

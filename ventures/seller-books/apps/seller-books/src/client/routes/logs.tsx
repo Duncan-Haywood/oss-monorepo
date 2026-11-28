@@ -294,8 +294,9 @@ export function ExpensesPage() {
             Equipment is something you keep and use, not sell: a camera, label printer, shelving or
             a laptop. Enter each item as its own expense. At $2,500 or less an item it goes on line
             27a under the de minimis safe harbor (an election you attach to your return); over
-            $2,500 it is depreciated on Form 4562 (line 13), which the worksheet leaves to your
-            preparer.
+            $2,500 it is depreciated on Form 4562 (line 13): the Schedule C worksheet works that out
+            (bonus depreciation unless you choose section 179 or no bonus there) for your preparer
+            to check.
           </p>
         )}
         <ErrorText error={add.error} />
