@@ -3,6 +3,7 @@ title: "Estonia's e-invoicing rule is the buyer's choice, not a deadline"
 date: 2026-10-25
 description: "Estonia has no general B2B e-invoicing deadline. Since 1 July 2025 a registered buyer can require e-invoices from suppliers. Where sources agree and differ."
 tags: [einvoice-preflight, estonia, e-invoicing]
+folded_into: einvoice-preflight/estonia-e-invoice-mandate
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) now has an
