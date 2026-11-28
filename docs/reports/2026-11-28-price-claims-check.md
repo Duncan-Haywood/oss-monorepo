@@ -1,3 +1,9 @@
+---
+kind: note
+date: 2026-11-28
+subjects: [cmmc, payapps, jobshop-quote, seller-books]
+topics: [guardrails, llms-txt, ci]
+---
 # Price claims match the catalog (2026-11-28)
 
 **What:** `platform/ci/check_price_claims.py` (tests: `test_check_price_claims.py`, gate:
