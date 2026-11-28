@@ -2,6 +2,7 @@
 // Links inside bodies use site paths ("/pricing"); the build prefixes the base path.
 // Copy rules: see the header of site.mjs and docs/CLAIMS.md.
 
+import { assessmentSheetPage } from "./assessment-sheet.mjs";
 import { dfarsClausesPage } from "./dfars-clauses.mjs";
 import { appLegalUrl, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { level1RequirementsPage } from "./level1-requirements.mjs";
@@ -344,7 +345,8 @@ ${cta}`,
 SPRS under the ${cite("dod-methodology", "DoD Assessment Methodology")}, which gaps cost the most points, and whether the
 open items could sit on a POA&amp;M for a Conditional Level 2 (Self) status (${cite("cfr-170-21", "32 CFR 170.21")};
 <a href="/cmmc-poam-eligible-requirements">every requirement's POA&amp;M rule</a>).
-No sign-up, and nothing you tick is stored.</p>
+No sign-up, and nothing you tick is stored. Rather keep it in Excel? The free
+<a href="/cmmc-self-assessment-spreadsheet">self-assessment spreadsheet</a> works out the same score.</p>
 ${statusBox()}
 ${RESULT_MARKER}
 <h2>How the score works</h2>
@@ -367,6 +369,7 @@ ${cta}`,
     level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
+    assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     open
       ? pricingPage(launch)
       : {
