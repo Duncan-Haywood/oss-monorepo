@@ -20,6 +20,7 @@ import { api } from "../lib/api";
 import type { Evidence, OrgInfo } from "../lib/types";
 import { btnCls, btnGhostCls, Card, ErrorText, Field, inputCls } from "../ui";
 import { EvidenceUpload } from "./EvidenceUpload";
+import { GaugeImport } from "./GaugeImport";
 
 export interface GaugeItem {
   id: string;
@@ -135,6 +136,8 @@ export function GaugesView({
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [showRetired, setShowRetired] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const canImport = info.role !== "viewer";
   const reset = () => {
     setForm(EMPTY);
     setEditing(null);
@@ -196,13 +199,27 @@ export function GaugesView({
           </p>
         </Card>
       )}
+      {importing && data && (
+        <GaugeImport
+          orgId={orgId}
+          today={data.today}
+          canAdd={info.plan.quality}
+          onUpgrade={isAdmin ? onUpgrade : undefined}
+          onClose={() => setImporting(false)}
+        />
+      )}
       <Card
         title="Gauges and calibration (ISO 9001 7.1.5)"
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {canRecord && !adding && (
               <button type="button" className={btnCls} onClick={() => setAdding(true)}>
                 Add a gauge
+              </button>
+            )}
+            {canImport && !importing && (
+              <button type="button" className={btnGhostCls} onClick={() => setImporting(true)}>
+                Import a gauge list
               </button>
             )}
             {data && data.items.length > 0 && (

@@ -634,11 +634,11 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   actions in the calendar file, the subscribable link and a dashboard card; quality objectives kept as their
   own records (target, measure, results by month) so input 9.3.2 c 2 fills itself; a "Raise a corrective
   action" from a review action, if shops ask
-- Gauges and calibration, part 3 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
-  2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28): an
-  existing gauge list from CSV/.xlsx (the master list import's pattern); a "Raise a corrective action" button
-  that opens CA-nnnn from an out-of-tolerance result; then AS9100 and customer flow-down asks (gauge R&R
-  records) if shops ask
+- Gauges and calibration, part 4 (part 1, the list, calibrations, out-of-tolerance impact and the CSV, done
+  2026-11-28; part 2, due dates in the calendar file and link and the dashboard card, done 2026-11-28;
+  part 3, an existing gauge list from CSV/.xlsx with last calibrations recorded only where their result is
+  known, done 2026-11-28): a "Raise a corrective action" button that opens CA-nnnn from an out-of-tolerance
+  result; then AS9100 and customer flow-down asks (gauge R&R records) if shops ask
 - Incidents, part 2 (part 1 done 2026-11-28): an incident-response plan and test record for 3.6.1 and 3.6.3
   (who files on DIBNet, who holds the medium assurance certificate, a tabletop exercise logged with its date),
   evidence files linked to an incident, and the SSP's 3.6.x statements naming the register, if shops ask
