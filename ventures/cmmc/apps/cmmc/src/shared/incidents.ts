@@ -20,6 +20,8 @@
 // daylight saving does. Everything here is pure, shared by the Worker and the SPA. A record-keeping
 // aid: it files nothing with DoD and is not legal advice.
 
+import { isCalendarDate } from "./calendar-date";
+
 export const REPORT_HOURS = 72;
 export const PRESERVE_DAYS = 90;
 const HOUR_MS = 3_600_000;
@@ -107,10 +109,12 @@ export interface TimelineEntry {
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/;
 /** An ISO 8601 instant in UTC that names a real time (no 2026-02-30T...). */
 export function isInstant(s: unknown): s is string {
-  if (typeof s !== "string" || !ISO_INSTANT.test(s)) return false;
-  const t = Date.parse(s);
-  if (Number.isNaN(t)) return false;
-  return new Date(t).toISOString().slice(0, 16) === s.slice(0, 16);
+  if (typeof s !== "string" || !ISO_INSTANT.test(s) || !isCalendarDate(s.slice(0, 10)))
+    return false;
+  const hour = Number(s.slice(11, 13));
+  const minute = Number(s.slice(14, 16));
+  const second = s.length > 17 && s[16] === ":" ? Number(s.slice(17, 19)) : 0;
+  return hour < 24 && minute < 60 && second < 60;
 }
 
 const ms = (iso: string) => Date.parse(iso);
@@ -487,7 +491,7 @@ export function validateIncident(
 
 const csvCell = (v: string) => {
   // Formula-safe: a cell a spreadsheet would read as a formula gets a leading apostrophe.
-  const s = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+  const s = /^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? `'${v}` : v;
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
