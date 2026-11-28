@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyedghrLB2D9Gh7W6j4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T14:38:58Z",
+  "ended": "2026-11-28T14:52:23Z",
+  "wall_minutes": 13.6,
+  "tokens_in": 14896300,
+  "tokens_out": 46386,
+  "cost_usd": 5.3653,
+  "tool_calls": 102,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20147",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md / app ROADMAPs",
+      "issue": "Almost every Next item on bets #1-#4 is gated with 'if contractors/shops ask', and the free ungated items were already claimed by parallel runs (tolerance-check-part-2, fai-*); choosing work cost ~15 minutes of reading four roadmaps."
+    },
+    {
+      "file": "ventures/payapps/apps/payapps/ROADMAP.md",
+      "issue": "The nine-states entry lists unreachable hosts, but not that Alabama's site needs a headless browser (that fact was only in a prior run record). Added it to the new ROADMAP entry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: extended the existing customer lien-deadline post instead, following the consolidation guidance.",
+      "did": "Added a five-state section and table to docs/posts/2026-11-10-colorado-lien-deadline.md and retitled it to thirty states.",
+      "result": "One consolidated post per topic kept."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-colorado-lien-deadline.md (extended)",
+    "ventures/mechanics-lien-deadline-calculator/sources/2026-11-28-five-states.md"
+  ],
+  "goal": null,
+  "notes": "Lien filing clock added for AL, AK, ME, RI, WY in PayApps and the free calculator (30 states). Local checks: calculator node tests 67/67; payapps lien+parity vitest 92/92; payapps unit suite 1651 pass, 1 unrelated timeout (opening-balance) passed on re-run alone; payapps-site unit 55/55; biome clean. Vermont read and left out; KY, IN, OK, LA, NM unreadable from the session.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "278dc332-64dc-57c1-b39e-9899ec0d7fd8",
+    "transcripts": 1,
+    "first": "2026-11-28T14:38:58Z",
+    "last": "2026-11-28T14:52:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 193,
+        "output": 46386,
+        "thinking": 8805,
+        "cache_read": 14709237,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186870,
+        "api_equivalent_usd": 5.3653,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 193,
+      "output": 46386,
+      "thinking": 8805,
+      "cache_read": 14709237,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186870,
+      "api_equivalent_usd": 5.3653,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 100,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.6,
+      "active_minutes": 13.6,
+      "model_minutes": 10.3,
+      "tool_minutes": 3.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading five statutes, porting rules to two codebases with tests, and updating copy",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 111.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
