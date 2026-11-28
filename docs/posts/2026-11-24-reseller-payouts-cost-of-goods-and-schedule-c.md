@@ -37,8 +37,8 @@ Report deposits as income and every one of those deductions disappears.
 **2. Cost each item, and split lots by expected resale value.** A $120.00
 lot of 20 pieces split equally puts $6.00 on each $5 piece, a loss booked
 before you list it. Split by expected price instead, it puts $21.82 on each
-of the two $60 pieces and $1.82 on each $5 one, and the 20 allocations still
-add to $120.00. At year end those per-item costs make Schedule C Part III a
+of the two $60 pieces, $7.27 on each of the eight $20 ones and $1.82 on each
+of the ten $5 ones, and the 20 allocations still add to $120.00. At year end those per-item costs make Schedule C Part III a
 sum rather than a guess.
 [Cost of goods sold for resellers](../../ventures/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html).
 
