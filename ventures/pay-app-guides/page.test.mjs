@@ -49,13 +49,13 @@ test("calculator inputs are labelled", () => {
   for (const id of ["ret-work", "ret-stored", "released", "prev-cert"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
 
-test("the retainage table covers 25 states, each linked to an official legislature site, with a read date", () => {
+test("the retainage table covers 26 states, each linked to an official legislature site, with a read date", () => {
   const html = page("retainage-explained.html");
   const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
   const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
-  assert.equal(rows.length, 25, `${rows.length} states`);
+  assert.equal(rows.length, 26, `${rows.length} states`);
   assert.equal(new Set(rows.map((r) => r[1])).size, rows.length, "a state is listed twice");
-  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.legis\.iowa\.gov|ksrevisor\.org|legislature\.maine\.gov|revisor\.mo\.gov|codes\.ohio\.gov|ndlegis\.gov|www\.scstatehouse\.gov)\//;
+  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov|delcode\.delaware\.gov|legislature\.idaho\.gov|www\.legis\.iowa\.gov|ksrevisor\.org|legislature\.maine\.gov|revisor\.mo\.gov|codes\.ohio\.gov|ndlegis\.gov|www\.scstatehouse\.gov|alison\.legislature\.state\.al\.us)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-24/);
   assert.match(html, /2026-11-25/);
@@ -63,7 +63,7 @@ test("the retainage table covers 25 states, each linked to an official legislatu
   // The 2026-11-28 rows' statute text is kept beside the page, and each row's figure is in it.
   assert.match(html, /href="sources\/retainage-caps\.txt"/);
   const src = page("sources/retainage-caps.txt");
-  for (const words of ["The percentage retained shall be 5% of the value of the work completed", "any amount exceeding five percent (5%) of the total amount payable", "not more than three percent", "Retainage shall not exceed 5% of the value of the contract or subcontract", "the State shall withhold 5% of the money due", "shall not exceed five percent of the value of the contract or subcontract", "not less than ninety-six per cent", "ninety-two per cent of the invoice costs", "After the contract is fifty per cent complete, no further funds shall be retained", "must be no more than three and one-half percent", "ten percent of each estimate until the project is fifty percent completed with no further retainage"]) assert.ok(src.includes(words), words);
+  for (const words of ["The percentage retained shall be 5% of the value of the work completed", "any amount exceeding five percent (5%) of the total amount payable", "not more than three percent", "Retainage shall not exceed 5% of the value of the contract or subcontract", "the State shall withhold 5% of the money due", "shall not exceed five percent of the value of the contract or subcontract", "not less than ninety-six per cent", "ninety-two per cent of the invoice costs", "After the contract is fifty per cent complete, no further funds shall be retained", "after 50 percent completion has been accomplished, no further retainage shall be withheld", "must be no more than three and one-half percent", "ten percent of each estimate until the project is fifty percent completed with no further retainage"]) assert.ok(src.includes(words), words);
   // Ohio's §153.13 dropped its "no further retainage after 50% complete" rule on 2025-09-30: the row says so.
   const ohio = table.slice(table.indexOf(">Ohio<"), table.indexOf("</tr>", table.indexOf(">Ohio<")));
   assert.match(ohio, /no longer says retainage stops at 50% complete/);
@@ -428,18 +428,18 @@ test("submittal log page: inputs labelled, wired to submittals.mjs, not a notice
   assert.match(readFileSync(new URL("../../platform/pages/industry-construction.mjs", import.meta.url), "utf8"), /pay-app-guides\/submittal-log-template\.html/);
 });
 
-test("the state bond claim table links each of its thirty-one states to the legislature's own site, with the read date", () => {
+test("the state bond claim table links each of its thirty-two states to the legislature's own site, with the read date", () => {
   const html = page("state-payment-bond-claims.html");
   const start = html.indexOf('id="state-table"');
   const table = html.slice(start, html.indexOf("</table>", start));
   const rows = [...table.matchAll(/<tr><td data-label="State">([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td data-label="Statute"><a href="([^"]+)"/g)];
-  assert.deepEqual(rows.map((r) => r[1]), ["Texas", "Florida", "New York", "Virginia", "Washington", "Arizona", "North Carolina", "Ohio", "Massachusetts", "Michigan", "Minnesota", "Nevada", "Oregon", "Idaho", "Maryland", "Missouri", "Utah", "Colorado", "Iowa", "Maine", "Louisiana", "Kansas", "Delaware", "Nebraska", "Rhode Island", "Montana", "North Dakota", "South Carolina", "South Dakota", "Alaska", "Wyoming"]);
-  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|www\.azleg\.gov|www\.ncleg\.gov|codes\.ohio\.gov|malegislature\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|legislature\.idaho\.gov|mgaleg\.maryland\.gov|revisor\.mo\.gov|le\.utah\.gov|leg\.colorado\.gov|www\.legis\.iowa\.gov|legislature\.maine\.gov|legis\.la\.gov|www\.ksrevisor\.gov|delcode\.delaware\.gov|nebraskalegislature\.gov|webserver\.rilegislature\.gov|mca\.legmt\.gov|www\.ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov|www\.akleg\.gov|wyoleg\.gov)\//;
+  assert.deepEqual(rows.map((r) => r[1]), ["Texas", "Florida", "New York", "Virginia", "Washington", "Arizona", "North Carolina", "Ohio", "Massachusetts", "Michigan", "Minnesota", "Nevada", "Oregon", "Idaho", "Maryland", "Missouri", "Utah", "Colorado", "Iowa", "Maine", "Louisiana", "Kansas", "Delaware", "Nebraska", "Rhode Island", "Montana", "North Dakota", "South Carolina", "South Dakota", "Alaska", "Wyoming", "Alabama"]);
+  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|www\.azleg\.gov|www\.ncleg\.gov|codes\.ohio\.gov|malegislature\.gov|www\.legislature\.mi\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|legislature\.idaho\.gov|mgaleg\.maryland\.gov|revisor\.mo\.gov|le\.utah\.gov|leg\.colorado\.gov|www\.legis\.iowa\.gov|legislature\.maine\.gov|legis\.la\.gov|www\.ksrevisor\.gov|delcode\.delaware\.gov|nebraskalegislature\.gov|webserver\.rilegislature\.gov|mca\.legmt\.gov|www\.ndlegis\.gov|www\.scstatehouse\.gov|sdlegislature\.gov|www\.akleg\.gov|wyoleg\.gov|alison\.legislature\.state\.al\.us)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-27/);
   // The statute text it was read from is kept beside it.
   const src = page("sources/state-bond-claims.txt");
-  for (const cite of ["2253.047", "255.05", "137", "2.2-4341", "39.08.030", "34-223", "44A-27", "153.56", "129.207", "129.209", "Chapter149/Section29", "574.31", "339.035", "339.055", "279C.605", "279C.610", "54-1927", "17-108", "17-109", "107.170", "63G-6a-1103", "38-1b-202", "38-26-107", "38-26-105", "573.10", "573.15", "573.16", "title14sec871", "38:2242", "38:2247", "38:2246", "60-1111", "6962", "52-118.01", "52-118.02", "37-12-2", "37-12-5", "18-2-204", "18-2-206", "48-01.2-11", "48-01.2-12", "11-35-3030", "5-21-6", "36.25.010", "36.25.020", "16-6-113", "16-6-115", "16-6-116", "16-6-117"]) assert.ok(src.includes(cite), cite);
+  for (const cite of ["2253.047", "255.05", "137", "2.2-4341", "39.08.030", "34-223", "44A-27", "153.56", "129.207", "129.209", "Chapter149/Section29", "574.31", "339.035", "339.055", "279C.605", "279C.610", "54-1927", "17-108", "17-109", "107.170", "63G-6a-1103", "38-1b-202", "38-26-107", "38-26-105", "573.10", "573.15", "573.16", "title14sec871", "38:2242", "38:2247", "38:2246", "60-1111", "6962", "52-118.01", "52-118.02", "37-12-2", "37-12-5", "18-2-204", "18-2-206", "48-01.2-11", "48-01.2-12", "11-35-3030", "5-21-6", "36.25.010", "36.25.020", "16-6-113", "16-6-115", "16-6-116", "16-6-117", "39-1-1"]) assert.ok(src.includes(cite), cite);
   assert.match(html, /href="miller-act-payment-bond-claims\.html"/);
   assert.match(page("miller-act-payment-bond-claims.html"), /href="state-payment-bond-claims\.html"/);
 });
