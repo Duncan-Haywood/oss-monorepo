@@ -33,7 +33,9 @@ test("a reseller goes from sign-up to a Schedule C worksheet", async ({ page }) 
 
   // Orders first: the vase's SKU links one sale to the lot item.
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText("1 sale matched");
+  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText(
+    "1 sale matched",
+  );
   await importReport(page, "Etsy: payment account monthly statement", "etsy-statement.csv");
   await expect(page.getByText(/other charges? imported/)).toBeVisible();
   const past = card(page, "Past imports");

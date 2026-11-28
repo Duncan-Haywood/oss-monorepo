@@ -101,7 +101,9 @@ test("stills of a made-up reseller's books", async ({ page }) => {
     "$10.00",
   );
   await importReport(page, "Etsy: Orders file (EtsySoldOrders)", "etsy-sold-orders.csv");
-  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText("1 sale matched");
+  await expect(page.getByText(/sales? matched to inventory by SKU/)).toContainText(
+    "1 sale matched",
+  );
   await importReport(page, "Etsy: payment account monthly statement", "etsy-statement.csv");
   await expect(page.getByText(/other charges? imported/)).toBeVisible();
 
