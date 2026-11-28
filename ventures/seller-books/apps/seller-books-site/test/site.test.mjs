@@ -24,10 +24,13 @@ import {
   HOME_OFFICE_MAX_SQFT,
   HOME_OFFICE_RATE_CENTS,
   homeOfficeLines,
+  MARKETPLACE_SELLER_STATES,
   MILEAGE_EXAMPLE,
   MILEAGE_RATES,
   mileageLines,
   PERSONAL_ITEM_EXAMPLE,
+  SALES_TAX_CHECKED_ON,
+  SELLER_COLLECTED_SALES,
 } from "../src/pages.mjs";
 
 let out;
@@ -640,6 +643,67 @@ describe("the reseller tax deductions page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-tax-deductions)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-tax-deductions`));
+  });
+});
+
+describe("the sales tax for resellers page", () => {
+  const page = () => pages.find((p) => p.path === "/reseller-sales-tax");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the seller-collected sales it lists are the app's seller-collected channels, in order", () => {
+    const src = appFile("src/shared/sales-tax.ts");
+    const channels = src
+      .match(/export const SELLER_TAX_CHANNELS = \[([^\]]+)\]/)[1]
+      .match(/"([a-z_]+)"/g)
+      .map((c) => c.slice(1, -1));
+    assert.deepEqual(
+      SELLER_COLLECTED_SALES.map((s) => s.channel),
+      channels,
+    );
+    // The marketplaces the page names as collecting are not in the app's seller-collected set.
+    for (const m of [
+      "ebay",
+      "poshmark",
+      "mercari",
+      "whatnot",
+      "depop",
+      "etsy",
+      "amazon",
+      "grailed",
+      "stockx",
+      "vinted",
+    ])
+      assert.ok(!channels.includes(m), m);
+  });
+
+  test("one row per state on the SSTGB chart that answers it, with the sources linked", () => {
+    const html = htmlOf(page());
+    assert.equal(MARKETPLACE_SELLER_STATES.length, 27);
+    assert.ok(
+      !MARKETPLACE_SELLER_STATES.some((s) => s.state === "Illinois"),
+      "Illinois' row is blank",
+    );
+    for (const s of MARKETPLACE_SELLER_STATES)
+      assert.ok(html.includes(`<th scope="row">${s.state}</th>`), s.state);
+    for (const u of [
+      "https://www.streamlinedsalestax.org/for-businesses/marketplace-sellers",
+      "https://www.streamlinedsalestax.org/for-businesses/remote-seller-faqs/remote-seller-state-guidance",
+      "https://www.streamlinedsalestax.org/for-businesses/exemptions",
+      "https://comptroller.texas.gov/taxes/sales/marketplace-providers.php",
+      '"@type":"FAQPage"',
+      SALES_TAX_CHECKED_ON,
+    ])
+      assert.ok(html.includes(u), u);
+    assert.match(html, /does not decide/);
+  });
+
+  test("linked from the deductions page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/reseller-sales-tax"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/reseller-tax-deductions")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-sales-tax)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-sales-tax`));
   });
 });
 

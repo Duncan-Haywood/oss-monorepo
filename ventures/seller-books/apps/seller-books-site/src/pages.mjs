@@ -1901,6 +1901,7 @@ ${outside.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${b}</td>
 ${mistakes.map(([a, b]) => `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}</td></tr>`).join("\n")}
     </tbody>
   </table></div>
+  <p>Which sales tax is yours to file at all, and which the marketplace already sent, is on <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
   <h2>Deductions in ${esc(SITE_NAME)}</h2>
   <p>The fees come from the reports you import, not from a typed-in total: each marketplace's own fee columns are read and filed on line 10, with promoted listings on line 8 and the labels bought through the platform on line 27a. Everything else is an expense with a category, typed in or read from a bank or card statement CSV, and each category above lands on its line on the <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>, with meals halved and equipment split at the de minimis limit. On a statement, purchases that look like inventory, marketplace fees or fuel are left unticked with the reason, so a cost already counted elsewhere is not deducted twice. A year-end expense list gives every expense with the line it landed on, for you or your preparer.</p>
   <h2>Questions</h2>
@@ -1941,6 +1942,265 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Reseller tax deductions", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// /reseller-sales-tax: who collects the sales tax on a reseller's sales, from the Streamlined Sales
+// Tax Governing Board's (SSTGB) state charts and one state page. Each row below is a summary of that
+// state's own answer on the SSTGB marketplace seller chart, not our reading of its law.
+export const SALES_TAX_CHECKED_ON = "2026-11-28";
+const SST_MARKETPLACE_SELLERS =
+  "https://www.streamlinedsalestax.org/for-businesses/marketplace-sellers";
+const SST_REMOTE_SELLERS =
+  "https://www.streamlinedsalestax.org/for-businesses/remote-seller-faqs/remote-seller-state-guidance";
+const SST_EXEMPTIONS = "https://www.streamlinedsalestax.org/for-businesses/exemptions";
+const SST_STATE_CONTACTS = "https://www.streamlinedsalestax.org/contacts/state-contact-information";
+const TX_MARKETPLACE = "https://comptroller.texas.gov/taxes/sales/marketplace-providers.php";
+const TX_MARKETPLACE_QUOTE =
+  "Marketplace providers must collect and remit state and local sales and use tax on all third-party sales.";
+const SST_PHYSICAL_QUOTE =
+  "If you have a physical presence in a state, you are not a Remote Seller and are generally required to register in that state regardless of the amount of sales.";
+const SST_DIRECT_QUOTE =
+  "A remote seller that sells through a Marketplace Facilitator and also sells products direct to its customers, is required to register to collect and remit sales tax in the state if its sales in that state meet that state's Remote Seller Threshold.";
+
+/**
+ * The SSTGB marketplace seller chart, one row per state that answers it (Illinois' row is blank).
+ * `register`: does a seller who sells only through a marketplace that collects the tax have to
+ * register and file? `threshold`: do marketplace sales count toward the state's remote seller threshold?
+ */
+export const MARKETPLACE_SELLER_STATES = [
+  { state: "Alaska", register: "No", threshold: "Yes" },
+  {
+    state: "Arkansas",
+    register:
+      "No; a seller with a physical presence may want to, to buy stock for resale without paying tax",
+    threshold: "No",
+  },
+  { state: "Georgia", register: "No", threshold: "No" },
+  {
+    state: "Indiana",
+    register: "No, unless the seller has a physical presence in Indiana",
+    threshold: "No",
+  },
+  { state: "Iowa", register: "No", threshold: "Yes" },
+  { state: "Kansas", register: "No", threshold: "Yes" },
+  {
+    state: "Kentucky",
+    register: "No, if the marketplace is registered and filing in Kentucky",
+    threshold: "Yes",
+  },
+  { state: "Michigan", register: "No", threshold: "Yes" },
+  {
+    state: "Minnesota",
+    register: "No without a physical presence in Minnesota; yes with one",
+    threshold: "Yes",
+  },
+  {
+    state: "Nebraska",
+    register:
+      "Yes, a remote seller over the filing threshold files, with a credit for the tax the marketplace sent",
+    threshold: "Yes",
+  },
+  { state: "Nevada", register: "No", threshold: "Yes" },
+  {
+    state: "New Jersey",
+    register:
+      "Yes if over the economic threshold or with a physical presence, and may ask to be non-reporting (Form C-6205-ST)",
+    threshold: "Yes",
+  },
+  { state: "North Carolina", register: "No", threshold: "Yes" },
+  {
+    state: "North Dakota",
+    register: "No without a physical presence; yes with one",
+    threshold: "No",
+  },
+  {
+    state: "Ohio",
+    register: "No, as long as the marketplace reports and collects on all of the seller's sales",
+    threshold: "Yes",
+  },
+  {
+    state: "Oklahoma",
+    register: "No, even with a physical presence",
+    threshold: "No, while the marketplace collects",
+  },
+  { state: "Pennsylvania", register: "No", threshold: "Yes" },
+  { state: "Rhode Island", register: "Yes with a physical presence", threshold: "Yes" },
+  { state: "South Dakota", register: "Yes", threshold: "Yes" },
+  {
+    state: "Tennessee",
+    register: "No without a physical presence; yes with a location or physical presence",
+    threshold: "No",
+  },
+  {
+    state: "Texas",
+    register:
+      "No without a physical presence (with the marketplace's certification that it collects); yes with one, though stock held only in a marketplace's fulfillment center does not count",
+    threshold: "No",
+  },
+  { state: "Utah", register: "No without a physical presence; yes with one", threshold: "No" },
+  {
+    state: "Vermont",
+    register: "No, though Vermont use tax may be owed for physical-presence activities",
+    threshold: "Yes",
+  },
+  { state: "Washington", register: "Yes, if the seller has nexus for B&O tax", threshold: "Yes" },
+  {
+    state: "West Virginia",
+    register: "No without a physical presence; yes with one",
+    threshold: "Yes",
+  },
+  { state: "Wisconsin", register: "No", threshold: "Yes" },
+  { state: "Wyoming", register: "No", threshold: "No" },
+];
+
+/** Where each kind of reseller sale stands; `channels` are the app's seller-collected channels (src/shared/sales-tax.ts). */
+export const SELLER_COLLECTED_SALES = [
+  {
+    channel: "square",
+    name: "Square",
+    what: "a card reader or the Square app at a market booth or flea market",
+  },
+  {
+    channel: "paypal",
+    name: "PayPal",
+    what: "a buyer who paid you by PayPal off the marketplaces",
+  },
+  { channel: "venmo", name: "Venmo", what: "a local or Facebook Marketplace sale paid by Venmo" },
+  {
+    channel: "shopify",
+    name: "Your own Shopify store",
+    what: "orders on your own store (Shop channel orders aside, which Shopify collects on as a marketplace)",
+  },
+  {
+    channel: "other",
+    name: "Another marketplace matched by hand",
+    what: "counted as yours until you take it out, since the file does not say who collected",
+  },
+  {
+    channel: "direct",
+    name: "Sales you type in",
+    what: "cash, Cash App or Zelle at a pickup or a market, with the tax you charged",
+  },
+];
+
+function salesTax() {
+  const path = "/reseller-sales-tax";
+  const title = "Sales tax for resellers: who collects it";
+  const description =
+    "Marketplaces collect the sales tax on your eBay, Poshmark or Etsy sales; booth, Venmo and own-store sales are yours. A state chart, with sources.";
+  const faqs = [
+    {
+      q: "Do I have to collect sales tax on eBay, Poshmark or Mercari sales?",
+      a: "In the states with marketplace facilitator laws, the marketplace collects and sends the sales tax on the sales made through it. Texas, for one, says marketplace providers must collect and remit state and local sales and use tax on all third-party sales. Whether you still have to register and file in a state is a separate question, and the states answer it differently: see the chart on this page.",
+    },
+    {
+      q: "Do I need a seller's permit if I only sell on marketplaces?",
+      a: "It depends on the state, and usually on whether you have a physical presence there; living and storing stock in a state is the common reseller case. On the Streamlined Sales Tax Governing Board's chart, Georgia, Pennsylvania and Wisconsin say no, while Indiana, Minnesota, Texas, Utah and others say yes once the seller has a physical presence, and South Dakota and Nebraska say yes in more cases. Your own state's revenue department has the answer that counts.",
+    },
+    {
+      q: "Do I charge sales tax at a flea market or on a Venmo sale?",
+      a: "No marketplace is in the middle of those sales, so no marketplace collects. A seller with a physical presence in a state is generally required to register there whatever the amount of sales, in the SSTGB's words. Which items are taxable, and whether a one-off or occasional sale is exempt, is set by the state.",
+    },
+    {
+      q: "Is the sales tax a marketplace collected part of my income?",
+      a: `The marketplace collected it from the buyer and sent it to the state; it never was yours to keep. ${SITE_NAME} keeps it out of your sales, your profit and your Schedule C worksheet.`,
+    },
+    {
+      q: "Can I buy inventory tax-free with a resale certificate?",
+      a: "Generally a business that buys goods to resell gives its supplier an exemption (resale) certificate and keeps a copy, and the supplier does not charge sales tax. The Streamlined Sales Tax Exemption Certificate is accepted by all 24 Streamlined member states, with the state's ID number for the purchase where you are registered. Not every seller has to accept one, and not every state allows every exemption on it: check the state.",
+    },
+  ];
+  const stateRows = MARKETPLACE_SELLER_STATES.map(
+    (s) =>
+      `      <tr><th scope="row">${esc(s.state)}</th><td>${esc(s.register)}</td><td>${esc(s.threshold)}</td></tr>`,
+  ).join("\n");
+  const sellerRows = SELLER_COLLECTED_SALES.map(
+    (s) => `      <tr><th scope="row">${esc(s.name)}</th><td>${esc(s.what)}</td></tr>`,
+  ).join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">Most of a reseller's sales tax is not theirs to handle: the marketplace collects it on every eBay, Poshmark, Mercari, Etsy or Depop sale and sends it to the state. The sales you ring up yourself are different. A Square reader at a flea market, a Venmo payment at a pickup or your own Shopify store has no marketplace in the middle, so the tax on those, and the permit, are yours.</p>
+  <h2>Sales on a marketplace: the marketplace collects</h2>
+  <p>Most states with a sales tax have a marketplace facilitator law (some call it a marketplace provider law), which makes the marketplace collect and send the tax on the sales it facilitates for third-party sellers. Texas puts it plainly: &ldquo;${esc(TX_MARKETPLACE_QUOTE)}&rdquo; (<a href="${TX_MARKETPLACE}">Texas Comptroller</a>). The tax a buyer paid on your eBay order was charged and sent by eBay, not by you.</p>
+  <p>That leaves two questions a marketplace does not answer for you: whether you still have to register and file in your state when every sale is on a marketplace, and whether your marketplace sales count toward another state's threshold for remote sellers once you also sell direct. The <a href="${SST_MARKETPLACE_SELLERS}">Streamlined Sales Tax Governing Board</a> (SSTGB) keeps a chart of each member state's answers, and they differ:</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">State</th><th scope="col">Sell only on a marketplace that collects: register and file?</th><th scope="col">Marketplace sales count toward the remote seller threshold?</th></tr></thead>
+    <tbody>
+${stateRows}
+    </tbody>
+  </table></div>
+  <p class="muted">Summarised from the SSTGB marketplace seller chart, read ${esc(SALES_TAX_CHECKED_ON)}; its rows were last updated by the states between June 2020 and November 2021, and Illinois' row is blank. The chart covers the Streamlined member states and a few others, so California, Florida, New York and other large states are not on it. It is general guidance, and the SSTGB says nothing in it overrides a state's own law: <a href="${SST_STATE_CONTACTS}">ask the state</a> before you rely on a row.</p>
+  <p>&ldquo;Physical presence&rdquo; matters in most rows, and a reseller who lives and keeps stock in a state usually has it there. In the SSTGB's words: &ldquo;${esc(SST_PHYSICAL_QUOTE)}&rdquo; Texas is the state on the chart that says stock kept only in a marketplace's fulfillment center does not, on its own, require a remote seller to register.</p>
+  <h2>Sales you ring up yourself: you collect</h2>
+  <p>When a buyer pays you directly, no marketplace collects the tax. These are the reseller sales where the tax, if the state taxes the item, is yours to charge and send:</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">Sale</th><th scope="col">Typical case</th></tr></thead>
+    <tbody>
+${sellerRows}
+    </tbody>
+  </table></div>
+  <p>Selling direct into other states adds the remote seller thresholds: each state sets a level of sales (and in some, a number of transactions) above which a seller with no physical presence there must register. &ldquo;${esc(SST_DIRECT_QUOTE)}&rdquo; The SSTGB's <a href="${SST_REMOTE_SELLERS}">remote seller chart</a> lists each state's threshold; California's, for example, is total combined sales over $500,000 in the preceding or current calendar year, and Arkansas' is sales over $100,000 or 200 transactions. Whether marketplace sales count toward a threshold is the third column above.</p>
+  <h2>Buying stock: resale certificates</h2>
+  <p>A business that buys goods to resell can usually give its supplier an exemption certificate for resale, keep a copy, and not be charged sales tax; the tax is then collected when the item is sold to the end buyer. The <a href="${SST_EXEMPTIONS}">Streamlined Sales Tax Exemption Certificate</a> is accepted by all 24 Streamlined member states. You give the ID number of the state you are claiming the exemption in where you are registered there, a number issued by another state where you are not, and the SSTGB notes that not all states allow every exemption on the form. Do not send the certificate to the state; the supplier keeps it. This is also why the SSTGB chart's Arkansas row says a seller who only sells on marketplaces may want to register anyway.</p>
+  <h2>Sales tax in ${esc(SITE_NAME)}</h2>
+  <p>${esc(SITE_NAME)} reads who collected each sale's tax from where the sale came from. Tax on the marketplaces' sales (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Amazon, TikTok Shop, and Grailed, StockX and Vinted) is kept out of your sales, your profit and your <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>. Tax on the sales in the second table is listed on its own as &ldquo;Sales tax you collected&rdquo;, by month and channel with quarter totals and the tax handed back on refunds, and downloads as a CSV to fill your state return from. When a <a href="${href("/1099-k")}">Form 1099-K</a> looks higher than your books, the 1099-K check adds the tax the platform collected so you can see whether that is the difference. Which items your state taxes, and whether you need a permit, it does not decide.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "salestax" })}</div>`;
+  const text = `# ${title}
+
+Marketplaces collect and send the sales tax on the sales made through them in states with marketplace facilitator laws. Texas: "${TX_MARKETPLACE_QUOTE}" (${TX_MARKETPLACE}). Sales you ring up yourself (a market booth, PayPal, Venmo, your own store) have no marketplace in the middle, so the tax and the permit are yours.
+
+## Sell only on a marketplace that collects: register and file? Do marketplace sales count toward the remote seller threshold?
+
+From the SSTGB marketplace seller chart (${SST_MARKETPLACE_SELLERS}), read ${SALES_TAX_CHECKED_ON}; rows last updated June 2020 to November 2021; general guidance that does not override a state's law.
+
+${mdList(MARKETPLACE_SELLER_STATES.map((s) => `${s.state}: register: ${s.register}; counts toward threshold: ${s.threshold}`))}
+
+"${SST_PHYSICAL_QUOTE}"
+
+## Sales you collect on
+
+${mdList(SELLER_COLLECTED_SALES.map((s) => `${s.name}: ${s.what}`))}
+
+"${SST_DIRECT_QUOTE}" Thresholds by state: ${SST_REMOTE_SELLERS}.
+
+## Resale certificates
+
+The Streamlined Sales Tax Exemption Certificate is accepted by all 24 Streamlined member states (${SST_EXEMPTIONS}); not all states allow every exemption on it; the supplier keeps it.
+
+## Sales tax in ${SITE_NAME}
+
+Marketplace-collected tax is kept out of sales, profit and the Schedule C worksheet. Tax on sales you rang up yourself is listed on its own by month and channel, with quarter totals and refunds, and downloads as a CSV. It does not decide what a state taxes or whether you need a permit.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Sales tax for resellers", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -2300,6 +2560,7 @@ export function allPages() {
     mileageDeduction(),
     homeOfficeAndEquipment(),
     taxDeductions(),
+    salesTax(),
     estimatedTax(),
     compare(),
     pricing(),
