@@ -3,6 +3,7 @@ title: "Checking a deck joist and beam without leaving the page"
 date: 2026-11-04
 description: "The wall-framing takeoff page's deck card now takes your joist and beam figures and prints bending, shear and deflection for both."
 tags: [wall-framing-takeoff, deck]
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 # Checking a deck joist and beam without leaving the page

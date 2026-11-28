@@ -377,7 +377,7 @@ export const FEATURES = [
       "Record what you paid, lots and bins split across their items; the cost moves to cost of goods when the item sells.",
     guide: "/cost-of-goods-sold",
     title: "Cost of goods that follows the item",
-    body: "Record what you paid when you source, including bulk lots and bins split across the items in them. When an item sells, on whichever platform, its cost moves to cost of goods sold; what's unsold stays as inventory at the end of the year. Already track purchases in a spreadsheet? Save it as CSV and import it; you see what will be added before anything is saved.",
+    body: "Record what you paid when you source, including bulk lots and bins split across the items in them, evenly or by what each piece should sell for, so a $5 shirt in a mixed bin does not carry the same cost as the coat beside it. When an item sells, on whichever platform, its cost moves to cost of goods sold; what's unsold stays as inventory at the end of the year. Already track purchases in a spreadsheet? Save it as CSV and import it; you see what will be added before anything is saved.",
   },
   {
     key: "stock",

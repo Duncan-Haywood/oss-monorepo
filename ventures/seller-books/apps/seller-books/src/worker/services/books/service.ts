@@ -690,13 +690,19 @@ export async function reallocateLot(ctx: AppContext, orgId: string, lotId: strin
       id: inventoryItem.id,
       costCents: inventoryItem.costCents,
       costIsManual: inventoryItem.costIsManual,
+      estimatedValueCents: inventoryItem.estimatedValueCents,
     })
     .from(inventoryItem)
     .where(and(eq(inventoryItem.orgId, orgId), eq(inventoryItem.lotId, lotId)))
     .orderBy(inventoryItem.createdAt, sql`rowid`);
   const result = allocateLotCost(
     lot.totalCostCents,
-    items.map((i) => ({ id: i.id, manualCostCents: i.costIsManual ? i.costCents : null })),
+    items.map((i) => ({
+      id: i.id,
+      manualCostCents: i.costIsManual ? i.costCents : null,
+      estimatedValueCents: i.estimatedValueCents,
+    })),
+    lot.splitBy === "value" ? "value" : "even",
   );
   for (const i of items) {
     const cost = result.costs.get(i.id);
@@ -712,6 +718,7 @@ export async function reallocateLot(ctx: AppContext, orgId: string, lotId: strin
     itemCount: items.length,
     unallocatedCents: result.unallocatedCents,
     warnings: result.warnings,
+    splitUsed: result.splitUsed,
   };
 }
 

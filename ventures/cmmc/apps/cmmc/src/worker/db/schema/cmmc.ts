@@ -485,6 +485,11 @@ export const controlledDocument = sqliteTable(
     reviewMonths: integer("review_months"),
     reviewDue: text("review_due"),
     notes: text("notes").notNull().default(""),
+    /**
+     * The evidence file that is the controlled copy of the released revision in force, or null
+     * (the copy is kept where `location` says). Set at release, or later for the revision in force.
+     */
+    evidenceId: text("evidence_id"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -510,6 +515,13 @@ export const controlledDocumentEvent = sqliteTable(
     byName: text("by_name").notNull().default(""),
     on: text("on").notNull(),
     effectiveOn: text("effective_on"),
+    /**
+     * A release's controlled copy: the evidence file's id (null once the file is deleted) and its
+     * name and SHA-256 as they were, so the history still says which file was released.
+     */
+    fileEvidenceId: text("file_evidence_id"),
+    fileName: text("file_name"),
+    fileSha256: text("file_sha256"),
     createdAt: createdAt(),
   },
   (t) => [index("controlled_document_event_doc_idx").on(t.orgId, t.documentId)],
