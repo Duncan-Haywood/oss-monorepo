@@ -15,7 +15,7 @@
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
-//                            "peppol"|"en16931"|"hr"} -> { ok, errors, warnings, totals,
+//                            "peppol"|"en16931"|"france"|"hr"} -> { ok, errors, warnings, totals,
 //                            xml, filename, preflight }. See examples/draft-invoice.json.
 //                            "format":"facturx" (profile en16931 or xrechnung) also
 //                            returns pdf_base64: a Factur-X PDF/A-3b with the CII inside.

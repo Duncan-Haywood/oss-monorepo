@@ -49,7 +49,7 @@
     <h2>Document</h2>
     <div class="grid">
       <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option><option value="facturx">Factur-X / ZUGFeRD PDF (PDF/A-3, CII inside)</option></select></label>
-      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option><option value="hr">HR-CIUS 2025 (Croatia, Fiskalizacija 2.0)</option></select></label>
+      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option><option value="france">France (réforme 2026, BR-FR rules)</option><option value="hr">HR-CIUS 2025 (Croatia, Fiskalizacija 2.0)</option></select></label>
       <label>Type <select id="document_type"><option value="invoice">Invoice</option><option value="credit_note">Credit note</option></select></label>
       <label>Invoice number <input id="number" value="RE-2026-001"></label>
       <label>Issue date <input id="issue_date" type="date"></label>
@@ -79,6 +79,17 @@
     </div>
   </section>
 
+  <section id="frSection" hidden lang="fr">
+    <h2>France (réforme 2026)</h2>
+    <p class="muted" style="font-size:.85rem">Les règles BR-FR que les plateformes agréées appliquent demandent en plus : le SIREN du vendeur (BT-30, champ « SIREN » ci-dessous), le cadre de facturation (BT-23), les trois mentions codées PMD, PMT et AAB, et les adresses électroniques des deux parties (BT-34, BT-49). En franchise en base, choisissez la catégorie <b>E</b> avec le motif « TVA non applicable, art. 293 B du CGI » : le code VATEX-FR-FRANCHISE est ajouté. <a href="facture-electronique-micro-entrepreneur.html">Guide micro-entrepreneur</a>.</p>
+    <div class="grid">
+      <label>Cadre de facturation (BT-23) <select id="billing_mode"><option value="S1">S1 – prestation de services</option><option value="B1">B1 – livraison de biens</option><option value="M1">M1 – biens et services</option><option value="S2">S2 – services, déjà payée</option><option value="B2">B2 – biens, déjà payée</option><option value="M2">M2 – mixte, déjà payée</option><option value="S4">S4 – services, facture définitive après acompte</option><option value="B4">B4 – biens, facture définitive après acompte</option><option value="M4">M4 – mixte, facture définitive après acompte</option></select></label>
+      <label>Pénalités de retard (PMD) <input id="note_PMD" value="Pénalités de retard : taux d'intérêt de la BCE majoré de 10 points."></label>
+      <label>Indemnité de recouvrement (PMT) <input id="note_PMT" value="Indemnité forfaitaire pour frais de recouvrement : 40 euros."></label>
+      <label>Escompte (AAB) <input id="note_AAB" value="Pas d'escompte pour paiement anticipé."></label>
+    </div>
+  </section>
+
   <section>
     <h2>Seller (you)</h2>
     <div class="grid" id="seller">
@@ -88,6 +99,7 @@
       <label>VAT ID <input data-k="vat_id" placeholder="DE123456789"></label>
       <label>Tax number (if no VAT ID) <input data-k="tax_number"></label>
       <label>Seller ID or register no. (needed if no VAT ID) <input data-k="company_id" placeholder="HRB 12345 / supplier no."></label>
+      <label>SIREN / registration no. (BT-30) <input data-k="legal_id" inputmode="numeric"></label>
       <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
       <label>E-address (email / GLN / ...) <input data-k="endpoint_id"></label>
       <label>Contact name <input data-k="contact_name"></label><label>Contact phone <input data-k="contact_phone"></label>
@@ -102,6 +114,7 @@
       <label>Postal code <input data-k="postal_code"></label><label>City <input data-k="city"></label>
       <label>Country (ISO) <input data-k="country" maxlength="2" value="DE"></label>
       <label>VAT ID (optional) <input data-k="vat_id"></label>
+      <label>SIREN / registration no. (BT-47) <input data-k="legal_id" inputmode="numeric"></label>
       <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
       <label>E-address <input data-k="endpoint_id"></label>
     </div>
@@ -164,7 +177,7 @@
 
     function party(id) {
       const v = {}; document.querySelectorAll(`#${id} [data-k]`).forEach((el) => { v[el.dataset.k] = el.value.trim(); });
-      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number, company_id: v.company_id };
+      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number, company_id: v.company_id, legal_id: v.legal_id };
       if (v.endpoint_id) p.endpoint = { scheme: v.endpoint_scheme, id: v.endpoint_id };
       if (v.contact_name || v.contact_phone || v.contact_email) p.contact = { name: v.contact_name, phone: v.contact_phone, email: v.contact_email };
       return p;
@@ -218,6 +231,7 @@
         ...adjustments(),
       };
       if ($("profile").value === "hr") Object.assign(d, { issue_time: g("issue_time"), process: g("process"), operator: { name: g("operator_name"), oib: g("operator_oib") } });
+      if ($("profile").value === "france") Object.assign(d, { billing_mode: g("billing_mode"), notes: ["PMD", "PMT", "AAB"].map((subject) => ({ subject, text: g(`note_${subject}`) })) });
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
       d.payment = pay;
       return d;
@@ -251,7 +265,7 @@
         return;
       }
       if (pdfWanted && !Object.hasOwn(FACTURX_PROFILES, $("profile").value)) {
-        $("result").innerHTML = `<p class="err"><b>Factur-X takes the XRechnung or EN 16931 profile.</b> Peppol BIS travels as XML over the Peppol network, not as a PDF: pick UBL or CII for it.</p>`;
+        $("result").innerHTML = `<p class="err"><b>Factur-X takes the XRechnung, EN 16931 or France profile.</b> Peppol BIS travels as XML over the Peppol network, not as a PDF: pick UBL or CII for it.</p>`;
         return;
       }
       let r = generateInvoice(draft(), opts());
@@ -283,10 +297,11 @@
       a.href = URL.createObjectURL(lastBlob || new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
       URL.revokeObjectURL(a.href);
     };
-    const showHr = () => { $("hrSection").hidden = $("profile").value !== "hr"; };
+    const showHr = () => { $("hrSection").hidden = $("profile").value !== "hr"; $("frSection").hidden = $("profile").value !== "france"; };
     $("profile").addEventListener("change", showHr);
     $("example").onclick = () => {
       if ($("profile").value === "hr") return croatianExample();
+      if ($("profile").value === "france") return frenchExample();
       const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
       set("seller", { name: "Muster Software GmbH", street: "Hauptstrasse 1", postal_code: "10115", city: "Berlin", country: "DE", vat_id: "DE136695976", endpoint_scheme: "EM", endpoint_id: "billing@muster.example", contact_name: "Erika Muster", contact_phone: "+49 30 123456", contact_email: "billing@muster.example" });
       set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
@@ -319,6 +334,22 @@
       adjustmentRow({ type: "charge", reason: "Povratna naknada", amount: 0.3, tax_percent: 0, hr_label: "POVNAK" });
       showTotals();
     }
+    // A micro-entrepreneur under the franchise en base (art. 293 B du CGI), made-up names; the SIRENs
+    // and the VAT numbers they give have valid check digits (micro-entrepreneur-bench.mjs).
+    function frenchExample() {
+      const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
+      set("seller", { name: "Camille Martin EI", street: "12 rue des Lilas", postal_code: "69003", city: "Lyon", country: "FR", vat_id: "FR11123456782", tax_number: "", company_id: "", legal_id: "123456782", endpoint_scheme: "0225", endpoint_id: "123456782", contact_name: "", contact_phone: "", contact_email: "" });
+      set("buyer", { name: "Atelier Exemple SARL", street: "4 avenue de la République", postal_code: "75011", city: "Paris", country: "FR", vat_id: "FR14987654324", legal_id: "987654324", endpoint_scheme: "0225", endpoint_id: "987654324" });
+      set("payment", { iban: "FR7630006000011234567890189", bic: "", account_name: "Camille Martin" });
+      $("currency").value = "EUR"; $("number").value = "F-2026-014"; $("buyer_reference").value = ""; $("terms").value = "Paiement à 30 jours";
+      $("billing_mode").value = "S1";
+      $("delivery_date").value = $("issue_date").value;
+      $("lines").innerHTML = "";
+      lineRow({ description: "Création d'un site vitrine", quantity: 1, unit: "C62", unit_price: 1200, tax_percent: 0, tax_category: "E", tax_reason: "TVA non applicable, art. 293 B du CGI" });
+      $("adjustments").innerHTML = "";
+      showTotals();
+    }
+    safe(() => { const want = new URLSearchParams(location.search).get("profile"); if (want && [...$("profile").options].some((o) => o.value === want)) $("profile").value = want; });
     $("addLine").onclick = () => lineRow();
     $("addAdjustment").onclick = () => adjustmentRow();
     showHr();
