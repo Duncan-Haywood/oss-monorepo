@@ -221,6 +221,11 @@ def main(argv=None):
         print(f"notice: PR {m} may be the same work (slug spelled with spaces); read it before building")
     if not (on_main or commits or branches or merged or open_ or loose):
         print(f"{a.slug}: no duplicate found")
+    if not any(b.startswith("claim/") for b in branches):
+        # This check cannot see a PR another run opens ten minutes later (2026-11-28: two runs
+        # built the same PayApps slice, ca-public-notice-of-completion, and neither claimed it).
+        print(f"next: unless you have claimed it, claim it before building: `python3 platform/ci/roadmap_claim.py <app> --slug {a.slug}` "
+              "(or `--claim N` for a ROADMAP Next item); exit 4 means another run has it")
     return 1 if (on_main or commits or merged) else 0
 
 

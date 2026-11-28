@@ -213,7 +213,11 @@ Scheduled sessions overlap. When you pick the task and again before opening
 a PR, run `python3 platform/ci/slug_dupe.py <slug-or-keyword>` (it refreshes
 `origin/main`, which the clone leaves hours stale, and lists merged and open
 PRs titled with the slug; `search_pull_requests` by hand only for a keyword
-that titles would not carry), then extend or consolidate. Before closing a PR as
+that titles would not carry), then extend or consolidate. It cannot see a PR
+another run opens ten minutes later, so **claim the work before building it**:
+`python3 platform/ci/roadmap_claim.py <app> --claim N` (a ROADMAP Next item) or
+`--slug <slug>` (anything else); exit 4 means taken, so pick another
+(2026-11-28: two runs built the same PayApps slice, neither claimed). Before closing a PR as
 superseded, run `python3 portfolio/ledger/supersede_check.py <pr>` and check
 the survivor is still open. A conflict is not a reason to close: merge `main`
 in and resolve it. Steps and tools:
