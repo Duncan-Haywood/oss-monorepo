@@ -5546,9 +5546,16 @@ const parseAttributes = (tag) => {
  * rather than the tail of it. No venture wraps one today, so that is latent
  * rather than live, but the parser costs nothing to keep and cannot regress it.
  */
-const metaContent = (html, attr, value) => {
+const metaContent = (html, attr, value) => metaContentIn(metaTags(html), attr, value);
+
+/**
+ * `metaContent` over tags already taken with `metaTags`: `readMeta` asks one
+ * page up to four questions, and scanning the whole page once per question was
+ * most of its time (docs/history/pages-build-perf-2026-11-28-meta-scans-once.md).
+ */
+const metaContentIn = (tags, attr, value) => {
   const wanted = value.toLowerCase();
-  for (const tag of metaTags(html)) {
+  for (const tag of tags) {
     const attrs = parseAttributes(tag);
     if (attrs[attr.toLowerCase()]?.toLowerCase() === wanted && attrs.content) {
       return decodeEntities(attrs.content).trim();
@@ -5671,19 +5678,20 @@ export function cardCopy(description, ogDescription = '', limit = CARD_MAX) {
  */
 export function readMeta(html, slug) {
   const rawTitle = (html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '').trim();
-  const ogTitle = metaContent(html, 'property', 'og:title');
+  const tags = metaTags(html);
+  const ogTitle = metaContentIn(tags, 'property', 'og:title');
   const title =
     ogTitle || (rawTitle ? decodeEntities(rawTitle.split('|')[0]).trim() : '') || titleize(slug);
 
   const description =
-    metaContent(html, 'name', 'description') || metaContent(html, 'property', 'og:description') || '';
+    metaContentIn(tags, 'name', 'description') || metaContentIn(tags, 'property', 'og:description') || '';
 
   // `description` is card copy and is trimmed to fit one (`cardCopy`).
   // `fullDescription` is what the hub's search actually indexes: 24 of 34
   // tools say more about themselves than a card can hold, and the eBay tool
   // says 1862 characters' worth. Indexing the trimmed copy made ~90% of that
   // tool unfindable.
-  const card = cardCopy(description, metaContent(html, 'property', 'og:description'));
+  const card = cardCopy(description, metaContentIn(tags, 'property', 'og:description'));
   return { title, description: card, fullDescription: description };
 }
 
@@ -11786,9 +11794,21 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   // Whole-tag matcher rather than `[^>]*`: a hand-written description may
   // contain a bare `>` ("net > 0"), and stopping at it would silently leave the
   // longest descriptions — the ones this pass exists to cut — unmatched.
-  const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
-  const tagFor = (attr, value) =>
-    metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
+  // Taken once per version of `next`, not once per question: up to five
+  // questions are asked of each page, and only a `rewrite` changes the page
+  // between them (docs/history/pages-build-perf-2026-11-28-meta-scans-once.md).
+  let tagsOf = null, tagsFrom = null;
+  const metaTags = () => {
+    if (tagsFrom !== next) {
+      tagsOf = [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
+      tagsFrom = next;
+    }
+    return tagsOf;
+  };
+  const tagFor = (attr, value) => {
+    const wanted = new RegExp(`\\b${attr}=["']${value}["']`, 'i');
+    return metaTags().find((m) => wanted.test(m[0])) ?? null;
+  };
   // Two quoted alternatives, not `(["'])...\1`: the same match, without the
   // `i` backreference V8 runs about 20 times slower on two-byte pages
   // (share.mjs, META_CONTENT).
@@ -11829,8 +11849,17 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
     rewrite(twitterTag, snippetize(contentOf(twitterTag[0])));
   }
 
-  const has = (attr, value) =>
-    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i').test(next);
+  // Was one `<meta\b[^>]*\b<attr>=...` scan of the whole page per tag, eleven
+  // per page. The same question asked of each `<meta` run up to its first `>`,
+  // taken once: a match of that pattern starts at some `<meta`, cannot cross a
+  // `>`, and so lies inside that run, and a run nested in another (a `<meta`
+  // inside a quoted value) is a suffix of it, so it changes no answer.
+  // `next` does not change while the tags below are collected.
+  const metaHeads = next.match(/<meta\b[^>]*/gi) ?? [];
+  const has = (attr, value) => {
+    const wanted = new RegExp(`\\b${attr}=["']${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i');
+    return metaHeads.some((head) => wanted.test(head));
+  };
   const tags = [];
   const add = (attr, value, content) => {
     if (!content || has(attr, value)) return;
