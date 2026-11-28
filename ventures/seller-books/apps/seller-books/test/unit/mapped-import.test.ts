@@ -123,3 +123,92 @@ describe("column-mapped import", () => {
     ]);
   });
 });
+
+// Reverb's orders export: its help article lists the fields (Order ID, Order Total, Shipping Cost, Order
+// Status, Selling Fee, Reverb Payments Fee, Bump Fee, Shipping Label Fee, Total Fees, Order Payout, Refund
+// Status...) but not their exact header text, so these headers are written from that list for the test.
+// It is not a Reverb export: the seller confirms every column.
+const REVERB_LIKE = [
+  "Order ID,Order Date,Title,SKU,Quantity,Order Status,Shipping Provider,Shipping Cost,Tax Amount,Tax Responsible Party,Order Total,Selling Fee,Reverb Payments Fee,Bump Fee,Shipping Label Fee,Total Fees,Order Payout,Refund Status",
+  "R-1,2026-05-02,Fender Telecaster,TELE-1,1,Shipped,UPS,40.00,60.00,Reverb,1100.00,52.00,35.00,10.00,38.00,135.00,965.00,",
+  "R-2,2026-05-04,Boss DS-1,DS1,1,Cancelled,,8.00,4.00,Reverb,62.00,0,0,0,0,0,0,",
+  "R-3,2026-05-06,Pedal case,CASE,1,Delivered,USPS,5.00,0,,25.00,1.25,1.00,0,6.00,8.25,16.75,Refunded",
+  "",
+].join("\n");
+
+describe("an order-total export like Reverb's", () => {
+  it("suggests the parts, never a total-fees column beside them, and no status column as money", () => {
+    const s = suggestMapping(headerRow(REVERB_LIKE));
+    expect(s.fields).toMatchObject({
+      orderId: "Order ID",
+      date: "Order Date",
+      status: "Order Status",
+      shipping: "Shipping Cost",
+      salesTax: "Tax Amount",
+      shippingLabel: "Shipping Label Fee",
+      net: "Order Payout",
+      itemPrice: "Order Total",
+    });
+    expect(s.fields.refund).toBeUndefined();
+    expect(Object.values(s.fields)).not.toContain("Shipping Provider");
+    expect(Object.values(s.fields)).not.toContain("Tax Responsible Party");
+    expect(s.fees).toEqual([
+      { column: "Selling Fee", kind: "commission" },
+      { column: "Reverb Payments Fee", kind: "payment_processing" },
+      { column: "Bump Fee", kind: "advertising" },
+    ]);
+    expect(s.priceIncludes).toEqual(["shipping", "salesTax"]);
+    // A total is still offered when it is the file's only fee column.
+    expect(suggestMapping(["Date", "Price", "Total Fees"]).fees).toEqual([
+      { column: "Total Fees", kind: "marketplace_fee" },
+    ]);
+  });
+
+  it("takes shipping and tax out of the total, and leaves cancelled orders out", () => {
+    const s = suggestMapping(headerRow(REVERB_LIKE));
+    const mapping: ColumnMapping = {
+      ...s.fields,
+      date: s.fields.date ?? "",
+      itemPrice: s.fields.itemPrice ?? "",
+      fees: s.fees,
+      priceIncludes: s.priceIncludes,
+    };
+    const r = parseMappedCsv(REVERB_LIKE, "reverb", mapping);
+    expect(r.platform).toBe("reverb");
+    expect(
+      r.sales.map((x) => [x.externalId, x.itemCents, x.shippingChargedCents, x.salesTaxCents]),
+    ).toEqual([
+      ["R-1", 100000, 4000, 6000],
+      ["R-3", 2000, 500, 0],
+    ]);
+    expect(r.sales[0]?.fees.map((f) => f.amountCents)).toEqual([5200, 3500, 1000]);
+    expect(r.sales[0]).toMatchObject({ shippingLabelCents: 3800, netCents: 96500 });
+    expect(r.skipped).toEqual([{ line: 3, reason: 'Order status "Cancelled": not a sale' }]);
+  });
+
+  it("without the ticks the total is the price, and a tick needs its column", () => {
+    const base: ColumnMapping = { date: "Order Date", itemPrice: "Order Total" };
+    expect(parseMappedCsv(REVERB_LIKE, "reverb", base).sales[0]?.itemCents).toBe(110000);
+    expect(
+      mappingProblems({ ...base, priceIncludes: ["shipping"] }, headerRow(REVERB_LIKE)),
+    ).toEqual(["The price includes shipping the buyer paid: choose that column too."]);
+  });
+
+  it("refunds a negative total without its tax, and skips a total smaller than its parts", () => {
+    const text = [
+      "Date,Total,Shipping,Tax",
+      "2026-06-01,-141.60,12.00,9.60",
+      "2026-06-02,10.00,12.00,0",
+      "",
+    ].join("\n");
+    const r = parseMappedCsv(text, "other", {
+      date: "Date",
+      itemPrice: "Total",
+      shipping: "Shipping",
+      salesTax: "Tax",
+      priceIncludes: ["shipping", "salesTax"],
+    });
+    expect(r.sales.map((x) => [x.kind, x.refundCents])).toEqual([["refund", 13200]]);
+    expect(r.skipped[0]?.reason).toMatch(/more than the total/);
+  });
+});

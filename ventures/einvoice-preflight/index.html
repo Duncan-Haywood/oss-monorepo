@@ -276,7 +276,7 @@
     <h3>What does this e-invoice error code mean?</h3>
     <p>Every rule this checker reports has an <code>INV-</code> code naming one specific defect and the field it was found in — <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a> lists all of them with a fix for each. They are this tool's own identifiers, not EN 16931 <code>BR-</code> rules or a submission network's rejection codes.</p>
     <h3>When must German businesses issue e-invoices?</h3>
-    <p>Receiving structured e-invoices has been mandatory since 1 January 2025; issuing is mandatory from 2027 (businesses above 800,000 euro prior-year turnover) and 2028 (everyone) for domestic B2B. See <a href="germany-e-invoice-mandate.html">the dates, the formats that count and a free XRechnung check</a>.</p>
+    <p>Receiving structured e-invoices has been mandatory since 1 January 2025; issuing is mandatory from 2027 (businesses above 800,000 euro prior-year turnover) and 2028 (everyone) for domestic B2B. See <a href="germany-e-invoice-mandate.html">the dates, the formats that count and a free XRechnung check</a>. Auf Deutsch: <a href="e-rechnung-pruefen.html" hreflang="de" lang="de">E-Rechnung kostenlos prüfen</a>.</p>
     <h3>Should I use this checker or a platform like Avalara?</h3>
     <p>Different jobs: Avalara (or a comparable platform) calculates and files tax and routes e-invoices across a whole operation as an ongoing subscription. This checker is a free, local, no-account validation of one invoice file's fields and arithmetic before it reaches that pipeline — see <a href="vs-avalara.html">this checker vs. Avalara</a>.</p>
   </section>
@@ -786,6 +786,19 @@
       }
     }
   </script>
+<script>
+// A link can open the checker with a rule set ticked: ?profil=xrechnung (or ?profile=), peppol, france,
+// slovakia, or en16931 for the official EN 16931 Schematron alone. Any profile also ticks the official
+// Schematron, which runs in the browser. The German landing page (e-rechnung-pruefen.html) links here.
+(function () {
+  var q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var want = (q.get("profil") || q.get("profile") || "").toLowerCase();
+  var allowed = { xrechnung: 1, peppol: 1, france: 1, slovakia: 1, en16931: 1 };
+  if (!allowed[want]) return;
+  if (want !== "en16931") { var box = document.getElementById(want); if (box) box.checked = true; }
+  var official = document.getElementById("official"); if (official) official.checked = true;
+})();
+</script>
 <script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("sample");if(b)b.click();});</script>
 </body>
 </html>

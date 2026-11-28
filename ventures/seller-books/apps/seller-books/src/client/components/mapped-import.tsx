@@ -1,4 +1,4 @@
-// Another marketplace's sales file (Grailed, StockX, Vinted or any other): the seller picks the file, sees
+// Another marketplace's sales file (Grailed, StockX, Vinted, Reverb or any other): the seller picks the file, sees
 // its own header row, and says which column is which. Nothing is uploaded until they press Import; the
 // columns they confirm are saved per platform on the server and offered again for the next file.
 import {
@@ -9,6 +9,8 @@ import {
   type MappedFeeKind,
   type MappedField,
   mappingProblems,
+  PRICE_INCLUDES,
+  type PriceInclude,
   suggestMapping,
 } from "@shared/column-mapping";
 import { parseCsv } from "@shared/csv";
@@ -64,6 +66,7 @@ export function MappedImport({
   const [file, setFile] = useState<{ name: string; text: string } | null>(null);
   const [fields, setFields] = useState<Fields>({});
   const [fees, setFees] = useState<Fee[]>([]);
+  const [priceIncludes, setPriceIncludes] = useState<PriceInclude[]>([]);
   const [readError, setReadError] = useState<string | null>(null);
   const header = file ? readHeader(file.text) : null;
 
@@ -73,14 +76,16 @@ export function MappedImport({
     if (!h) return;
     const mine = saved.data?.items.find((m) => m.platform === p)?.mapping;
     if (mine && mappingProblems(mine, h.headers).length === 0) {
-      const { fees: f = [], ...rest } = mine;
+      const { fees: f = [], priceIncludes: inc = [], ...rest } = mine;
       setFields(rest);
       setFees(f);
+      setPriceIncludes(inc);
       return;
     }
     const s = suggestMapping(h.headers);
     setFields(s.fields);
     setFees(s.fees);
+    setPriceIncludes(s.priceIncludes);
   };
 
   const mapping: ColumnMapping = {
@@ -88,6 +93,7 @@ export function MappedImport({
     date: fields.date ?? "",
     itemPrice: fields.itemPrice ?? "",
     fees,
+    priceIncludes,
   };
   const problems = header ? mappingProblems(mapping, header.headers) : [];
 
@@ -101,7 +107,7 @@ export function MappedImport({
           platform,
           fileName: file.name,
           csv: file.text,
-          mapping: { ...clean, fees },
+          mapping: { ...clean, fees, priceIncludes },
         },
       });
     },
@@ -124,11 +130,11 @@ export function MappedImport({
     <section className="card space-y-3">
       <h2 className="font-medium">Another platform: match the columns yourself</h2>
       <p className="text-sm text-stone-600">
-        For Grailed, StockX, Vinted or any marketplace without a report above: download its sales
-        file as CSV, choose it here and say which column is which. Only the columns you choose are
-        read, and fees come only from the columns you mark as fees. Your choices are saved for the
-        next file from the same platform. Seller Books is not affiliated with Grailed, StockX or
-        Vinted.
+        For Grailed, StockX, Vinted, Reverb or any marketplace without a report above: download its
+        sales file as CSV, choose it here and say which column is which. Only the columns you choose
+        are read, and fees come only from the columns you mark as fees. Your choices are saved for
+        the next file from the same platform. Seller Books is not affiliated with Grailed, StockX,
+        Vinted or Reverb.
       </p>
       <div className="grid gap-3 md:grid-cols-2">
         <label>
@@ -210,6 +216,29 @@ export function MappedImport({
               </label>
             ))}
           </div>
+          <fieldset className="space-y-1 text-sm">
+            <legend className="label">
+              Does the price column already include these? (an order total usually does)
+            </legend>
+            {PRICE_INCLUDES.map((inc) => (
+              <label key={inc} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={priceIncludes.includes(inc)}
+                  onChange={(e) =>
+                    setPriceIncludes(
+                      e.target.checked
+                        ? [...priceIncludes, inc]
+                        : priceIncludes.filter((x) => x !== inc),
+                    )
+                  }
+                />
+                {inc === "shipping"
+                  ? "Shipping the buyer paid: take it out of the price"
+                  : "Sales tax: take it out of the price"}
+              </label>
+            ))}
+          </fieldset>
           <div className="space-y-2">
             <span className="label">Fee columns (the platform's charges to you)</span>
             {fees.map((fee, i) => (

@@ -1,6 +1,11 @@
 // Report uploads. POST takes the file as text (the SPA reads it in the browser) so one JSON request carries
 // everything; 5 MB is ~40k rows of a typical export.
-import { MAPPED_FEE_KINDS, MAPPED_PLATFORMS, MAX_MAPPED_FEES } from "@shared/column-mapping";
+import {
+  MAPPED_FEE_KINDS,
+  MAPPED_PLATFORMS,
+  MAX_MAPPED_FEES,
+  PRICE_INCLUDES,
+} from "@shared/column-mapping";
 import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -82,6 +87,8 @@ const mappingSchema = z.object({
   shippingLabel: optionalHeader,
   refund: optionalHeader,
   net: optionalHeader,
+  status: optionalHeader,
+  priceIncludes: z.array(z.enum(PRICE_INCLUDES)).max(PRICE_INCLUDES.length).optional(),
   fees: z
     .array(z.object({ column: header, kind: z.enum(MAPPED_FEE_KINDS) }))
     .max(MAX_MAPPED_FEES)

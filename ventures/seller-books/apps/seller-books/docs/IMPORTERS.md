@@ -527,6 +527,48 @@ refund and net payout, plus up to six fee columns each filed under a fee kind. C
 - **Confidence:** nothing about any platform's layout is assumed, so there is nothing to verify per
   platform. The test fixture `test/fixtures/mapped-any-marketplace.csv` is written for the test and is not
   any platform's export.
+- **Order status (added 2026-11-28):** an optional column; a row whose status reads cancelled, canceled,
+  voided, declined, failed or rejected is skipped with the status as the reason.
+- **A price that is an order total (added 2026-11-28):** `priceIncludes` (`shipping`, `salesTax`), two ticks
+  under the fields. When the chosen price column already holds shipping and tax, the chosen shipping and tax
+  columns are taken back out of it per row: the item is total less those, so shipping is not counted twice
+  and tax is never income. A refund row (negative total) gives back item and shipping, not the tax. A row
+  whose shipping and tax are more than its total is skipped with the reason. Each tick needs its column.
+- **Suggestions (tightened 2026-11-28):** a column whose name ends in a word for text (status, method,
+  provider, service, party, currency, address, name, code, date and similar) is never suggested for an
+  amount, so "Refund Status" is not read as a refund and "Shipping Provider" not as shipping. A total-fees
+  column ("Total Fees") is suggested only when it is the file's one fee column, never beside the fees it
+  adds up. A Bump fee is suggested as advertising. With no item price column, an order total ("Order
+  Total") is suggested as the price with the shipping and tax ticks set for the columns suggested beside it.
+
+### Reverb (added 2026-11-28, column-mapped)
+
+Reverb sells music gear (guitars, amps, pedals, synths). Its help centre article "How to export your orders"
+(help.reverb.com, article 41988480773019) describes the orders export: from the shop's Orders page, a start
+and end date, Export, Orders, then the CSV download. Its field list, as read through search-engine excerpts on
+2026-11-28 (help.reverb.com does not answer from this environment): order ID, date, quantity, SKU, title, buyer
+name, tax fields, order total, shipping cost, seller cost, payment method, paid date, order status, discount
+code, storage location and order source, plus "recently added" order payout, Reverb payments fee, selling fee,
+bump fee, shipping label fee, total fees and refund status. The exact header text was not seen, so there is no
+fixed importer: `reverb` is a column-mapped platform, and the seller confirms each column.
+
+- **What the mapping is for:** price = the order total, with both ticks (shipping and tax taken out); shipping
+  = shipping cost; tax = the tax amount; label = shipping label fee; net = order payout; status = order
+  status; fees = selling fee (commission), Reverb payments fee (payment processing), bump fee (advertising).
+  Leave total fees out (the suggestion does). The buyer's name is never read: the mapping has no field for it.
+- **Not handled yet:** the export's refund status is text and its refund amounts are not in the field list,
+  so a refunded order is not booked as a refund from this file; the seller enters it (or imports a row with a
+  negative total). A separate earnings export (per payout or by period, fees "in Sale Currency", a Total
+  Payout column) is not read. Seller cost is not imported as cost of goods (inventory comes from the sourcing
+  sheet or the Inventory page). Both wait on a real export.
+- **Sales tax:** Reverb collects and remits it in marketplace facilitator states, cannot be opted out of, and
+  its 1099-K amount leaves that tax out (Reverb's sales tax information page,
+  reverb.com/page/reverb-sales-tax-information, and help articles on marketplace facilitator refunds and US tax
+  reporting for 2025, via search excerpts 2026-11-28). So Reverb counts as a marketplace that collects
+  (`taxCollector("reverb") === "marketplace"`).
+- **Payout check:** a bank line naming REVERB matches the platform by its key (`matchPlatform`).
+- **Test:** `test/unit/mapped-import.test.ts`, "an order-total export like Reverb's": headers written from the
+  field list above for the test, not a Reverb export.
 
 ## Your own sourcing sheet (inventory, not a marketplace report)
 

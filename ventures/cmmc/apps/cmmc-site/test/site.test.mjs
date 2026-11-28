@@ -1,10 +1,12 @@
 // Build output checks (SEO/AEO) and the copy guard: no certification, endorsement, guaranteed-score
 // or testimonial claims; the dated CMMC status on every page; every external number sourced.
+
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test as nodeTest } from "node:test";
+import { SHEET_FILE } from "../src/assessment-sheet.mjs";
 import { build, fileFor, htmlToText, normalizeBasePath, withBase } from "../src/build.mjs";
 import { APP_URL, launchState } from "../src/launch.mjs";
 import { buildPages } from "../src/pages.mjs";
@@ -95,6 +97,7 @@ for (const [mode, launch] of MODES) {
       "/styles.css",
       "/llms.txt",
       "/api/early-access",
+      `/${SHEET_FILE}`,
     ]);
     if (launch.open)
       assert.ok(

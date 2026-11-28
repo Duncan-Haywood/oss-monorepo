@@ -70,3 +70,77 @@ accepted:
     path: ventures/einvoice-pro/apps/einvoice-preflight/pro/sql-store.mjs
     reason: "SqlStore.init's this.db.exec is the D1/SQLite database's exec, not child_process (the module imports none); the ALTER TABLE template is filled only from the module's own constant ADDED_COLUMNS list, never from input. Moving with the paid app to ventures/einvoice-pro (PR #19635)."
     added: 2026-11-27
+  # scan-repo-baseline, semgrep (2026-11-28): the 13 left after PR #19952, each opened by hand;
+  # table in docs/reports/2026-11-27-full-repo-security-scan.md, "Progress, 2026-11-28: semgrep".
+  - tool: semgrep
+    rule: js-eval-dynamic
+    path: platform/ci/check_enter_reload.mjs
+    fingerprint: 7319847e3e932317
+    reason: "new Function rebuilds this file's own selfAction helper from selfAction.toString() inside page.evaluate (functions cannot cross into the page as values); no outside input reaches it"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-eval-dynamic
+    path: platform/ci/check_enter_reload.mjs
+    fingerprint: e3ee88581ea03181
+    reason: "new Function rebuilds this file's own fillValue helper from fillValue.toString() inside page.evaluate; no outside input reaches it"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: py-shell-injection
+    path: platform/ci/run_workflow_locally.py
+    fingerprint: 6e4413d660d1373d
+    reason: "runs a workflow step's run: script, which GitHub Actions itself runs through a shell; the script comes from this repository's own workflow files, and emulating that is the tool's job"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: py-shell-injection
+    path: platform/ci/runner_probe.py
+    fingerprint: e3c24953a3c2598a
+    reason: "_sh() is called only with three string literals (lscpu, the GPU probe pipe, node --version); the shell is for the pipe, and no variable reaches it"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: py-shell-injection
+    path: research/_audit/repro_audit.py
+    fingerprint: 17898bd51e3265c4
+    reason: "the reproducibility audit runs the commands written in this repository's own research READMEs, which is what it audits; run by hand on a clone, never on PR input"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/babysitting-business-kit/activities.mjs
+    fingerprint: e74839759b190d3f
+    reason: "RegExp.prototype.exec on a template string (reading an age out of the notes), not child_process; the file imports no child_process"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/k8s-deprecated-api-check/engine.mjs
+    fingerprint: 7a92082cae740f36
+    reason: "RegExp.prototype.exec on a template string (the metadata block of a manifest), not child_process; a browser engine with no child_process import"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/einvoice-preflight/plain/fontoxpath.esm.js
+    fingerprint: 226323dca80afe1c
+    reason: "vendored minified fontoxpath browser bundle (one line); the match is a RegExp/XPath exec, the bundle has no child_process"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/local-site-studio/src/lib/db/sqlite-schema.ts
+    fingerprint: 7176aa30da9fdcdc
+    reason: "SQLite db.exec (SQL, not a shell): addLeadCol's column name and type are string literals at all of its call sites in this file"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/photo-nutrition-agent/self-host/store.mjs
+    fingerprint: 0ef451e7cd85a72c
+    reason: "SQLite db.exec (SQL, not a shell): DELETE FROM over a literal array of the store's own table names, in restore() and eraseAll()"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: ventures/retail-pilot-intel/packages/analytics/src/db.ts
+    fingerprint: b08c715ef63c5643
+    reason: "SQLite db.exec (SQL, not a shell): migrateSyntheticColumn is called only with the literals aggregate_events and sale_events"
+    added: 2026-11-28
+  - tool: semgrep
+    rule: js-tls-verify-off
+    path: ventures/status-keeper/certs.mjs
+    fingerprint: f13fc4ddab424802
+    reason: "a certificate monitor has to finish the handshake with an untrusted or expired certificate to report it: it reads socket.authorized and fails the check unless the monitor sets strict: false, and sends no data over the socket"
+    added: 2026-11-28

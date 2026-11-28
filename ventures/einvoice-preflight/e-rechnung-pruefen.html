@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Rechnung kostenlos prüfen: XRechnung und ZUGFeRD</title>
+<meta name="description" content="XRechnung- oder ZUGFeRD-Datei vor dem Versand prüfen: Summen, Leitweg-ID, USt-IdNr., IBAN und die KoSIT-Regeln, im Browser, ohne Upload und ohne Konto.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/e-rechnung-pruefen.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="E-Rechnung kostenlos prüfen: XRechnung und ZUGFeRD">
+<meta property="og:description" content="XRechnung- oder ZUGFeRD-Datei vor dem Versand prüfen: Summen, Leitweg-ID, USt-IdNr., IBAN und die KoSIT-Regeln, im Browser, ohne Upload und ohne Konto.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/e-rechnung-pruefen.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Wie prüfe ich eine XRechnung kostenlos?", "acceptedAnswer": {"@type": "Answer", "text": "Öffnen Sie den Prüfer über den Link „XRechnung prüfen“ auf dieser Seite: Die XRechnung-Regeln und das offizielle EN-16931-Schematron sind dann schon ausgewählt. Ziehen Sie die XML-Datei (UBL oder CII) in das Feld und klicken Sie auf „Check invoices“. Jede Abweichung erscheint mit Regel-ID und einem Korrekturvorschlag. Die Datei bleibt auf Ihrem Rechner."}}, {"@type": "Question", "name": "Kann ich auch eine ZUGFeRD- oder Factur-X-PDF prüfen?", "acceptedAnswer": {"@type": "Answer", "text": "Ja. Der Prüfer liest die in der PDF eingebettete XML-Rechnung und prüft sie wie eine reine XML-Datei. Geprüft wird die XML, nicht das Druckbild: Stimmen die Summen im PDF-Text nicht mit der XML überein, sieht der Prüfer das nicht."}}, {"@type": "Question", "name": "Ist ein normales PDF ab 2027 noch erlaubt?", "acceptedAnswer": {"@type": "Answer", "text": "Für inländische B2B-Rechnungen nur noch in den Übergangsfristen. Laut BMF ist eine E-Rechnung eine Rechnung in einem strukturierten elektronischen Format nach EN 16931; ein einfaches PDF ist keine E-Rechnung. Bis 31. Dezember 2026 dürfen alle Aussteller noch sonstige Rechnungen ausstellen, bis 31. Dezember 2027 nur noch Aussteller mit höchstens 800.000 Euro Vorjahresumsatz. Prüfen Sie Ihren Fall mit Ihrer Steuerberatung."}}, {"@type": "Question", "name": "Ersetzt diese Prüfung den KoSIT-Validator?", "acceptedAnswer": {"@type": "Answer", "text": "Nein. Der Prüfer führt im Browser dieselben veröffentlichten Regelwerke aus (EN 16931 und die XRechnung-Regeln der KoSIT) und ergänzt eigene Prüfungen, etwa der Leitweg-ID-Prüfziffern und der IBAN. Er stellt aber kein Prüfzertifikat aus und sagt nicht, dass eine Rechnung rechtlich gültig ist. Entscheidend bleibt, was die Empfangsplattform oder Ihr Kunde annimmt."}}, {"@type": "Question", "name": "Warum ist die Prüfseite auf Englisch?", "acceptedAnswer": {"@type": "Answer", "text": "Die Oberfläche des Prüfers gibt es bisher nur auf Englisch. Für die häufigsten Fehlermeldungen (alle BR-DE-Regeln der XRechnung und über 30 Regeln aus EN 16931 und Peppol) gibt es eine deutsche Erklärung mit Ursachen, Korrektur und XML-Beispiel."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="germany-e-invoice-mandate.html" hreflang="en" lang="en">English</a></p>
+<header>
+<h1>E-Rechnung prüfen, bevor sie rausgeht</h1>
+<p class="lede">Ab dem 1. Januar 2027 müssen Unternehmen mit mehr als 800.000 Euro Vorjahresumsatz Rechnungen an andere inländische Unternehmen als E-Rechnung ausstellen, ab 2028 alle. Prüfen Sie Ihre XRechnung oder ZUGFeRD-Datei hier, bevor ein Kunde oder ein Portal sie zurückweist: kostenlos, ohne Konto, und die Datei verlässt Ihren Rechner nicht.</p>
+<p><a class="cta" href="./?profil=xrechnung#drop">XRechnung prüfen</a> <a class="cta alt" href="./?profil=en16931#drop">ZUGFeRD / EN 16931 prüfen</a></p>
+<p class="fine">Beide Links öffnen den Prüfer mit den passenden Regeln bereits ausgewählt. Die Oberfläche des Prüfers ist bisher englisch; die häufigsten Fehlermeldungen sind <a href="rules/de/index.html">auf Deutsch erklärt</a>.</p>
+</header>
+<section>
+<h2>Was geprüft wird</h2>
+<ul>
+<li><strong>Rechenwerk:</strong> Positionsbeträge, Nachlässe und Zuschläge, Umsatzsteueraufschlüsselung, Gesamt- und Zahlbetrag. Passt eine Summe nicht, zeigt der Prüfer die Abweichung; die Arithmetik einer JSON-, UBL-, CII- oder ZUGFeRD-Datei lässt sich mit einem Klick neu berechnen.</li>
+<li><strong>XRechnung-Pflichtangaben:</strong> Käuferreferenz (BT-10) und die Prüfziffern der Leitweg-ID, Kontaktdaten des Verkäufers, Zahlungsanweisungen.</li>
+<li><strong>Kennungen:</strong> Format der USt-IdNr., IBAN-Prüfziffer, BIC; Gutschriften ohne Bezug auf die ursprüngliche Rechnung.</li>
+<li><strong>Offizielle Regelwerke, im Browser:</strong> das EN-16931-Schematron und die XRechnung-Regeln der KoSIT (BR-DE), aus den veröffentlichten Regeldateien, die mit dieser Seite ausgeliefert werden.</li>
+</ul>
+<p>Eingelesen werden XRechnung als UBL oder CII, ZUGFeRD- und Factur-X-PDFs (die eingebettete XML) und JSON. Jede Abweichung kommt mit Regel-ID und Korrekturvorschlag.</p>
+<p class="fine">Nicht geprüft: welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt, ob das Druckbild einer PDF zur eingebetteten XML passt, und ob Ihr Kunde oder seine Plattform die Datei annimmt. Das Ergebnis ist eine Vorprüfung, kein Prüfzertifikat und keine Aussage, dass eine Rechnung gültig ist.</p>
+</section>
+<section>
+<h2>Die Fristen in Deutschland (inländische B2B-Rechnungen)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Datum</th><th scope="col">Was gilt</th></tr></thead>
+<tbody>
+<tr><td>seit 1.1.2025</td><td>Alle inländischen Unternehmer müssen E-Rechnungen <strong>empfangen</strong> können. Laut BMF genügt dafür ein E-Mail-Postfach.</td></tr>
+<tr><td>bis 31.12.2026</td><td>Allgemeine Übergangsfrist: Alle Rechnungsaussteller dürfen statt einer E-Rechnung noch eine sonstige Rechnung ausstellen. Papier geht immer; ein anderes elektronisches Format (z. B. ein PDF per E-Mail) nur, wenn der Empfänger zustimmt.</td></tr>
+<tr><td>bis 31.12.2027</td><td>Verlängerte Übergangsfrist für Aussteller, deren Vorjahresumsatz höchstens 800.000 Euro betrug. Bis dahin ist auch ein EDI-Verfahren zulässig, das die E-Rechnungs-Anforderungen nicht erfüllt.</td></tr>
+<tr><td>ab 1.1.2028</td><td>Alle inländischen B2B-Rechnungen müssen E-Rechnungen sein.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Eine E-Rechnung ist eine Rechnung in einem strukturierten elektronischen Format nach EN 16931, das eine elektronische Verarbeitung ermöglicht; ein einfaches PDF ist keine. XRechnung und ZUGFeRD ab Version 2.0.1 erfüllen die Anforderungen, mit Ausnahme der ZUGFeRD-Profile MINIMUM und BASIC-WL.</p>
+<p class="fine">Quellen: <a href="https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html" rel="noopener">BMF, Fragen und Antworten zur E-Rechnung</a>; weitere Nichtbeanstandungsregeln im <a href="https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile" rel="noopener">BMF-Schreiben vom 15. Oktober 2026</a>. Zuletzt am 27. November 2026 mit dem Text des BMF abgeglichen. Ausnahmen (etwa für Kleinbetragsrechnungen) und Einzelfälle regelt das BMF; dies ist eine Zusammenfassung, keine Steuerberatung.</p>
+</section>
+<section>
+<h2>Häufige Fehlermeldungen, erklärt</h2>
+<p>Ein Portal oder Ihr Kunde hat eine Rechnung mit einem Code zurückgewiesen? Jede dieser Seiten sagt, was die Regel verlangt, warum sie meist verletzt wird und wie die korrigierte XML aussieht.</p>
+<ul>
+<li><a href="rules/de/br-de-15.html"><strong>BR-DE-15</strong></a>: Käuferreferenz (Leitweg-ID) fehlt</li>
+<li><a href="rules/de/br-de-2.html"><strong>BR-DE-2</strong></a>: Kontaktdaten des Verkäufers fehlen</li>
+<li><a href="rules/de/br-de-1.html"><strong>BR-DE-1</strong></a>: Zahlungsanweisungen fehlen</li>
+<li><a href="rules/de/br-de-16.html"><strong>BR-DE-16</strong></a>: USt-IdNr., Steuernummer oder Steuervertreter des Verkäufers fehlt</li>
+<li><a href="rules/de/br-de-19.html"><strong>BR-DE-19</strong></a>: Zahlungskonto ist bei SEPA-Überweisung keine gültige IBAN</li>
+<li><a href="rules/de/br-de-26.html"><strong>BR-DE-26</strong></a>: Rechnungskorrektur ohne Bezug auf die korrigierte Rechnung</li>
+<li><a href="rules/de/br-co-10.html"><strong>BR-CO-10</strong></a>: Summe der Positionsnettobeträge passt nicht zu den Rechnungspositionen</li>
+<li><a href="rules/de/br-co-15.html"><strong>BR-CO-15</strong></a>: Gesamtbetrag mit USt ist nicht Betrag ohne USt plus USt</li>
+<li><a href="rules/de/peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a>: Weder Käuferreferenz noch Bestellnummer angegeben</li>
+</ul>
+<p><a href="rules/de/index.html">Alle erklärten Regeln</a> (alle BR-DE-Regeln der XRechnung und über 30 aus EN 16931 und Peppol).</p>
+</section>
+<section>
+<h2>Noch keine E-Rechnung?</h2>
+<p>Der kostenlose <a href="create.html" hreflang="en">E-Rechnungs-Ersteller</a> (englische Oberfläche) macht aus einem Formular eine UBL- oder CII-XML oder eine ZUGFeRD-/Factur-X-PDF und prüft sie vor dem Download.</p>
+</section>
+<section>
+<h2>Für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch erklärt, eine korrigierte Datei vorschlägt und viele Mandanten auf einmal prüft, ist in Entwicklung. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Wie prüfe ich eine XRechnung kostenlos?</h3>
+<p>Öffnen Sie den Prüfer über den Link „XRechnung prüfen“ auf dieser Seite: Die XRechnung-Regeln und das offizielle EN-16931-Schematron sind dann schon ausgewählt. Ziehen Sie die XML-Datei (UBL oder CII) in das Feld und klicken Sie auf „Check invoices“. Jede Abweichung erscheint mit Regel-ID und einem Korrekturvorschlag. Die Datei bleibt auf Ihrem Rechner.</p>
+<h3>Kann ich auch eine ZUGFeRD- oder Factur-X-PDF prüfen?</h3>
+<p>Ja. Der Prüfer liest die in der PDF eingebettete XML-Rechnung und prüft sie wie eine reine XML-Datei. Geprüft wird die XML, nicht das Druckbild: Stimmen die Summen im PDF-Text nicht mit der XML überein, sieht der Prüfer das nicht.</p>
+<h3>Ist ein normales PDF ab 2027 noch erlaubt?</h3>
+<p>Für inländische B2B-Rechnungen nur noch in den Übergangsfristen. Laut BMF ist eine E-Rechnung eine Rechnung in einem strukturierten elektronischen Format nach EN 16931; ein einfaches PDF ist keine E-Rechnung. Bis 31. Dezember 2026 dürfen alle Aussteller noch sonstige Rechnungen ausstellen, bis 31. Dezember 2027 nur noch Aussteller mit höchstens 800.000 Euro Vorjahresumsatz. Prüfen Sie Ihren Fall mit Ihrer Steuerberatung.</p>
+<h3>Ersetzt diese Prüfung den KoSIT-Validator?</h3>
+<p>Nein. Der Prüfer führt im Browser dieselben veröffentlichten Regelwerke aus (EN 16931 und die XRechnung-Regeln der KoSIT) und ergänzt eigene Prüfungen, etwa der Leitweg-ID-Prüfziffern und der IBAN. Er stellt aber kein Prüfzertifikat aus und sagt nicht, dass eine Rechnung rechtlich gültig ist. Entscheidend bleibt, was die Empfangsplattform oder Ihr Kunde annimmt.</p>
+<h3>Warum ist die Prüfseite auf Englisch?</h3>
+<p>Die Oberfläche des Prüfers gibt es bisher nur auf Englisch. Für die häufigsten Fehlermeldungen (alle BR-DE-Regeln der XRechnung und über 30 Regeln aus EN 16931 und Peppol) gibt es eine deutsche Erklärung mit Ursachen, Korrektur und XML-Beispiel.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Alle Prüfungen laufen lokal. Fristen und Schwellenwerte können sich ändern; maßgeblich sind die aktuellen Texte des Bundesministeriums der Finanzen.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+</body></html>

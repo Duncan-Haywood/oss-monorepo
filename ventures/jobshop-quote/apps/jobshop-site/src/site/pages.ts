@@ -28,6 +28,7 @@ import {
   UTILISATION_HOURS,
   usd,
 } from "./shop-rate";
+import { priceTurningExample, EXAMPLE as TURN_EXAMPLE } from "./turning-example";
 import { priceWeldingExample, STEEL_LB_PER_IN3, EXAMPLE as WELD_EXAMPLE } from "./welding-example";
 
 export interface RenderContext {
@@ -1718,6 +1719,211 @@ ${ctaBand(ctx, "Quote your next weldment this way", ctx.launch.open ? "The Early
 }
 
 /**
+ * A guide aimed at the searches lathe shops make ("how to quote CNC turning", "how to quote lathe
+ * work", "turned parts cost", "bar stock cost per part"). Method plus one made-up stainless pin: rpm
+ * from surface speed, minutes per pass from the feed per revolution, roughing passes from the stock to
+ * remove, parts per 12 ft bar after the cut allowance and remnant, priced in ./turning-example to the
+ * cent the app's costing engine gives, with whole bars and by the length used
+ * (apps/jobshop-quote/test/unit/site-turning-example.test.ts). No industry figures are quoted.
+ */
+export function turningGuidePage(ctx: RenderContext): Html {
+  const e = TURN_EXAMPLE;
+  const r = priceTurningExample(e);
+  const [small, mid, large] = r.breaks;
+  const [smallLen, , largeLen] = r.lengthUsedBreaks;
+  if (!small || !mid || !large || !smallLen || !largeLen)
+    throw new Error("the turning guide example quotes three quantities");
+  const [face, rough, finish, partOff] = r.cuts;
+  if (!face || !rough || !finish || !partOff) throw new Error("the turning example has four cuts");
+  const pctBps = (bps: number) => `${bps / 100}%`;
+  const rateOf = (i: number) => usdCents(e.machines[i]?.hourlyRateCents ?? 0);
+  const machineName = (i: number) => e.machines[i]?.name ?? "";
+  const deburr = e.otherOperations[0];
+  const firstArticle = e.otherOperations[1];
+  const barCents = (e.barLengthIn / 12) * e.pricePerFootCents;
+  const radialStock = (e.barDiameterIn - e.finishDiameterIn) / 2;
+  const cutMin = r.cuts.reduce((s, c) => s + c.minutes, 0);
+  const [smallBars, midBars, largeBars] = r.bars;
+  const cutLine = (c: (typeof r.cuts)[number], what: string) =>
+    html`<li><strong>${c.label}:</strong> ${c.sfm} sfm on ${c.diameterIn} in is ${Math.round(c.rpm)} rpm;
+      ${c.passes === 1 ? "" : html`${c.passes} passes × `}${c.lengthIn} in ${what} at ${c.iprIn} in/rev =
+      ${c.minutes.toFixed(3)} min.</li>`;
+  const lines: [string, (b: (typeof r.breaks)[number]) => string][] = [
+    ["Bars pulled", (b) => String(r.bars[r.breaks.indexOf(b)] ?? "")],
+    ["Material (whole bars)", (b) => usdCents(b.materialCents)],
+    ["Setup and first article", (b) => usdCents(b.setupCents)],
+    ["Run time", (b) => usdCents(b.runCents)],
+    ["Passivation (outside)", (b) => usdCents(b.finishingCents)],
+    ["Cost", (b) => usdCents(b.costCents)],
+    ["Markup", (b) => usdCents(b.markupCents)],
+    ["Price each", (b) => usdCents(b.unitPriceCents)],
+    ["Line total", (b) => usdCents(b.totalCents)],
+  ];
+  return html`<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to quote CNC turning and lathe parts</h1>
+    <p class="lead">A turned part's quote comes down to three numbers: the cycle time, the setup, and how
+    much bar the order really uses, which is the easiest of the three to undercount. Here is the
+    method, a worked example at ${small.quantity}, ${mid.quantity} and ${large.quantity} pins, and the
+    mistakes that lose money on jobs you win.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>The method in six steps</h2>
+    <ol>
+      <li><strong>Read the drawing for what changes the price.</strong> Material and bar size, the
+      diameters and their tolerances, surface finish, threads, cross holes and flats (a second operation
+      or live tooling), concentricity and runout callouts, and the finish or plating. A missing material
+      grade or finish is a question to the customer, not a guess.</li>
+      <li><strong>Pick the bar and the cut length.</strong> The smallest standard bar that cleans up the
+      largest diameter. Each part takes its finished length plus the part-off tool's width and a facing
+      allowance off the bar.</li>
+      <li><strong>Count parts per bar.</strong> Parts per bar = (bar length − the remnant the chuck or bar
+      feeder leaves) ÷ cut length, rounded down. Bars for the order = parts to start ÷ parts per bar,
+      rounded up.</li>
+      <li><strong>Time each cut.</strong> rpm = surface speed (sfm) × 12 ÷ (π × diameter); minutes =
+      length of cut ÷ (feed per rev × rpm), times the passes. Roughing passes = radial stock to remove,
+      less what you leave to finish, ÷ depth of cut, rounded up. Add facing, finishing, drilling,
+      threading and the part-off, then the time between cuts: tool indexes, rapids and the bar pull, timed
+      on your own machines.</li>
+      <li><strong>Add setup, secondary operations and outside processes.</strong> Loading the program,
+      setting tools and proving out the first part once per job; deburring, inspection, any milling
+      after the lathe; plating, passivation or heat treat with their lot minimums.</li>
+      <li><strong>Add fallout and markup, then quote every quantity.</strong> Start enough parts to ship
+      the good ones, and repeat the sum at each break, since the setup, the first bar and the vendor's
+      minimum spread differently at each.</li>
+    </ol>
+
+    <h2>A worked example</h2>
+    <p>A ${e.partName}: ${e.materialName}, faced, turned from ${e.barDiameterIn} in to ${e.finishDiameterIn}
+    in over ${e.turnLengthIn} in, parted off at ${e.partLengthIn} in long, deburred, inspected and
+    passivated by a vendor. <strong>Every number here is made up to show the arithmetic</strong>; they are
+    not recommended speeds, feeds, prices or rates for any material, machine or region. Use your own
+    tooling maker's data and your own timing.</p>
+    <h3>The cycle time</h3>
+    <ul>
+      ${cutLine(face, "radial")}
+      <li><strong>Roughing passes:</strong> (${e.barDiameterIn} − ${e.finishDiameterIn}) ÷ 2 =
+      ${radialStock} in of radial stock, less ${e.finishStockIn} in left to finish, is
+      ${(radialStock - e.finishStockIn).toFixed(3)} in at ${e.roughDepthIn} in a pass: ${rough.passes}
+      passes.</li>
+      ${cutLine(rough, "long")}
+      ${cutLine(finish, "long")}
+      ${cutLine(partOff, "radial")}
+      <li><strong>Between cuts:</strong> ${e.handlingMinutesPerPart} min a part for tool indexes, rapids
+      and the bar pull. Cycle = ${cutMin.toFixed(3)} min cutting + ${e.handlingMinutesPerPart} =
+      ${r.cycleMinutesExact.toFixed(3)} min, rounded up to ${r.cycleMinutes.toFixed(2)} min a part.</li>
+    </ul>
+    <p>The facing and part-off times are worked on the bar's diameter: on a lathe holding constant surface
+    speed the spindle speeds up as the tool moves to the centre, up to the machine's limit, so a cut
+    timed at the starting rpm errs long.</p>
+    <h3>The bar</h3>
+    <ul>
+      <li><strong>Cut length:</strong> ${e.partLengthIn} in + ${e.cutAllowanceIn} in for the part-off
+      tool and facing = ${r.cutLengthIn} in a part.</li>
+      <li><strong>Parts per bar:</strong> ${e.barLengthIn} in bars (${e.barLengthIn / 12} ft) less a
+      ${e.barRemnantIn} in remnant is ${e.barLengthIn - e.barRemnantIn} in usable ÷ ${r.cutLengthIn} in =
+      ${r.partsPerBar} parts a bar.</li>
+      <li><strong>Price:</strong> ${usdCents(e.pricePerFootCents)} a foot, ${usdCents(barCents)} a bar.
+      With ${pctBps(e.falloutBps)} fallout, ${small.quantity} pins start ${small.starts} (${smallBars}
+      bar), ${mid.quantity} start ${mid.starts} (${midBars} bars) and ${large.quantity} start
+      ${large.starts} (${largeBars} bars).</li>
+    </ul>
+    <h3>The rest</h3>
+    <ul>
+      <li><strong>${machineName(e.lathe.machine)}</strong> at ${rateOf(e.lathe.machine)} an hour:
+      ${e.lathe.setupMinutes} min setup, ${r.cycleMinutes.toFixed(2)} min a part.</li>
+      <li><strong>${machineName(deburr?.machine ?? 1)}</strong> at ${rateOf(deburr?.machine ?? 1)} an
+      hour: deburr and inspect, ${deburr?.cycleMinutesPerPart ?? 0} min a part; a
+      ${firstArticle?.setupMinutes ?? 0} min first-article check once per job.</li>
+      <li><strong>${e.finishingName}:</strong> ${usdCents(e.finishingPerPartCents)} a part, minimum
+      ${usdCents(e.finishingLotChargeCents)} a lot.</li>
+      <li><strong>Markup:</strong> ${pctBps(e.materialMarkupBps)} on material,
+      ${pctBps(e.outsideServiceMarkupBps)} on the outside service, none on labor (the shop rates are taken
+      to hold the margin already); a ${usdCents(e.minimumLineCents)} minimum per line.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up stainless pin at three quantities, with whole bars charged. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.</caption>
+        <thead><tr><th scope="col">Line</th>${r.breaks.map((b) => html`<th scope="col">${b.quantity.toLocaleString("en-US")} pins</th>`)}</tr></thead>
+        <tbody>
+          ${lines.map(
+            ([label, cell]) =>
+              html`<tr><th scope="row">${label}</th>${r.breaks.map((b) => html`<td>${cell(b)}</td>`)}</tr>`,
+          )}
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>On a short run the bar decides more than the metal in the part.</strong> ${small.quantity}
+      pins use ${small.starts} × ${r.cutLengthIn} in = ${small.starts * r.cutLengthIn} in of a
+      ${e.barLengthIn} in bar. Charged by the length used, the material is ${usdCents(smallLen.materialCents)}
+      and the price each ${usdCents(smallLen.unitPriceCents)}; charged the whole bar, it is
+      ${usdCents(small.materialCents)} and ${usdCents(small.unitPriceCents)}. Which is right depends on
+      whether the rest of that bar will be used on another job soon; decide it per material, not per
+      quote.</li>
+      <li><strong>Setup is the price of a small order.</strong> The ${usdCents(small.setupCents)} of setup
+      and first article and the ${usdCents(e.finishingLotChargeCents)} passivation minimum are
+      ${Math.round(((small.setupCents + small.finishingCents) / small.costCents) * 100)}% of the cost at
+      ${small.quantity} pins; at ${large.quantity} the same setup is
+      ${usdCents(Math.round(large.setupCents / large.quantity))} a pin. That is why the price each falls from ${usdCents(small.unitPriceCents)} to
+      ${usdCents(mid.unitPriceCents)} to ${usdCents(large.unitPriceCents)}.</li>
+      <li><strong>At volume it is cycle time and bar.</strong> At ${large.quantity} pins, run time
+      (${usdCents(large.runCents)}) and bar (${usdCents(large.materialCents)}) are
+      ${Math.round(((large.runCents + large.materialCents) / large.costCents) * 100)}% of the cost. Each
+      second off the cycle is worth ${usdCents(Math.round((1 / 60 / 60) * (e.machines[e.lathe.machine]?.hourlyRateCents ?? 0) * large.starts))}
+      on this order, and whole bars matter less: priced by the length used, the ${large.quantity} would be
+      ${usdCents(largeLen.unitPriceCents)} each instead of ${usdCents(large.unitPriceCents)}.</li>
+    </ul>
+
+    <h2>Mistakes that lose money on jobs you win</h2>
+    <ul>
+      <li><strong>Pricing the metal in the part.</strong> The part-off tool, the facing stock and the
+      remnant at the end of every bar are bought too. On a short part they can be a large share of the
+      bar.</li>
+      <li><strong>Counting only cutting time.</strong> Tool indexes, rapids, the bar pull and the
+      spindle coming up to speed are time on the machine on every part; time a real cycle and add them.</li>
+      <li><strong>One roughing pass where the stock needs three.</strong> Work the passes out from the
+      stock to remove and the depth your tooling takes in that material.</li>
+      <li><strong>Forgetting the second operation.</strong> Cross holes, flats, hex features and back-side
+      work need live tooling, a sub-spindle or a trip to the mill, each with its own setup and cycle.</li>
+      <li><strong>Leaving out deburring and inspection.</strong> Hand deburring threads and cross holes
+      and checking tight diameters take time on every part.</li>
+      <li><strong>Missing the outside minimum.</strong> Plating, passivation and heat treat have lot
+      charges; on a small order the minimum is the whole charge.</li>
+    </ul>
+
+    <h2>Doing it in ${SITE_NAME}</h2>
+    <p>${SITE_NAME} does not compute lathe cycle times: you work out the times above and type them in.
+    What it does do is the bar. A rate-card material can be priced by the foot, with the cut allowance,
+    the bar length the shop buys and the remnant each bar leaves. A quote line with a round blank then
+    counts parts per bar, charges whole bars for the parts started (or, with no bar length, the length
+    used plus the row's scrap), prints the arithmetic ("${e.partLengthIn} in blank + ${e.cutAllowanceIn}
+    in cut allowance = ${r.cutLengthIn} in per part ... ${r.partsPerBar} parts per bar"), and puts the cut list
+    and the bars to pull on the job traveler once the quote is won. Fallout, the lathe and bench at their
+    own rates, the passivation with its lot minimum and every quantity break follow, and a line missing
+    a time or a material is blocked rather than priced as if it were free. The example above is priced to
+    the cent the app gives for the same inputs, both ways, checked by a test in its code. You can
+    <a class="link" href="${href(ctx, "/how-it-works")}">see how a quote is built</a> or read about
+    <a class="link" href="${href(ctx, "/material-price-tracking")}">material price tracking</a>.</p>
+    <p>For milled parts, see <a class="link" href="${href(ctx, "/how-to-quote-cnc-machining")}">how to
+    quote a CNC machining job</a> and <a class="link" href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">how
+    to estimate CNC machining time</a>; for your shop rate,
+    <a class="link" href="${href(ctx, "/machine-shop-hourly-rate")}">how to work out a machine shop hourly
+    rate</a>; for what goes on the quote you send, the
+    <a class="link" href="${href(ctx, "/machine-shop-quote-template")}">machine shop quote template</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax,
+    engineering or financial advice, and the speeds, feeds, prices, times and rates in it are made up.
+    Check every quote before you send it.</p>
+  </div>
+</section>
+${ctaBand(ctx, "Quote your next turned part this way", ctx.launch.open ? "The Early access plan is free and needs no card." : "Early access is free and asks only about your shop.")}`;
+}
+
+/**
  * A guide aimed at the searches estimators make for machining time ("how to estimate CNC machining
  * time", "CNC cycle time calculation", "machining time formula", "material removal rate"). Method plus
  * one made-up manifold block: spindle speed and feed from surface speed and chip load, removal rate
@@ -2038,6 +2244,7 @@ export const PAGE_BODIES: Record<string, (ctx: RenderContext) => Html> = {
   "/how-to-quote-cnc-machining": quoteGuidePage,
   "/how-to-quote-sheet-metal": sheetMetalGuidePage,
   "/how-to-quote-welding": weldingGuidePage,
+  "/how-to-quote-cnc-turning": turningGuidePage,
   "/how-to-estimate-cnc-machining-time": cycleTimeGuidePage,
   "/machine-shop-quote-template": quoteTemplatePage,
   "/faq": faqPage,

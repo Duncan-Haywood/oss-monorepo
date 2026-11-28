@@ -4,7 +4,7 @@ Profit and Schedule C books for resellers on eBay, Poshmark, Mercari, Whatnot, D
 Amazon (FBA or shipped yourself), TikTok Shop, Square (a card reader or the Square app at a market or flea
 market, from its Transactions CSV), PayPal (sales paid by PayPal off the marketplaces, from its Activity
 download) Venmo (a local or Facebook Marketplace sale paid by Venmo, from its monthly statement CSV) and Cash App (the same, from its activity CSV); Grailed,
-StockX, Vinted and any other marketplace import from their own CSV with the seller matching its columns once
+StockX, Vinted, Reverb and any other marketplace import from their own CSV with the seller matching its columns once
 (the choices are saved for the next file); plus the sales made off them (cash at a market or flea market, Facebook
 Marketplace, a local pickup paid by Zelle), which are typed in one at a time. You import the
 marketplaces' own reports, track cost of goods per item and per lot, and log mileage (typed in, or read from

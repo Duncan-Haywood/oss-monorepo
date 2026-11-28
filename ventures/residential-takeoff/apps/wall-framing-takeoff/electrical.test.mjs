@@ -82,3 +82,19 @@ test("cable holes by hand: studs between neighbouring receptacle boxes, per face
   assert.equal(layoutElectrical({}, plan).cableHoles, null);
   assert.match(electricalText(r).join("\n"), /Cable holes: about \d+ studs bored/);
 });
+
+test("cable holes on an interior wall count both faces, by hand (quality re-audit 2026-11-28)", () => {
+  // 300 in wall, studs at x = 0, 100, 200, 298.5 (1.5 in wide). Boxes snap to the
+  // stud sides at 2.625, 102.625 and 202.625. Between the first two boxes only the
+  // stud at 100 (centre 100.75) is bored; between the last two only the one at 200.
+  // So 2 holes per face: an exterior wall (one room face) bores 2, an interior
+  // wall (sheathed: false, a box run on each face) bores 4. Dropping the per-face
+  // multiplier survived the whole suite before this test.
+  const studs = [0, 100, 200, 298.5].map((x) => ({ kind: "stud", orient: "v", x, w: 1.5 }));
+  const ext = layoutElectrical({ maxSpacing: 144 }, { walls: [{ id: "A", length: 300, sheathed: true }] }, { A: { members: studs } });
+  const int = layoutElectrical({ maxSpacing: 144 }, { walls: [{ id: "A", length: 300, sheathed: false }] }, { A: { members: studs } });
+  assert.deepEqual(ext.spaces[0].receptacles, [2.625, 102.625, 202.625]);
+  assert.equal(ext.cableHoles, 2);
+  assert.equal(int.cableHoles, 4);
+  assert.equal(int.receptacles, 6);
+});

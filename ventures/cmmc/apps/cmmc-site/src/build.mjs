@@ -11,6 +11,7 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildWorkbook, SHEET_FILE } from "./assessment-sheet.mjs";
 import { launchFromEnv, launchState, signinUrl, signupUrl } from "./launch.mjs";
 import { buildPages, humanDate, statusBox } from "./pages.mjs";
 import { publicPlans } from "./plans.mjs";
@@ -334,7 +335,7 @@ export function build({
   const site = normalizeSiteUrl(siteUrl);
   const base = normalizeBasePath(basePath);
   rmSync(outDir, { recursive: true, force: true });
-  /** @type {Record<string, string>} */
+  /** @type {Record<string, string | Buffer>} */
   const files = {};
   const full = [`# ${SITE_NAME}: full text`, ""];
   for (const page of pages) {
@@ -365,6 +366,7 @@ export function build({
   files["llms-full.txt"] = `${full.join("\n").trim()}\n`;
   files["styles.css"] = readFileSync(join(HERE, "styles.css"), "utf8");
   files["og.svg"] = readFileSync(join(HERE, "og.svg"), "utf8");
+  files[SHEET_FILE] = buildWorkbook();
   for (const [name, content] of Object.entries(files)) {
     const target = join(outDir, name);
     mkdirSync(dirname(target), { recursive: true });

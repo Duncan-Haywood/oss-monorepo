@@ -165,7 +165,8 @@ ${statusBox()}
   <li><strong>Check every objective.</strong> A requirement is met only when every applicable objective under it is met, with
   evidence in final form; an objective that does not apply counts as met (${cite("cfr-170-24", "32 CFR 170.24")}).</li>
   <li><strong>Score it.</strong> Start at ${MAX_SCORE} and subtract 5, 3 or 1 for each requirement not met. Work yours out with
-  the free <a href="/sprs-score-calculator">SPRS score calculator</a>.</li>
+  the free <a href="/sprs-score-calculator">SPRS score calculator</a>, or track all 110 in the free
+  <a href="/cmmc-self-assessment-spreadsheet">self-assessment spreadsheet</a>.</li>
   <li><strong>Close or plan the gaps.</strong> With a score of at least ${CONDITIONAL_MIN_SCORE} and only eligible items open,
   the shop can reach Conditional Level 2 (Self) with a POA&amp;M, closed out within 180 days
   (<a href="${POAM_PATH}">which requirements can go on a POA&amp;M</a>).</li>

@@ -21,10 +21,12 @@ export const PLATFORMS = [
   "venmo",
   "cashapp",
   // Imported only through the column-mapped CSV (importers/mapped.ts): none of these publishes its
-  // export's column names, so the seller says which column is which (docs/IMPORTERS.md).
+  // export's column names (Reverb lists its orders export's fields, but not their exact header text), so
+  // the seller says which column is which (docs/IMPORTERS.md).
   "grailed",
   "stockx",
   "vinted",
+  "reverb",
   "other",
 ] as const;
 export type Platform = (typeof PLATFORMS)[number];
@@ -57,6 +59,7 @@ export const PLATFORM_LABELS: Record<SaleChannel, string> = {
   grailed: "Grailed",
   stockx: "StockX",
   vinted: "Vinted",
+  reverb: "Reverb",
   other: "Another marketplace",
   direct: "Direct sales",
 };
