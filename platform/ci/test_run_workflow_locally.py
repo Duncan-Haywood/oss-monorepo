@@ -52,6 +52,22 @@ class Collect(unittest.TestCase):
         """)
         self.assertEqual([s.name for s in steps], ["first", "second"])
 
+    def test_a_step_that_narrows_the_checkout_is_skipped(self):
+        # price-claims-ci.yml's widening step (#20091) made the session's own
+        # clone sparse when replayed, and every later workflow failed.
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: widen
+                    run: git sparse-checkout set --no-cone /platform/ci/
+                  - name: check
+                    run: echo ok
+        """)
+        self.assertEqual([s.status for s in steps][0], "skipped")
+        self.assertIn("sparse-checkout", steps[0].reason)
+        self.assertNotEqual(steps[1].status, "skipped")
+
     def test_independent_jobs_run_cheapest_declared_first(self):
         # portfolio-pages' shape: a 30-minute test suite in file order ahead
         # of a 20-minute build whose first step is a seconds-long gate.

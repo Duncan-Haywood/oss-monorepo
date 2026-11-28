@@ -194,6 +194,9 @@ MUTATING = [
 
 EXPRESSION = re.compile(r"\$\{\{")
 
+# Checkout plumbing written as a run: step; see collect().
+SPARSE_CHECKOUT = re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b")
+
 # The progress line is written in two halves -- the step's label before it
 # runs, flushed, and the verdict after -- and that is a fix rather than a
 # style. It used to print one whole line *after* `execute()` returned, which
@@ -976,6 +979,20 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             command = raw["run"].strip()
             workdir = raw.get("working-directory", job_dir)
             step = Step(job_id, name, command, workdir)
+            # A step that narrows the checkout (`git sparse-checkout set`) is
+            # checkout plumbing, like the `uses: actions/checkout` it follows,
+            # and it acts on whatever clone it runs in. Replayed here it made
+            # the session's own clone sparse: price-claims-ci.yml's widening
+            # step (#20091) ran mid-sweep on 2026-11-28 and every workflow
+            # after it failed on missing files (platform/pages/build.mjs, the
+            # venture trees). The local tree is already the full checkout, a
+            # superset of what the step would leave, so it is skipped.
+            if SPARSE_CHECKOUT.search(command):
+                step.status = "skipped"
+                step.reason = ("narrows the checkout (git sparse-checkout); "
+                               "the local clone is already full")
+                steps.append(step)
+                continue
             # A step can carry the expression in its `env:` rather than in the
             # command. `priv-portfolio-pages.yml`'s post-deploy check is the case:
             # the command is plain bash, but `PAGE_URL` comes from the
