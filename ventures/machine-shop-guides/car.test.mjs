@@ -127,7 +127,8 @@ test("CSV: workspace columns, formula cells neutralised, whys kept", () => {
 
 test("Markdown escapes what it is given and lists open points", () => {
   const out = toMarkdown(review({ ...EXAMPLE, nonconformity: "<script>alert(1)</script> *bold*" }, TODAY));
-  assert.doesNotMatch(out, /<script>/);
+  assert.ok(!out.toLowerCase().includes("<script>"), "raw tag survived");
+  assert.ok(out.includes("\\<script\\>"), "tag escaped");
   assert.match(out, /\\\*bold\\\*/);
   assert.match(out, /## Open points/);
   assert.match(out, /1\. Why\? Bore was undersize/);
