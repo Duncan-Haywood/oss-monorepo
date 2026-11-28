@@ -442,6 +442,8 @@ export interface EstimateLineDto {
   quantityMilli: number;
   unit: string | null;
   unitCostMicros: number;
+  /** The sub quoting a subcontract line, or null. */
+  vendor: string | null;
   /** quantity × unit cost, in cents. */
   costCents: number;
 }
