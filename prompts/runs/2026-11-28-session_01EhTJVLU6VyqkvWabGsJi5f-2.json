@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVLU6VyqkvWabGsJi5f",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:55:57Z",
+  "ended": "2026-11-28T04:02:29Z",
+  "wall_minutes": 6.69,
+  "tokens_in": 6320700,
+  "tokens_out": 28892,
+  "cost_usd": 2.8575,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19983",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First draft's 'no line minimum' policy was identical to the base card because the $250 minimum never binds on the bracket; replaced with a rate-at-cost + 25% labor markup policy."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "`roadmap_claim.py payapps --slug` with no value errors; the CLAUDE.md wording ('--slug') reads as a flag. Minor."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Asks for node platform/pages/venture-preflight.mjs before merge on a changed venture; this change is one static guide on jobshop-site, copied in by an existing builder and covered by the export drift test and jobshop-site.test.mjs",
+      "did": "Ran the site and app unit suites and the catalogue copier test instead; CI's pages build covers the rest",
+      "result": "pending CI"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section, 28 Nov: markup and margin)",
+    "ventures/jobshop-quote/apps/jobshop-site/README.md (page row)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Routed ventures/1. Bet #1 payapps has no free ungated Next item (all wait on demand); roadmap_claim --bets named bet #2 as fewest front-door PRs, so built a jobshop-site guide /machine-shop-markup. Verification: jobshop-quote unit 698/698, jobshop-site unit 156/156, platform/pages/jobshop-site.test.mjs pass, tsc and biome clean, screenshot at 1200/390 px with no horizontal scroll. venture-preflight not run: the change is a jobshop-site static page copied by an existing builder, covered by the drift test.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f03f9569-7851-5ea3-ab3d-5899628398b1",
+    "transcripts": 1,
+    "first": "2026-11-28T03:55:57Z",
+    "last": "2026-11-28T04:02:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 109,
+        "output": 28892,
+        "thinking": 5181,
+        "cache_read": 6190455,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130136,
+        "api_equivalent_usd": 2.8575,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 109,
+      "output": 28892,
+      "thinking": 5181,
+      "cache_read": 6190455,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130136,
+      "api_equivalent_usd": 2.8575,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 54,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.69,
+      "active_minutes": 6.68,
+      "model_minutes": 5.06,
+      "tool_minutes": 1.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "writing a costing guide with an engine-checked example and test, by a senior estimator-developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 175.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
