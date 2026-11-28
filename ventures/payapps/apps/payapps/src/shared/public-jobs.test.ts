@@ -130,13 +130,21 @@ describe("lienDeadline on a public job", () => {
 });
 
 describe("retainage caps on public work", () => {
-  it("covers the guide's 23 states, each with a citation and an official link", () => {
-    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(23);
+  it("covers the guide's 24 states, each with a citation and an official link", () => {
+    expect(Object.keys(RETAINAGE_CAPS)).toHaveLength(24);
     for (const r of Object.values(RETAINAGE_CAPS)) {
       expect(r.url).toMatch(/^https:\/\//);
       expect(r.citation.length).toBeGreaterThan(3);
       expect(r.capBps).toBeGreaterThan(0);
     }
+  });
+
+  it("Alabama: 5% is within the cap, but none may be withheld once the job is 50% complete", () => {
+    const al = retainageCapCheck("AL", [500, 500]);
+    expect(al).toMatchObject({ kind: "checked", verdict: "lower", jobBps: 500 });
+    expect(al?.kind === "checked" && al.text).toMatch(/drops to 0% once the job is 50% complete/);
+    expect(retainageCapCheck("AL", [1000, 500])).toMatchObject({ verdict: "over" });
+    expect(retainageCapCheck("AL", [0, 0])).toMatchObject({ verdict: "within" });
   });
 
   it("flags 10% on a California public job as over, and says the cap flows down", () => {

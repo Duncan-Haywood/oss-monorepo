@@ -2673,6 +2673,22 @@ nothing to copy. No customers yet. Paid plans are dark
   (refused, 403 or timed out through the proxy on 2026-11-28); Georgia, Tennessee, Alabama,
   Arkansas and Mississippi publish their codes only through a vendor's site; Alaska, Kentucky,
   Indiana, Oklahoma, New Mexico, Wyoming, Vermont and Wisconsin not read yet.
+- State bond claims and retainage cap, Alabama (2026-11-28, state-bond-claims-alabama, every plan):
+  Ala. Code § 39-1-1 read on alison.legislature.state.al.us that day (the code page is a script-rendered
+  app: a curl gets only the shell, a headless browser gets the text; so Alabama is not vendor-only, as
+  the entry above said). Everyone, first tier included, gives the surety written notice of the amount
+  and nature of the claim, and the suit waits 45 days after it and must come within a year of final
+  settlement of the contract (§ 39-1-1(b)): one undated step, waiting on final settlement, with notes
+  on attorney fees and interest after 45 days unpaid, the contractor's three-week published notice of
+  completion and the 30 days after it before settlement (§ 39-1-1(f)), the $100,000 bond threshold and
+  the certified copy on application. The retainage check gains Alabama's § 39-2-12(c): 5%, and none
+  withheld once 50% complete (`lowerBps: 0`, so a job at 5% reads "within, but the rate drops to 0%"),
+  no retainage on ALDOT road contracts in the note. Thirty states in `STATE_BOND_RULES`, 24 in
+  `RETAINAGE_CAPS`. Tests in `src/shared/state-bond.test.ts` and `src/shared/public-jobs.test.ts`; the
+  public bond guide, the retainage guide, both customer posts, llms-answers and the construction page
+  gain the rows. Not read here: Oklahoma (oscn.net answers with a Turnstile challenge), Indiana
+  (iga.in.gov renders empty headless), Tennessee, Arkansas and Mississippi (codes on a vendor's site),
+  New Mexico and Hawaii (403), Wisconsin, West Virginia, Connecticut and Georgia (no answer).
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
@@ -2907,5 +2923,5 @@ nothing to copy. No customers yet. Paid plans are dark
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
   California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
-  more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28), if contractors mark public jobs (ilga.gov and
+  more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28; Alabama 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

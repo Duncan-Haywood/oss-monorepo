@@ -1,9 +1,9 @@
 ---
-title: "Retainage caps on public work in twenty-three states, and a free SOV calculator"
-seo_title: "Public retainage caps by state: CA, TX, FL, NY, OH and 18 more"
+title: "Retainage caps on public work in twenty-four states, and a free SOV calculator"
+seo_title: "Public retainage caps by state: CA, TX, FL, NY, OH and 19 more"
 date: 2026-11-24
 tags: [construction, subcontractors, retainage, pay-applications, lien-waivers, pay-app-guides, for-customers]
-description: "Statutory caps on retainage for public construction in 23 states, each linked to the official statute, plus a free continuation-sheet calculator."
+description: "Statutory caps on retainage for public construction in 24 states, each linked to the official statute, plus a free continuation-sheet calculator."
 ---
 
 Retainage is the 5 or 10 percent of every progress payment an owner holds
@@ -124,6 +124,14 @@ substantially completed portion within 30 days, the rest within 30 days of
 final completion) and drops the 50% stop and the escrow. An estimator or a
 contract template written before then may still promise the old rule. Both
 versions are on codes.ohio.gov and quoted in the sources file.
+
+**Alabama, added later on 2026-11-28.** Ala. Code §39-2-12(c) lets a public
+owner hold no more than 5% of the work done and materials stored, and once
+the job is 50% complete "no further retainage shall be withheld"; what was
+held stays until final completion and acceptance, unless the contract allows
+an escrow account or deposited securities instead. Alabama Department of
+Transportation highway, bridge and road contracts carry no retainage at all.
+That makes 24 states.
 
 Some states set when retainage is paid without capping the rate. Vermont's
 9 V.S.A. §4005 is one: retainage is paid within 30 days after final

@@ -72,3 +72,8 @@ In addition to all other payments on account of work performed, there shall be a
 Source: https://legislature.vermont.gov/statutes/section/09/102/04005
 
 § 4005. Retainage (a) If payments under a construction contract are subject to retainage, any amounts that have been retained during the performance of the contract and that are due to be released to the contractor upon final completion shall be paid within 30 days after final acceptance of the work.
+
+## Ala. Code § 39-2-12(c) (fetched 2026-11-28)
+Source: https://alison.legislature.state.al.us/code-of-alabama?section=39-2-12
+
+(c) In making the partial payments, there shall be retained not more than five percent of the estimated amount of work done and the value of materials stored on the site or suitably stored and insured off-site, and after 50 percent completion has been accomplished, no further retainage shall be withheld. The retainage as set out above shall be held until final completion and acceptance of all work covered by the contract unless the escrow or deposit arrangement described in subsections (f) and (g) is utilized. Provided, however, no retainage shall be withheld on contracts entered into by the Alabama Department of Transportation for the construction or maintenance of public highways, bridges, or roads.
