@@ -45,6 +45,10 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "Nothing says a node-only .mjs in a served venture folder is link-checked in the built site; a bench importing a sibling venture failed preflight. Put such scripts in an unpublished folder (or the test)."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "slug_dupe roof-sheathing-waste found nothing; PR #20005 roof-sheathing-sheets was in flight on the same topic. A keyword check on 'roof-sheathing' would have caught it."
     }
   ],
   "deviations": [],
@@ -53,7 +57,7 @@
     "ventures/wall-framing-takeoff/roof-sheathing-waste-factor.html"
   ],
   "goal": null,
-  "notes": "Bet #1 payapps had no free ungated item; roadmap_claim --bets named bet #6 as having fewest front-door PRs. Built a measured roof sheathing waste page from the free and paid roof engines: hip offcut reuse (paid) cuts hip waste from ~19.5% to ~9.0% mean, about a gable's 7.8%. run_venture_tests wall-framing-takeoff residential-takeoff: 2 suites, 0 failed. venture-preflight run in background. Preflight then clean (EXIT 0); run_venture_tests 2 suites, 0 failed after the move.",
+  "notes": "Bet #1 payapps had no free ungated item; roadmap_claim --bets named bet #6 as having fewest front-door PRs. Built a measured roof sheathing waste page from the free and paid roof engines: hip offcut reuse (paid) cuts hip waste from ~19.5% to ~9.0% mean, about a gable's 7.8%. run_venture_tests wall-framing-takeoff residential-takeoff: 2 suites, 0 failed. venture-preflight run in background. Preflight then clean (EXIT 0); run_venture_tests 2 suites, 0 failed after the move. PR #20005 (a parallel run, gable roof sheets vs area/32+10%) merged while this was in CI; merged main in, kept both pages as complements (theirs gable-only and says hips are left out; this one measures hips), cross-linked them, both post sections kept under one post, and fixed the same stale MIT footer on #20005's page.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -53,10 +53,33 @@ The tables are on
 figure on that page to the benchmark's output.
 
 
-## And the roof: hip vs. gable sheathing (2026-11-28)
+## Roof sheathing: area / 32 plus 10%, against a count (2026-11-28)
 
-Roof sheathing gets the same treatment: a flat 10% for a gable and 15% for a
-hip are common. We laid out 4x8 sheets on 16 invented rectangular roofs (24 x
+The same question for the roof deck. The usual order is the roof's area divided
+by 32 square feet (one 4x8 sheet) plus 10%. We counted the sheets course by
+course instead, with the roof calculator's engine, on 20 generated gable roofs
+(four footprints from 24 x 40 to 36 x 70 ft, pitches 4/12 to 12/12, 12 in
+overhangs).
+
+- In 16 of the 20, the rule bought 1 to 8 sheets too many: counted waste was
+  3.1 to 7.9%, not 10%.
+- In the other 4 it ran 1 to 3 sheets short, and all 4 had the same cause: a
+  top course at the ridge between 24.3 and 30.4 in wide. A strip that wide
+  cannot share a sheet with a second strip, so nearly half of each of those
+  sheets is offcut, and waste rose to 10.7 to 13.3%.
+
+So before ordering, divide each plane's sloped length by 4 ft and look at what
+is left: under 2 ft, the rips pair up; just over 2 ft, count one sheet per rip.
+The tables, a pitch factor table from 1/12 to 12/12, and what the count leaves
+out (hip roofs among them) are on the
+[roof sheathing page](https://marisstella.app/wall-framing-takeoff/roof-sheathing-sheets.html);
+the [roof calculator](https://marisstella.app/wall-framing-takeoff/roof-calculator.html)
+counts your own roof the same way. Generated roofs, not a builder's order.
+
+## Hip roofs: what the hip offcuts cost (2026-11-28)
+
+The count above leaves hip roofs out. For a hip, a flat 15% is the common
+allowance against a gable's 10%. We laid out 4x8 sheets on 16 invented rectangular roofs (24 x
 36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all round), each as a gable and
 as a hip, and counted the sheet area bought over the roof's surface
 (`roof-waste-bench.mjs`):

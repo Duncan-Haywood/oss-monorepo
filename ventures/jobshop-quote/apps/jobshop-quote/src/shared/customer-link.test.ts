@@ -3,6 +3,7 @@ import {
   acceptLinkLine,
   customerResponseSchema,
   declinedReason,
+  MAX_RESPONSE_NOTE,
   priceAcceptance,
 } from "./customer-link";
 import { composeQuoteEmail, quoteEmailFooter } from "./quote-email";
@@ -103,6 +104,32 @@ describe("customerResponseSchema", () => {
     expect(
       customerResponseSchema.safeParse({ decision: "accept", name: "Sam", choices: [] }).success,
     ).toBe(false);
+  });
+});
+
+describe("customerResponseSchema limits (a public form: a stranger types these)", () => {
+  const accept = (over: Record<string, unknown>) =>
+    customerResponseSchema.safeParse({
+      decision: "accept",
+      name: "Sam",
+      choices: [{ lineId: "a", quantity: 10 }],
+      ...over,
+    }).success;
+  it("takes an email of 254 characters and refuses 255", () => {
+    const at = (n: number) => `${"a".repeat(n - "@example.com".length)}@example.com`;
+    expect(at(254).length).toBe(254);
+    expect(accept({ email: at(254) })).toBe(true);
+    expect(accept({ email: at(255) })).toBe(false);
+  });
+  it("takes a note of exactly the limit and refuses one character more", () => {
+    expect(MAX_RESPONSE_NOTE).toBe(1000);
+    expect(accept({ note: "n".repeat(1000) })).toBe(true);
+    expect(accept({ note: "n".repeat(1001) })).toBe(false);
+  });
+  it("takes a quantity of 1 and refuses 0 or less", () => {
+    expect(accept({ choices: [{ lineId: "a", quantity: 1 }] })).toBe(true);
+    expect(accept({ choices: [{ lineId: "a", quantity: 0 }] })).toBe(false);
+    expect(accept({ choices: [{ lineId: "a", quantity: -10 }] })).toBe(false);
   });
 });
 

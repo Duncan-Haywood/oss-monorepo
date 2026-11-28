@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { apply } from "./cta.mjs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "corrective-action-report", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "nist-800-171-policy-templates", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "corrective-action-report", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {

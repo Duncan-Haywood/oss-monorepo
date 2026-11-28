@@ -1,0 +1,483 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKjXSxSEXqWDVrq9oVa",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:09:08Z",
+  "ended": "2026-11-28T05:10:20Z",
+  "wall_minutes": 4.6,
+  "tokens_in": 3708004,
+  "tokens_out": 16350,
+  "cost_usd": 1.6915,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20001",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --under ventures/jobshop-quote` lists only 44 .mjs/billing files until `pnpm install` has run in the workspace; vitest-guarded app files like src/shared/*.ts are invisible, which the prompt does not say (the hint is only in redteam.py's _vitest_suite docstring)."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "Two venture PRs that each regenerate catalogue-export can both pass CI and still leave main red (a footer link added by one is missing from the other's new page); nothing re-exports after a merge."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a red-team run on test guards and one date-validation fix has nothing a customer would search for.",
+      "did": "Findings recorded in this record and the PR body.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that catches the whole class. I swept the 11 ISO-date parsers in the paid bets: every other validator already round-trips, so a lint would only flag formatters that are validated upstream.",
+      "did": "Added tests at the defect site and recorded the sweep result in notes.",
+      "result": "defect fixed, no false-positive lint added"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: jobshop-quote qbo-invoice.ts (new in PR #19988) and customer-link.ts (public acceptance form). Needed `pnpm install --frozen-lockfile` in ventures/jobshop-quote (6 s) for redteam.py to see vitest suites. Catch rate 17/22 before, 22/22 after. Local checks: unit 707/707, typecheck clean, biome clean. Guard added: tests only; sibling sweep of the ISO_DATE regex across payapps/cmmc/einvoice-preflight found no other non-round-trip validator. CI then showed jobshop-site red on main (stale catalogue export from a merge race); regenerated and recorded as a second real defect.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+        "test": "/home/user/oss-monorepo/ventures/jobshop-quote/apps/jobshop-quote/node_modules/.bin/vitest run --config vitest.unit.config.ts src/shared/qbo-invoice.test.ts  (in ventures/jobshop-quote/apps/jobshop-quote)",
+        "seed": 44998640,
+        "commit": "773cb32e6",
+        "sites": 76,
+        "baseline_seconds": 0.5,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 56,
+            "col": 22,
+            "operator": "gt-to-ge",
+            "before": "const n = revNumber > 1 ? `Q${quoteNumber}-R${revNumber}` : `Q${quoteNumber}`;",
+            "after": "const n = revNumber >= 1 ? `Q${quoteNumber}-R${revNumber}` : `Q${quoteNumber}`;",
+            "line_text": "  const n = revNumber > 1 ? `Q${quoteNumber}-R${revNumber}` : `Q${quoteNumber}`;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 124,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (quantity === 0) {",
+            "after": "if (quantity !== 0) {",
+            "line_text": "    if (quantity === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 124,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (quantity === 0) {",
+            "after": "if (quantity === 1) {",
+            "line_text": "    if (quantity === 0) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 138,
+            "col": 12,
+            "operator": "false-to-true",
+            "before": "ok: false,",
+            "after": "ok: true,",
+            "line_text": "        ok: false,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 154,
+            "col": 10,
+            "operator": "false-to-true",
+            "before": "ok: false,",
+            "after": "ok: true,",
+            "line_text": "      ok: false,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 173,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if (homeCurrency === undefined) {",
+            "after": "if (homeCurrency !== undefined) {",
+            "line_text": "  if (homeCurrency === undefined) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 212,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "return Number.isInteger(n) && n >= 0 && n <= 365 ? n : 30;",
+            "after": "return Number.isInteger(n) && n >= 0 && n <= 365 ? n : 31;",
+            "line_text": "  return Number.isInteger(n) && n >= 0 && n <= 365 ? n : 30;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 217,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(day);",
+            "after": "const m = /^(\\d{5})-(\\d{2})-(\\d{2})$/.exec(day);",
+            "line_text": "  const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(day);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 223,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isInteger(c) || c < 0)",
+            "after": "if (!Number.isInteger(c) || c < 1)",
+            "line_text": "  if (!Number.isInteger(c) || c < 0)",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test billed a 0-cent line; new test bills a no-charge first article at 0.00"
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 257,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "if (!Number.isInteger(inv.dueDays) || inv.dueDays < 0 || inv.dueDays > 365) {",
+            "after": "if (!Number.isInteger(inv.dueDays) && inv.dueDays < 0 || inv.dueDays > 365) {",
+            "line_text": "  if (!Number.isInteger(inv.dueDays) || inv.dueDays < 0 || inv.dueDays > 365) {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test passed a negative or fractional dueDays; new test checks -1 and 1.5 throw"
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 257,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isInteger(inv.dueDays) || inv.dueDays < 0 || inv.dueDays > 365) {",
+            "after": "if (!Number.isInteger(inv.dueDays) || inv.dueDays < 1 || inv.dueDays > 365) {",
+            "line_text": "  if (!Number.isInteger(inv.dueDays) || inv.dueDays < 0 || inv.dueDays > 365) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+            "line": 263,
+            "col": 79,
+            "operator": "times-to-div",
+            "before": "const due = new Date(Date.parse(`${inv.invoiceDay}T00:00:00Z`) + inv.dueDays * 86_400_000)",
+            "after": "const due = new Date(Date.parse(`${inv.invoiceDay}T00:00:00Z`) + inv.dueDays / 86_400_000)",
+            "line_text": "  const due = new Date(Date.parse(`${inv.invoiceDay}T00:00:00Z`) + inv.dueDays * 86_400_000)",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+        "test": "/home/user/oss-monorepo/ventures/jobshop-quote/apps/jobshop-quote/node_modules/.bin/vitest run --config vitest.unit.config.ts src/shared/customer-link.test.ts  (in ventures/jobshop-quote/apps/jobshop-quote)",
+        "seed": 763700115,
+        "commit": "773cb32e6",
+        "sites": 28,
+        "baseline_seconds": 0.6,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 15,
+            "col": 7,
+            "operator": "const-plus-one",
+            "before": ".max(254)",
+            "after": ".max(255)",
+            "line_text": "  .max(254)",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no boundary test on the email limit; new test takes 254, refuses 255"
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 29,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "export const MAX_RESPONSE_NOTE = 1000;",
+            "after": "export const MAX_RESPONSE_NOTE = 1001;",
+            "line_text": "export const MAX_RESPONSE_NOTE = 1000;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned the note limit; new test takes 1000, refuses 1001"
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 44,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "quantity: z.number().int().min(1).max(10_000_000),",
+            "after": "quantity: z.number().int().min(2).max(10_000_000),",
+            "line_text": "              quantity: z.number().int().min(1).max(10_000_000),",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test accepted quantity 1; new test takes 1, refuses 0 and -10"
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 48,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": ".min(1, \"Pick a quantity for at least one part\")",
+            "after": ".min(2, \"Pick a quantity for at least one part\")",
+            "line_text": "        .min(1, \"Pick a quantity for at least one part\")",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 96,
+            "col": 28,
+            "operator": "false-to-true",
+            "before": "if (!line) return { ok: false, error: \"A part you picked is not on this quote\" };",
+            "after": "if (!line) return { ok: true, error: \"A part you picked is not on this quote\" };",
+            "line_text": "    if (!line) return { ok: false, error: \"A part you picked is not on this quote\" };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 106,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (picked.size === 0) return { ok: false, error: \"Pick a quantity for at least one part\" };",
+            "after": "if (picked.size === 1) return { ok: false, error: \"Pick a quantity for at least one part\" };",
+            "line_text": "  if (picked.size === 0) return { ok: false, error: \"Pick a quantity for at least one part\" };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 106,
+            "col": 38,
+            "operator": "false-to-true",
+            "before": "if (picked.size === 0) return { ok: false, error: \"Pick a quantity for at least one part\" };",
+            "after": "if (picked.size === 0) return { ok: true, error: \"Pick a quantity for at least one part\" };",
+            "line_text": "  if (picked.size === 0) return { ok: false, error: \"Pick a quantity for at least one part\" };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 110,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (qty === undefined) continue;",
+            "after": "if (qty !== undefined) continue;",
+            "line_text": "    if (qty === undefined) continue;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 121,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "return { ok: true, choices: out, amountCents: out.reduce((s, c) => s + c.totalCents, 0) };",
+            "after": "return { ok: true, choices: out, amountCents: out.reduce((s, c) => s + c.totalCents, 1) };",
+            "line_text": "  return { ok: true, choices: out, amountCents: out.reduce((s, c) => s + c.totalCents, 0) };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/customer-link.ts",
+            "line": 127,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "return (n ? `Declined online: ${n}` : \"Declined online\").slice(0, 500);",
+            "after": "return (n ? `Declined online: ${n}` : \"Declined online\").slice(1, 500);",
+            "line_text": "  return (n ? `Declined online: ${n}` : \"Declined online\").slice(0, 500);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/jobshop-quote/apps/jobshop-quote/src/shared/qbo-invoice.ts",
+        "issue": "usDate (and so invoiceImportCsv) accepted impossible days such as 2026-02-30 or 2026-02-29 in a non-leap year: the pattern check passed, the CSV printed 02/30/2026 as the invoice date while Date.parse rolled the due date from 03/02. Its error says 'not a calendar day', so the guard passed the input it exists to reject. Fixed with a round-trip check and a test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/jobshop-quote/apps/jobshop-site/catalogue-export/quickbooks-invoices-from-quotes.html",
+        "issue": "Red on main: catalogue-export test failed because the page from PR #19988 was exported before a concurrently merged PR added the 'Material cost' footer link. Regenerated with pnpm export:catalogue; jobshop-site suite 163/163.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20001"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "644bc8af-e12f-58fb-8c7d-a25955c34662",
+    "transcripts": 1,
+    "first": "2026-11-28T05:09:08Z",
+    "last": "2026-11-28T05:13:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 87,
+        "output": 16350,
+        "thinking": 4397,
+        "cache_read": 3628102,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79815,
+        "api_equivalent_usd": 1.6915,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 87,
+      "output": 16350,
+      "thinking": 4397,
+      "cache_read": 3628102,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79815,
+      "api_equivalent_usd": 1.6915,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.6,
+      "active_minutes": 4.6,
+      "model_minutes": 3.28,
+      "tool_minutes": 1.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "senior engineer: read new invoice module, mutation-test two files, fix + 5 boundary tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 118.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

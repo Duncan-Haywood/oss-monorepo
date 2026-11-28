@@ -338,6 +338,17 @@ Culls, mistakes and theft are not measured (they are the typed `culls` allowance
 `lumber-waste-factor.html` shows the tables; `waste-bench.test.mjs` fails if a figure on it drifts
 from the bench. Invented and generated plans, flat prices per foot, not a builder's real order.
 
+## Roof sheathing, counted against area / 32 + 10% (measured 2026-11-28)
+
+`node roof-sheathing-bench.mjs` lays 4x8 sheets on 20 generated gable roofs (24 x 40, 28 x 48,
+32 x 60 and 36 x 70 ft footprints at 4, 6, 8, 10 and 12/12, 12 in overhangs, trusses at 24 in)
+with `layoutRoof`'s staggered courses and sets the count beside the area rule. The rule over-orders
+by 1 to 8 sheets on 16 roofs (counted waste 3.1 to 7.9%) and is 1 to 3 short on the 4 whose top
+course is 24.3 to 30.4 in wide (one rip per sheet, waste 10.7 to 13.3%). Hip roofs are left out:
+their course count does not reuse the hip offcuts, so it is an upper bound. The page
+`roof-sheathing-sheets.html` shows the table and a pitch factor table; `roof-sheathing-bench.test.mjs`
+fails if a figure or a summary sentence drifts from the bench. Generated roofs, not a builder's order.
+
 `ventures/residential-takeoff/apps/wall-framing-takeoff/roof-waste-bench.mjs` (in the paid folder,
 which is not published, so the served copy of this one never imports a file the site lacks) lays out
 4x8 roof sheathing on 16 rectangular roofs (24 x 36 to 36 x 60 ft, 4:12 to 10:12, 12 in overhang all
