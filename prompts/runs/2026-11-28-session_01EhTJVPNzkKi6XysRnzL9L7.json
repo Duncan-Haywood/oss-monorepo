@@ -32,7 +32,8 @@
   "tests_added": 4,
   "outcome": "success",
   "errors": [
-    "first run_workflow_locally stopped on a post seo_title 12 characters over 70; shortened and reran"
+    "first run_workflow_locally stopped on a post seo_title 12 characters over 70; shortened and reran",
+    "CI site-builder test red from main (#19965 einvoice-preflight llms.txt Answers stale); regenerated in this PR"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -64,7 +65,7 @@
     "portfolio/quality/audits/2026-11-28-xer-schedule-check.json"
   ],
   "goal": null,
-  "notes": "Mode reaudit (quality_audit.py mode). Reaudit seed 2026-11-28-e625. Subject ventures/xer-schedule-check (flagship), prior audit 2026-11-19. Scores c3 comp3 v2 craft3 claims3 fit3 dom3: does not meet the bar (verification 2); it missed before on claims, verification and domain. Prior defects: 5 of 9 closed on arrival (0 high baseline, 1, 4, 7 unmarked, 8), 4 open (2, 3, 5, 6). Recomputed: DCMA 1-8 40/40 counts on 4 public XERs with own Python counter; synthetic-baseline CCA 11/14 (11694/13228, BEI 0.116) matched; CPLI hand case 0.75. Mutants: 7/9 survived on arrival; dcma-thresholds.test.mjs (this PR) kills 4. Fix PR: #19969 (same PR). Local checks: node --test 632 pass; run_workflow_locally --for-changes ran 145 steps and all passed except prompts-ci on the then-blank run record (expected); the security gate, codeql gate and built-artifact steps did not run locally (they need the PR's artifacts).",
+  "notes": "Mode reaudit (quality_audit.py mode). Reaudit seed 2026-11-28-e625. Subject ventures/xer-schedule-check (flagship), prior audit 2026-11-19. Scores c3 comp3 v2 craft3 claims3 fit3 dom3: does not meet the bar (verification 2); it missed before on claims, verification and domain. Prior defects: 5 of 9 closed on arrival (0 high baseline, 1, 4, 7 unmarked, 8), 4 open (2, 3, 5, 6). Recomputed: DCMA 1-8 40/40 counts on 4 public XERs with own Python counter; synthetic-baseline CCA 11/14 (11694/13228, BEI 0.116) matched; CPLI hand case 0.75. Mutants: 7/9 survived on arrival; dcma-thresholds.test.mjs (this PR) kills 4. Fix PR: #19969 (same PR). Local checks: node --test 632 pass; run_workflow_locally --for-changes ran 145 steps and all passed except prompts-ci on the then-blank run record (expected); the security gate, codeql gate and built-artifact steps did not run locally (they need the PR's artifacts). CI 'test' (priv-portfolio-pages) failed on llms-answers.test.mjs for ventures/einvoice-preflight: main was red since #19965 merged without regenerating llms.txt Answers. Fixed forward in this PR: merged main, ran llms-answers.mjs, test 7/7.",
   "corrections": [],
   "redteam": null,
   "usage": {
