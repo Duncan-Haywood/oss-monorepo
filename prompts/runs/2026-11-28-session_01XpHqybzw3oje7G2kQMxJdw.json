@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqybzw3oje7G2kQMxJdw",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T02:38:45Z",
+  "ended": "2026-11-28T02:48:46Z",
+  "wall_minutes": 10.2,
+  "tokens_in": 5344049,
+  "tokens_out": 28439,
+  "cost_usd": 2.4581,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19966",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push missed the residential-takeoff copy of pdf-text.mjs; changed-ventures went red on its sync test, fixed in a follow-up commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 steers to front-door weight first; every bet front door checked (machine-shop-guides, pay-app-guides) is under 40 kB gz and already modulepreloaded, so that sweep cost time for nothing. Say that weight is settled on these and point to compute profiles first."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "--times data is from 2026-11-17 (11 days stale), so ranking suites by it is unreliable."
+    },
+    {
+      "file": "docs/history/drawing-review-perf-2026-11-26.md",
+      "issue": "Says pdf-text.mjs is vendored into three ventures. There is a fourth copy in residential-takeoff/apps/wall-framing-takeoff, pinned by its pdfsync.test.mjs, and only CI's changed-ventures job found it. Grep for TOK_DELIM before editing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new docs/posts entry: a ~20% gain in one tokenizer is an internal perf note, not something a customer would read, and the owner wants consolidated customer posts rather than one per PR.",
+      "did": "Wrote docs/history/drawing-review-perf-2026-11-28.md only.",
+      "result": "The write-up is in the history note."
+    }
+  ],
+  "writeups": [
+    "docs/history/drawing-review-perf-2026-11-28.md"
+  ],
+  "goal": null,
+  "notes": "Metric: extractPdfLines wall time on the drawing-review benchmark (sample drawing + N random segments, one FlateDecode stream, Node 22, old and new modules interleaved in one process). 200k segments: median 210/202 ms before, 158/186 ms after (31 reads each, two runs). 50k: 52/55 before, 43/44 after (41 reads). pdf-plan-takeoff readSheets at 200k: 321/348 before, 334/336 after, no change outside noise. Profile before: tokens generator 810 ms, GC 474 ms over 9 reads. Dropped, measured slower: operands.length=0 (V8 trims the backing store) and short-word interning (dictionary-mode array, 199 to 236 ms). Identity: 68 checkout PDFs x 3 readers, 204/204 hashes equal. Suites: machine-shop-guides 319, pdf-plan-takeoff 41, drawing-set-index 19, all passing. Security queue was empty (exit 3), ideas inbox empty. A fourth copy (residential-takeoff/apps/wall-framing-takeoff) was updated after CI's sync test failed; that suite passes locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24b5c13c-d819-5ded-bef8-26abb9a31a08",
+    "transcripts": 1,
+    "first": "2026-11-28T02:38:45Z",
+    "last": "2026-11-28T02:48:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 109,
+        "output": 28439,
+        "thinking": 6669,
+        "cache_read": 5238796,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105144,
+        "api_equivalent_usd": 2.4581,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 109,
+      "output": 28439,
+      "thinking": 6669,
+      "cache_read": 5238796,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105144,
+      "api_equivalent_usd": 2.4581,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.2,
+      "active_minutes": 10.2,
+      "model_minutes": 5.09,
+      "tool_minutes": 5.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, refactor across three copies, A/B benchmarks and identity sweep",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 122.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
