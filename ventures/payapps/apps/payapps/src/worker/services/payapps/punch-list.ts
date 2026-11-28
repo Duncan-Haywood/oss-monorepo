@@ -4,6 +4,7 @@
 import type { PunchItemInputBody, PunchItemUpdateBody } from "@shared/api/schemas";
 import type { PunchItemDto, PunchListDto } from "@shared/api/types";
 import {
+  type CompanyPunchInput,
   nextPunchNumber,
   type PunchItemFacts,
   punchDateProblem,
@@ -11,9 +12,9 @@ import {
   punchStatus,
   summarizePunchList,
 } from "@shared/punch-list";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { organization, punchItems } from "../../db/schema";
+import { organization, projects, punchItems } from "../../db/schema";
 import { badRequest, conflict, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import { getProjectRow, type ProjectRow } from "./bundle";
@@ -273,4 +274,43 @@ export async function loadPunchListDocument(
   ]);
   if (!org) throw notFound("Organization");
   return { contractor: { name: org.name }, project, list, scope };
+}
+
+/**
+ * Punch items with a due date, not fixed, not accepted and not disputed, across the company's active
+ * jobs, for the weekly email (src/shared/cash-digest.ts picks the overdue ones). Closed jobs are left
+ * out, as the RFI and submittal lists leave them out.
+ */
+export async function companyPunchInputs(
+  ctx: AppContext,
+  orgId: string,
+  opts: { excludeSample?: boolean } = {},
+): Promise<CompanyPunchInput[]> {
+  const conds = [
+    eq(punchItems.orgId, orgId),
+    eq(projects.orgId, orgId),
+    eq(projects.status, "active"),
+    isNotNull(punchItems.dueOn),
+    isNull(punchItems.completedOn),
+    isNull(punchItems.acceptedOn),
+  ];
+  if (opts.excludeSample) conds.push(eq(projects.isSample, false));
+  return ctx.db
+    .select({
+      projectId: punchItems.projectId,
+      projectName: projects.name,
+      projectNumber: projects.number,
+      gcName: projects.gcName,
+      number: punchItems.number,
+      description: punchItems.description,
+      location: punchItems.location,
+      dueOn: punchItems.dueOn,
+      completedOn: punchItems.completedOn,
+      acceptedOn: punchItems.acceptedOn,
+      disputeNote: punchItems.disputeNote,
+    })
+    .from(punchItems)
+    .innerJoin(projects, eq(projects.id, punchItems.projectId))
+    .where(and(...conds))
+    .all();
 }

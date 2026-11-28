@@ -67,6 +67,14 @@ switch to the device's zone when the saved one differs. The hourly cron (`wrangl
   jobs with a report in the 14 days through it, most days first, at most 10 (the rest counted),
   linked to the job's daily reports. Never enough alone to send the email (docs/DAILY-REPORTS.md,
   "In the weekly email").
+- Punch list items past due (2026-11-28, `punchOverdueByJob` in `src/shared/punch-list.ts`): one
+  line per active job with items whose due date (the one the contractor entered) has passed and that
+  are not marked fixed, accepted or "not ours", under "Punch list items past due", the longest
+  overdue first, at most 10 jobs (the rest counted). Each names how many, the longest-overdue item
+  with its location and due date, and the retainage the cash report says the job holds, linked to
+  the job page's punch list (`#punch-list`). Items fixed and waiting on the GC's back-check never
+  count; nor do items with no due date, the sample job or closed jobs. Alone enough to send the
+  email: retainage is usually released once the punch list is signed off.
 - Nothing to chase and no certificate or document to renew: no email, and the week counts as done.
 - Each send is claimed first by a conditional update of `last_sent_on`, so a retried or doubled
   run never mails twice; a failed send restores the old value and the next run tries again.

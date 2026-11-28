@@ -131,6 +131,19 @@ describe("readRfqByRules", () => {
     expect(v.parts[0]?.dueDate).toBe("2027-01-15");
   });
 
+  it('reads quantity breaks written "10/25/50" in a labelled line and in a table', () => {
+    const labelled = read("Part number: BRK-1001 Rev B\nQty: 10/25/50\nMaterial: 6061-T6");
+    expect(labelled.v.warnings).toEqual([]);
+    expect(labelled.v.parts[0]?.quantities).toEqual([10, 25, 50]);
+    const table = read("Part No\tQty\tMaterial\nBRK-1001\t100/250/500\t304 SS\nSPC-220\t25\t1018");
+    expect(table.v.warnings).toEqual([]);
+    expect(table.v.parts.map((p) => p.quantities)).toEqual([[100, 250, 500], [25]]);
+    // A date written the same way is not a quantity list.
+    const dated = read("Part number: A-100\nQty: 40\nNeed by 1/15/2027");
+    expect(dated.v.parts[0]?.quantities).toEqual([40]);
+    expect(dated.v.parts[0]?.dueDate).toBe("2027-01-15");
+  });
+
   it("guesses nothing: a date without a year and an unlabelled material stay blank", () => {
     const { raw, v } = read("Part number: A-100\nMade from aluminum\nQty: 4\nNeed by Dec 18");
     expect(v.parts[0]?.materialText).toBeNull();

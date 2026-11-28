@@ -2024,6 +2024,16 @@ nothing to copy. No customers yet. Paid plans are dark
   after photos are what settles a back-check or a "not ours" dispute, and every competing punch tool
   (Procore, Buildertrend, Fieldwire) has them; the item had waited "if people ask", but a punch list
   without photos is below the bar a buyer compares against.
+- **Punch list, part 2b: overdue items in the weekly email** (2026-11-28, every plan,
+  punch-overdue-weekly-email): the "money to chase" email lists, per active job, the punch items past
+  the due date the contractor entered and not marked fixed, accepted or "not ours": how many, the
+  longest-overdue item with its location and due date, and the retainage the cash report says the job
+  holds, linked to the job page's punch list, the longest overdue first, at most 10 jobs. Alone enough
+  to send the email; fixed items waiting on the GC's back-check never count. Rules in
+  `punchOverdueByJob` (`src/shared/punch-list.ts`), inputs from `companyPunchInputs`; the Cash page's
+  preview line counts them; docs/EMAIL.md; privacy policy 2026-11-28.3. Why: the punch list gates the
+  retainage release (often 5 to 10% of the contract), and the overdue item was visible only on each
+  job's own page, so a PM running several jobs found it when the GC held the release.
 - **Close-out, part 1** (2026-11-26, every plan, closeout-checklist): per job, the close-out documents
   the subcontract asks for, each with its kind (warranty, O&M manuals, as-builts, attic stock, final
   lien waiver, consent of surety, owner training, test and start-up reports, final inspection
@@ -2786,8 +2796,8 @@ nothing to copy. No customers yet. Paid plans are dark
 - Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
   email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
   required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
-- Punch list, part 2 (2a, photos per item and their history rows, done 2026-11-28): punch events
-  beyond photos in the job history, items overdue across jobs in the weekly email, photos in the
+- Punch list, part 2 (2a, photos per item and their history rows, and 2b, items overdue across jobs
+  in the weekly email, done 2026-11-28): punch events beyond photos in the job history, photos in the
   punch list PDF itself, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
   PDF read into items (text layer) once customers share real ones

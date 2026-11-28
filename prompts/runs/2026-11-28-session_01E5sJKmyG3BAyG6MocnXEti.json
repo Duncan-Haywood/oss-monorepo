@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKmyG3BAyG6MocnXEti",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:18:30Z",
+  "ended": "2026-11-28T03:22:16Z",
+  "wall_minutes": 3.98,
+  "tokens_in": 2770460,
+  "tokens_out": 13758,
+  "cost_usd": 1.4754,
+  "tool_calls": 36,
+  "task": "bet #2 jobshop-quote: slash quantity breaks in RFQ reading",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19975",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said bet #2 had the fewest front-door PRs (1) since 2026-11-27, but git log shows about 10 jobshop-site guide PRs in that window; its tally misses titles without the slug pattern it expects."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No post or agent doc written: a parser fix with tests and a ROADMAP entry tells the next run everything it needs, and a blog post about a parser rule would be a thin post, which the 2026-11-24 consolidation direction asks us to avoid.",
+      "did": "ROADMAP Done entry only",
+      "result": "n/a"
+    },
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md",
+      "why": "The item was listed as waiting on shops sending RFQs, but slash quantity breaks are a common RFQ format, and a front-door visitor's first Extract would hit it.",
+      "did": "fixed it before any demand evidence",
+      "result": "681 unit tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty; routed ventures/1. Unit: 55 files / 681 tests pass; tsc and biome clean. Worker suite: 49 files / 296 tests pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bedc8a8e-272f-5532-bd54-8f7788d2c709",
+    "transcripts": 1,
+    "first": "2026-11-28T03:18:30Z",
+    "last": "2026-11-28T03:22:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 61,
+        "output": 13758,
+        "thinking": 3467,
+        "cache_read": 2687586,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82813,
+        "api_equivalent_usd": 1.4754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 61,
+      "output": 13758,
+      "thinking": 3467,
+      "cache_read": 2687586,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82813,
+      "api_equivalent_usd": 1.4754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.98,
+      "active_minutes": 3.98,
+      "model_minutes": 2.59,
+      "tool_minutes": 1.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "parser change plus tests, senior engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 135.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

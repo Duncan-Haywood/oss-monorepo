@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtHvg4D2RU77SwU4Mrw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T03:06:34Z",
+  "ended": "2026-11-28T03:16:37Z",
+  "wall_minutes": 10.23,
+  "tokens_in": 10957480,
+  "tokens_out": 49449,
+  "cost_usd": 4.5988,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19973",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reports every in-repo bet with no free ungated item (57 Next items, 39 waiting on demand) and points at the least-claimed bet's dashboard topic. Finding real demand-side gaps (state notice pages) took manual listing of pay-app-guides pages against the app's lien-deadline states; a 'states the app models but the guides have no page for' report would save that."
+    },
+    {
+      "file": "platform/pages/llms-answers.test.mjs",
+      "issue": "main was red on einvoice-preflight's stale llms.txt Answers after PR #19965; regenerated here. The einvoice page PR evidently merged without running it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #1's public side (a free front-door guide) rather than app code: every payapps ROADMAP Next item waits on demand or an owner step, and checkout waits on owner Paddle steps 1 and 6.",
+      "did": "Arizona preliminary 20-day notice guide, calculator and statutory form, linked into the app's existing Arizona lien-deadline and waiver features.",
+      "result": "merged with tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-arizona-preliminary-20-day-notice.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py pay-app-guides ok (393 tests) plus site page checks; platform/pages llms-answers + industry-construction 26 pass; post checks clean; Chromium 390px render with sample, no console errors, no horizontal scroll. Statute read from azleg.gov 2026-11-28 (reachable through the proxy). Next: if Arizona traffic shows, add the AZ preliminary notice to the PayApps job page like CA/FL/WY.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d489373-fbd1-5e9a-96b1-2c14e69a64ad",
+    "transcripts": 1,
+    "first": "2026-11-28T03:06:34Z",
+    "last": "2026-11-28T03:16:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 144,
+        "output": 49449,
+        "thinking": 7999,
+        "cache_read": 10775566,
+        "cache_write_5m": 0,
+        "cache_write_1h": 181770,
+        "api_equivalent_usd": 4.5988,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 144,
+      "output": 49449,
+      "thinking": 7999,
+      "cache_read": 10775566,
+      "cache_write_5m": 0,
+      "cache_write_1h": 181770,
+      "api_equivalent_usd": 4.5988,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "Edit": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.23,
+      "active_minutes": 10.23,
+      "model_minutes": 8.08,
+      "tool_minutes": 2.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statute reading, calculator, form, tests and page for a paralegal-developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 130.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
