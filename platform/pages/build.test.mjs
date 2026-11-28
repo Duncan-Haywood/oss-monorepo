@@ -5577,18 +5577,18 @@ test('tools whose audience browses a section are filed in it', async () => {
     // Whatnot livestream payout is the same marketplace-seller job; slug starts
     // with the storefront name the marketplace rule now catches.
     'whatnot-seller-payout': ['marketplace', null],
-    'notary-trip-quote': ['services', null],
-    'booth-rent-vs-commission': ['services', null],
-    'translator-project-quote': ['services', null],
+    'notary-trip-quote': ['services', 'services-other'],
+    'booth-rent-vs-commission': ['services', 'services-other'],
+    'translator-project-quote': ['services', 'services-other'],
     // Parked under "Marketplace seller tools" from 2026-10-11 while `services`
     // and `backoffice` were near their offline-bundle ceiling; the breadcrumb
     // on a driving school's page read "Marketplace seller tools" (polish,
     // 2026-11-17). Each is back in the section its reader browses.
-    'driving-school-profit-calculator': ['services', null],
-    'barbershop-chair-profit-calculator': ['services', null],
-    'axe-throwing-bar-profit-calculator': ['services', null],
-    'tournament-pairing-manager': ['services', null],
-    'bail-bond-agency-exposure-calculator': ['services', null],
+    'driving-school-profit-calculator': ['services', 'services-other'],
+    'barbershop-chair-profit-calculator': ['services', 'services-other'],
+    'axe-throwing-bar-profit-calculator': ['services', 'services-other'],
+    'tournament-pairing-manager': ['services', 'services-other'],
+    'bail-bond-agency-exposure-calculator': ['services', 'services-other'],
     'commercial-lease-abstract-reader': ['backoffice', null],
     'severance-package-calculator': ['backoffice', null],
     'payment-processor-fee-comparison-calculator': ['backoffice', null],

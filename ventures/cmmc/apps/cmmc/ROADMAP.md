@@ -542,13 +542,31 @@ No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
   `services/documents/import.ts`, `POST /documents/import`, `DocumentImport.tsx`; unit, component and
   worker tests. Header words are this app's reading of common shop lists, not checked against real files.
 
+- Document control, part 3c: the controlled copy of a revision (2026-11-28,
+  document-controlled-copy-evidence). Releasing a revision can link one of the org's evidence files
+  (picked or uploaded in the release form) as its controlled copy; "Link file" / "Change file" does it
+  later for the revision in force (an imported list, a file uploaded after approval). The release's
+  history row keeps the file's name and SHA-256, so the history says which file was approved for each
+  revision; deleting the evidence file unlinks the document and drops the id from the history but keeps
+  the name and hash. The next revision starts with no file (the old file is not that revision). The
+  master list CSV gains "Controlled copy (evidence)" and "Controlled copy SHA-256" (named so the import
+  does not read them as the location, and re-importing the export still changes nothing). The "no
+  location" note is raised only when neither a location nor a file is given. Only this org's files
+  link (400 otherwise), editors on Level 2 + Quality; audited as `document.file_link` /
+  `document.file_unlink`. Migration 0019; `services/documents` (`setDocumentFile`,
+  `unlinkDocumentEvidence`), `PUT /documents/:id/file`, `Documents.tsx`; unit and worker tests.
+  Privacy policy wording updated to say the files can now be held as evidence (no version bump: evidence
+  files were already covered).
+
 ## Next
 
 - Internal audits, part 3 (calendar dates and the dashboard card done 2026-11-27): an audit report
   (Markdown) per audit, and evidence files linked to a finding or an effectiveness check, if shops ask
 - Document control, part 3 (review dates in the calendar and the dashboard done 2026-11-27; the
-  master list import done 2026-11-28): linking an evidence file as the controlled copy of a revision;
-  check the import's header words against real master lists once shops send theirs
+  master list import done 2026-11-28; the controlled copy file per revision done 2026-11-28): check the
+  import's header words against real master lists once shops send theirs; a "file changed since
+  release" warning if shops replace files in place (today a new upload is a new evidence row, so the
+  recorded SHA-256 already pins the released bytes)
 - ISO 9001, part 3 (the headings checked against the 2015 contents page done 2026-11-26): AS9100D's
   aerospace additions once a source is in hand; filter the clause list to "mine" once shops with
   several owners ask

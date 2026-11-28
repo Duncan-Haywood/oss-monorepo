@@ -3,6 +3,7 @@ title: "The framing budget now prices the deck"
 date: 2026-11-01
 tags: [wall-framing-takeoff, budget, deck, construction]
 description: A plan with a deck now gets a Deck section in the budget, with lumber, footing bags, screws and a typed labor rate, all tied to the deck layout.
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The deck layout (joists, beam, posts, footings, decking rows) has been in the takeoff since October 30, but the budget ignored it, so a builder pricing a house and deck had to add the deck by hand.

@@ -5197,6 +5197,17 @@ export function categoryPageCopy(category) {
  * an opening).
  */
 const SUBCATEGORY_RULES = {
+  // `services` split 2026-11-28: its offline bundle reached the 4 MiB gzipped line in build.test.mjs when
+  // machine-shop-guides gained the CUI markings page (4.19 MB). The test's comment names the fix, a split
+  // rather than a higher line; the job shops are a coherent group (they quote parts and fabrication for a
+  // customer, not a visit or a route), so they get their own sub-group and offline bundle.
+  services: [
+    {
+      id: 'services-shops',
+      title: 'Job shops & fabrication',
+      test: (slug) => /^(machine-shop-guides|cnc-machining-quote|dxf-nesting|laser-cutting-engraving|powder-coating-job-price|sign-shop-job-pricing|apparel-decoration|embroidery-shop-quote|screen-print-job-quote)/.test(slug),
+    },
+  ],
   trades: [
     {
       id: 'trades-paid',
@@ -5333,6 +5344,7 @@ const SUBCATEGORY_RULES = {
 
 const SUBCATEGORY_FALLBACKS = {
   trades: { id: 'trades-other', title: 'More trade bids' },
+  services: { id: 'services-other', title: 'More service businesses' },
 };
 
 /**

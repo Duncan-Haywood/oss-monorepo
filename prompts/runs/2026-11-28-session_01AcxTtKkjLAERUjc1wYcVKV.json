@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtKkjLAERUjc1wYcVKV",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T10:07:09Z",
+  "ended": "2026-11-28T10:12:24Z",
+  "wall_minutes": 5.45,
+  "tokens_in": 2442993,
+  "tokens_out": 11828,
+  "cost_usd": 1.2729,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20076",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Local site page checks left out the title/description length ratchets, so PR #20062 merged a page over both and left main red; fixed here."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "The only open agent-owned backlog item (P105) already had open PR #20071, so the run fell to Critique; promptctl backlog does not show which open items have an open PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post: an internal CI-check fix has no reader outside the agents; the PR and the comment at PAGE_CHECKS carry the why.",
+      "did": "Commit message, PR body and code comment only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed process/2. P105 taken by open PR #20071, so Critique on measure's doc friction: run_venture_tests.py missing CI-only page checks (2026-11-28T07:14) and venture-preflight/title-length counting a git-ignored dist/ (08:46). Found main red on title-length and description-length from PR #20062; fixed the page. Checks: node --test title-length/description-length/og-description-length pass; test_run_venture_tests.py 56 OK; run_venture_tests.py machine-shop-guides 350 ok + site page checks ok. Backlog ids touched: none (P105 left to PR #20071). run_workflow_locally --for-changes: all workflows passed except priv-portfolio-pages 'Test the site builder' 2234/2235: 'gzipped offline bundle for category services is 4.2 MB' (build.test.mjs:3897), not reachable from this diff (it only shortens one title and changes page-check scripts); PR CI (validate, build, changed-ventures, page-integrity, risk-review and the rest) green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "653114d8-601b-5598-ad54-4e9d5b40e028",
+    "transcripts": 1,
+    "first": "2026-11-28T10:07:09Z",
+    "last": "2026-11-28T10:12:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 11828,
+        "thinking": 1846,
+        "cache_read": 2372745,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70189,
+        "api_equivalent_usd": 1.2729,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 11828,
+      "thinking": 1846,
+      "cache_read": 2372745,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70189,
+      "api_equivalent_usd": 1.2729,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.45,
+      "active_minutes": 5.45,
+      "model_minutes": 2.12,
+      "tool_minutes": 3.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "diagnose CI-only check gap, fix page and tool, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 117.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

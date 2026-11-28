@@ -246,3 +246,18 @@ test("ledgerCheck: weak fasteners fail, loose spacing fails, freestanding and ba
   assert.equal(layoutDeck({ ...sampleDeck(), freestanding: true, ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 300 } }).ledgerCheck.ok, false);
   assert.equal(checkDeckLedger({ width: 192, joistSpan: 141, overhang: 12, hardwareQty: 24 }, { deadPsf: 10, livePsf: 40, fastenerCapacity: 0 }).ok, false);
 });
+
+test("decking rows: the last row always starts inside the deck, so it is never negative or a phantom board (18 ft deep bought 39 rows)", () => {
+  const pitch = 5.5 + 0.1875;
+  const deep = layoutDeck({ ...sampleDeck(), depth: 216 });
+  assert.equal(deep.rows, 38); // 38 boards and 37 gaps cover 215-15/16 in; the 1/16 in left is less than one gap
+  assert.ok(!deep.notes.some((n) => /last decking row/.test(n)), deep.notes.join("\n"));
+  for (let depth = 48; depth <= 360; depth += 0.0625) {
+    const l = layoutDeck({ ...sampleDeck(), depth });
+    if (!l.ok) { assert.match(l.errors.join(" "), /longer than the longest/); continue; } // past 20 ft the joist outgrows the stock list
+    const last = depth - (l.rows - 1) * pitch;
+    assert.ok(last > 0 && last <= pitch + 1e-9, `depth ${depth}: ${l.rows} rows, last row ${last}`);
+    assert.ok(!l.notes.some((n) => /last decking row is -/.test(n)), `depth ${depth}`);
+  }
+  assert.equal(layoutDeck(sampleDeck()).rows, 26); // 12 ft: unchanged, 1-13/16 in last row
+});
