@@ -31,6 +31,10 @@ python3 -m pip install -r requirements.txt
 sh run_all.sh
 ```
 
+The published results were produced with `pyarrow==20.0.0`. On 2026-11-28 the pin moved to
+23.0.1 for a security fix (PYSEC-2026-113); pyarrow only reads and writes the parquet extracts here,
+so no result depends on it. A `pillow>=13.0.0` floor keeps matplotlib off vulnerable Pillow.
+
 The full rerun downloads about 1GB if the original ACS/NLSY archives are absent, streams the 6.7GB uncompressed NLSY CSV without saving it, and recomputes all outputs. Allow several minutes and sufficient disk space. Run source scripts individually to reproduce only that source. For NSFG, `sh nsfg/download.sh` reacquires original official inputs; included raw data suffice without a network connection.
 
 To rerun only ACS models or NLSY calculations from the delivered compact datasets:

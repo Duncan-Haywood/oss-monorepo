@@ -27,6 +27,8 @@
 // read instead as the general tolerance and shown in the header, and bare numbers (scale, dates,
 // sheet numbers and drawing numbers are bare numbers too).
 
+import type { FaiRowDto, FaiSummary } from "./fai-results";
+
 export type CharacteristicKind = "dimension" | "gdt" | "thread" | "surface" | "note" | "material";
 
 export interface Characteristic {
@@ -450,6 +452,9 @@ export const FORM3_COLUMNS = [
   "Drawing Text Line",
 ] as const;
 
+/** The columns added once the inspector has entered results (form3Csv's `rows`). */
+export const FORM3_RESULT_COLUMNS = ["Verdict", "Why"] as const;
+
 export interface Form3Header {
   fileName: string;
   partNumber?: string | null;
@@ -459,12 +464,23 @@ export interface Form3Header {
 /**
  * The draft as CSV: a few header rows (part, source, general tolerance, the draft warning), a blank
  * row, then one row per characteristic. Reference Location, Characteristic Designator, Results,
- * tooling and nonconformance are left blank for the inspector: the text cannot say them.
+ * tooling and nonconformance are left blank for the inspector: the text cannot say them. With
+ * `rows` (the inspection screen's rows, shared/fai-results buildRows), those columns carry what the
+ * inspector entered, the added rows follow the draft's, and a verdict and its reason end each row.
  */
-export function form3Csv(draft: CharacteristicDraft, header: Form3Header): string {
+export function form3Csv(
+  draft: CharacteristicDraft,
+  header: Form3Header,
+  rows?: FaiRowDto[],
+  summary?: FaiSummary,
+): string {
   const out: string[] = [];
   const row = (cells: (string | number | null)[]) => out.push(cells.map(cell).join(","));
-  row(["AS9102 Form 3 draft: characteristic accountability"]);
+  row([
+    rows
+      ? "AS9102 Form 3 with results: characteristic accountability"
+      : "AS9102 Form 3 draft: characteristic accountability",
+  ]);
   row(["Part Number", header.partNumber ?? ""]);
   row(["Revision", header.revision ?? ""]);
   row(["Read from", header.fileName]);
@@ -473,25 +489,60 @@ export function form3Csv(draft: CharacteristicDraft, header: Form3Header): strin
     "Draft",
     "Listed from the drawing's text by Job Shop Quote. Check every row against the drawing: dimensions drawn without text, basic dimensions and frames drawn as lines are not in the text. Add the drawing zone, any key characteristic designator, the results and the tooling.",
   ]);
+  if (summary) {
+    row([
+      "Results",
+      `${summary.accepted} accepted, ${summary.rejected} rejected, ${summary.open} open of ${summary.total}` +
+        (summary.notApplicable ? `; ${summary.notApplicable} marked not a characteristic` : "") +
+        (summary.rejectsWithoutNcr
+          ? `; ${summary.rejectsWithoutNcr} reject(s) without a nonconformance number`
+          : "") +
+        ". Verdicts are arithmetic on the limits listed here; the inspector signs the report.",
+    ]);
+  }
   if (draft.truncated)
     row(["Truncated", `Only the first ${MAX_CHARACTERISTICS} characteristics are listed.`]);
   out.push("");
-  row([...FORM3_COLUMNS]);
-  for (const c of draft.characteristics) {
+  if (!rows) {
+    row([...FORM3_COLUMNS]);
+    for (const c of draft.characteristics) {
+      row([
+        c.no,
+        "",
+        "",
+        c.requirement,
+        "",
+        "",
+        "",
+        KIND_LABEL[c.kind],
+        c.lower,
+        c.upper,
+        c.unit,
+        c.record,
+        c.line,
+      ]);
+    }
+    return `${out.join("\r\n")}\r\n`;
+  }
+  row([...FORM3_COLUMNS, ...FORM3_RESULT_COLUMNS]);
+  for (const r of rows) {
+    const e = r.entry;
     row([
-      c.no,
-      "",
-      "",
-      c.requirement,
-      "",
-      "",
-      "",
-      KIND_LABEL[c.kind],
-      c.lower,
-      c.upper,
-      c.unit,
-      c.record,
-      c.line,
+      r.no,
+      e.location ?? "",
+      e.designator ?? "",
+      r.requirement,
+      e.notApplicable ? "N/A" : (e.result ?? ""),
+      e.tooling ?? "",
+      e.ncr ?? "",
+      r.kind === "added" ? "Added by inspector" : KIND_LABEL[r.kind],
+      r.lower,
+      r.upper,
+      r.unit,
+      r.record,
+      r.line,
+      r.verdict,
+      r.reason,
     ]);
   }
   return `${out.join("\r\n")}\r\n`;

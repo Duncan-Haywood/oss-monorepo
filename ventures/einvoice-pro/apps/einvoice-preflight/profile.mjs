@@ -92,6 +92,7 @@ export const XRECHNUNG_RULES = {
   "XR-010": "A third-party payment (BG-DEX-09) is missing its type, amount or description (BR-DEX-10, -11, -12).",
   "XR-011": "A third-party payment amount has more than two decimals or another currency than the invoice (BR-DEX-13, -14).",
   "XR-012": "Buyer reference is a Leitweg-ID written in a non-standard form (warning).",
+  "XR-013": "Skonto in the payment terms (BT-20) is written in a form no buyer system reads (warning).",
 };
 
 /** A buyer reference that is a valid Leitweg-ID once a label is dropped or its separators
@@ -108,6 +109,79 @@ function leitwegFormIssue(value) {
   }
   if (/^\d{5,46}$/.test(value) && leitwegCheckDigitsValid(value)) return "no-hyphens";
   return "";
+}
+
+// Skonto (a cash discount for early payment) in the payment terms (BT-20), the XRechnung way:
+// one line per discount, #SKONTO#TAGE=n#PROZENT=n.nn#, optionally #BASISBETRAG=n.nn#, each line
+// ended by a line break (KoSIT rule BR-DE-18, in plain/xrechnung-ubl.json and -cii.json). It tests
+// only lines that begin with "#", so Skonto written in words, or a line whose leading "#" is
+// missing, passes the official rules and no buyer's system can read it (skonto-bench.mjs).
+export const SKONTO_LINE = /^#SKONTO#TAGE=[0-9]+#PROZENT=[0-9]+\.[0-9]{2}(?:#BASISBETRAG=-?[0-9]+\.[0-9]{2})?#$/;
+
+/** BT-20 text as it should be written into a file: trimmed, and, when any line begins with "#",
+ *  each line trimmed and the text ended by a line break, which BR-DE-18 requires after the last
+ *  Skonto entry. A trim of the whole text alone drops that break and fails a correct line. */
+export function paymentTermsText(raw) {
+  const t = String(raw ?? "").replace(/\r\n?/g, "\n").trim();
+  if (!t) return "";
+  const lines = t.split("\n");
+  if (!lines.some((line) => line.trim().startsWith("#"))) return t;
+  return `${lines.map((line) => line.trim()).join("\n")}\n`;
+}
+
+const decimal2 = (value) => {
+  const v = value.replace(",", ".");
+  const [whole, frac = ""] = v.split(".");
+  return `${whole}.${frac.padEnd(2, "0")}`;
+};
+const SKONTO_LOOSE = /^#?\s*SKONTO\s*#\s*TAGE\s*=\s*(\d+)\s*#\s*PROZENT\s*=\s*(\d+(?:[.,]\d{1,2})?)\s*%?\s*(?:#\s*BASISBETRAG\s*=\s*(-?\d+(?:[.,]\d{1,2})?)\s*)?#?$/i;
+
+/** One Skonto entry in a form that differs from the XRechnung one only in writing (case,
+ *  spaces, a decimal comma, one or no decimals, a "%" sign, a missing "#" at either end),
+ *  rewritten; "" when the entry is not such a slip (its meaning would have to be guessed). */
+export function skontoEntryFixed(entry) {
+  const m = SKONTO_LOOSE.exec(String(entry).trim());
+  if (!m) return "";
+  const base = m[3] === undefined ? "" : `#BASISBETRAG=${decimal2(m[3])}`;
+  return `#SKONTO#TAGE=${Number(m[1])}#PROZENT=${decimal2(m[2])}${base}#`;
+}
+
+/** The whole BT-20 text with every Skonto slip rewritten and the closing line break added;
+ *  null when a line that names Skonto in the structured form cannot be rewritten safely. */
+export function skontoTermsFixed(note) {
+  const lines = String(note ?? "").replace(/\r\n?/g, "\n").split("\n");
+  const out = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (!/^#?\s*SKONTO\s*#/i.test(t)) {
+      out.push(line);
+      continue;
+    }
+    const entries = t.split(/(?=#\s*SKONTO\s*#)/i).map((e) => e.trim()).filter((e) => e && e !== "#");
+    const fixed = entries.map(skontoEntryFixed);
+    if (fixed.some((e) => !e)) return null;
+    out.push(...fixed);
+  }
+  return paymentTermsText(out.join("\n"));
+}
+
+/** What XR-013 reports about BT-20, or null: "no-hash" when a structured Skonto line lacks its
+ *  leading "#" (BR-DE-18 skips it), "words" when Skonto is written only in words with a
+ *  percentage (no valid line anywhere). `line` is the suggested XRechnung line when the words
+ *  hold exactly one percentage and one number of days. */
+export function skontoTermsIssue(note) {
+  const text = String(note ?? "");
+  if (!/skonto/i.test(text)) return null;
+  const lines = text.replace(/\r\n?/g, "\n").split("\n").map((l) => l.trim()).filter(Boolean);
+  const bare = lines.find((l) => /^SKONTO\s*#/i.test(l));
+  if (bare) return { kind: "no-hash", line: skontoEntryFixed(bare) };
+  if (lines.some((l) => l.startsWith("#"))) return null; // BR-DE-18's own ground
+  const words = lines.find((l) => /skonto/i.test(l) && /\d+(?:[.,]\d+)?\s*%/.test(l));
+  if (!words) return null;
+  const pct = [...words.matchAll(/(\d+(?:[.,]\d{1,2})?)\s*%/g)];
+  const days = [...words.matchAll(/(\d+)\s*(?:Kalender)?tage?n?\b/gi)];
+  const line = pct.length === 1 && days.length === 1 ? `#SKONTO#TAGE=${Number(days[0][1])}#PROZENT=${decimal2(pct[0][1])}#` : "";
+  return { kind: "words", line };
 }
 
 const LEITWEG_FORM = {
@@ -271,6 +345,25 @@ export function inspectXrechnungProfile(invoice) {
           `${path}/amount`,
         ));
       }
+    });
+  }
+
+  const payTerms = payment ? str(payment.terms_note) || str(payment.terms) : "";
+  const skonto = skontoTermsIssue(payTerms);
+  if (skonto) {
+    const example = skonto.line || "#SKONTO#TAGE=10#PROZENT=2.00#";
+    findings.push({
+      ...finding(
+        "XR-013",
+        skonto.kind === "no-hash"
+          ? "Payment terms (BT-20) hold a Skonto line without its leading \"#\"; the XRechnung rules skip it and no buyer system reads it as a discount."
+          : "Payment terms (BT-20) give Skonto only in words; the XRechnung rules do not check words, so the file passes, but no buyer system can apply the discount.",
+        skonto.kind === "no-hash"
+          ? `Start the line with "#": ${example}, then a line break.`
+          : `Add the machine-readable line ${example} on its own line, ended by a line break; your own wording may stay above it.${skonto.line ? "" : " Put in your own days and percentage."}`,
+        "/payment/terms_note",
+      ),
+      severity: "warning",
     });
   }
 

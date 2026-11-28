@@ -12,10 +12,16 @@
 //   currency-missing  adds DocumentCurrencyCode when every amount's currencyID names one currency.
 //   peppol-process    adds the Peppol billing process id (BT-23) when it is missing and the
 //                     document is not self-billing: then it has exactly one valid value.
+//   skonto-form       a Skonto entry in the payment terms (BT-20) rewritten as XRechnung writes it,
+//                     #SKONTO#TAGE=10#PROZENT=2.00#, when it differs only in writing: case, spaces,
+//                     a decimal comma, one or no decimals, a "%" sign, a "#" missing at either end,
+//                     two entries on one line, no line break after the last (BR-DE-18, XR-013).
+//                     Skonto written only in words is left to a human: reading it is a guess.
 // Every fix is proposed as text edits (rendered as a diff) and is accepted only if the file then
 // re-validates without the finding it targets and without any new finding (check.mjs).
 import { roundToCents } from "./rules.mjs";
-import { dateIsWellFormed, dateLeaves, decimalsOf, indentOf, leaves, lineAt, realDate, restrictedAmounts, syntaxOf } from "./xml-scan.mjs";
+import { skontoTermsFixed } from "../profile.mjs";
+import { blockRanges, dateIsWellFormed, dateLeaves, decimalsOf, indentOf, inside, leaves, lineAt, realDate, restrictedAmounts, syntaxOf } from "./xml-scan.mjs";
 
 /** @typedef {import("./diff.mjs").Edit} Edit */
 /** @typedef {{ element: string, before: string, after: string }} Change */
@@ -247,5 +253,40 @@ const peppolProcess = {
   },
 };
 
+/** @type {Fix} */
+const skontoForm = {
+  id: "skonto-form",
+  rules: ["BR-DE-18", "XR-013"],
+  label: {
+    en: "Write the Skonto line in the payment terms the XRechnung way",
+    de: "Die Skonto-Zeile in den Zahlungsbedingungen in XRechnung-Schreibweise bringen",
+    fr: "Écrire la ligne d'escompte (Skonto) des conditions de paiement au format XRechnung",
+  },
+  propose(xml) {
+    /** @type {Proposal} */
+    const p = { edits: [], changes: [], notes: [] };
+    const syntax = syntaxOf(xml);
+    if (!syntax) {
+      p.notes.push("not a UBL or CII file");
+      return p;
+    }
+    // BT-20: UBL cac:PaymentTerms/cbc:Note, CII ram:SpecifiedTradePaymentTerms/ram:Description.
+    const blocks = blockRanges(xml, syntax === "ubl" ? "PaymentTerms" : "SpecifiedTradePaymentTerms");
+    const terms = leaves(xml, syntax === "ubl" ? "Note" : "Description").filter((l) => inside(l.start, blocks));
+    for (const leaf of terms) {
+      if (!/skonto/i.test(leaf.value)) continue;
+      const after = skontoTermsFixed(leaf.value);
+      if (after === null) {
+        p.notes.push(`${leaf.name}: a Skonto entry that is not a slip of writing; check it by hand`);
+        continue;
+      }
+      if (after === leaf.value || !/#SKONTO#/.test(after)) continue;
+      p.edits.push({ start: leaf.valueStart, end: leaf.valueEnd, text: after });
+      p.changes.push({ element: leaf.name, before: leaf.value, after });
+    }
+    return p;
+  },
+};
+
 /** The whitelist, in the order fixes are tried. @type {Fix[]} */
-export const FIXES = [currencyMissing, currencyCase, dateFormat, amountDecimals, peppolProcess];
+export const FIXES = [currencyMissing, currencyCase, dateFormat, amountDecimals, peppolProcess, skontoForm];

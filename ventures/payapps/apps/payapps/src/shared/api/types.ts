@@ -1150,6 +1150,25 @@ export interface UnsentQuickBooksPaymentsDto {
   payments: UnsentQuickBooksPaymentDto[];
 }
 
+/** Interest a late payment earned, sent to QuickBooks as its own invoice (or marked as entered there). */
+export interface QuickBooksInterestInvoiceDto {
+  payAppId: string;
+  /** Null when an editor marked it as already entered in QuickBooks by hand. */
+  invoiceId: string | null;
+  docNumber: string | null;
+  byHand: boolean;
+  amountCents: number;
+  sentAt: string;
+  /** Sent to a QuickBooks company other than the one connected now. */
+  otherCompany: boolean;
+}
+
+/** GET /api/orgs/:orgId/quickbooks/interest-invoices: for the cash page's paid-late list. */
+export interface QuickBooksInterestInvoicesDto {
+  status: QuickBooksStatusDto;
+  invoices: QuickBooksInterestInvoiceDto[];
+}
+
 /** GET/PUT /api/orgs/:orgId/getting-started/reminders: the member's own reminder emails. */
 export interface ReminderSettingDto {
   /** The getting-started reminders go to owners only; false means this member gets none anyway. */

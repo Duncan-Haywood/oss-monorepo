@@ -87,6 +87,15 @@
       <label>Pénalités de retard (PMD) <input id="note_PMD" value="Pénalités de retard : taux d'intérêt de la BCE majoré de 10 points."></label>
       <label>Indemnité de recouvrement (PMT) <input id="note_PMT" value="Indemnité forfaitaire pour frais de recouvrement : 40 euros."></label>
       <label>Escompte (AAB) <input id="note_AAB" value="Pas d'escompte pour paiement anticipé."></label>
+      <label><input id="vat_on_debits" type="checkbox"> Option pour le paiement de la TVA d'après les débits (BT-8)</label>
+    </div>
+    <p class="muted" style="font-size:.85rem">Adresse de livraison des biens, si elle diffère de l'adresse du client (BT-70, BT-75 à BT-80) : <a href="nouvelles-mentions-obligatoires-facture-2026.html">les quatre nouvelles mentions</a>.</p>
+    <div class="grid">
+      <label>Lieu de livraison (nom) <input id="da_name"></label>
+      <label>Rue <input id="da_street"></label>
+      <label>Code postal <input id="da_postal_code"></label>
+      <label>Ville <input id="da_city"></label>
+      <label>Pays (ISO) <input id="da_country" maxlength="2"></label>
     </div>
   </section>
 
@@ -231,7 +240,12 @@
         ...adjustments(),
       };
       if ($("profile").value === "hr") Object.assign(d, { issue_time: g("issue_time"), process: g("process"), operator: { name: g("operator_name"), oib: g("operator_oib") } });
-      if ($("profile").value === "france") Object.assign(d, { billing_mode: g("billing_mode"), notes: ["PMD", "PMT", "AAB"].map((subject) => ({ subject, text: g(`note_${subject}`) })) });
+      if ($("profile").value === "france") {
+        Object.assign(d, { billing_mode: g("billing_mode"), notes: ["PMD", "PMT", "AAB"].map((subject) => ({ subject, text: g(`note_${subject}`) })) });
+        if ($("vat_on_debits").checked) d.vat_on_debits = true;
+        const da = Object.fromEntries(["name", "street", "postal_code", "city", "country"].map((k) => [k, g(`da_${k}`)]));
+        if (Object.values(da).some(Boolean)) d.delivery_address = da;
+      }
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
       d.payment = pay;
       return d;

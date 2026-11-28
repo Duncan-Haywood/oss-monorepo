@@ -150,7 +150,7 @@ export function ImportsPage() {
       <PayoutCheck orgId={orgId} />
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Past imports</h2>
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>When</th>
@@ -166,11 +166,19 @@ export function ImportsPage() {
             {batches.data?.items.map((b) => (
               <tr key={b.id}>
                 <td>{new Date(b.createdAt).toLocaleString()}</td>
-                <td>{b.fileName}</td>
-                <td>{PLATFORM_LABELS[b.platform as Platform] ?? b.platform}</td>
-                <td className="num">{b.salesCreated}</td>
-                <td className="num">{b.chargesCreated}</td>
-                <td className="num">{b.duplicatesSkipped}</td>
+                <td data-label="File">{b.fileName}</td>
+                <td data-label="Platform">
+                  {PLATFORM_LABELS[b.platform as Platform] ?? b.platform}
+                </td>
+                <td data-label="Sales" className="num">
+                  {b.salesCreated}
+                </td>
+                <td data-label="Charges" className="num">
+                  {b.chargesCreated}
+                </td>
+                <td data-label="Duplicates" className="num">
+                  {b.duplicatesSkipped}
+                </td>
                 <td>
                   <button
                     type="button"
@@ -545,7 +553,7 @@ export function SalesPage() {
       <DirectSaleForm orgId={orgId} stock={stock.data?.items ?? []} />
       <ErrorText error={link.error ?? remove.error} />
       <div className="card overflow-x-auto">
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Date</th>
@@ -562,29 +570,35 @@ export function SalesPage() {
             {sales.data?.items.map((s) => (
               <tr key={s.id}>
                 <td>{s.date}</td>
-                <td>{PLATFORM_LABELS[s.platform as Platform] ?? s.platform}</td>
-                <td>
+                <td data-label="Platform">
+                  {PLATFORM_LABELS[s.platform as Platform] ?? s.platform}
+                </td>
+                <td data-label="Item">
                   {s.kind === "refund" && (
                     <span className="mr-1 rounded bg-red-50 px-1 text-xs text-red-700">refund</span>
                   )}
                   {s.title ?? "—"}
                   {s.sku && <span className="ml-1 text-xs text-stone-500">{s.sku}</span>}
                 </td>
-                <td className="num">
+                <td data-label="Sale" className="num">
                   {s.kind === "refund"
                     ? `−${usd(s.refundCents)}`
                     : usd(s.itemCents + s.shippingChargedCents)}
                 </td>
-                <td className="text-xs">
-                  {s.fees.map((f) => (
-                    <div key={`${f.kind}-${f.sourceColumn}`} title={`Column: ${f.sourceColumn}`}>
-                      {FEE_KIND_LABELS[f.kind as FeeKind] ?? f.kind}: {usd(f.amountCents)}
-                    </div>
-                  ))}
-                  {s.shippingLabelCents > 0 && <div>Postage: {usd(s.shippingLabelCents)}</div>}
+                <td data-label="Fees" className="text-xs">
+                  <div>
+                    {s.fees.map((f) => (
+                      <div key={`${f.kind}-${f.sourceColumn}`} title={`Column: ${f.sourceColumn}`}>
+                        {FEE_KIND_LABELS[f.kind as FeeKind] ?? f.kind}: {usd(f.amountCents)}
+                      </div>
+                    ))}
+                    {s.shippingLabelCents > 0 && <div>Postage: {usd(s.shippingLabelCents)}</div>}
+                  </div>
                 </td>
-                <td className="num">{usd(s.netCents)}</td>
-                <td>
+                <td data-label="Net" className="num">
+                  {usd(s.netCents)}
+                </td>
+                <td data-label="Inventory item">
                   {s.kind === "refund" && <RefundReturn orgId={orgId} refundId={s.id} />}
                   {s.kind === "order" &&
                     (s.inventoryItemId ? (

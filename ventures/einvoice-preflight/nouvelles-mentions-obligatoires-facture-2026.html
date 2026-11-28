@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nouvelles mentions obligatoires sur les factures en 2026</title>
+<meta name="description" content="SIREN du client, catégorie, TVA sur les débits, adresse de livraison : les 4 mentions du 1er septembre 2026, leur champ Factur-X/UBL et les règles BR-FR.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/nouvelles-mentions-obligatoires-facture-2026.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nouvelles mentions obligatoires sur les factures en 2026">
+<meta property="og:description" content="SIREN du client, catégorie, TVA sur les débits, adresse de livraison : les 4 mentions du 1er septembre 2026, leur champ Factur-X/UBL et les règles BR-FR.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/nouvelles-mentions-obligatoires-facture-2026.html">
+<meta property="og:locale" content="fr_FR">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Quelles sont les nouvelles mentions obligatoires sur les factures en 2026 ?", "acceptedAnswer": {"@type": "Answer", "text": "Selon la DGFiP, quatre mentions s'ajoutent à compter du 1er septembre 2026 : le SIREN du client ; la catégorie de l'opération (livraison de biens, prestation de services, ou les deux) ; l'option pour le paiement de la TVA d'après les débits, le cas échéant ; l'adresse de livraison des biens, si elle diffère de l'adresse de facturation. Les autres mentions du Code de commerce et du CGI restent les mêmes."}}, {"@type": "Question", "name": "Où mettre le SIREN du client dans une facture électronique ?", "acceptedAnswer": {"@type": "Answer", "text": "Dans l'identifiant légal de l'acheteur, BT-47, avec le schéma 0002 : exactement 9 chiffres. Un SIRET de 14 chiffres à cet endroit est rejeté par la règle BR-FR-32. Dans notre mesure, une facture sans SIREN du client passe les règles officielles tant qu'elle ne porte pas la note de type de traitement BAR « B2B » ; avec cette note, la règle BR-FR-11 la rejette. Notre contrôle intégré la signale dans les deux cas (FR-004)."}}, {"@type": "Question", "name": "Comment indiquer la catégorie de l'opération ?", "acceptedAnswer": {"@type": "Answer", "text": "Par le cadre de facturation, BT-23 : la première lettre dit biens (B), services (S) ou les deux (M), par exemple B1, S1 ou M1 sur une facture ordinaire pas encore payée. Sans cadre de facturation, la facture est rejetée (BR-FR-08). Les règles ne peuvent pas savoir si la lettre est la bonne : une fourniture avec pose codée B1 au lieu de M1 passe sans erreur."}}, {"@type": "Question", "name": "Comment coder l'option pour la TVA sur les débits ?", "acceptedAnswer": {"@type": "Answer", "text": "Le tableau de la DGFiP associe la mention au code de date d'exigibilité de la TVA, BT-8. Pour une TVA exigible à la date de la facture, ce code vaut 5 en CII et 3 en UBL ; 72 en CII et 432 en UBL désignent la date de paiement (les encaissements), comme dans les exemples de FNFE-MPE. Aucune règle ne sait si vous avez opté : un BT-8 absent, ou à 72 alors que vous avez opté, passe sans erreur. Seul un code hors liste est rejeté (BR-CL-06)."}}, {"@type": "Question", "name": "Faut-il toujours une adresse de livraison sur la facture ?", "acceptedAnswer": {"@type": "Answer", "text": "Non, seulement quand les biens sont livrés ailleurs qu'à l'adresse de facturation. Elle va dans les champs BT-75 à BT-80 (le nom du lieu en BT-70). Les règles ne peuvent pas savoir si l'adresse diffère : une facture sans adresse de livraison, ou avec le seul pays, passe sans erreur. Une adresse de livraison sans pays est rejetée (BR-57). Le tableau de la DGFiP des données à transmettre attend cette donnée à compter du 1er septembre 2027."}}, {"@type": "Question", "name": "Ces mentions concernent-elles aussi les PME qui n'émettent pas encore de factures électroniques ?", "acceptedAnswer": {"@type": "Answer", "text": "La DGFiP écrit que le décret n° 2022-1299 rend ces mentions obligatoires à compter du 1er septembre 2026 ; les PME et micro-entreprises, elles, émettent au format électronique au plus tard le 1er septembre 2027. Si vos factures restent en PDF ou sur papier d'ici là, demandez à votre expert-comptable si elles doivent déjà porter ces mentions ; cette page est un résumé, pas un conseil fiscal."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="verifier-facture-electronique.html">Vérifier une facture électronique</a></p>
+<header>
+<h1>Nouvelles mentions obligatoires sur les factures : les quatre mentions de 2026</h1>
+<p class="lede">Depuis le 1er septembre 2026, une facture doit porter quatre mentions de plus : le SIREN du client, la catégorie de l'opération, l'option pour la TVA sur les débits et l'adresse de livraison. Voici le champ de la facture électronique où va chacune, et ce que les règles des plateformes agréées rejettent quand elle manque : nous l'avons mesuré, une mention à la fois.</p>
+<p><a class="cta" href="create.html?profile=france" hreflang="en">Créer ma facture (profil France)</a> <a class="cta alt" href="./?profil=france#drop">Vérifier une facture existante</a></p>
+<p class="fine">Gratuit, sans compte ; le fichier ne quitte pas votre ordinateur. L'interface du créateur et du vérificateur est en anglais ; la partie « France (réforme 2026) » du créateur est en français et a les champs de ces quatre mentions.</p>
+</header>
+<section>
+<h2>Les quatre mentions et leur champ</h2>
+<p>La DGFiP, question 3.4 de sa foire aux questions : « Quatre nouvelles mentions sont cependant rendues obligatoires à des fins de gestion des données », par le décret n° 2022-1299 du 7 octobre 2022, « à compter du 1er septembre 2026 ». Son tableau des données de facture donne le champ de la norme EN 16931 (BT) qui porte chacune.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Mention</th><th scope="col">Champ</th><th scope="col">En CII (Factur-X)</th><th scope="col">En UBL</th></tr></thead>
+<tbody>
+<tr><td>le SIREN du client</td><td>BT-47, identifiant légal de l'acheteur, schéma 0002, 9 chiffres</td><td><code>BuyerTradeParty/SpecifiedLegalOrganization/ID</code></td><td><code>AccountingCustomerParty/Party/PartyLegalEntity/CompanyID</code></td></tr>
+<tr><td>la catégorie de l'opération : livraison de biens, prestation de services, ou les deux</td><td>BT-23, cadre de facturation : sa première lettre, B, S ou M (B1, S1, M1…)</td><td><code>BusinessProcessSpecifiedDocumentContextParameter/ID</code></td><td><code>ProfileID</code></td></tr>
+<tr><td>l'option pour le paiement de la TVA d'après les débits, le cas échéant</td><td>BT-8, code de date d'exigibilité de la TVA : la date de la facture</td><td><code>ApplicableTradeTax/DueDateTypeCode</code> = 5</td><td><code>InvoicePeriod/DescriptionCode</code> = 3</td></tr>
+<tr><td>l'adresse de livraison des biens, si elle diffère de l'adresse de facturation</td><td>BT-75 à BT-80 (rue, ville, code postal, pays ; le nom du lieu en BT-70)</td><td><code>ApplicableHeaderTradeDelivery/ShipToTradeParty/PostalTradeAddress</code></td><td><code>Delivery/DeliveryLocation/Address</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Pour BT-8, les codes viennent de la norme : en UBL, 3 est la date d'émission de la facture et 432 la date de paiement (<a href="https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL2005/" rel="noopener">liste UNCL2005</a>) ; en CII, la règle BR-CL-06 n'accepte que 5, 29 et 72, et les exemples de FNFE-MPE codent 72 (paiement) là où leur version UBL code 432.</p>
+<p>Le tableau de la DGFiP liste les données à transmettre avec leur date : le SIREN du client, la catégorie et l'option pour les débits à compter du 1er septembre 2026, l'adresse de livraison à compter du 1er septembre 2027.</p>
+<p class="fine">Sources : <a href="https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/faq---fe_je-decouvre-la-facturation-electronique.pdf" rel="noopener">DGFiP, foire aux questions « Je découvre la facturation électronique »</a>, question 3.4 ; <a href="https://www.impots.gouv.fr/facturation-electronique-donnees-de-facture-et-correspondance-des-flux-de-donnees" rel="noopener">DGFiP, données de facture et correspondance des flux de données</a> (mise à jour d'août 2026). Relues le 28 novembre 2026. Cette page est un résumé, pas un conseil fiscal : pour votre cas, voyez votre expert-comptable ou votre service des impôts.</p>
+</section>
+<section>
+<h2>Ce que chaque oubli déclenche, mesuré</h2>
+<p>Une facture fictive : une menuiserie lyonnaise fournit et pose quatre fenêtres pour une SAS parisienne, livrées sur un chantier à Dardilly. Elle porte les quatre mentions (SIREN du client, cadre M1, option pour les débits, adresse du chantier). Elle a été écrite par notre créateur avec le profil France, puis vérifiée avec le Schematron officiel EN 16931 et les règles BR-FR de FNFE-MPE, celles qu'appliquent les plateformes. Chaque ligne retire ou change une seule chose. Quand le créateur refuse le brouillon, ou pour simuler un autre logiciel, nous avons fait la modification dans le XML.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Mention</th><th scope="col">Facture</th><th scope="col">Notre créateur</th><th scope="col">Règles officielles</th></tr></thead>
+<tbody>
+<tr><td>toutes</td><td>facture complète (SIREN du client, M1, débits, adresse de livraison)</td><td>écrite</td><td>aucune erreur</td></tr>
+<tr><td>SIREN du client</td><td>SIREN du client absent (BT-47)</td><td>écrite, avec un avertissement</td><td>aucune erreur</td></tr>
+<tr><td>SIREN du client</td><td>SIREN du client absent, note BAR « B2B » présente</td><td>écrite, avec un avertissement</td><td><a href="br-fr-error-codes.html#r-BR-FR-11-BT-47">BR-FR-11/BT-47</a></td></tr>
+<tr><td>SIREN du client</td><td>SIRET du client (14 chiffres) au lieu du SIREN</td><td>refusée, avec la règle en cause</td><td><a href="br-fr-error-codes.html#r-BR-FR-32-LEGALID">BR-FR-32-LEGALID</a></td></tr>
+<tr><td>SIREN du client</td><td>SIRET du client au lieu du SIREN, note BAR « B2B » présente</td><td>refusée, avec la règle en cause</td><td><a href="br-fr-error-codes.html#r-BR-FR-11-BT-47">BR-FR-11/BT-47</a>, <a href="br-fr-error-codes.html#r-BR-FR-21-BT-49">BR-FR-21/BT-49</a>, <a href="br-fr-error-codes.html#r-BR-FR-32-LEGALID">BR-FR-32-LEGALID</a></td></tr>
+<tr><td>catégorie de l'opération</td><td>cadre de facturation absent (BT-23)</td><td>refusée, avec la règle en cause</td><td><a href="br-fr-error-codes.html#r-BR-FR-08-BT-23">BR-FR-08/BT-23</a></td></tr>
+<tr><td>catégorie de l'opération</td><td>B1 (biens seuls) au lieu de M1 pour fourniture et pose</td><td>écrite</td><td>aucune erreur</td></tr>
+<tr><td>TVA sur les débits</td><td>option pour les débits non codée (BT-8 absent)</td><td>écrite</td><td>aucune erreur</td></tr>
+<tr><td>TVA sur les débits</td><td>BT-8 à 72 (encaissements) alors que l'entreprise a opté</td><td>fichier modifié à la main</td><td>aucune erreur</td></tr>
+<tr><td>TVA sur les débits</td><td>BT-8 à 4 (code hors liste)</td><td>fichier modifié à la main</td><td>BR-CL-06</td></tr>
+<tr><td>adresse de livraison</td><td>adresse de livraison absente (BT-75 à BT-80)</td><td>écrite</td><td>aucune erreur</td></tr>
+<tr><td>adresse de livraison</td><td>pays de livraison seul (BT-80, sans rue ni ville)</td><td>écrite</td><td>aucune erreur</td></tr>
+<tr><td>adresse de livraison</td><td>adresse de livraison sans pays</td><td>refusée, avec la règle en cause</td><td>BR-57</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ce que la mesure montre :</p>
+<ul>
+<li><strong>Les règles ne voient que la forme.</strong> Sur les quatre mentions, seules deux absences sont rejetées : le cadre de facturation (BR-FR-08) et le SIREN du client, et celui-ci seulement quand la facture porte la note de type de traitement BAR « B2B » (BR-FR-11). Sans cette note, une facture sans SIREN du client passe toutes les règles officielles.</li>
+<li><strong>Le bon choix reste le vôtre.</strong> Aucune règle ne sait si la lettre du cadre de facturation est la bonne, si vous avez opté pour les débits, ni si les biens sont livrés ailleurs. Une fourniture avec pose codée B1, une option pour les débits non codée, une adresse de chantier oubliée : chacune passe sans erreur, et chacune manque pourtant sur la facture.</li>
+<li><strong>Le SIRET au lieu du SIREN est rejeté</strong> (BR-FR-32), pour le client comme pour le vendeur. Notre créateur l'acceptait pour le client jusqu'à cette mesure ; il le refuse maintenant, et notre contrôle intégré le signale (FR-009).</li>
+</ul>
+<p>La même facture complète, écrite en UBL au lieu de CII, ne déclenche aucune erreur non plus.</p>
+<p class="fine">Mesure du 28 novembre 2026, refaite à chaque modification par le test de cette page (<code>mentions-2026-bench.mjs</code>, dans le code source). Une observation sur des fichiers générés, pas une attestation de validité : c'est votre plateforme agréée qui accepte ou rejette une facture. Les entreprises, SIREN et numéros de TVA de l'exemple sont inventés, avec des clés de contrôle valides.</p>
+</section>
+<section>
+<h2>Pour les experts-comptables</h2>
+<p>Ce que les règles ne voient pas, un relecteur doit le voir : le bon cadre de facturation, l'option pour les débits de chaque client, les livraisons sur chantier. Un service payant, qui explique chaque règle enfreinte en français clair, propose un fichier corrigé et vérifie les factures de nombreux clients à la fois, est en développement. Rien n'est encore en vente : <a href="https://marisstella.app/industries/eu-e-invoicing/">accès anticipé et calendrier</a>.</p>
+</section>
+<section id="faq">
+<h2>Questions fréquentes</h2>
+<h3>Quelles sont les nouvelles mentions obligatoires sur les factures en 2026 ?</h3>
+<p>Selon la DGFiP, quatre mentions s'ajoutent à compter du 1er septembre 2026 : le SIREN du client ; la catégorie de l'opération (livraison de biens, prestation de services, ou les deux) ; l'option pour le paiement de la TVA d'après les débits, le cas échéant ; l'adresse de livraison des biens, si elle diffère de l'adresse de facturation. Les autres mentions du Code de commerce et du CGI restent les mêmes.</p>
+<h3>Où mettre le SIREN du client dans une facture électronique ?</h3>
+<p>Dans l'identifiant légal de l'acheteur, BT-47, avec le schéma 0002 : exactement 9 chiffres. Un SIRET de 14 chiffres à cet endroit est rejeté par la règle BR-FR-32. Dans notre mesure, une facture sans SIREN du client passe les règles officielles tant qu'elle ne porte pas la note de type de traitement BAR « B2B » ; avec cette note, la règle BR-FR-11 la rejette. Notre contrôle intégré la signale dans les deux cas (FR-004).</p>
+<h3>Comment indiquer la catégorie de l'opération ?</h3>
+<p>Par le cadre de facturation, BT-23 : la première lettre dit biens (B), services (S) ou les deux (M), par exemple B1, S1 ou M1 sur une facture ordinaire pas encore payée. Sans cadre de facturation, la facture est rejetée (BR-FR-08). Les règles ne peuvent pas savoir si la lettre est la bonne : une fourniture avec pose codée B1 au lieu de M1 passe sans erreur.</p>
+<h3>Comment coder l'option pour la TVA sur les débits ?</h3>
+<p>Le tableau de la DGFiP associe la mention au code de date d'exigibilité de la TVA, BT-8. Pour une TVA exigible à la date de la facture, ce code vaut 5 en CII et 3 en UBL ; 72 en CII et 432 en UBL désignent la date de paiement (les encaissements), comme dans les exemples de FNFE-MPE. Aucune règle ne sait si vous avez opté : un BT-8 absent, ou à 72 alors que vous avez opté, passe sans erreur. Seul un code hors liste est rejeté (BR-CL-06).</p>
+<h3>Faut-il toujours une adresse de livraison sur la facture ?</h3>
+<p>Non, seulement quand les biens sont livrés ailleurs qu'à l'adresse de facturation. Elle va dans les champs BT-75 à BT-80 (le nom du lieu en BT-70). Les règles ne peuvent pas savoir si l'adresse diffère : une facture sans adresse de livraison, ou avec le seul pays, passe sans erreur. Une adresse de livraison sans pays est rejetée (BR-57). Le tableau de la DGFiP des données à transmettre attend cette donnée à compter du 1er septembre 2027.</p>
+<h3>Ces mentions concernent-elles aussi les PME qui n'émettent pas encore de factures électroniques ?</h3>
+<p>La DGFiP écrit que le décret n° 2022-1299 rend ces mentions obligatoires à compter du 1er septembre 2026 ; les PME et micro-entreprises, elles, émettent au format électronique au plus tard le 1er septembre 2027. Si vos factures restent en PDF ou sur papier d'ici là, demandez à votre expert-comptable si elles doivent déjà porter ces mentions ; cette page est un résumé, pas un conseil fiscal.</p>
+</section>
+<footer>
+<p><strong>Sans garantie (no warranty).</strong> Cet outil est gratuit et fourni sans aucune garantie, expresse ou implicite. Il ne constitue pas un conseil juridique, fiscal, financier ou comptable et ne remplace pas un professionnel (not legal, tax, financial, or accounting advice). <strong>Vérifiez le résultat vous-même avant de vous y fier.</strong> Dans la mesure permise par la loi, les auteurs déclinent toute responsabilité pour les dommages liés à son utilisation.</p>
+<p><strong>Rien ne quitte votre navigateur.</strong> Tous les contrôles s'exécutent localement. Les dates et les obligations peuvent changer ; seuls les textes publiés par la DGFiP font foi.</p>
+<p class="support">Free to use and source available. Gratuit et au code ouvert : le <a href="LICENSE" rel="noopener">code est sous licence FSL-1.1-MIT</a> ; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> est facultatif et ne change rien à ce que fait l'outil.</p>
+</footer>
+</main>
+</body></html>
