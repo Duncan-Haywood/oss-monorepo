@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtKpBwRLVfhWdxd3keu",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:07:01Z",
+  "ended": "2026-11-28T15:16:16Z",
+  "wall_minutes": 9.43,
+  "tokens_in": 2779680,
+  "tokens_out": 44277,
+  "cost_usd": 2.2875,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20150",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Hearth & Horizon 'Next up' list was empty, so every run on this shelf must first write and claim its own proposal; overlap.mjs --unused made that quick (11 unused subjects left)."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Search instruction names search_pull_requests, which is not available in cloud sessions; the gh api search/issues form from BIBLE.md works."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Writing goes to consolidated posts; recent creative runs still add one post per story.",
+      "did": "Extended the existing 2026-10-27 bell-acoustics post with a section on this story (both are decibel sums for sound reaching a bedroom) instead of a new post.",
+      "result": "check_posts ok; one URL now covers both sound stories."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-a-bell-with-a-coat-on.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon. Piece: the-wall-built-twice (Porto 2053, mass law and a gap; text only, audio 581 MB of 400 MB cap). Security queue: nothing workable (1 claimed). IDEAS.md and requests empty. Checks: node --test in ventures/hearth-and-horizon 22/22 pass; run_venture_tests.py hearth-and-horizon ok incl. site page checks; check_posts ok; risk_review blocked nothing (page carries the same cookieless usage beacon as every story page). Numbers re-run in Python: weekdays, Easter 2053 (6 Apr, Ash Wed 19 Feb), mass law 46.1/52.1 dB, composite 32.9/33.0, equivalent holes 3.0/0.75/61/2.4 cm\u00b2.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff59d954-3007-5cfc-a9b2-6b4892a8bdd6",
+    "transcripts": 1,
+    "first": "2026-11-28T15:07:01Z",
+    "last": "2026-11-28T15:16:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 44277,
+        "thinking": 22360,
+        "cache_read": 2671189,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108436,
+        "api_equivalent_usd": 2.2875,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 44277,
+      "thinking": 22360,
+      "cache_read": 2671189,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108436,
+      "api_equivalent_usd": 2.2875,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.43,
+      "active_minutes": 9.43,
+      "model_minutes": 8.54,
+      "tool_minutes": 0.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a writer drafting and fact-checking a 5,500-word technical short story plus a blog section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 437.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
