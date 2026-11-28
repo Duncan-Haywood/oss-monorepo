@@ -2807,6 +2807,18 @@ nothing to copy. No customers yet. Paid plans are dark
   included, through the proxy) and Vermont (no payment bond claim statute found in Title 29's
   chapters; not added rather than guessed). Still unreached: New Mexico (nmonesource 403 headless),
   Hawaii (403), Connecticut and West Virginia (no answer).
+- Public jobs, part 2 (2026-11-28, every plan, state-bond-claims-pennsylvania): Pennsylvania and New
+  Jersey bond claim steps, thirty-six states and D.C. in `STATE_BOND_RULES`. Pennsylvania: one entry for both
+  bond laws (Act 385 of 1967 § 4 for local bodies, 62 Pa.C.S. § 903(d) for Commonwealth agencies; the
+  same steps), the sub's sub's notice 90 days after the last day, and the one-year suit of 42 Pa.C.S.
+  § 5523(3) listed undated, since the statute names no day to count from (the note says to count
+  from the last day to be safe). New Jersey (N.J.S.A. 2A:44-143 to -146): the sub's sub's notice
+  before starting work (undated), everyone's statement to the sureties and the suit, both one year
+  from the last day. Texts read on palegis.us and from the Legislature's full statutes file
+  (pub.njleg.gov), excerpts appended to `ventures/pay-app-guides/sources/state-bond-claims.txt`; the
+  guide and the customer post gain both rows. Tests that used PA as the unsupported state now use GA.
+  Next, if asked: Illinois (30 ILCS 550; ilga.gov did not answer), Georgia and Tennessee (codes only
+  on hosts that refused), Indiana, Wisconsin.
 
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
