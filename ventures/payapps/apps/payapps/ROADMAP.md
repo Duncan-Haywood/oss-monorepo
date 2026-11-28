@@ -2820,6 +2820,19 @@ nothing to copy. No customers yet. Paid plans are dark
   Next, if asked: Illinois (30 ILCS 550; ilga.gov did not answer), Georgia and Tennessee (codes only
   on hosts that refused), Indiana, Wisconsin.
 
+- Public jobs, part 2 audit (2026-11-28, every plan, state-bond-claims-audit): all 37 jurisdictions in
+  `STATE_BOND_RULES` re-read against the excerpts in `ventures/pay-app-guides/sources/state-bond-claims.txt`
+  (every step's day count, start day, who gives it, recipient and citation; every note). One date was
+  wrong: Texas's retainage notice (§ 2253.046) counts from final completion of the contract, but was
+  dated from the acceptance, which can come later, so the date shown could pass the real deadline. It
+  now counts from the earlier of the last day and the acceptance (completion falls between them), never
+  late. Notes fixed: Louisiana's § 38:2242(F) supplier notice gains "or by the end of the statutory lien
+  period if that comes first" and its recipients; a remote-tier claimant in Alabama and Wyoming now reads
+  the statute's own "any person" words instead of a caution that misdescribed them, and in Massachusetts
+  the § 29 words that stop at the GC's own sub's subs (`remoteTier`); Minnesota's notice form is no longer
+  called sworn, nor Oregon's signed, which the excerpts do not say. Claims the excerpts do not hold
+  (statute sections cited in notes but never excerpted, e.g. Iowa § 573.15A, Alaska 36.25.025) are listed
+  in `docs/reports/2026-11-28-state-bond-claims-audit.md` for the next run with network access to excerpt.
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
   due date to the last payment (`paidLateApps` in `src/shared/cash-report.ts`, on what was paid, net
