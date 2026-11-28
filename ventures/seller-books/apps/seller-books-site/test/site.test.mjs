@@ -33,6 +33,12 @@ import {
   MILEAGE_RATES,
   mileageLines,
   PERSONAL_ITEM_EXAMPLE,
+  POSH_REMIT_QUOTE,
+  POSH_REMIT_URL,
+  POSHMARK_CHECKED_ON,
+  POSHMARK_EXAMPLE,
+  poshmarkFeeCents,
+  poshmarkLines,
   SALES_TAX_CHECKED_ON,
   SELLER_COLLECTED_SALES,
   SHOTS,
@@ -820,6 +826,89 @@ describe("the Facebook Marketplace taxes page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/facebook-marketplace-taxes)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/facebook-marketplace-taxes`));
+  });
+});
+
+describe("the Poshmark taxes page", () => {
+  const page = () => pages.find((p) => p.path === "/poshmark-taxes");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the example is the importer's own fixture, row for row", () => {
+    const [head, ...lines] = appFile("test/fixtures/poshmark-my-sales-report.csv")
+      .trim()
+      .split("\n");
+    const cols = head.split(",");
+    const at = (row, name) => row.split(",")[cols.indexOf(name)];
+    const money = (v) => Math.round(Number(v.replace("$", "")) * 100);
+    const sold = lines.filter((l) => at(l, "Order Status") !== "Cancelled");
+    assert.equal(sold.length, POSHMARK_EXAMPLE.length);
+    sold.forEach((l, i) => {
+      const r = POSHMARK_EXAMPLE[i];
+      assert.ok(r.title.startsWith(at(l, "Listing Title")), r.title);
+      assert.equal(r.priceCents, money(at(l, "Order Price")));
+      assert.equal(r.discountCents, money(at(l, "Seller Shipping Discount")));
+      assert.equal(money(at(l, "Upgraded Shipping Label Fee")), 0);
+      assert.equal(r.texasCents, money(at(l, "Texas Seller Fee Tax")));
+      assert.equal(r.netCents, money(at(l, "Net Earnings")));
+    });
+    // The importer derives the fee the same way, and files discounts as postage and fees on line 10.
+    const imp = appFile("src/worker/services/importers/poshmark.ts");
+    assert.match(imp, /price - shipDiscount - upgraded - texas - net/);
+    assert.match(imp, /shippingLabelCents: shipDiscount \+ upgraded/);
+    assert.match(imp, /\/cancel\//);
+    const sc = appFile("src/worker/services/books/schedule-c.ts");
+    assert.match(sc, /add\("27a:postage", s\.shippingLabelCents\)/);
+    assert.match(sc, /gross \+= s\.itemCents \+ s\.shippingChargedCents/);
+  });
+
+  test("the fees and Schedule C lines, by hand", () => {
+    assert.deepEqual(POSHMARK_EXAMPLE.map(poshmarkFeeCents), [960, 600, 295, 295]);
+    assert.deepEqual(poshmarkLines(), {
+      line1: 10000,
+      poshFee: 2150,
+      texas: 6,
+      line10: 2156,
+      line27a: 199,
+      net: 7645,
+    });
+    const L = poshmarkLines();
+    assert.equal(L.line1 - L.line10 - L.line27a, L.net);
+    const html = htmlOf(page());
+    for (const s of ["$100.00", "$21.56", "$21.50", "$0.06", "$1.99", "$76.45", "$9.60", "$2.95"])
+      assert.ok(html.includes(s), s);
+  });
+
+  test("no Poshmark rate stated as fact; sources and the dated check", () => {
+    const html = htmlOf(page());
+    assert.match(POSHMARK_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(html.includes(`did not load when we checked (${POSHMARK_CHECKED_ON})`));
+    assert.ok(html.includes("we state no rate as Poshmark's"));
+    for (const s of [
+      POSH_REMIT_URL,
+      POSH_REMIT_QUOTE,
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      "over $20,000 and more than 200 transactions",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    // Poshmark's tax is the marketplace's in the app's sales tax report.
+    const st = appFile("src/shared/sales-tax.ts");
+    assert.match(st, /eBay, Poshmark, Mercari/);
+    assert.ok(!/"poshmark"/.test(st.slice(st.indexOf("SELLER_COLLECTED"), st.indexOf("]);"))));
+  });
+
+  test("linked from the Poshmark platform page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/poshmark-taxes"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/platforms/poshmark")).includes(link));
+    assert.ok(
+      htmlOf(pages.find((p) => p.path === "/platforms/poshmark")).includes(
+        "one month worked through",
+      ),
+    );
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/poshmark-taxes)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/poshmark-taxes`));
   });
 });
 
