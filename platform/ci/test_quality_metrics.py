@@ -522,5 +522,35 @@ class PausedResearchTest(unittest.TestCase):
         self.assertIn("--research", m.paused_note(3, "open defects"))
 
 
+class PaidFilterTest(unittest.TestCase):
+    """--paid on queue and reaudit keeps the for-profit products (doc_friction, 2026-11-28: grepped by hand)."""
+
+    def test_paid_ventures_reads_proprietary_rows(self):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "transition.json"
+            f.write_text(json.dumps({"proprietary": [{"venture": "payapps"}, {"venture": "cmmc"}, {}]}))
+            self.assertEqual(m.paid_ventures(f), {"ventures/payapps", "ventures/cmmc"})
+            self.assertEqual(m.paid_ventures(Path(d) / "missing.json"), set())
+
+    def test_keep_paid_matches_subject_and_children_only(self):
+        rows = [{"subject": "ventures/payapps"}, {"subject": "ventures/payapps/site"},
+                {"subject": "ventures/payapps-guide"}, {"subject": "ventures/tip-calculator"}]
+        kept = m.keep_paid(rows, {"ventures/payapps"})
+        self.assertEqual([r["subject"] for r in kept], ["ventures/payapps", "ventures/payapps/site"])
+
+    def test_real_transition_lists_the_top_bet(self):
+        self.assertIn("ventures/payapps", m.paid_ventures())
+
+    def test_cli_flag_parses(self):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            q.main(["reaudit", "--paid", "--no-prs", "--limit", "1", "--seed", "t"])
+        self.assertIn("for-profit subjects", out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
