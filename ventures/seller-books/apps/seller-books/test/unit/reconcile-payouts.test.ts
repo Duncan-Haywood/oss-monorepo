@@ -64,6 +64,13 @@ describe("matchPlatform", () => {
     expect(matchPlatform("PAYPAL TRANSFER EBAY", PLATFORMS)).toBeNull();
     expect(matchPlatform("PAYROLL ACME CO", PLATFORMS)).toBeNull();
   });
+  it("matches Cash App written as two words, ahead of the Square name on its lines", () => {
+    expect(matchPlatform("CASH APP*CASH OUT 8774174551", PLATFORMS)).toBe("cashapp");
+    expect(matchPlatform("SQUARE INC * CASH APP", PLATFORMS)).toBe("cashapp");
+    expect(matchPlatform("SQ *FARMERS MARKET", PLATFORMS)).toBeNull();
+    expect(matchPlatform("SQUARE INC SETTLEMENT", PLATFORMS)).toBe("square");
+    expect(matchPlatform("CASH DEPOSIT BRANCH 12", PLATFORMS)).toBeNull();
+  });
 });
 
 describe("monthsBetween and gapThreshold", () => {

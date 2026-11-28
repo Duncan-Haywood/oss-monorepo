@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { parseAmazonDateRangeReport } from "@worker/services/importers/amazon";
+import { parseCashAppReport } from "@worker/services/importers/cashapp";
 import { parseDepopSales } from "@worker/services/importers/depop";
 import { parseEbayTransactionReport } from "@worker/services/importers/ebay";
 import { parseEtsySoldOrders, parseEtsyStatement } from "@worker/services/importers/etsy";
@@ -880,5 +881,85 @@ describe("Venmo statement", () => {
     expect(a[1]).toBe(`${a[0]}#2`);
     expect(parseVenmoStatement(csv).sales.map((s) => s.externalId)).toEqual(a);
     expect(() => parseVenmoStatement("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
+  });
+});
+
+describe("Cash App activity", () => {
+  const r = parseCashAppReport(fixture("cashapp-report.csv"));
+  const orders = r.sales.filter((s) => s.kind === "order");
+  const refunds = r.sales.filter((s) => s.kind === "refund");
+  const reason = (line: number) => r.skipped.find((s) => s.line === line)?.reason ?? "";
+
+  it("imports complete payments received, old and new type names, and skips the rest with reasons", () => {
+    expect(r.platform).toBe("cashapp");
+    expect(r.reportKind).toBe("activity");
+    expect(r.rowCount).toBe(12);
+    expect(orders.map((o) => o.externalId)).toEqual(["cxq1001", "cxq1002", "cxq1003"]);
+    expect(refunds.map((o) => o.externalId)).toEqual(["cxq1010"]);
+    expect(r.charges).toHaveLength(0);
+    expect(r.skipped.map((s) => s.line)).toEqual([5, 6, 7, 8, 9, 10, 12, 13]);
+    expect(reason(5)).toMatch(/you sent/);
+    expect(reason(6)).toMatch(/Cash Card activity/);
+    expect(reason(7)).toMatch(/between your own accounts/);
+    expect(reason(8)).toMatch(/between your own accounts/);
+    expect(reason(9)).toMatch(/investing or rewards/);
+    expect(reason(10)).toMatch(/Status "FAILED"/);
+    expect(reason(12)).toMatch(/account notice/);
+    expect(reason(13)).toMatch(/you sent/);
+  });
+
+  it("books the amount the buyer sent, Cash App's negative fee as a cost and the net as reported", () => {
+    expect(orders[0]).toMatchObject({
+      title: "Nike Air Max pickup",
+      date: "2026-03-14",
+      itemCents: 4500,
+      netCents: 4500,
+      salesTaxCents: 0,
+    });
+    expect(orders[0]?.fees).toEqual([]);
+    expect(orders[1]).toMatchObject({ itemCents: 10000, netCents: 9725 });
+    expect(orders[1]?.fees).toEqual([
+      { kind: "payment_processing", amountCents: 275, sourceColumn: "Fee" },
+    ]);
+    // No note: a plain title, never the buyer's name.
+    expect(orders[2]?.title).toBe("Cash App payment");
+    expect(JSON.stringify(r.sales)).not.toMatch(/Buyer/);
+  });
+
+  it("books a refund sent with the fee given back", () => {
+    expect(refunds[0]).toMatchObject({
+      date: "2026-03-05",
+      refundCents: 2000,
+      title: "Lamp returned",
+    });
+    expect(refunds[0]?.fees.map((f) => f.amountCents)).toEqual([-55]);
+  });
+
+  it("warns about friends-and-family money, the fee and payments sent", () => {
+    const w = r.warnings.join(" ");
+    expect(w).toMatch(/Every payment received in this file is imported as a sale/);
+    expect(w).toMatch(/1 payments carry a Cash App fee/);
+    expect(w).toMatch(/2 payments you sent \(\$78\.00 in all\)/);
+    expect(w).toMatch(/1 refunds imported/);
+  });
+
+  it("is stable on re-import, keys rows without an ID, and refuses other files", () => {
+    expect(
+      parseCashAppReport(fixture("cashapp-report.csv")).sales.map((s) => s.externalId),
+    ).toEqual(r.sales.map((s) => s.externalId));
+    const csv = [
+      "Date,Transaction Type,Currency,Amount,Fee,Net Amount,Status,Notes",
+      "2026-01-02 10:00:00 EST,P2P,USD,$10.00,$0.00,$10.00,COMPLETE,Lamp",
+      "2026-01-02 10:00:00 EST,P2P,USD,$10.00,$0.00,$10.00,COMPLETE,Lamp",
+      "2026-01-02 11:00:00 EST,P2P,EUR,$10.00,$0.00,$10.00,COMPLETE,Lamp",
+    ].join("\n");
+    const parsed = parseCashAppReport(csv);
+    const a = parsed.sales.map((s) => s.externalId);
+    expect(a).toHaveLength(2);
+    expect(a[1]).toBe(`${a[0]}#2`);
+    expect(parsed.skipped[0]?.reason).toMatch(/only US dollar/);
+    expect(() => parseCashAppReport("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
+    // A Venmo statement is not mistaken for a Cash App file.
+    expect(() => parseCashAppReport(fixture("venmo-statement.csv"))).toThrow(ImportFormatError);
   });
 });
