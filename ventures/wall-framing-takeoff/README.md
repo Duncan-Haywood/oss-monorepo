@@ -380,16 +380,6 @@ round), each as a gable and as a hip, and reports the sheet area bought over the
 edition's `roof.mjs` orders it, 4.4 to 16.2% (mean 9.0%). This folder's
 `roof-sheathing-waste-factor.html` shows the table; the bench's test beside it fails if a figure on
 the page drifts, and checks that the paid layout with `hipStarts: false` orders what this edition orders.
-`shingle-bench.mjs` (2026-11-28) lays the field shingles strip by strip on the same 16 roofs, gable
-and hip: a typical 39-3/8 x 13-1/4 in laminated strip at 5-5/8 in exposure, 22 a bundle, courses from
-the eave with a 6 in offset step repeating every 6 courses, square cuts at the rakes and cuts along the
-hip line on a hip. With every cut-off thrown away a gable took 5.4 to 11.1% over its surface (mean
-7.6%) and a hip 10.4 to 18.4% (mean 14.7%); with cut-offs reused anywhere on the roof, 1.0 to 4.2% and
-2.1 to 4.9%. `roof.mjs`'s rule (squares x 3 x 1.10 gable, 1.15 hip) never ran short on a gable and ran
-1 bundle short on 2 hips with nothing reused; squares x 3 alone was short on every roof with offcuts
-thrown away. `shingle-bundles-for-a-roof.html` shows the table; `shingle-bench.test.mjs` checks the
-bench's surface and rule equal `layoutRoof`'s on all 32 roofs and fails if a figure on the page
-drifts. Starter, cap, valleys and real products are not in it.
 
 ## DXF floor plan import (2026-10-27)
 
