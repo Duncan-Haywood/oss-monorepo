@@ -51,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed process/2. P105 taken by open PR #20071, so Critique on measure's doc friction: run_venture_tests.py missing CI-only page checks (2026-11-28T07:14) and venture-preflight/title-length counting a git-ignored dist/ (08:46). Found main red on title-length and description-length from PR #20062; fixed the page. Checks: node --test title-length/description-length/og-description-length pass; test_run_venture_tests.py 56 OK; run_venture_tests.py machine-shop-guides 350 ok + site page checks ok. Backlog ids touched: none (P105 left to PR #20071).",
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). Ideas inbox empty. Routed process/2. P105 taken by open PR #20071, so Critique on measure's doc friction: run_venture_tests.py missing CI-only page checks (2026-11-28T07:14) and venture-preflight/title-length counting a git-ignored dist/ (08:46). Found main red on title-length and description-length from PR #20062; fixed the page. Checks: node --test title-length/description-length/og-description-length pass; test_run_venture_tests.py 56 OK; run_venture_tests.py machine-shop-guides 350 ok + site page checks ok. Backlog ids touched: none (P105 left to PR #20071). run_workflow_locally --for-changes: all workflows passed except priv-portfolio-pages 'Test the site builder' 2234/2235: 'gzipped offline bundle for category services is 4.2 MB' (build.test.mjs:3897), not reachable from this diff (it only shortens one title and changes page-check scripts); PR CI (validate, build, changed-ventures, page-integrity, risk-review and the rest) green.",
   "corrections": [],
   "redteam": null,
   "usage": {
