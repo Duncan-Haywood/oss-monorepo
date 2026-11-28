@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "quality_mutate.py baseline went red with `-- npx vitest run ...` (npx in the private copy); `-- sh -c 'cd apps/jobshop-quote && pnpm exec vitest run ...'` worked"
+    "quality_mutate.py baseline went red with `-- npx vitest run ...` (npx in the private copy); `-- sh -c 'cd apps/jobshop-quote && pnpm exec vitest run ...'` worked",
+    "A `timeout 110` foreground run of run_workflow_locally.py --for-changes ran price-claims-ci.yml's `git sparse-checkout set` in the session's own tree, which left five directories, and every later step failed on missing files. Restored with `git sparse-checkout disable`; nothing lost. Fixed in this PR: the runner now refuses sparse-checkout set/add/init/reapply steps."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,14 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "Four bets moved into ventures/ on 2026-11-27 kept `app: private-monorepo/apps/<slug>`, so allocate.py told ventures runs to clone private-monorepo. Fixed here, and validate.py now fails on it."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Ran a workflow's `git sparse-checkout set` step in the real working tree, emptying it mid-sweep (price-claims-ci.yml). Fixed in this PR by adding it to MUTATING."
+    },
+    {
+      "file": "portfolio/monetization/models.yaml",
+      "issue": "Its `app:` rows must equal flagships.yaml's (test_monetization.py), which no doc next to the flagships `app:` field says; found only by the local sweep."
     }
   ],
   "deviations": [
@@ -60,7 +69,7 @@
     "portfolio/quality/audits/2026-11-28-jobshop-quote-reaudit.json"
   ],
   "goal": null,
-  "notes": "Quality mode reaudit (quality_audit.py mode; seed 2026-11-28-6e04 from `reaudit --paid`). Subject: ventures/jobshop-quote (flagship, bet #2), prior audit 2026-11-26. Meets the bar: all 7 dimensions 3; prior defects 6 closed, 1 partial (all 7 basis 'assumed'). Checks: 3 hand-worked quotes match computeCost to the cent; 5/5 mutants caught; pnpm test:unit 783/783, test:worker 314/314. Fix PR: #20127 (flagships.yaml app: for jobshop-quote, einvoice-preflight, seller-books, wall-framing-takeoff, plus validate.py rule and test; pytest portfolio/router test_validate+test_flagship_field 136 passed, test_allocate 161 passed). New low defects to ROADMAP item 18.",
+  "notes": "Quality mode reaudit (quality_audit.py mode; seed 2026-11-28-6e04 from `reaudit --paid`). Subject: ventures/jobshop-quote (flagship, bet #2), prior audit 2026-11-26. Meets the bar: all 7 dimensions 3; prior defects 6 closed, 1 partial (all 7 basis 'assumed'). Checks: 3 hand-worked quotes match computeCost to the cent; 5/5 mutants caught; pnpm test:unit 783/783, test:worker 314/314. Fix PR: #20127 (flagships.yaml app: for jobshop-quote, einvoice-preflight, seller-books, wall-framing-takeoff, plus validate.py rule and test; pytest portfolio/router test_validate+test_flagship_field 136 passed, test_allocate 161 passed). New low defects to ROADMAP item 18. Also in this PR: run_workflow_locally.py refuses `git sparse-checkout set` steps (test added; 277 runner tests pass); models.yaml app: rows moved with flagships.yaml (test_monetization 19 passed; portfolio/monetization + portfolio/router 358 passed). Local sweep (run_workflow_locally --for-changes): all workflows green except ventures-tests, whose two failures were the models.yaml mismatch (fixed) and a gitignored dist/ build artifact from the local jobshop-quote-ci run (removed; test_check_thousands_split OK).",
   "corrections": [],
   "redteam": null,
   "usage": {
