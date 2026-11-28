@@ -78,6 +78,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "model": "subscription",
         "why": "60+ countries of e-invoice rules that change every quarter; the cost is keeping them current",
     },
+    "residential-takeoff": {
+        "model": "subscription",
+        "why": "billed as a subscription for framing, roofing and siding lists (models.yaml, bet #6); the takeoff runs in the browser, so no file in the tree says so",
+    },
     "local-site-studio": {
         "model": "subscription",
         "why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",

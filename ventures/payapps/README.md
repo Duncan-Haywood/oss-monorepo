@@ -55,8 +55,9 @@ secrets). Deploying: [DEPLOY.md](DEPLOY.md).
 
 ## Where the work happens
 
-Until the deploy is ported (DEPLOY.md, "Not yet"), `private-monorepo/apps/payapps` is still where
-scheduled runs build, and this copy is a snapshot of private-monorepo commit `03e2e560`
-(2026-11-26). Refresh it with [`sync-from-private.sh`](sync-from-private.sh) and re-run the
-pre-publication audit before every refresh. Once the public deploy works, the private copy is removed
-and this directory becomes the one source.
+This directory is the only source. Every private-monorepo commit to `apps/payapps` since 2026-11-25 is in
+this copy (checked 2026-11-28 at private `1ee07fc`: each commit's added lines were found here,
+apart from doc sentences reworded since), so there is nothing left to bring over. The `sync-from-private.sh` refresh script was deleted on 2026-11-28:
+it replaced `apps/` wholesale and would have reverted every change made here since the move. The
+private copy is retired (task `retire-private-copies` in
+[`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml)); don't edit it.

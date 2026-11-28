@@ -60,11 +60,12 @@ private copy's later Python changes are still in `private-monorepo` for porting 
 
 ## Where the work happens
 
-Until the deploy has run from here, scheduled runs may still build in `private-monorepo`. Refresh this
-copy with `ventures/einvoice-pro/sync-from-private.sh <clone>`, which audits first and stops on a block
-finding, then re-applies the fixes the public checks forced (listed in
-[docs/reports/2026-11-27-move-einvoice-pro-public.md](../../docs/reports/2026-11-27-move-einvoice-pro-public.md)).
-Once it deploys from here, build here and remove the private copy (DEPLOY.md, "Then").
+This directory is the only source (the first deploy waits on the owner's items in DEPLOY.md, "Then"). Every private-monorepo commit to `apps/einvoice-preflight` since 2026-11-25 is in
+this copy (checked 2026-11-28 at private `1ee07fc`: each commit's added lines were found here,
+apart from doc sentences reworded since), so there is nothing left to bring over. The `sync-from-private.sh` refresh script was deleted on 2026-11-28:
+it replaced `apps/` wholesale and would have reverted every change made here since the move. The
+private copy is retired (task `retire-private-copies` in
+[`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml)); don't edit it.
 
 ## Disclaimer
 

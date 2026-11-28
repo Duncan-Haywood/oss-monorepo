@@ -39,8 +39,7 @@ relative paths inside are the same as there.
 | `scripts/` | the no-source-maps check |
 
 `packages/billing` and `packages/admin-metrics` are also copied in `ventures/payapps` (and in the
-other moved products). Each venture keeps its own copy until one shared copy is worth the coupling;
-`sync-from-private.sh` refreshes this one.
+other moved products). Each venture keeps its own copy until one shared copy is worth the coupling.
 
 ## Run it
 
@@ -60,8 +59,9 @@ secrets). Deploying: [DEPLOY.md](DEPLOY.md).
 
 ## Where the work happens
 
-Until the deploy is ported (DEPLOY.md, "Not yet"), `private-monorepo/apps/seller-books` is still where
-scheduled runs build, and this copy is a snapshot of private-monorepo commit `5d974943`
-(2026-11-27). Refresh it with [`sync-from-private.sh`](sync-from-private.sh), which runs the
-pre-publication audit first. Once the public deploy works, the private copy is removed and this
-directory becomes the one source.
+This directory is the only source. Every private-monorepo commit to `apps/seller-books` since 2026-11-25 is in
+this copy (checked 2026-11-28 at private `1ee07fc`: each commit's added lines were found here,
+apart from doc sentences reworded since), so there is nothing left to bring over. The `sync-from-private.sh` refresh script was deleted on 2026-11-28:
+it replaced `apps/` wholesale and would have reverted every change made here since the move. The
+private copy is retired (task `retire-private-copies` in
+[`portfolio/work/tasks.yaml`](../../portfolio/work/tasks.yaml)); don't edit it.
