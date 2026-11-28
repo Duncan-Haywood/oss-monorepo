@@ -42,6 +42,10 @@
     {
       "file": "git log --grep",
       "issue": "In the shallow clone, `git log --grep='[poshmark-taxes]'` and a grep on %s returned an unrelated commit or nothing; reading the current test file was faster."
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "slug_dupe.py whatnot-taxes was clean at pick time, but a parallel session opened and merged PR #20121 (same slug) while this PR sat in CI for ~40 min. Re-running slug_dupe right before marking ready would have caught it; I only re-ran it at pick time."
     }
   ],
   "deviations": [
@@ -50,13 +54,19 @@
       "why": "The default is to advance the top bet (payapps), but roadmap_claim found no free, ungated item on any bet and 9 live payapps claims, so I took the demand-side front door of the bet with the fewest front-door PRs (#5), as the tool suggested.",
       "did": "Whatnot taxes SEO page for Seller Books, figures tied to the importer's fixture and Whatnot's own help articles.",
       "result": "Merged page with 4 tests; reach unmeasured."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "PR #20121 landed the same Whatnot taxes page first.",
+      "did": "Dropped this PR's duplicate page; kept main's page and added only what it lacked: the fee check against Whatnot's published US rates (8% commission, 2.9% + $0.30 processing, tiered since 21 Sept 2026), with a test against the fixture.",
+      "result": "PR retitled as an extension; 122 site tests pass."
     }
   ],
   "writeups": [
     "The page itself is the customer post (ventures/seller-books/apps/seller-books-site, /whatnot-taxes). No separate blog post or agent doc: the page is the consolidated customer writing, and the next run needs nothing beyond the code comments."
   ],
   "goal": null,
-  "notes": "seller-books-site tests: 117 pass, 0 fail. Whatnot help centre reachable via https://help.whatnot.com/api/v2/help_center/articles/search.json?query=...&locale=en-us (useful for later Whatnot pages). Security queue: 0 workable. IDEAS.md empty.",
+  "notes": "seller-books-site tests: 117 pass, 0 fail. Whatnot help centre reachable via https://help.whatnot.com/api/v2/help_center/articles/search.json?query=...&locale=en-us (useful for later Whatnot pages). Security queue: 0 workable. IDEAS.md empty. Consolidated onto PR #20121's page after it merged first; this PR now adds the published-rate fee check only.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -251,6 +251,43 @@ listed and flagged, without buttons. The sample job is left out, and the card hi
 integration is dark or nothing is waiting. Each payment is joined to its invoice, application and
 job within the org (`org_id` on every join).
 
+### Late-payment interest (its own invoice)
+
+An application paid in full after its due date, on a job with a late-payment rate, earns interest
+the cash report lists under "Interest earned on late payments" (`paidLateApps` in
+`src/shared/cash-report.ts`). On that row, and on a row already marked billed, **Invoice in
+QuickBooks** (editors; `POST .../pay-apps/:payAppId/quickbooks/interest-invoice`,
+`sendInterestInvoice` in `services/quickbooks.ts`, planned by `src/shared/qbo-interest.ts`) writes
+one invoice to the GC. `qbo_interest_invoice_syncs` keeps one row per pay application (migration
+0094); `GET /api/orgs/:orgId/quickbooks/interest-invoices` lists them for the cash page.
+
+- **What is written.** Number `LI` + the application's invoice tail (`PA24-117-03` becomes
+  `LI24-117-03`, whether or not the application itself was sent); customer = the job's GC (the
+  same customer the application's invoice uses); date = the day the interest was marked billed,
+  else today; one line for the interest, on the item `Late Payment Interest` (created on an income
+  account of the same name the first time; an existing item or account of that name is reused,
+  never changed, so a bookkeeper can point the item at Other Income in QuickBooks and later sends
+  follow). The line reads "Interest on late payment of pay application #3, invoice PA24-117-03:
+  $45,000.00 due 2026-09-30, paid 2026-10-31, 31 days late, at 1.5% a month (Subcontract § 7.2)";
+  the invoice message names the job. The job's class and location and the GC billing email are
+  set as on the application's invoice. No due date is set, so QuickBooks applies the customer's
+  terms.
+- **The figure.** The interest the cash report shows today, or, for an application already marked
+  billed, the figure kept with the mark. Waived interest, and an application not on the paid-late
+  list, are refused (409).
+- **Marks it billed.** An application not yet marked is marked billed today with "QuickBooks
+  invoice LI…" as the note, so it leaves the to-do list; an earlier billed mark keeps its date and
+  note. Undoing the mark later leaves the row and the invoice (QuickBooks is the books of record).
+- **By hand.** **Already in QuickBooks** (`?already=1`) records an invoice the bookkeeper entered
+  and marks the interest billed ("Entered in QuickBooks by hand"); nothing is sent.
+- **Retries.** A `requestid` derived from the org and application ids goes with the invoice, and a
+  send that reached QuickBooks but not PayApps finds the invoice by its number and records it; an
+  invoice with that number for another amount is refused.
+- **Not sent:** the sample job; plans without QuickBooks; without a connection.
+- History: `quickbooks_interest_sent` (with the invoice number) or `quickbooks_interest_marked`,
+  and `interest_billed` when the send made the mark.
+- Not yet run against an Intuit sandbox (`packages/qbo-sync/README.md`, "Not yet verified").
+
 ## Job costs from QuickBooks
 
 Most subcontractors' bookkeepers already enter every vendor bill, check and card charge in

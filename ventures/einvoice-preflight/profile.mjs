@@ -315,6 +315,7 @@ export const FRENCH_RULES = {
   "FR-006": "Fixed 40 euro recovery indemnity mention is missing (Code de commerce D441-5).",
   "FR-007": "Early-payment discount (escompte) mention is missing (Code de commerce L441-9).",
   "FR-008": "Category of the operation (goods, services or mixed) is not stated; the reform adds it to the mandatory invoice data.",
+  "FR-009": "A 14-digit SIRET is given as the legal registration id (scheme 0002), where FNFE-MPE's BR-FR-32 accepts only the 9-digit SIREN.",
 };
 
 function digitsOnly(value) {
@@ -380,7 +381,7 @@ export function inspectFrenchProfile(invoice) {
     findings.push(finding(
       "FR-001",
       "French seller has no SIREN or SIRET (legal registration identifier, BT-30).",
-      "Add supplier.legal_id with the 9-digit SIREN or 14-digit SIRET (scheme 0002). The reform's directory routes on it.",
+      "Add supplier.legal_id with the 9-digit SIREN (scheme 0002; the French rules refuse a SIRET there, BR-FR-32). The reform's directory routes on it.",
       "/supplier/legal_id",
     ));
   }
@@ -388,7 +389,7 @@ export function inspectFrenchProfile(invoice) {
     findings.push(finding(
       "FR-004",
       "French buyer has no SIREN or SIRET (BT-47), so a platform cannot route the invoice to them.",
-      "Add customer.legal_id with the buyer's SIREN or SIRET (scheme 0002); ask them for it, it is on their Kbis.",
+      "Add customer.legal_id with the buyer's 9-digit SIREN (scheme 0002); ask them for it, it is on their Kbis.",
       "/customer/legal_id",
     ));
   }
@@ -399,6 +400,22 @@ export function inspectFrenchProfile(invoice) {
         "FR-002",
         `${role} SIREN/SIRET is not 9 or 14 digits or fails its Luhn check digit.`,
         "Copy the number again from the Kbis or the INSEE avis de situation; one wrong digit fails the check.",
+        path,
+      ));
+    }
+  }
+
+  // BR-FR-32: an id with scheme 0002 is the 9-digit SIREN. A SIRET there passes FR-002 (it is a
+  // real number) but the platforms' rules refuse it; the SIREN is its first 9 digits.
+  // Measured by mentions-2026-bench.mjs (2026-11-28).
+  for (const [role, party, id, path] of [["Seller", supplier, sellerId, "/supplier/legal_id"], ["Buyer", customer, buyerId, "/customer/legal_id"]]) {
+    const raw = party.legal_id;
+    const scheme = isObject(raw) ? str(raw.scheme || raw.scheme_id || raw.schemeID) : "";
+    if (id.length === 14 && siretValid(id) && (!scheme || scheme === "0002") && isFrench(party)) {
+      findings.push(finding(
+        "FR-009",
+        `${role} legal id (${role === "Seller" ? "BT-30" : "BT-47"}) is a 14-digit SIRET; the French rules (BR-FR-32) accept only the 9-digit SIREN there.`,
+        "Give the SIREN, the SIRET's first 9 digits. The establishment's SIRET can go in the party's identifier instead.",
         path,
       ));
     }

@@ -280,7 +280,7 @@ function platformPage(p) {
   <p>Taxes on eBay sales, the 1099-K and the sales tax eBay collects, with one Transaction report worked through: <a href="${href("/ebay-taxes")}">eBay taxes</a>.</p>`
         : p.slug === "whatnot"
           ? `
-  <p>Taxes on Whatnot sales, the 1099-K, giveaways, tips and the sales tax Whatnot collects, with one week of a report worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
+  <p>Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.</p>`
           : ""
   }
   ${notTaxAdvice}
@@ -1243,196 +1243,229 @@ ${NOT_TAX_ADVICE}`;
   };
 }
 
-// The Whatnot taxes page: the importer's own sample Seller Weekly Orders Report
-// (../seller-books/test/fixtures/whatnot-orders-report.csv, invented) worked to Schedule C. Its six USD
-// rows are the example (the seventh, in CAD, is skipped as the importer skips it). Sale price is Post
-// Coupon Price, refunds are line 2, fees line 10, seller-paid shipping and label charges line 27a
-// (importers/whatnot.ts, services/books/schedule-c.ts); test/site.test.mjs re-reads the fixture.
-// Whatnot's own help centre, read 2026-11-28 through its public article API: seller fees (US standard
-// commission 8% on the sale price, before shipping and tax; payment processing 2.9% + $0.30 on what the
-// buyer paid), US sales tax collection, taxes on Whatnot's fees, and the 2026 Form 1099-K article.
+// /whatnot-taxes: the search Whatnot sellers make ("do I have to pay taxes on Whatnot", "Whatnot 1099-K").
+// The worked example is the app's own Whatnot fixture (apps/seller-books/test/fixtures/whatnot-orders-report.csv,
+// an invented Seller Weekly Orders Report) taken through the importer's arithmetic (importers/whatnot.ts):
+// an Order Earnings row's sale is Post Coupon Price, its fees are commission, payment processing and the
+// taxes on them (line 10), seller-paid Shipping Fee (a giveaway's) and Shipping Charge rows are postage
+// (line 27a), a tip is income, a refund is returns (line 2), and the CAD row is skipped
+// (services/books/schedule-c.ts). test/site.test.mjs re-reads the fixture and checks every figure.
+// Whatnot's own help articles, read 2026-11-28 through the help centre's public article API (the HTML
+// pages answer automated readers with 403): the 1099-K (31543985599245), U.S. sales tax collection
+// (360061196012), taxes on its commissions and fees (32083195713421) and giveaways (11329417780365).
 export const WHATNOT_CHECKED_ON = "2026-11-28";
-export const WHATNOT_FEES_URL =
-  "https://help.whatnot.com/hc/en-us/articles/4847069165965-Whatnot-seller-fees";
-export const WHATNOT_SALES_TAX_URL =
-  "https://help.whatnot.com/hc/en-us/articles/360061196012-U-S-Sales-Tax-Collection-on-Whatnot";
+const WN_HELP = "https://help.whatnot.com/hc/en-us/articles/";
+export const WHATNOT_1099K_URL = `${WN_HELP}31543985599245-2026-Form-1099-K-for-U-S-Sellers`;
+export const WHATNOT_1099K_QUOTE =
+  "The 1099-K issued by Whatnot will report all 2026 Whatnot earnings.";
+export const WHATNOT_PAYPAL_QUOTE =
+  "If you do not have a connected Stripe account linked to your Whatnot profile, i.e., you have exclusively used PayPal to process your cash-outs, you will not receive a 1099-K from Whatnot.";
+export const WHATNOT_SALES_TAX_URL = `${WN_HELP}360061196012-U-S-Sales-Tax-Collection-on-Whatnot`;
 export const WHATNOT_SALES_TAX_QUOTE =
-  "sellers on Whatnot are not required to collect or remit sales tax on their transactions";
-export const WHATNOT_FEE_TAX_URL =
-  "https://help.whatnot.com/hc/en-us/articles/32083195713421-Taxes-on-Whatnot-commissions-and-fees";
-export const WHATNOT_1099K_URL =
-  "https://help.whatnot.com/hc/en-us/articles/31543985599245-2026-Form-1099-K-for-U-S-Sellers";
-/** Whatnot's published US rates: standard-tier commission on the sale price; processing on the buyer's total. */
+  "Where required in the states and territories of the U.S., Whatnot collects sales taxes on behalf of sellers.";
+export const WHATNOT_FEE_TAX_URL = `${WN_HELP}32083195713421-Taxes-on-Whatnot-commissions-and-fees`;
+export const WHATNOT_FEE_TAX_QUOTE =
+  "Taxes are deducted from U.S. sellers' order earnings and remitted to the applicable state by Whatnot.";
+export const WHATNOT_GIVEAWAY_URL = `${WN_HELP}11329417780365-About-giveaways-on-Whatnot`;
+export const WHATNOT_GIVEAWAY_QUOTE =
+  "Giveaway shipping costs are deducted directly from the Seller's Whatnot balance when the Giveaway is run.";
+// Whatnot's seller fees page (4847069165965, read 2026-11-28 through the same article API): in the US the
+// standard-tier commission is 8% of the sale price (shipping and buyer tax not included; tiered by four-week
+// sales and category since 21 September 2026) and payment processing is 2.9% + $0.30 of everything the buyer
+// paid. The fixture's two sales follow those rates to the cent; test/site.test.mjs checks it.
+export const WHATNOT_FEES_URL = `${WN_HELP}4847069165965-Whatnot-seller-fees`;
 export const WHATNOT_FEE = {
   commissionRate: 0.08,
   processingRate: 0.029,
   processingFixedCents: 30,
 };
-/** The six USD rows of the app's Whatnot fixture, in file order. Amounts in cents; fees as positive costs. */
-export const WHATNOT_EXAMPLE = [
+/** The fixture's two sales with their fee columns split out, and what the buyer paid (Buyer Paid). */
+export const WHATNOT_FEE_CHECK = [
   {
-    what: "Pokemon booster pack (auction)",
-    type: "Order Earnings",
+    title: "Pokemon booster pack",
     priceCents: 2500,
     buyerPaidCents: 3205,
     commissionCents: 200,
     processingCents: 123,
-    feeTaxCents: 0,
-    sellerShippingCents: 0,
-    amountCents: 2177,
   },
   {
-    what: "Vintage Starter jacket ($80, $5 coupon)",
-    type: "Order Earnings",
+    title: "Vintage Starter jacket",
     priceCents: 7500,
     buyerPaidCents: 9118,
     commissionCents: 600,
     processingCents: 294,
-    feeTaxCents: 13,
-    sellerShippingCents: 0,
-    amountCents: 6593,
   },
-  { what: "Partial refund on the jacket", type: "Order Refund", amountCents: -4000 },
-  { what: "Tip from a buyer", type: "Tips", processingCents: 45, amountCents: 455 },
-  {
-    what: "Sticker pack (giveaway)",
-    type: "Order Earnings",
-    priceCents: 0,
-    buyerPaidCents: 0,
-    commissionCents: 0,
-    processingCents: 0,
-    feeTaxCents: 0,
-    sellerShippingCents: 499,
-    amountCents: -499,
-  },
-  { what: "Shipping label adjustment", type: "Shipping Charge", amountCents: -125 },
 ];
-/** Whatnot's published US fees on one order: [commission, processing], rounded to the cent. */
+/** Whatnot's published US fees on one sale: [commission, processing], rounded to the cent. */
 export function whatnotPublishedFeesCents(r, fee = WHATNOT_FEE) {
   return [
     Math.round(r.priceCents * fee.commissionRate),
     Math.round(r.buyerPaidCents * fee.processingRate + fee.processingFixedCents),
   ];
 }
-/** The example's Schedule C lines, as the importer and the worksheet file them. */
+/**
+ * The USD rows of the app's Whatnot fixture, in file order (the seventh, in CAD, is skipped as the importer
+ * skips it). kind: sale (Order Earnings), tip, giveaway (Order Earnings with Buy Format Giveaway), refund,
+ * label (Shipping Charge). fees: commission + processing + the taxes on them.
+ */
+export const WHATNOT_EXAMPLE = [
+  {
+    title: "Pokemon booster pack (auction)",
+    kind: "sale",
+    priceCents: 2500,
+    feesCents: 323,
+    shipCents: 0,
+    amountCents: 2177,
+  },
+  {
+    title: "Vintage Starter jacket ($5 coupon)",
+    kind: "sale",
+    priceCents: 7500,
+    feesCents: 907,
+    shipCents: 0,
+    amountCents: 6593,
+  },
+  {
+    title: "Partial refund on the jacket",
+    kind: "refund",
+    priceCents: 0,
+    feesCents: 0,
+    shipCents: 0,
+    amountCents: -4000,
+  },
+  {
+    title: "Tip from a buyer",
+    kind: "tip",
+    priceCents: 500,
+    feesCents: 45,
+    shipCents: 0,
+    amountCents: 455,
+  },
+  {
+    title: "Sticker pack giveaway",
+    kind: "giveaway",
+    priceCents: 0,
+    feesCents: 0,
+    shipCents: 499,
+    amountCents: -499,
+  },
+  {
+    title: "Shipping label adjustment",
+    kind: "label",
+    priceCents: 0,
+    feesCents: 0,
+    shipCents: 125,
+    amountCents: -125,
+  },
+];
+/** The example's Schedule C lines: 1 gross receipts, 2 returns, 10 fees, 27a postage; net is the balance change. */
 export function whatnotLines(rows = WHATNOT_EXAMPLE) {
-  let line1 = 0;
-  let line2 = 0;
-  let line10 = 0;
-  let line27a = 0;
-  let net = 0;
-  for (const r of rows) {
-    net += r.amountCents;
-    const fees = (r.commissionCents ?? 0) + (r.processingCents ?? 0) + (r.feeTaxCents ?? 0);
-    if (r.type === "Order Refund") line2 += -r.amountCents;
-    else if (r.type === "Shipping Charge") line27a += -r.amountCents;
-    else if (r.type === "Tips") {
-      line1 += r.amountCents + fees;
-      line10 += fees;
-    } else {
-      line1 += r.priceCents;
-      line10 += fees;
-      line27a += r.sellerShippingCents;
-    }
-  }
-  return { line1, line2, line10, line27a, net };
+  const sum = (f) => rows.reduce((a, r) => a + f(r), 0);
+  return {
+    line1: sum((r) => r.priceCents),
+    line2: sum((r) => (r.kind === "refund" ? -r.amountCents : 0)),
+    line10: sum((r) => r.feesCents),
+    line27a: sum((r) => r.shipCents),
+    net: sum((r) => r.amountCents),
+  };
 }
 
 function whatnotTaxes() {
   const path = "/whatnot-taxes";
-  const title = "Whatnot taxes for sellers";
+  const title = "Whatnot taxes for resellers";
   const description =
-    "Taxes on Whatnot sales: when Whatnot sends a 1099-K, why payouts are not income, how giveaways, tips and refunds are reported, and Whatnot's sales tax.";
+    "Do you pay taxes on Whatnot sales? When Whatnot sends a 1099-K, the sales tax it collects, and one week of tips, giveaways and fees worked to Schedule C.";
   const cents = (c) => `${c < 0 ? "−" : ""}$${(Math.abs(c) / 100).toFixed(2)}`;
   const L = whatnotLines();
-  const [pack, jacket] = WHATNOT_EXAMPLE;
   const faqs = [
     {
       q: "Do I have to pay taxes on Whatnot sales?",
-      a: "On a profit, yes. Cards, collectibles or clothes you bought to resell are business (or hobby) income whether or not Whatnot sends a form. Your own collection sold for less than you paid is not income, though it still counts toward a 1099-K.",
+      a: "On the profit from things you bought to resell, yes, whether or not a form arrives. Your own collection sold for less than you paid is not income. Sellers who buy to flip, rip packs or run regular shows are usually running a business and report it on Schedule C.",
     },
     {
       q: "Does Whatnot send a 1099-K?",
-      a: "Whatnot's 2026 article says sellers who cashed out through Stripe and passed the threshold (over $20,000 and more than 200 transactions federally, lower in some states) get one in Seller Hub by January 31, 2027. Sellers who cashed out only through PayPal get none from Whatnot, though PayPal may send one. Business income is reportable either way.",
+      a: `To U.S. sellers who cash out through Stripe and pass the reporting threshold: for 2026, more than $20,000 and more than 200 transactions federally, lower in some states. In Whatnot's words, “${WHATNOT_PAYPAL_QUOTE}” Those sellers may get one from PayPal instead. The income is reportable either way.`,
     },
     {
-      q: "Do I report my payouts or my sales?",
-      a: `Your sales. Whatnot pays out the sale price less its commission, payment processing and any shipping you paid. Gross receipts start from the sale price; the fees and shipping are expenses. In the example on this page, ${cents(L.net)} reached the seller's balance from ${cents(L.line1)} of sales.`,
+      q: "Are Whatnot tips taxable?",
+      a: `A tip a buyer sends during your show is money your selling brought in, so it belongs in gross receipts with your sales. In the example on this page, a ${cents(500)} tip arrives as ${cents(455)} after processing: ${cents(500)} is income and ${cents(45)} a fee.`,
     },
     {
-      q: "How do giveaways go on my taxes?",
-      a: `A giveaway brings in nothing, and the shipping you pay on it is a cost of selling (postage). The item's cost is a cost too: in ${SITE_NAME} the giveaway comes in as a $0 order, and linking the item you gave away to it, as with any sale, moves the item's cost to cost of goods sold.`,
-    },
-    {
-      q: "Are tips taxable?",
-      a: `Tips from buyers come in through your Whatnot balance as income from the business, and the processing fee on them is a fee like any other. ${SITE_NAME} books a tip as income with its fee beside it.`,
+      q: "How do I handle giveaways?",
+      a: `A giveaway brings in nothing, but it costs you its shipping and the item. Whatnot takes the shipping from your balance; in the books it is postage. The item's cost leaves your stock like any other item's. Neither is a sale.`,
     },
     {
       q: "Do I collect sales tax on Whatnot?",
-      a: `No. Whatnot's own article says it collects and remits sales tax where required, so “${WHATNOT_SALES_TAX_QUOTE}”. It adds that sellers may still have their own reporting requirements; sales you make off Whatnot follow your state's rules.`,
+      a: `No, not on Whatnot orders in the states Whatnot lists. Whatnot: “${WHATNOT_SALES_TAX_QUOTE}” Sales you make off Whatnot (a card show table, a payment app) follow your state's own rules.`,
     },
   ];
-  const fmt = (v) => (v == null ? "" : cents(v));
   const exRows = WHATNOT_EXAMPLE.map(
     (r) =>
-      `        <tr><th scope="row">${esc(r.what)}</th><td>${esc(r.type)}</td><td>${fmt(r.priceCents)}</td><td>${fmt(r.commissionCents)}</td><td>${fmt(r.processingCents)}</td><td>${fmt(r.feeTaxCents || null)}</td><td>${fmt(r.sellerShippingCents || null)}</td><td>${cents(r.amountCents)}</td></tr>`,
+      `        <tr><th scope="row">${esc(r.title)}</th><td>${r.priceCents ? cents(r.priceCents) : "—"}</td><td>${r.feesCents ? cents(r.feesCents) : "—"}</td><td>${r.shipCents ? cents(r.shipCents) : "—"}</td><td>${cents(r.amountCents)}</td></tr>`,
   ).join("\n");
-  const [packCommission, packProcessing] = whatnotPublishedFeesCents(pack);
-  const [jacketCommission, jacketProcessing] = whatnotPublishedFeesCents(jacket);
   const body = `<section class="wrap">
   <h1>${esc(title)}</h1>
-  <p class="lead">A Whatnot show can make dozens of sales in an evening, plus tips, giveaways and the odd refund, and what Whatnot pays out is none of the numbers you report. Here is what is taxable, who gets a 1099-K, and how one week of a Whatnot report becomes Schedule C lines.</p>
+  <p class="lead">A live show turns into dozens of small rows: sales, tips, giveaways, a refund, a label adjustment. Whatnot pays you the net of all of them, so the money in your balance is not the number you report. Here is what is taxable, who sends a form, and one week of a Whatnot report worked into Schedule C lines.</p>
   <h2>Is it taxable?</h2>
-  <p>Buying to resell, whether sealed product, singles from a collection you bought or thrifted clothes, is business or hobby income, whatever the forms say. Selling your own collection for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). A business reports its sales on Schedule C and deducts what made them: Whatnot's commission and processing, shipping it paid, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold or were given away, <a href="${href("/mileage-deduction")}">the miles</a> to card shows and the post office, and supplies such as sleeves, toploaders and mailers.</p>
+  <p>Selling cards from your own collection for less than you paid is not income (see <a href="${href("/personal-items-or-business")}">personal items or a business</a>). Buying sealed product, lots or singles to resell is business or hobby income, whatever the forms say. A business reports gross sales on Schedule C and deducts what made them: Whatnot's fees, the shipping you paid, <a href="${href("/cost-of-goods-sold")}">the cost of the items</a> that sold or went out as giveaways, and <a href="${href("/mileage-deduction")}">the miles</a> to source them and to the post office.</p>
   <h2>When Whatnot sends a 1099-K</h2>
-  <p>Whatnot's <a href="${WHATNOT_1099K_URL}">2026 Form 1099-K article</a> says it works with Stripe: sellers who cashed out through a connected Stripe account and passed the threshold get a 1099-K in Seller Hub by January 31, 2027, and sellers who only used PayPal get none from Whatnot (PayPal may send its own). The federal threshold, in the <a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a> and in Whatnot's article, is over $20,000 and more than 200 transactions; some states are lower. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, before fees and refunds, so it will not match your payouts. No form does not mean no income.</p>
-  <h2>Your payouts are not your income</h2>
-  <p>Whatnot's Seller Weekly Orders Report (Seller Hub, Financials, Statements) has one row per transaction: order earnings, refunds, tips and shipping charges. Each order row gives the sale price after your own coupons, Whatnot's commission, payment processing, any tax on those fees, the shipping you paid, and the Transaction Amount that reached your balance. ${esc(SITE_NAME)} reads every one of those columns, so the sale price is income and each fee is a fee. The buyer's shipping and sales tax go to Whatnot, which buys the label and remits the tax, so neither is your income.</p>
+  <p>Whatnot's <a href="${WHATNOT_1099K_URL}">2026 Form 1099-K article</a> says it issues the form through Stripe to U.S. sellers who cashed out with Stripe and pass the threshold, in Seller Hub by 31 January 2027, and that &ldquo;${esc(WHATNOT_1099K_QUOTE)}&rdquo; The federal threshold is more than $20,000 and more than 200 transactions (<a href="${IRS_1099K_FAQ_GENERAL}">IRS general FAQs</a>); some states are lower. A seller who only cashed out through PayPal gets no Whatnot form, and may get one from PayPal. When one comes, <a href="${href("/1099-k")}">box 1a counts gross payments</a>, so it will not match what you cashed out. No form does not mean no income.</p>
+  <h2>What one week looks like</h2>
+  <p>Whatnot's Seller Weekly Orders Report (Seller Hub, Financials, Statements) has one row per transaction. Each sale's row gives the price after your coupons, the commission, the payment processing fee and any tax on those fees, and the Transaction Amount that reached your balance. Tips, refunds and label charges are rows of their own, and a giveaway is a row with no price and your shipping cost.</p>
   <div class="worked">
-    <p class="muted">One invented week: the six US-dollar rows of the sample report ${esc(SITE_NAME)}'s Whatnot importer is tested on (a seventh, in Canadian dollars, is skipped):</p>
+    <p class="muted">One invented week: the U.S. rows of the sample report ${esc(SITE_NAME)}'s Whatnot importer is tested on (a seventh row, paid in Canadian dollars, is skipped):</p>
     <div class="table-scroll"><table>
-      <thead><tr><th scope="col">Row</th><th scope="col">Type</th><th scope="col">Sale price</th><th scope="col">Commission</th><th scope="col">Processing</th><th scope="col">Tax on fees</th><th scope="col">Shipping you paid</th><th scope="col">Transaction Amount</th></tr></thead>
+      <thead><tr><th scope="col">Row</th><th scope="col">Sale or tip</th><th scope="col">Whatnot's fees</th><th scope="col">Shipping you paid</th><th scope="col">Transaction Amount</th></tr></thead>
       <tbody>
 ${exRows}
       </tbody>
     </table></div>
-    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (the two sale prices and the ${cents(WHATNOT_EXAMPLE[3].amountCents + WHATNOT_EXAMPLE[3].processingCents)} tip before its fee); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the partial refund); line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; line 27a, postage, <strong>${cents(L.line27a)}</strong> (the giveaway's shipping and the label adjustment). Line 1 less those three is ${cents(L.line1 - L.line2 - L.line10 - L.line27a)}, exactly the sum of the Transaction Amounts; the items' cost comes off after that.</p>
-    <p class="muted">The fees match <a href="${WHATNOT_FEES_URL}">Whatnot's seller fees page</a> (checked ${esc(WHATNOT_CHECKED_ON)}): in the US, the standard commission is 8% of the sale price, not counting shipping and tax (${cents(packCommission)} on the ${cents(pack.priceCents)} pack, ${cents(jacketCommission)} on the ${cents(jacket.priceCents)} jacket), and processing is 2.9% + $0.30 of everything the buyer paid (${cents(packProcessing)} on ${cents(pack.buyerPaidCents)}, ${cents(jacketProcessing)} on ${cents(jacket.buyerPaidCents)}). Since 21 September 2026 the commission falls by tier as your four-week sales grow, and it differs by category, so your report's figures are what was charged.</p>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong> (two sales and the tip; the giveaway adds nothing); line 2, returns and allowances, <strong>${cents(L.line2)}</strong> (the partial refund); line 10, commissions and fees, <strong>${cents(L.line10)}</strong>; line 27a, postage, <strong>${cents(L.line27a)}</strong> (the giveaway's shipping and the label adjustment). Line 1 less those three is ${cents(L.line1 - L.line2 - L.line10 - L.line27a)}, exactly the week's Transaction Amounts added up; the items' cost comes off after that.</p>
+    <p class="muted">The jacket's $5 coupon is not an expense: the sale is the price after it, which is also the price Whatnot charges commission on. The ${cents(13)} in the jacket's fees is tax on Whatnot's commission, which Whatnot charges sellers in some states (<a href="${WHATNOT_FEE_TAX_URL}">its article</a>: &ldquo;${esc(WHATNOT_FEE_TAX_QUOTE)}&rdquo;). It is a cost of selling, filed with the fee.</p>
+    <p class="muted">The two sales' fees follow <a href="${WHATNOT_FEES_URL}">Whatnot's seller fees page</a> (read ${esc(WHATNOT_CHECKED_ON)}): in the US the standard commission is 8% of the sale price, not counting shipping and the buyer's tax, and payment processing is 2.9% + $0.30 of everything the buyer paid. ${WHATNOT_FEE_CHECK.map(
+      (r) => {
+        const [c, pr] = whatnotPublishedFeesCents(r);
+        return `${esc(r.title)}: ${cents(c)} commission on ${cents(r.priceCents)}, ${cents(pr)} processing on the buyer's ${cents(r.buyerPaidCents)}`;
+      },
+    ).join(
+      "; ",
+    )}. Since 21 September 2026 the commission falls by tier as your four-week sales grow and differs by category, so your report's fee columns, not a published rate, are what you deduct.</p>
   </div>
-  <h2>Tax on Whatnot's fees</h2>
-  <p>Some sellers see a tax on Whatnot's own fees taken from their earnings. Whatnot's <a href="${WHATNOT_FEE_TAX_URL}">article on taxes on its fees</a> lists the states: on commission, the District of Columbia, Hawaii, New Mexico and West Virginia; on payment processing, Connecticut, Hawaii, New Mexico, Ohio, South Dakota, Texas and West Virginia. It is part of what selling cost you, so ${esc(SITE_NAME)} files it with the fees on line 10 (the $0.13 on the jacket above).</p>
+  <h2>Giveaways</h2>
+  <p>Whatnot's <a href="${WHATNOT_GIVEAWAY_URL}">giveaway article</a>: &ldquo;${esc(WHATNOT_GIVEAWAY_QUOTE)}&rdquo; A show with ten giveaways can cost more in shipping than one sale earns, and none of it shows as a fee. In ${esc(SITE_NAME)} each giveaway row is a zero sale with its shipping as postage, so the show's real profit includes it; link the item given away and its cost leaves your stock with it.</p>
   <h2>Sales tax</h2>
-  <p>Whatnot's <a href="${WHATNOT_SALES_TAX_URL}">US sales tax article</a> says it collects and remits sales tax where required, so &ldquo;${esc(WHATNOT_SALES_TAX_QUOTE)}&rdquo;, even in states where they otherwise would be. It also says sellers may still have their own sales tax reporting requirements. ${esc(SITE_NAME)} keeps the buyer's tax out of income and out of the sales tax you collected; sales at a card show or by payment app are yours to handle (see <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>).</p>
+  <p>Whatnot's <a href="${WHATNOT_SALES_TAX_URL}">sales tax article</a> says &ldquo;${esc(WHATNOT_SALES_TAX_QUOTE)}&rdquo; It lists the states and adds that sellers may still have their own reporting duties. The tax in the report's Buyer Paid column is the buyer's, already handled, so ${esc(SITE_NAME)} does not read it as income. More in <a href="${href("/reseller-sales-tax")}">sales tax for resellers</a>.</p>
   <h2>Keeping the books in ${esc(SITE_NAME)}</h2>
-  <p>Download each week's Seller Weekly Orders Report from Seller Hub and import the CSVs; the same file twice adds nothing. Each order becomes a sale with its commission, processing and tax on fees beside it, refunds land in the week they completed, tips are income, and giveaways and label charges are postage. Split a case or a mystery lot's cost over its items, link them to the sales, and the cost moves to cost of goods sold. Sell on eBay, Mercari or Depop too? They go in the same books (see the <a href="${href("/platforms/whatnot")}">Whatnot page</a> and the others), and another marketplace's CSV can be matched by hand.</p>
+  <p>Download each week's orders report from Seller Hub and import the CSVs; every row is kept once by its ledger ID, so an overlapping week is not counted twice. Sales, tips, giveaways, refunds and label charges land on the right lines, and rows in another currency are set aside with a reason. Split a mystery lot's cost across its items, link the items to their sales, and cost of goods follows. Sell on eBay, Poshmark or Mercari too? They go in the same books (see the <a href="${href("/platforms/whatnot")}">Whatnot page</a>).</p>
+  <p class="muted">Whatnot's articles were read on ${esc(WHATNOT_CHECKED_ON)}; rules and thresholds change, so check its help centre and the IRS before you file.</p>
   <h2>Questions</h2>
 ${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
   ${notTaxAdvice}
 </section>
-<div class="wrap">${callToAction(path, { idPrefix: "whatnot" })}</div>`;
+<div class="wrap">${callToAction(path, { idPrefix: "wn" })}</div>`;
   const text = `# ${title}
 
-What Whatnot pays out is the sale price less its commission, processing and shipping you paid, so the payout is not the number you report.
+Whatnot pays you the net of a show's sales, tips, giveaways, refunds and fees, so your balance is not the number you report.
 
 ## Is it taxable?
 
-Items bought to resell are business or hobby income. Your own collection sold at a loss is not income. A business reports gross sales on Schedule C and deducts Whatnot's fees, shipping it paid, cost of goods (including giveaways) and mileage.
+Personal items sold at a loss are not income. Items bought to resell are business or hobby income. A business reports gross sales on Schedule C and deducts Whatnot's fees, shipping it paid (giveaways included), cost of goods and mileage.
 
 ## When Whatnot sends a 1099-K
 
-Whatnot issues 2026 1099-Ks through Stripe, in Seller Hub by January 31, 2027, to sellers who cashed out through Stripe and passed the threshold; PayPal-only sellers get none from Whatnot (${WHATNOT_1099K_URL}). Federal threshold: over $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower. Box 1a is gross.
+Through Stripe, to U.S. sellers who cashed out with Stripe and pass the threshold (${WHATNOT_1099K_URL}): "${WHATNOT_1099K_QUOTE}" "${WHATNOT_PAYPAL_QUOTE}" Federal threshold: more than $20,000 and more than 200 transactions (${IRS_1099K_FAQ_GENERAL}); some states are lower.
 
-## Your payouts are not your income
+## One week worked through
 
-Invented example (the importer's sample Seller Weekly Orders Report, USD rows): ${WHATNOT_EXAMPLE.map((r) => `${r.what} (${r.type}): ${cents(r.amountCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 2 ${cents(L.line2)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; Transaction Amounts sum to ${cents(L.net)}. Fees match Whatnot's published US rates (${WHATNOT_FEES_URL}, checked ${WHATNOT_CHECKED_ON}): 8% standard commission on the sale price, 2.9% + $0.30 processing on the buyer's total; commission is tiered since 21 September 2026.
+Invented example (the importer's sample Seller Weekly Orders Report, U.S. rows): ${WHATNOT_EXAMPLE.map((r) => `${r.title}: amount ${cents(r.amountCents)}`).join("; ")}. Schedule C: line 1 ${cents(L.line1)}, line 2 ${cents(L.line2)}, line 10 ${cents(L.line10)}, line 27a ${cents(L.line27a)}; net ${cents(L.net)}, the Transaction Amounts' total.
 
-## Tax on Whatnot's fees
+## Giveaways
 
-On commission: DC, HI, NM, WV. On processing: CT, HI, NM, OH, SD, TX, WV (${WHATNOT_FEE_TAX_URL}). Filed with the fees, line 10.
+"${WHATNOT_GIVEAWAY_QUOTE}" (${WHATNOT_GIVEAWAY_URL}). Booked as a zero sale with the shipping as postage.
 
 ## Sales tax
 
-Whatnot collects and remits where required: "${WHATNOT_SALES_TAX_QUOTE}" (${WHATNOT_SALES_TAX_URL}).
+"${WHATNOT_SALES_TAX_QUOTE}" (${WHATNOT_SALES_TAX_URL}). Taxes on Whatnot's own fees: "${WHATNOT_FEE_TAX_QUOTE}" (${WHATNOT_FEE_TAX_URL}). Read ${WHATNOT_CHECKED_ON}.
 
 ## Questions
 
@@ -3795,7 +3828,10 @@ function guidePages() {
     scheduleC(),
     form1099k(),
     costOfGoodsSold(),
+    inventorySpreadsheet(),
+    sellThrough(),
     mileageDeduction(),
+    homeOfficeAndEquipment(),
     taxDeductions(),
     salesTax(),
     estimatedTax(),

@@ -151,6 +151,12 @@ in order:
      cannot split;
    - the IFC path returns no exterior loop on the Schultz model (0 exterior walls), so
      no roof outline and no wall sheathing there yet.
+   - the dormer on the material list: **done 2026-11-28** (dormer-framing-guide: a "Dormer" section,
+     the dormer's pieces bought from the plan's stock list by `optimizeStock`, its roof, wall and
+     opening areas; a size with no board long enough stays as cut lengths; CLI and page CSV; the
+     shed dormer's note no longer says an opening it framed is uncounted, and a dormer meeting the main
+     roof more than 20 ft back says to check the main roof's run; the guide
+     `docs/posts/2026-11-28-dormer-framing-takeoff-...` folds 12 thin dormer posts).
    - siding on the material list: **done 2026-11-26** (`materiallist.mjs` "Siding" section from
      `siding.mjs`: boards, battens, starter, corners, wrap, trim, flashing, tape, caulk, nails, net
      area; the payapps estimate import reads it as a "Siding" bid item, checked by hand on the

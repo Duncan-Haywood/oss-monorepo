@@ -2792,6 +2792,13 @@ nothing to copy. No customers yet. Paid plans are dark
   paid-late list, a future day or one before the last payment; deleting a payment (the application
   reopens) clears the mark. The history logs each mark and undo; the cash CSV's last column names
   billed or waived ones.
+- Late-payment interest, part 3b (2026-11-28, late-interest-part-3b-qbo-invoice, Crew and up): on
+  the cash page's paid-late list, "Invoice in QuickBooks" sends the interest as its own invoice to
+  the GC, numbered `LI` + the application's invoice tail, one line on a "Late Payment Interest" item
+  that states the balance, due and paid dates, days late and the rate with its source, and marks the
+  interest billed if it was not ("Already in QuickBooks" records one typed by hand). Refused for
+  waived interest; a retry finds the invoice by number (`sendInterestInvoice`,
+  `src/shared/qbo-interest.ts`, migration 0094; docs/QUICKBOOKS.md, "Late-payment interest").
 - Fix, retainage rate cut after a line's release (2026-11-27, retainage-rate-cut): a line whose
   retainage was released in full (10% of $10,000, $1,000 released) went to -$500 when a later
   application cut the rate to 5% (the common "5% after half complete") or to 0% for the final
@@ -2849,7 +2856,7 @@ nothing to copy. No customers yet. Paid plans are dark
   parties, paid and owing columns were kept in one browser's storage, so the next month's statement
   started blank on any other computer and for anyone else in the company. Now an editor's changes are
   saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
-  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `sworn_statement_drafts`, migration 0094, replaced whole on each save; `swornDraftSchema` in
   `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
   and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
   A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and
@@ -2922,11 +2929,10 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
-- Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28; the weekly email's totals of interest accrued on past-due applications and earned on
-  those paid late and not billed or waived yet, done 2026-11-28, late-interest-weekly-email):
-  "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it as a line on
-  the next pay application, if contractors ask.
+- Late-payment interest, part 3c (part 3b, the interest as its own QuickBooks invoice, done
+  2026-11-28; the weekly email's totals of interest accrued and earned, done 2026-11-28,
+  late-interest-weekly-email): adding it as a line on the next pay application instead, if
+  contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
