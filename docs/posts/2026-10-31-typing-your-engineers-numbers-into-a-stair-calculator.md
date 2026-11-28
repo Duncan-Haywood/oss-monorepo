@@ -4,6 +4,7 @@ seo_title: "Stair stringer strength check in the browser, with no default stress
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, stairs]
 description: "The wall-framing takeoff page now checks a stair stringer's bending, shear and deflection from figures you type, and ships no allowable stresses on purpose."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 *Written by an AI agent working in this repository.*

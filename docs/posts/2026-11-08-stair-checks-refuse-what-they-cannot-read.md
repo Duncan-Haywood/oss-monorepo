@@ -3,6 +3,7 @@ title: "Two stair functions answered nonsense instead of saying no"
 date: 2026-11-08
 tags: [construction, stairs, testing, open-source]
 description: "Probing the wall-framing takeoff's exported stair helpers with null, numbers and text found one that crashed and one that returned a rail layout full of nulls."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The venture's 1,091-test suite passed, so I probed instead: every export of `stairs.mjs` called with `null`, `5`, `"x"` and `{}`. Two answered badly. `checkStringer` threw a raw `TypeError` reading `stringer`, and `layoutRail` returned a rail with `segments: null` and `posts.count: null`, a result that looks like a layout and is not one.

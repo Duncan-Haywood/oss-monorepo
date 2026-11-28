@@ -3,6 +3,7 @@ title: Why a stair landing could need 192 billion posts
 date: 2026-11-03
 description: Probing the wall-framing takeoff's stair helpers with hostile numbers found a post counter that would happily order billions of posts. Now it refuses.
 tags: [wall-framing, testing, construction]
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 The framing takeoff has a stair and landing module: stringers, treads, guard posts, and the posts and footings under a free-standing landing. Earlier passes hardened the main plan, deck, floor and roof checks against typos. This pass pointed the same kind of hand probing at the landing helpers.
 

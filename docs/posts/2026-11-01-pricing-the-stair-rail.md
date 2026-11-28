@@ -3,6 +3,7 @@ title: "Pricing a stair rail: balusters, posts and brackets in the budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, budget]
 description: The framing takeoff's budget now counts a stair's balusters, guard posts and handrail brackets and prices them from typed unit prices.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 A stair rail was the last stair part the budget left out. The rail rails and handrail lumber already ride in the cutting-stock order, but the pieces bought by the each, balusters, posts and wall brackets, had no line.

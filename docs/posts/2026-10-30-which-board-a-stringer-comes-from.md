@@ -3,6 +3,7 @@ title: "Which board a stair stringer is cut from"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs]
 description: "The stair takeoff gave the stringer length but not the board to buy; it now names the shortest listed stock board that holds one."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The stair takeoff computed each stringer's length (pitch line plus the plumb and level cuts) and refused a stair no listed board could hold, but it never said which board to buy. It now adds `stringerStock`: the shortest listed board of the stringer's size that is at least as long as one stringer, the count (one per stringer) and the spare length on each.

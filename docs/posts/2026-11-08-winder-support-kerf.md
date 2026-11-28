@@ -3,6 +3,7 @@ title: "Does a saw cut change how many boards a winder's supports need?"
 date: 2026-11-08
 tags: [construction, stairs, wall-framing-takeoff]
 description: "Winder support board counts now allow for saw kerf, which can add a board when pieces just fit."
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The winder support board count assumed zero saw kerf, so three 32 in supports fit a 96 in board exactly. A real blade removes about 1/8 in per cut, so the third piece is short by a quarter inch.

@@ -3,6 +3,7 @@ title: "Clicking through the stair stringer check in a real browser"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, testing]
 description: The standalone stair page's optional stringer check now has a browser test that proves it stays silent until every design value is typed.
+folded_into: writing/how-to-lay-out-a-stair-stringers-headroom-and-guards/
 ---
 
 The stair page's stringer check is optional: you type live and dead load, allowable bending, shear and modulus from your own lumber table, and no figures are shipped. The design rule is that a partial entry must never produce a half-check.
