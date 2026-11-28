@@ -177,3 +177,28 @@ page is not found word for word in them.
 - The rate tables (TR15OC24.010, .011) are images in the rule; the rates used are the ones printed
   inline on each line.
 - The Cyber AB marketplace link (`https://cyberab.org/Catalog`) answered 200 on 27 Nov 2026.
+
+## CUI markings (`cui-markings.html`, `cui.mjs`), 28 Nov 2026
+
+Every meaning on the page and in the checker is one of the 28 strings in `QUOTES` (`cui.mjs`), each
+checked by script as a verbatim substring of its source file (tags stripped, entities decoded,
+whitespace collapsed); `cui.test.mjs` pins their hash, and checks every `<q>` on the page is one of them.
+
+| Source | Read | File sha256 |
+|---|---|---|
+| 32 CFR 2002.20 Marking | eCFR versioner API, `https://www.ecfr.gov/api/versioner/v1/full/2026-11-01/title-32.xml?part=2002&section=2002.20` (needs `Accept-Encoding: gzip`) | `3cd860d36683d64f7df7afc398e4677c387483d5367fd4db1067831d07122714` |
+| 32 CFR 2002.4 Definitions | same API, `section=2002.4` | `134b57a637f416e17bb50d13e0d2bb2d54d46bf5e7bc428b04971d31a7cf7dcb` |
+| DFARS 252.204-7012 | same API, `title-48.xml?part=252&section=252.204-7012` | `4801cdb4381ed1a10352a3213abf95aacf9a1a96e461081efbb8599a29a428c5` |
+| CUI Registry, Controlled Technical Information (banner `CUI//SP-CTI`; page last reviewed 8 May 2025) | <https://www.archives.gov/cui/registry/category-detail/controlled-technical-info.html> | `0cded5fde3ff7f4764f0c4db5585463c383891fad96da3a4f3b1b89a1069c420` |
+| CUI Registry, Export Controlled (`CUI//SP-EXPT`, or `CUI`/`CUI//EXPT` for Basic authorities) | <https://www.archives.gov/cui/registry/category-detail/export-control.html> | `5f36950bc9a35ee36d3057819d590ad0ce87cc7d9fd68fd12528bc1d5bfe2cc6` |
+| CUI Registry, General Proprietary Business Information (`CUI//SP-PROPIN`, `CUI//PROPIN`) | <https://www.archives.gov/cui/registry/category-detail/proprietary-business-info.html> | `6c416ec6dd00ae4b85dab2a7c1a2b8fc13a2413be876fb7b8d1508a418032bc0` |
+| CUI Registry, Limited Dissemination Controls (NOFORN/NF, FED ONLY, FEDCON, NOCON, DL ONLY, RELIDO, REL TO, DISPLAY ONLY; page last reviewed 14 Jul 2025) | <https://www.archives.gov/cui/registry/limited-dissemination> | `7633ce00c6b3d3c01434277e25b8c5d7c731debc2cdb89b534d287981740f0ce` |
+
+Not read, and so not relied on: DoDI 5200.48 (DoD's CUI instruction, 403 at esd.whs.mil) and DoDI
+5230.24 (distribution statements). The page says statements B to F "limit distribution" without
+giving each letter's audience, and names "Controlled by" from 2002.20(d) only; the CUI Category,
+POC and decontrol lines are read when present but not said to be required. "FOUO" and "SBU" as
+examples of legacy markings are our reading of 2002.4's definition of legacy material. The
+treat-as-CUI rule for statements B to F is ours, from 252.204-7012's definition of controlled
+technical information and the Registry's CTI description; the page says so and asks the buyer.
+

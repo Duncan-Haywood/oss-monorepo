@@ -188,6 +188,14 @@ export const FAQ = {
     ["What do distribution statements on a drawing mean?",
       "Statement A means approved for public release; B to F limit distribution, so check before forwarding the drawing to a plating or heat-treat house. A CUI marking means the systems holding the file must meet NIST SP 800-171."],
   ],
+  "cui-markings.html": [
+    ["What does CUI//SP-CTI mean on a drawing?",
+      "CUI is the control marking, so the drawing is Controlled Unclassified Information. SP-CTI is the category: Controlled Technical Information, and SP- means CUI Specified, where the law behind it sets its own handling rules. Under DFARS 252.204-7012 the systems that hold it are in scope for NIST SP 800-171, which is CMMC Level 2."],
+    ["What do NOFORN and FEDCON mean in a CUI banner?",
+      "They are limited dissemination controls, after the second double slash. NOFORN means no foreign nationals or non-US citizens may receive it. FEDCON means federal employees and contractors only, for work on the contract. NOCON and FED ONLY leave contractors out, so a shop holding one should ask the sender."],
+    ["Is a drawing marked FOUO CUI?",
+      "Not by that marking alone: FOUO is a legacy marking from before the CUI Program, and 32 CFR 2002.20 says legacy markings are void. But unmarked CUI is still CUI, so ask the buyer whether the file is CUI and for a properly marked copy."],
+  ],
   "first-article-inspection.html": [
     ["What is a first article inspection?",
       "A full inspection of one part made by the production process, to show the process can make the part to the drawing before the lot runs. Aerospace and defense customers usually ask for it in the AS9102 format: Form 1 part number accountability, Form 2 product accountability, Form 3 characteristic accountability."],
