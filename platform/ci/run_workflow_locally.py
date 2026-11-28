@@ -189,6 +189,10 @@ MUTATING = [
     (re.compile(r"\bnpm\s+publish\b"), "npm publish"),
     (re.compile(r"\bdocker\s+push\b"), "docker push"),
     (re.compile(r"\brm\s+-rf\s+/(?!tmp)"), "rm -rf outside /tmp"),
+    # CI narrows its own fresh checkout; run here it narrows the session's tree, so every
+    # later step and workflow fails on missing files (price-claims-ci.yml, 2026-11-28).
+    (re.compile(r"\bgit\s+sparse-checkout\s+(set|add|init|reapply)\b"),
+     "narrow this working tree (git sparse-checkout)"),
 ]
 
 EXPRESSION = re.compile(r"\$\{\{")

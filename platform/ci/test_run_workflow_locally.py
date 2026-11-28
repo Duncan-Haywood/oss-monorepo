@@ -410,6 +410,10 @@ class Screen(unittest.TestCase):
     def test_a_github_api_write_is_refused(self):
         self.assertIsNotNone(self.screened("gh api repos/x/y -X DELETE"))
 
+    def test_narrowing_the_working_tree_is_refused(self):
+        self.assertIsNotNone(self.screened('git sparse-checkout set --no-cone "${patterns[@]}"'))
+        self.assertIsNone(self.screened("git sparse-checkout disable"))
+
     def test_a_github_api_read_is_allowed(self):
         self.assertIsNone(self.screened("gh api repos/x/y/commits"))
 
