@@ -86,6 +86,7 @@ export const GROUPS = [
     ["roof-sheathing-sheets.html", "Roof sheathing sheets, counted"],
     ["wall-sheathing-sheets.html", "Wall sheathing sheets, counted"],
     ["roof-sheathing-waste-factor.html", "Roof sheathing waste factor, hip vs. gable"],
+    ["shingle-bundles-for-a-roof.html", "Shingle bundles for a roof, counted"],
   ]],
 ];
 

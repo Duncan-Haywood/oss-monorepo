@@ -80,6 +80,16 @@ From the laid-out edges, at the typed rates (3 bundles a square, 10% waste):
 | Starter strip | 1 bundle |
 | Roofing nails | 31 lb, 2 boxes |
 
+Is 10% (gable) or 15% (hip) the right allowance on top of the squares? The
+[shingle bundles page](../../ventures/wall-framing-takeoff/shingle-bundles-for-a-roof.html) checks it
+by laying every field strip, course by course, on 16 rectangular roofs at 4:12 to 10:12 (a typical
+39-3/8 in laminated strip at 5-5/8 in exposure, 22 a bundle, a 6 in offset step). Throwing every
+cut-off away, the cutting took 5.4% to 11.1% on a gable (mean 7.6%) and 10.4% to 18.4% on a hip
+(mean 14.7%): a hip is cut at both ends of every course. Using cut-offs again brought both under 5%.
+So the rule never ran short on a gable and was 1 bundle short on 2 hips where nothing was reused,
+while squares x 3 with no allowance was short on every roof with cut-offs thrown away. Starter, cap
+and valleys are not in those counts.
+
 Two fastener counts are opt-in because their rate must come from your maker's instructions:
 **drip edge nails** (`roofing.dripEdgeNailSpacing`: eave plus rake feet over the spacing, plus one
 end nail per piece) and **underlayment cap nails** (`roofing.underlaymentNailsPerSquare`, times the
