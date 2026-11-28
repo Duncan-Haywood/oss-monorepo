@@ -97,6 +97,8 @@ class T(unittest.TestCase):
         with contextlib.redirect_stdout(out):
             self.assertEqual(slug_dupe.main(["nope-zzz"]), 0)
         self.assertIn("nope-zzz: no duplicate found", out.getvalue())
+        # Nobody has claimed it, so the next step is the claim (a later PR is invisible here).
+        self.assertIn("roadmap_claim.py <app> --slug nope-zzz", out.getvalue())
 
     def test_default_window_is_14_days(self):
         seen = []
@@ -121,6 +123,7 @@ class T(unittest.TestCase):
         self.assertEqual(branches, ["claude/qux-widget-2"])
 
     def test_own_claim_branch_is_not_a_notice(self):
+        import contextlib, io
         tree = run(self.clone, "rev-parse", "HEAD^{tree}")
         mine = run(self.clone, "commit-tree", tree, "-m", "claim x {run aaaaaaaaaa} (1)")
         theirs = run(self.clone, "commit-tree", tree, "-m", "claim x {run bbbbbbbbbb} (2)")
@@ -137,6 +140,12 @@ class T(unittest.TestCase):
             self.assertNotEqual(tag, "aaaaaaaaaa")
             _, _, branches = slug_dupe.check("zed-gizmo")
             self.assertEqual(sorted(branches), ["claim/app/zed-gizmo", "claim/app/zed-gizmo--2"])
+            # A rival's claim is listed, so no "claim it" hint.
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                slug_dupe.main(["zed-gizmo", "--no-fetch", "--no-search"])
+            self.assertIn("notice: branch claim/app/zed-gizmo", out.getvalue())
+            self.assertNotIn("roadmap_claim.py", out.getvalue())
             mine2 = run(self.clone, "commit-tree", tree, "-m", f"claim y {{run {tag}}} (3)")
             run(self.clone, "push", "-f", "origin", f"{mine2}:refs/heads/claim/app/zed-gizmo")
             _, _, branches = slug_dupe.check("zed-gizmo")
