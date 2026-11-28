@@ -166,6 +166,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/quantity-price-breaks",
+      label: "How to set quantity price breaks",
+      title: `How to set quantity price breaks on machined parts · ${SITE_NAME}`,
+      description:
+        "Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: "2026-11-28",
+    },
+    {
       path: "/machine-shop-quote-template",
       label: "Machine shop quote template",
       title: `Machine shop quote template (free CSV) · ${SITE_NAME}`,

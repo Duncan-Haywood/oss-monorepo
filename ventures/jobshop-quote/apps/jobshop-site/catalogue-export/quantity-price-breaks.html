@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#226955" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
+    <title>How to set quantity price breaks on machined parts · Job Shop Quote</title>
+    <meta name="description" content="Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.">
+    <link rel="canonical" href="https://marisstella.app/jobshop/quantity-price-breaks">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Job Shop Quote">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://marisstella.app/jobshop/quantity-price-breaks">
+    <meta property="og:title" content="How to set quantity price breaks on machined parts · Job Shop Quote">
+    <meta property="og:description" content="Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.">
+    <meta property="og:image" content="https://marisstella.app/jobshop/og.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Job Shop Quote: RFQ-to-quote for CNC and fabrication job shops">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to set quantity price breaks on machined parts · Job Shop Quote">
+    <meta name="twitter:description" content="Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.">
+    <meta name="twitter:image" content="https://marisstella.app/jobshop/og.png">
+    <link rel="icon" href="/jobshop/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/jobshop/styles.css">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://marisstella.app/jobshop/quantity-price-breaks#webpage","url":"https://marisstella.app/jobshop/quantity-price-breaks","name":"How to set quantity price breaks on machined parts · Job Shop Quote","description":"Set quantity breaks from your own costs: setup per part, where each minimum ends, the price floor and orders between breaks, worked at eight quantities.","inLanguage":"en-US","isPartOf":{"@id":"https://marisstella.app/jobshop/#website"},"publisher":{"@id":"https://marisstella.app/jobshop/#organization"},"dateModified":"2026-11-28","breadcrumb":{"@id":"https://marisstella.app/jobshop/quantity-price-breaks#breadcrumb"}},{"@type":"BreadcrumbList","@id":"https://marisstella.app/jobshop/quantity-price-breaks#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://marisstella.app/jobshop/"},{"@type":"ListItem","position":2,"name":"How to set quantity price breaks","item":"https://marisstella.app/jobshop/quantity-price-breaks"}]}]}</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="/jobshop/"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="currentColor"/><path d="M9 10h14M9 16h9M9 22h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="22.5" cy="21.5" r="3.5" fill="none" stroke="#fff" stroke-width="2.2"/></svg><span>Job Shop Quote</span></a>
+        <nav aria-label="Main">
+          <ul>
+            <li><a href="/jobshop/how-it-works">How it works</a></li><li><a href="/jobshop/pricing">Pricing</a></li><li><a href="/jobshop/for-cmmc-shops">Defense shops</a></li><li><a href="/jobshop/compare">Compare</a></li><li><a href="/jobshop/faq">FAQ</a></li>
+            <li><a href="https://jobshop-quote.marisstella.app/sign-in">Sign in</a></li>
+            <li><a class="btn btn-primary btn-sm" href="https://jobshop-quote.marisstella.app/sign-up?from=jobshop-site%2Fquantity-price-breaks">Start free</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <p class="status-strip">Open · free Early access plan, no card · paid plans not on sale yet</p>
+    <main id="main">
+<section class="page-head">
+  <div class="container narrow">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Guide</p>
+    <h1>How to set quantity price breaks on machined parts</h1>
+    <p class="lead">The price each falls with quantity because some costs are paid once per lot and the rest
+    once per part. Work out which is which and you can tell where a break earns its place, where the price
+    has stopped falling, and what to charge for an order between two breaks. Here is the method and one part
+    worked at 8 quantities.</p>
+  </div>
+</section>
+<section class="band">
+  <div class="container prose">
+    <h2>Why the price each falls</h2>
+    <p>Every cost on a machined part belongs to one of two kinds:</p>
+    <ul>
+      <li><strong>Once per lot:</strong> programming, setups, the first-article check, and the minimum
+      charges (the anodizer's lot charge, the supplier's material minimum, your own minimum per line). They
+      cost the same for one part or five hundred.</li>
+      <li><strong>Once per part:</strong> cycle time, loading and deburring, the blank, the vendor's per-part
+      charge. They grow with every part started, scrap included.</li>
+    </ul>
+    <p>So the price each is roughly <em>per-part cost + once-per-lot cost ÷ quantity</em>. The first term is
+    a floor the price never goes below; the second falls fast and then hardly at all. A quantity break is
+    worth quoting where the second term still matters.</p>
+
+    <h2>A worked example at 8 quantities</h2>
+    <p>The same mounting bracket as in <a class="link" href="/jobshop/how-to-quote-cnc-machining">how to
+    quote a CNC machining job</a>: 6061-T6 aluminum plate, two milling setups and a deburr on a
+    3-axis mill at $123.85 an hour, clear anodize by a vendor at
+    $3.50 a part with a $150.00 lot charge,
+    a $25.00 material minimum, 3% expected fallout, and a
+    $250.00 minimum per line. <strong>Every number is made up to show the
+    arithmetic</strong>; none is a typical price, time or rate. Use your own.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <caption class="fineprint">The made-up bracket at each break, per part shipped. Each component is priced for the whole lot, rounded to the cent, then divided by the quantity; the price each is rounded up to the cent. The floor is the price each as the quantity grows without end ($68.26).</caption>
+        <thead><tr><th scope="col">Per part</th><th scope="col">1</th><th scope="col">5</th><th scope="col">10</th><th scope="col">25</th><th scope="col">50</th><th scope="col">100</th><th scope="col">250</th><th scope="col">500</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Parts started</th><td>2</td><td>6</td><td>11</td><td>26</td><td>52</td><td>104</td><td>258</td><td>516</td></tr><tr><th scope="row">Setup each</th><td>$278.67</td><td>$55.73</td><td>$27.87</td><td>$11.15</td><td>$5.57</td><td>$2.79</td><td>$1.11</td><td>$0.56</td></tr><tr><th scope="row">Run time each</th><td>$107.34</td><td>$64.40</td><td>$59.04</td><td>$55.82</td><td>$55.82</td><td>$55.82</td><td>$55.39</td><td>$55.39</td></tr><tr><th scope="row">Material each</th><td>$25.00</td><td>$8.89</td><td>$8.15</td><td>$7.70</td><td>$7.70</td><td>$7.70</td><td>$7.64</td><td>$7.64</td></tr><tr><th scope="row">Anodize each</th><td>$150.00</td><td>$30.00</td><td>$15.00</td><td>$6.00</td><td>$3.64</td><td>$3.64</td><td>$3.61</td><td>$3.61</td></tr><tr><th scope="row">Markup each</th><td>$26.25</td><td>$5.83</td><td>$3.47</td><td>$2.06</td><td>$1.70</td><td>$1.70</td><td>$1.69</td><td>$1.69</td></tr><tr><th scope="row">Price each</th><td>$587.26</td><td>$164.86</td><td>$113.53</td><td>$82.73</td><td>$74.44</td><td>$71.65</td><td>$69.45</td><td>$68.89</td></tr><tr><th scope="row">Line total</th><td>$587.26</td><td>$824.30</td><td>$1,135.30</td><td>$2,068.25</td><td>$3,722.00</td><td>$7,165.00</td><td>$17,362.50</td><td>$34,445.00</td></tr><tr><th scope="row">Setup share of the price</th><td>47.5%</td><td>33.8%</td><td>24.5%</td><td>13.5%</td><td>7.5%</td><td>3.9%</td><td>1.6%</td><td>0.8%</td></tr><tr><th scope="row">Above the long-run floor</th><td>760.3%</td><td>141.5%</td><td>66.3%</td><td>21.2%</td><td>9.1%</td><td>5.0%</td><td>1.7%</td><td>0.9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Fallout rounds up to whole parts.</strong> 3% expected scrap means
+      starting 2 brackets to ship one, so the one-off pays run time on
+      2 parts ($107.34, against $55.82 each at
+      100). On small lots the extra part is the honest price of the risk; leave it out
+      and a one-off that scraps is made twice and paid for once.</li>
+      <li><strong>Setup decides the small breaks.</strong> At one part, setup is
+      47.5% of the price; it falls under a tenth of the price each from
+      36 parts. Most of the fall from $587.26 to
+      $71.65 each happens before then.</li>
+      <li><strong>Each minimum stops applying at its own quantity.</strong> The material minimum covers
+      orders under 3; the anodizer's lot charge covers every order under
+      41, so up to 40 parts the anodize costs the same
+      $150.00 in all. The $250.00 line minimum never applies here: even one bracket costs more
+      than that. On a cheaper part it lifts the smallest breaks to the same total, so a buyer pays the
+      same for one part as for several; quote those breaks anyway, so the buyer sees why.</li>
+      <li><strong>Past a point the breaks stop meaning much.</strong> The floor is $68.26
+      a part: run time, the blank and the per-part anodize, marked up, over the
+      97% that ship good. At 100 the price is
+      5.0% above it, at 500 0.9%.
+      A lower price at volume has to come from a shorter cycle, a better blank or a cheaper vendor, not
+      from the break.</li>
+    </ul>
+
+    <h2>Choosing which breaks to quote</h2>
+    <ol>
+      <li><strong>Quote what the RFQ asks for first.</strong> The buyer's quantities, and the yearly or
+      release quantity if the RFQ gives one. A break nobody will order is noise on the quote.</li>
+      <li><strong>Add the small lot you would rather not run.</strong> One or a few parts, priced honestly,
+      shows the buyer what a short run costs and stops a one-off being ordered at the volume price.</li>
+      <li><strong>Put breaks just past where a minimum ends.</strong> Here the lot charge stops applying at
+      41: a break at 40 still pays the whole lot charge,
+      one at 50 spreads it as far as it goes.</li>
+      <li><strong>Stop where the price stops falling.</strong> Once a break is within a few percent of the
+      floor, a larger one tells the buyer little; a separate quote for a blanket order is clearer.</li>
+    </ol>
+
+    <h2>Orders that fall between two breaks</h2>
+    <p>The buyer saw 25 at $82.73 and
+    50 at $74.44, and sends a PO for
+    40. Three ways to price it:</p>
+    <ul>
+      <li><strong>At the lower break's price each:</strong> 40 × $82.73
+      = $3,309.20. Safe for the shop, and the usual written rule.</li>
+      <li><strong>Priced on its own:</strong> $76.58 each,
+      $3,063.20, by the same arithmetic as the breaks
+      (42 parts started).</li>
+      <li><strong>At the upper break's price each,</strong> which is what a buyer will ask for:
+      $2,977.60, $85.60 under the
+      order's own price. The setup and the lot charge are spread over fewer parts than that price
+      assumed.</li>
+    </ul>
+    <p>Whichever you choose, write it in the quote's terms ("quantities between breaks are priced at the
+    next lower break") so the PO accepts it before work starts. The
+    <a class="link" href="/jobshop/machine-shop-quote-template">machine shop quote template</a>
+    lists the other terms worth deciding once, overruns and underruns among them; add this one beside
+    them.</p>
+
+    <h2>Releases are lots too</h2>
+    <p>A buyer who orders 500 but takes them in 5 releases of
+    100 pays you for 5 setups. Priced as 5 runs of
+    100, the order is $35,825.00; as one run of
+    500, $34,445.00. The $1,380.00
+    difference is the setups and smaller spreads you would give away by quoting the yearly quantity's
+    price for release-sized runs. Price the run you will actually make, or quote the yearly price on the
+    condition that the shop runs the whole quantity at once and holds the stock.</p>
+
+    <h2>Mistakes that lose money</h2>
+    <ul>
+      <li><strong>Discounting by a percentage table.</strong> "10% off at 50, 20% off at 100" ignores where
+      your costs actually sit; on this part the price each at 100 is
+      88% below the one-off, and on a part with a
+      short setup it would be far less.</li>
+      <li><strong>Pricing every break from the one-off's starts.</strong> Fallout and scrap are per part
+      started; each break needs its own count.</li>
+      <li><strong>Forgetting the vendor's minimum below its break-even.</strong> Under the lot charge's
+      quantity, the outside service is a fixed cost, not a per-part one.</li>
+      <li><strong>Letting a PO quantity pick its own price.</strong> Without a written rule the buyer reads
+      the nearest break in their favour.</li>
+    </ul>
+
+    <h2>Doing it in Job Shop Quote</h2>
+    <p>Each quote line in Job Shop Quote carries up to eight quantity breaks, each priced on its own parts
+    started, with the material, setup, run time, finishing, markup and line minimum worked out per break and
+    the rate behind every figure listed under the table; the same quantity twice is refused. The quote PDF
+    prints the price each at every break and none of the costs. A customer accepting the quote online can
+    pick only the breaks it carries; any other quantity needs a new quote, so a PO never picks its own
+    price. The example above is priced to the cent the app gives for the same inputs, checked by a test in
+    its code. You can <a class="link" href="/jobshop/how-it-works">see how a quote is built</a>.</p>
+    <p>For the rate behind the setup and run time, see
+    <a class="link" href="/jobshop/machine-shop-hourly-rate">how to work out a machine shop hourly
+    rate</a>; for the cycle time itself,
+    <a class="link" href="/jobshop/how-to-estimate-cnc-machining-time">how to estimate CNC machining
+    time</a>.</p>
+    <p class="fineprint">This page explains a common costing method. It is not accounting, tax, legal or
+    financial advice, and the prices, times and rates in it are made up. Check every quote before you send
+    it.</p>
+  </div>
+</section>
+<section class="band band-cta" aria-labelledby="cta-heading">
+  <div class="container narrow">
+    <h2 id="cta-heading">Quote every break from your own rates</h2>
+    <p>The Early access plan is free and needs no card.</p>
+    <p class="actions"><a class="btn btn-primary" href="https://jobshop-quote.marisstella.app/sign-up?from=jobshop-site%2Fquantity-price-breaks">Start free</a></p>
+  </div>
+</section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <p class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="currentColor"/><path d="M9 10h14M9 16h9M9 22h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="22.5" cy="21.5" r="3.5" fill="none" stroke="#fff" stroke-width="2.2"/></svg><span>Job Shop Quote</span></p>
+          <p class="fineprint">RFQ-to-quote for CNC and fabrication job shops.</p>
+        </div>
+        <nav aria-label="Footer">
+          <ul>
+            <li><a href="/jobshop/how-it-works">How it works</a></li><li><a href="/jobshop/pricing">Pricing</a></li><li><a href="/jobshop/for-cmmc-shops">Defense shops</a></li><li><a href="/jobshop/compare">Compare</a></li><li><a href="/jobshop/faq">FAQ</a></li>
+            <li><a href="https://jobshop-quote.marisstella.app/sign-up?from=jobshop-site%2Fquantity-price-breaks">Start free</a></li>
+            <li><a href="https://jobshop-quote.marisstella.app/legal/terms">Terms</a></li>
+            <li><a href="/jobshop/machine-shop-hourly-rate">Machine shop hourly rate</a></li>
+            <li><a href="/jobshop/how-to-quote-cnc-machining">How to quote a machining job</a></li>
+            <li><a href="/jobshop/how-to-quote-sheet-metal">How to quote sheet metal</a></li>
+            <li><a href="/jobshop/how-to-quote-welding">How to quote welding</a></li>
+            <li><a href="/jobshop/quantity-price-breaks">Quantity price breaks</a></li>
+            <li><a href="/jobshop/how-to-quote-cnc-turning">How to quote turned parts</a></li>
+            <li><a href="/jobshop/how-to-estimate-cnc-machining-time">Estimating machining time</a></li>
+            <li><a href="/jobshop/machine-shop-quote-template">Quote template</a></li>
+            <li><a href="/jobshop/rfq-review-checklist">RFQ review checklist</a></li>
+            <li><a href="/jobshop/privacy">Privacy</a></li>
+            <li><a href="https://marisstella.app/cmmc/">CMMC Workspace</a></li>
+          </ul>
+        </nav>
+        <div>
+          <p><a href="mailto:hello@marisstella.app">hello@marisstella.app</a></p>
+          <p class="fineprint">© 2026 Maris Stella Labs LLC</p>
+        </div>
+      </div>
+      <div class="container">
+        <p class="fineprint">Job Shop Quote is provided as is, with no warranty: check every price,
+        time and quantity before you send a quote. Nothing on this site is engineering, legal or tax
+        advice. Use of the app is governed by its Terms of Service.</p>
+      </div>
+    </footer>
+  </body>
+</html>
