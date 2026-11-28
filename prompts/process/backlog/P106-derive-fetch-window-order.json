@@ -1,7 +1,7 @@
 {
   "id": "P106",
   "title": "derive.py fetch --limit takes newest first, so PRs whose rework window just closed are never fetched",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -18,7 +18,13 @@
   "baseline": "448 total after P105 (2026-11-28)",
   "opened": "2026-11-28",
   "source": "process run (P105)",
-  "pr": null,
+  "pr": "this",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-28",
+      "status": "done",
+      "note": "fetch --limit gives up to half the cap to unfetched PRs whose record date is 14 to 21 days old, oldest first; the rest newest first. Live: `fetch --limit 20` took 10 from 2026-11-07..11-14."
+    }
+  ]
 }
