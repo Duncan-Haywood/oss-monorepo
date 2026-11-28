@@ -167,7 +167,9 @@ describe("state bond claims", () => {
       // Saturday 10 July 2027: the Friday before.
       ["all", "2027-07-09"],
     ]);
-    expect(checked("ME", "first").steps.map((s) => s.act)).toEqual(["Bring suit on the payment bond"]);
+    expect(checked("ME", "first").steps.map((s) => s.act)).toEqual([
+      "Bring suit on the payment bond",
+    ]);
   });
 
   it("Iowa: the claim is filed with the public body within 30 days of acceptance, the action by day 60", () => {
@@ -176,7 +178,10 @@ describe("state bond claims", () => {
     // Monday 14 December 2026 + 30 days = Wednesday 13 January 2027; + 60 = Friday 12 February.
     expect(dueOf(ia, "Iowa Code § 573.10(1)")).toBe("2027-01-13");
     expect(dueOf(ia, "Iowa Code § 573.16(1)")).toBe("2027-02-12");
-    expect(ia.dated.map((s) => s.citation)).toEqual(["Iowa Code § 573.10(1)", "Iowa Code § 573.16(1)"]);
+    expect(ia.dated.map((s) => s.citation)).toEqual([
+      "Iowa Code § 573.10(1)",
+      "Iowa Code § 573.16(1)",
+    ]);
     expect(checked("IA", "first", ACCEPTED).steps).toHaveLength(2);
     expect(checked("IA", "first").dated).toEqual([]);
   });
