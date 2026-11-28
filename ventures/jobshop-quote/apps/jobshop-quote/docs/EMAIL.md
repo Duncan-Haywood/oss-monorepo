@@ -11,6 +11,7 @@ for). The code is a port of apps/payapps's
 | Reset your password | "Forgot password?" on the sign-in page | `/reset-password?token=` | 1 hour, single use; a reset signs the user out everywhere and marks the address verified |
 | You already have an account | sign-up with an address that already has one (the API answers the same as a new sign-up, so it reveals nothing) | `/forgot-password` | n/a |
 | Quote (the estimator's) | "Send email" on a sent quote | none; the quote PDF is attached | n/a |
+| Follow-up (the estimator's) | "Email a follow-up" on a sent quote's Follow-up card | none; the quote PDF attached again if ticked | n/a |
 | Quotes about to expire | daily cron, sent quotes valid until today or tomorrow | each quote's page | n/a |
 | Quotes due for a follow-up | daily cron, after the expiry emails: the author's sent quotes whose follow-up day has come, once per day set | each quote's page | n/a |
 | New RFQ by email | an RFQ arrives at the shop's inbound address, to members who turned it on for themselves | the RFQ in the app | n/a |
@@ -241,6 +242,27 @@ Tests: `test/worker/quote-expiry-reminder.test.ts`.
   smallest-quantity total, sent day and "due today" / "N days overdue", the last logged note (one
   line, 160 characters), and a link; at most 30, the rest counted. Customer text is kept on one
   line. Notes are the shop's own records and go only to that shop's member.
+
+### Follow-up emails to the customer (`emailFollowUp`, 2026-11-28)
+
+- **What goes:** the estimator's message (drafted from the quote: the contact's name, the quote
+  label and the day it was sent, a question about changes or the award; "checking in again" once
+  one was sent), the shop signature, and a footer: "Following up on quote Q-1001 from <shop>, sent
+  <day>.", "Attached again: Q-1001.pdf." when the PDF is ticked (the same frozen file, checked
+  against its SHA-256 like the quote email), valid-until, and who replies reach.
+- **Threading:** a reply to the last email sent for the quote. Subject `Re: <that email's subject>`
+  (`Following up: Quote Q-1001 from <shop>` when nothing was emailed from the app). References: the
+  RFQ's thread when the follow-up goes back to the RFQ's sender (`quoteEmailThread`), then each
+  email sent for the quote, by the provider's message id, oldest first; In-Reply-To is the newest.
+  A provider id is used only when it is a safe Message-ID (`asMessageId`: `<id@host>`, or a bare
+  `id@host` bracketed); anything else is skipped, and an id the customer's client does not know is
+  ignored by it. If the provider refuses the headers, the message goes once more without them.
+- **Logged:** once the send succeeds, a follow-up entry ("Emailed a follow-up to <addresses>." and
+  the optional shop note) with the next day picked on the form, exactly as "Log follow-up" does. A
+  failed send logs nothing; if the quote was decided while it went, no day is set.
+- **Same rules as the quote email:** estimators only, a confirmed sender address, at most 5
+  recipients, and the shared 30 per shop per hour and 5 per quote per day (`quote_emails.kind` =
+  `follow_up` rows count with the quote emails).
 
 ## When verification is required
 
