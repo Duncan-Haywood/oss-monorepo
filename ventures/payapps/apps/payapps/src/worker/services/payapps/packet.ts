@@ -10,15 +10,24 @@
 // - T&M ticket: the ticket PDF, then every file kept with it (photos of the work, material backup and
 //   a scan of a paper-signed copy), oldest first; for a change order, every ticket on it, then each
 //   ticket's files in ticket order: the backup a GC asks for before approving T&M work.
+// - Punch list: the punch list PDF (all items, or only those still to fix or awaiting back-check),
+//   then each printed item's photos in item order: before, after, the marked-up sheet, other, oldest
+//   first within each. What the GC walks the back-check with, the photos next to the item numbers.
 // - Close-out binder: the close-out transmittal, then each required document's files (not the GC's
 //   receipt), documents in checklist order: the same files, in the same order, as its "Enclosed" list.
-import { type AttachmentCategory, CATEGORY_LABELS } from "@shared/attachments";
+import { type AttachmentCategory, CATEGORY_LABELS, PUNCH_FILE_KIND } from "@shared/attachments";
 import { changeOrderFileName } from "@shared/change-order-request";
+import { punchLabel } from "@shared/punch-list";
 import { rfiLabel } from "@shared/rfi";
 import { tmLabel } from "@shared/tm-tickets";
 import { and, asc, eq } from "drizzle-orm";
 import type { AppContext } from "../../context";
-import { changeOrderAttachments, lowerTierWaivers, payAppAttachments } from "../../db/schema";
+import {
+  changeOrderAttachments,
+  lowerTierWaivers,
+  payAppAttachments,
+  punchItemFiles,
+} from "../../db/schema";
 import { badRequest } from "../../lib/errors";
 import { applicationPdf } from "../export/application-pdf";
 import { changeOrderPdf } from "../export/change-order-pdf";
@@ -29,6 +38,7 @@ import {
 import { dailyReportFileName, dailyReportPdf } from "../export/daily-report-export";
 import { exportFileName } from "../export/model";
 import { assemblePacket, type PacketFile, type PacketResult } from "../export/pdf-merge/packet";
+import { printedItems, punchListFileName, punchListPdf } from "../export/punch-list-export";
 import { rfiFileName, rfiPdf } from "../export/rfi-export";
 import { tmTicketFileName, tmTicketPdf } from "../export/tm-ticket-export";
 import { bucket } from "./attachments";
@@ -40,6 +50,7 @@ import {
 } from "./daily-report-files";
 import { loadDailyReportDocument } from "./daily-reports";
 import { loadApplicationDocument, loadChangeOrderRequest } from "./documents";
+import { loadPunchListDocument } from "./punch-list";
 import { rfiFileKind, rfiFileRows, sentWithRfi } from "./rfi-files";
 import { loadRfiDocument } from "./rfis";
 import { tmTicketFileKind, tmTicketFileRows } from "./tm-ticket-files";
@@ -346,6 +357,83 @@ export async function buildTmTicketPacket(
   return {
     ...result,
     fileName: tmTicketFileName(doc, coNumber).replace(/\.pdf$/, "-with-files.pdf"),
+  };
+}
+
+/** A punch item's photos in packet order: before, after, the marked-up sheet, then other. */
+const PUNCH_PACKET_ORDER: AttachmentCategory[] = ["photo", "signed", "backup", "other"];
+
+/** Rows (oldest first) grouped per item and ordered for the packet; items without files drop out. */
+export function punchPacketFiles<T extends { itemId: string; category: AttachmentCategory }>(
+  items: { id: string; number: number; location: string | null }[],
+  rows: T[],
+): { row: T; kind: string }[] {
+  return items.flatMap((it) => {
+    const mine = rows.filter((r) => r.itemId === it.id);
+    const where = it.location ? ` (${it.location})` : "";
+    return PUNCH_PACKET_ORDER.flatMap((c) =>
+      mine
+        .filter((r) => r.category === c)
+        .map((row) => ({
+          row,
+          kind: `${punchLabel(it.number)}${where}: ${PUNCH_FILE_KIND[row.category]}`,
+        })),
+    );
+  });
+}
+
+/**
+ * The punch list PDF, an index, then the photos kept with each printed item: before, after and the
+ * marked-up sheet, in item order. `scope` "open" keeps only the items still to fix or awaiting the
+ * GC's back-check, and their photos.
+ */
+export async function buildPunchListPacket(
+  ctx: AppContext,
+  orgId: string,
+  projectId: string,
+  scope: "all" | "open",
+): Promise<PacketResult & { fileName: string }> {
+  // Loads the job (404 when it is not this company's) first.
+  const doc = await loadPunchListDocument(ctx, orgId, projectId, scope);
+  const items = printedItems(doc);
+  const rows = items.some((i) => i.fileCount > 0)
+    ? await ctx.db
+        .select()
+        .from(punchItemFiles)
+        .where(and(eq(punchItemFiles.orgId, orgId), eq(punchItemFiles.projectId, projectId)))
+        .orderBy(asc(punchItemFiles.createdAt), asc(punchItemFiles.id))
+        .all()
+    : [];
+  const chosen = punchPacketFiles(items, rows);
+  const files = chosen.length ? bucket(ctx) : null;
+  const { project } = doc;
+  const result = await assemblePacket({
+    lead: punchListPdf(doc),
+    files: chosen.map(({ row: r, kind }) => ({
+      id: r.id,
+      name: r.fileName,
+      kind,
+      contentType: r.contentType,
+      sizeBytes: r.sizeBytes,
+      load: async () => {
+        const object = await files?.get(r.r2Key);
+        return object ? new Uint8Array(await object.arrayBuffer()) : null;
+      },
+    })),
+    label: "Punch list",
+    title: `${project.name} - punch list with photos`,
+    leadName: "the punch list",
+    heading: "Photos for the punch list",
+    details: [
+      `Job: ${project.name}${project.number ? ` (${project.number})` : ""}`,
+      `From: ${doc.contractor.name}   To: ${project.gcName}`,
+      ...(scope === "open" ? ["Items still to fix or awaiting back-check only"] : []),
+      ...(project.isSample ? ["SAMPLE DATA - NOT A REAL PUNCH LIST"] : []),
+    ],
+  });
+  return {
+    ...result,
+    fileName: punchListFileName(project, "pdf").replace(/\.pdf$/, "-with-photos.pdf"),
   };
 }
 

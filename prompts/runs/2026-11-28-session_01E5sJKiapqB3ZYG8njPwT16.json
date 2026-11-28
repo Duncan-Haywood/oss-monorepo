@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKiapqB3ZYG8njPwT16",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:18:52Z",
+  "ended": "2026-11-28T08:27:10Z",
+  "wall_minutes": 8.46,
+  "tokens_in": 7072554,
+  "tokens_out": 42304,
+  "cost_usd": 3.3894,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20052",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "LibreOffice COUNTIFS with \"<>Closed\" skipped blank status cells; switched the Summary to all-minus-closed counts"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at seller-books (fewest claims) and, in the same output, at bet #4 (fewest front-door PRs); two 'start here' answers. Took bet #4's front door since every Next item on #1-#4 waits on demand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet; payapps (#1) had no free ungated Next item and many live claims, so I built demand-side work for bet #4 instead",
+      "did": "free POA&M template page + xlsx importable into the CMMC app",
+      "result": "landed with tests; usage unmeasured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md (new section: keeping the POA&M in a spreadsheet)"
+  ],
+  "goal": null,
+  "notes": "cmmc-site node --test 95/95 pass (LibreOffice recalculation of 7 cases incl. all 110 ids); apps/cmmc vitest poam-template-import + assessment-sheet-import 5/5; platform/pages/cmmc-site.test.mjs 5/5; biome clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e54de95-5826-5379-bd4f-fd56b824c58b",
+    "transcripts": 1,
+    "first": "2026-11-28T08:18:52Z",
+    "last": "2026-11-28T08:27:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 110,
+        "output": 42304,
+        "thinking": 9778,
+        "cache_read": 6927776,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144668,
+        "api_equivalent_usd": 3.3894,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 110,
+      "output": 42304,
+      "thinking": 9778,
+      "cache_read": 6927776,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144668,
+      "api_equivalent_usd": 3.3894,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 54,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.46,
+      "active_minutes": 8.46,
+      "model_minutes": 7.13,
+      "tool_minutes": 1.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spreadsheet design, formulas, two test suites, page copy",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 177.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

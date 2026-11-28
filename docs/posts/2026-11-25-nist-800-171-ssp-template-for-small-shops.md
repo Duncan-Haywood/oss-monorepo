@@ -93,6 +93,16 @@ An SSP says who handles an incident (3.6.1 and 3.6.2, five points each). DFARS 2
 
 The new [DFARS 7012 incident reporting checklist](https://marisstella.app/machine-shop-guides/dfars-7012-incident-reporting.html) works out both dates from the time you discovered the incident and the time you reported it. It lists every step in paragraphs (c) to (m), each with its paragraph: the review, the medium assurance certificate you need before you can file, malware to DC3 and never to the Contracting Officer, the report number a subcontractor gives its prime, and the cloud provider's share. You can keep a timeline as you go and download the record. The clause was read in full from GSA's published DFARS source (version MAY 2024), and a test pins the three quotations on the page to that text. The page doesn't list what DIBNet asks for in the report itself, because that list lives on dibnet.dod.mil, which this session couldn't reach. The page sends you there.
 
+## Keeping the POA&M in a spreadsheet first
+
+Plenty of shops start the POA&M in Excel. The free [CMMC POA&M template](https://marisstella.app/cmmc/cmmc-poam-template) is a workbook for that: one row per open item (requirement, weakness, remediation plan, milestones, responsible, scheduled completion, open or closed), with three columns it works out as you type.
+
+- **On a POA&M?** comes from 32 CFR 170.21(a)(2). The 1-point requirements may stay open, except the five the rule names (3.1.20, 3.1.22, 3.10.3, 3.10.4, 3.10.5). 3.13.11 may stay open only when CUI is encrypted without FIPS validation. The 3- and 5-point requirements, and the SSP itself (3.12.4), must be met first.
+- **Points while open** is what each open item takes off 110. 3.13.11 counts 3, the only case in which it may be on the list.
+- **Check** says what an assessor would send back: an item that is not allowed, a missing weakness or date, or a completion date after the 180-day close-out.
+
+Type in the conditional status date and the Summary sheet gives the close-out deadline, the points the open items cost, the score with them open (assuming everything else is met) and whether the list could support a Conditional Level 2 (Self) status. The cut-off is 88 of 110, so at most 22 one-point items can be open. Our tests recalculate the workbook in LibreOffice and check every one of the 110 requirements against the same rules the SPRS calculator uses. The Compliance Workspace's POA&M page imports the file as it is, with a preview before anything changes.
+
 ## Which revision the plan is written to: Rev. 2, not Rev. 3
 
 Every requirement number above is from NIST SP 800-171 Rev. 2, and that is deliberate. NIST published Rev. 3, and shops keep asking whether the plan should move to it. For CMMC it should not: 32 CFR 170.14(c)(3) says "The security requirements in CMMC Level 2 are identical to the requirements in NIST SP 800-171 R2", so the SSP, the SPRS score and the POA&M rules are all Rev. 2.

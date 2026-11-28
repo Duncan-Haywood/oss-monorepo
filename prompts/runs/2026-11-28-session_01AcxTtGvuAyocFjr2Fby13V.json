@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtGvuAyocFjr2Fby13V",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T08:07:18Z",
+  "ended": "2026-11-28T08:14:30Z",
+  "wall_minutes": 7.39,
+  "tokens_in": 6849248,
+  "tokens_out": 25408,
+  "cost_usd": 2.8908,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20048",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py --release failed twice with 'send-pack: unexpected disconnect'; a direct git push --delete then reported 'Everything up-to-date', so the stale claim branch claim/payapps/state-bond-claims-ky-sd-nd-nh may still exist"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Two sessions picked the same states for bond claims within a minute: the claim list does not show which states have already been read, so the next free states are picked by hand from the same probe results. A per-state claim (or a listing of states read and states refused) would prevent the collision."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--release goes through the same flaky push and gives no retry; a failed release leaves a stale claim that blocks others for --stale-hours."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The venture-preflight (over 5 min) was not run: the change is two data rows and copy counts in already served pages, with no new page or route",
+      "did": "ran the guide page tests, the payapps unit tests, tsc, biome and the payapps-site tests instead",
+      "result": "all green locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-retainage-caps-in-twelve-states.md (extended with a South Carolina and North Dakota section)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable. Ideas inbox empty. Routed to ventures; took bet #1 PayApps. Planned state bond claims for KY/SD/ND/NH (NH and KY unreachable or unclear), but another session claimed MT/ND/SC/SD bond claims a minute earlier, so switched to retainage caps for SC (11-35-3030(4), 3.5%, flows down) and ND (48-01.2-13, 10% until 50%). Verification: vitest public-jobs/state-bond/lien-deadline-panel 49 passed; payapps tsc clean; biome clean; pay-app-guides page.test.mjs 36 passed; payapps-site pnpm test 11 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7df1e3fa-82b3-5df4-bcc9-1f91032ce9ff",
+    "transcripts": 1,
+    "first": "2026-11-28T08:07:18Z",
+    "last": "2026-11-28T08:14:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 120,
+        "output": 25408,
+        "thinking": 5033,
+        "cache_read": 6719337,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129791,
+        "api_equivalent_usd": 2.8908,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 120,
+      "output": 25408,
+      "thinking": 5033,
+      "cache_read": 6719337,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129791,
+      "api_equivalent_usd": 2.8908,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 60,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.39,
+      "active_minutes": 7.39,
+      "model_minutes": 4.7,
+      "tool_minutes": 2.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading two statutes, encoding two rules with tests, updating a guide table and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 103.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

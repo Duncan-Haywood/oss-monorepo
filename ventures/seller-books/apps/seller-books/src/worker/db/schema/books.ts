@@ -137,6 +137,8 @@ export const inventoryLot = sqliteTable(
     acquiredDate: text("acquired_date").notNull(),
     vendor: text("vendor"),
     totalCostCents: cents("total_cost_cents").notNull(),
+    /** How the cost is spread over items without a typed-in cost: "even" or "value" (services/books/lots.ts). */
+    splitBy: text("split_by").notNull().default("even"),
     notes: text("notes"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -161,6 +163,8 @@ export const inventoryItem = sqliteTable(
     source: text("source"),
     /** True when the cost was typed in, false when it is the item's share of its lot. */
     costIsManual: integer("cost_is_manual", { mode: "boolean" }).notNull().default(false),
+    /** What the seller expects it to sell for; weights its share of a lot split by value. */
+    estimatedValueCents: cents("estimated_value_cents"),
     status: text("status").notNull().default("in_stock"), // InventoryStatus
     /** Day it left inventory (sold, written off, taken for personal use). */
     disposedDate: text("disposed_date"),
