@@ -45,6 +45,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The roadmap_claim usage error ('--claim - and --slug') cost a retry; opening a new growth-path item needs only --slug, which the help text does not show first."
+    },
+    {
+      "file": "docs/security/agent-hardening.md",
+      "issue": "The required security-scan/adversarial-gate checks sat queued (runner backlog) for over an hour with no documented path; merge returns '2 of 6 required status checks are expected'. Auto-merge is the only way to land without waiting in-session."
     }
   ],
   "deviations": [
@@ -59,7 +63,7 @@
     "docs/posts/2026-11-28-iso-9001-management-review-for-small-shops.md"
   ],
   "goal": null,
-  "notes": "cmmc pnpm test: 601 unit + 197 worker pass; re-ran shared (468), legal + management-review worker (12) after the privacy edit; tsc and biome clean; cmmc-site node --test 111/111; check_posts ok. Migration 0022 may clash in number with a parallel gauges-part-2 run (claimed the same hour); renumber on merge if so.",
+  "notes": "cmmc pnpm test: 601 unit + 197 worker pass; re-ran shared (468), legal + management-review worker (12) after the privacy edit; tsc and biome clean; cmmc-site node --test 111/111; check_posts ok. Migration 0022 may clash in number with a parallel gauges-part-2 run (claimed the same hour); renumber on merge if so. Merged main after gauges part 2 landed: legal.ts/README/ROADMAP conflicts resolved, POLICY_VERSION now 2026-11-28.5; re-ran pnpm test: 617 unit + 198 worker pass. Security gate was queued fleet-wide for over an hour; auto-merge set.",
   "corrections": [],
   "redteam": null,
   "usage": {
