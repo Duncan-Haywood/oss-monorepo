@@ -12,10 +12,9 @@
 //   node platform/pages/description-length.mjs           # report
 //   node platform/pages/description-length.mjs --write   # rewrite the baseline
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { decode, REPO } from './title-length.mjs';
+import { decode, ignored, REPO } from './title-length.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const BASELINE_PATH = join(HERE, 'description-length-baseline.json');
@@ -37,18 +36,6 @@ function* pages(dir) {
     const p = join(dir, e.name);
     if (e.isDirectory()) yield* pages(p);
     else if (e.isFile() && e.name.endsWith('.html')) yield p;
-  }
-}
-
-// Git-ignored files under `root` (pages a venture's own tests generate, such as
-// shed-designer's lumber pages): a fresh checkout and CI never have them, so a
-// local run must not count them. Empty when git is unavailable.
-function ignored(root) {
-  try {
-    const out = execFileSync('git', ['ls-files', '--others', '--ignored', '--exclude-standard', '-z', '--', '.'], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 });
-    return new Set(out.split('\0').filter(Boolean).map((p) => join(root, p)));
-  } catch {
-    return new Set();
   }
 }
 

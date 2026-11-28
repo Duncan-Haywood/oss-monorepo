@@ -217,6 +217,8 @@ LAUNCH = """## Done
 - Done 2026-11-27 (site-open): the guides point at sign-up. Left: set `PAID_PLANS_ON` the day
   checkout is live
 - Dutch explanations, part 1 (2026-11-27, dutch-part-1): every rule has a Dutch template
+- Document control, part 3b: master list import (2026-11-28, master-list-import). Reads the
+  list a shop keeps now
 - A native German reviewer for the explanation templates
 - ~~Re-check each official deadline source directly~~ done 2026-11-27
   (launch-re-check): every statement re-read against the official text

@@ -251,18 +251,50 @@ def lineage_head(repo: str, cwd: Path) -> str | None:
     return None
 
 
+def shallow_edge(cwd: Path) -> set[str]:
+    """Commits a shallow clone cuts history at (empty for a full clone)."""
+    path = git("rev-parse", "--git-path", "shallow", cwd=cwd, check=False).strip()
+    f = (cwd / path) if path and not Path(path).is_absolute() else Path(path or "/nonexistent")
+    return set(f.read_text().split()) if f.is_file() else set()
+
+
+SHALLOW_WHY = ("merged before this shallow clone's history starts: "
+               "`derive.py build --history-days N` fetches further back")
+
+
+def deepen(days: float, cwd: Path = REPO_ROOT, log: Callable[[str], None] = print) -> None:
+    """Fetch main back `days` into a shallow clone, never cutting what it has (fetch_ref.py).
+    Rework needs each PR's parent and the 14 days after it, so a fresh depth-1 clone measures
+    nothing (2026-11-28: 0 rows, P105). Best effort: a failed fetch leaves the clone as it was,
+    and the rows it could not reach say why."""
+    if not shallow_edge(cwd):
+        return
+    sys.path.insert(0, str(REPO_ROOT / "platform" / "ci"))
+    import fetch_ref  # platform/ci/fetch_ref.py
+    log(f"derive: shallow clone, fetching {days:g} days of main for rework "
+        "(about 100 s for 21 days; --history-days 0 skips)")
+    try:
+        fetch_ref.fetch_ref("main", days=days, cwd=cwd, timeout=900)
+    except Exception as exc:  # noqa: BLE001 - best effort, the report says what is missing
+        log(f"derive: fetch failed ({exc}); measuring what this clone has")
+
+
 def excluded(path: str, mirrored: bool = False) -> bool:
     return any(p.search(path) for p in EXCLUDED) or (mirrored and bool(MIRRORED.search(path)))
 
 
 def rework(sha: str, number: int, merged_at: str, head: str, cwd: Path = REPO_ROOT,
            now: datetime | None = None, window_days: int = WINDOW_DAYS,
-           skip_mirror: bool = False) -> dict[str, Any]:
+           skip_mirror: bool = False, edge: set[str] | None = None) -> dict[str, Any]:
     """Revert, follow-ups and 14-day line survival of one landed commit."""
     landed = parse_time(merged_at)
     end_time = landed + timedelta(days=window_days)
     if (now or datetime.now(timezone.utc)) < end_time:
         return {"window": "open", "window_closes": end_time.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    edge = shallow_edge(cwd) if edge is None else edge
+    if edge and (sha in edge or not has_commit(sha, cwd)):
+        # Absent, or present with its parents cut off (every line would read as added).
+        return {"window": "unavailable", "why": SHALLOW_WHY}
     if not has_commit(sha, cwd) or subprocess.run(
             ["git", "merge-base", "--is-ancestor", sha, head], cwd=cwd,
             capture_output=True).returncode != 0:
@@ -293,7 +325,10 @@ def rework(sha: str, number: int, merged_at: str, head: str, cwd: Path = REPO_RO
             added[path] = int(a)
     alive = 0
     for path in added:
-        blame = git("blame", "--porcelain", "-M", end, "--", path, cwd=cwd, check=False)
+        # Only the window's commits can own a line we count: stopping the walk at the PR's base
+        # halves a blame's time on a long history and gives the same `ours` count.
+        span = f"{parents[0]}..{end}" if parents else end
+        blame = git("blame", "--porcelain", "-M", span, "--", path, cwd=cwd, check=False)
         alive += sum(1 for ln in blame.splitlines()
                      if re.match(r"^[0-9a-f]{40} \d+ \d+", ln) and ln[:40] in ours)
     total = sum(added.values())
@@ -307,7 +342,8 @@ def rework(sha: str, number: int, merged_at: str, head: str, cwd: Path = REPO_RO
 
 
 def measured(rec: dict[str, Any], facts: dict[str, Any] | None, cwd: Path,
-             now: datetime | None = None) -> dict[str, Any]:
+             now: datetime | None = None, prior: dict[str, Any] | None = None,
+             edge: set[str] | None = None) -> dict[str, Any]:
     ref = parse_pr(rec)
     if ref is None:
         return {"why": "the record names no pull request"}
@@ -328,21 +364,42 @@ def measured(rec: dict[str, Any], facts: dict[str, Any] | None, cwd: Path,
     if out["merged"] and facts.get("merge_commit_sha"):
         head = lineage_head(ref[0], cwd)
         home = ref[0].lower() == HOME_REPO.lower()
-        out["rework"] = (rework(facts["merge_commit_sha"], ref[1], facts["merged_at"], head, cwd, now,
-                                skip_mirror=home)
-                         if head else {"window": "unavailable", "why": f"no local branch for {ref[0]}"})
+        old = (prior or {}).get("rework") or {}
+        if old.get("window") == "closed" and (prior or {}).get("merged_at") == facts.get("merged_at"):
+            out["rework"] = old  # final once the window closed; a later shallow clone keeps it
+        else:
+            out["rework"] = (rework(facts["merge_commit_sha"], ref[1], facts["merged_at"], head, cwd,
+                                    now, skip_mirror=home, edge=edge)
+                             if head else {"window": "unavailable", "why": f"no local branch for {ref[0]}"})
     return out
 
 
-def build(root: Path = ROOT, cwd: Path = REPO_ROOT, now: datetime | None = None) -> list[dict[str, Any]]:
+def build(root: Path = ROOT, cwd: Path = REPO_ROOT, now: datetime | None = None,
+          history_days: float = 0, log: Callable[[str], None] | None = None) -> list[dict[str, Any]]:
+    """`history_days` > 0 first deepens a shallow clone that far (the CLI defaults to 21)."""
     cache = load_json(root / "derived" / "github.json", {})
-    rows = []
-    for path, rec in promptctl.load_runs(root):
+    prior = load_measured(root)
+    if history_days > 0:
+        deepen(history_days, cwd, log or print)
+    edge = shallow_edge(cwd)
+    runs = promptctl.load_runs(root)
+
+    def one(item: tuple[Path, dict[str, Any]]) -> dict[str, Any]:
+        path, rec = item
         ref = parse_pr(rec)
-        rows.append({"record": path.name, "date": rec.get("date"), "track": rec.get("track"),
-                     "prompt_version": rec.get("prompt_version"), "model": rec.get("model"),
-                     "pr": f"{ref[0]}#{ref[1]}" if ref else None,
-                     "measured": measured(rec, cache.get(key(*ref)) if ref else None, cwd, now)})
+        return {"record": path.name, "date": rec.get("date"), "track": rec.get("track"),
+                "prompt_version": rec.get("prompt_version"), "model": rec.get("model"),
+                "pr": f"{ref[0]}#{ref[1]}" if ref else None,
+                "measured": measured(rec, cache.get(key(*ref)) if ref else None, cwd, now,
+                                     prior.get(path.name), edge)}
+
+    # Each closed window costs a few git blames (about 1 s); git runs them in parallel fine.
+    with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as pool:
+        rows = []
+        for i, row in enumerate(pool.map(one, runs), 1):
+            rows.append(row)
+            if log and i % 1000 == 0:
+                log(f"derive: {i}/{len(runs)} records")
     write_json(root / "derived" / "runs.json",
                {"generated": now_iso(), "window_days": WINDOW_DAYS, "rows": rows})
     return rows
@@ -382,6 +439,15 @@ def report(root: Path = ROOT) -> str:
               f"| rework | 0 | {sum(1 for m in meas if (m.get('rework') or {}).get('window') == 'closed')} "
               f"(window closed) |", "",
               f"{n - len(named)} record(s) name no pull request, so nothing about them can be measured.", ""]
+    missing = defaultdict(int)
+    for m in meas:
+        rw = m.get("rework") or {}
+        if rw.get("window") in ("unavailable", "open"):
+            missing[rw["window"] + ": " + rw.get("why", "under 14 days since it merged")] += 1
+    if missing:
+        lines += ["Merged PRs without a rework measure, by reason:", ""]
+        lines += [f"- {c} {why}" for why, c in sorted(missing.items(), key=lambda kv: -kv[1])]
+        lines.append("")
 
     groups: dict[str, dict[str, list[dict[str, Any]]]] = {"track and prompt version": defaultdict(list),
                                                           "model": defaultdict(list)}
@@ -466,13 +532,16 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--refresh", action="store_true", help="refetch PRs already final in the cache")
     p.add_argument("--limit", type=int, default=None,
                    help="fetch at most N PRs, newest first (a review uses 300; the rest drains later)")
-    sub.add_parser("build", help="join records, PR facts and git rework into derived/runs.json")
+    p = sub.add_parser("build", help="join records, PR facts and git rework into derived/runs.json")
+    p.add_argument("--history-days", type=float, default=21,
+                   help="deepen a shallow clone's main this far first, so PRs merged 14+ days ago "
+                        "get rework measured (default 21, about 100 s; 0 skips)")
     sub.add_parser("report", help="coverage and rework by track, version and model")
     args = parser.parse_args(argv)
     if args.cmd == "fetch":
         fetch(ROOT, args.refresh, limit=args.limit)
     elif args.cmd == "build":
-        rows = build(ROOT)
+        rows = build(ROOT, history_days=args.history_days, log=log_flushed)
         print(f"ok: {len(rows)} row(s) in {RUNS_OUT.relative_to(REPO_ROOT)}")
     else:
         print(report(ROOT), end="")
