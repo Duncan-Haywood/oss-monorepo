@@ -59,8 +59,10 @@ agents' side of the line, so it is now fixed:
   <file>` submits only the diff. A missing or malformed previous manifest
   means every URL, as before. Nothing changed means nothing is sent.
 - The deploy job downloads the live `indexnow-manifest.json` before it
-  replaces the site, writes the new one into the site root, and announces
-  with `--previous`. Neither step can fail the deploy.
+  replaces the site, writes the new one into the site root, and saves the old
+  one as `indexnow-previous.json` in the announce copy, which `--dir` picks up
+  as `--previous` (the Announce step itself is unchanged). Neither can fail
+  the deploy.
 
 Checked: 56 tests in `platform/marketing/indexnow*.test.mjs`. Two full
 builds a minute apart were compared for hash stability; the result is in the

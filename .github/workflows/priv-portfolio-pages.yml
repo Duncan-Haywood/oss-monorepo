@@ -618,6 +618,11 @@ jobs:
           # A hard-linked copy of the whole site for IndexNow, which walks the
           # sitemaps, some of which move to the shard.
           cp -al platform/pages/dist "$RUNNER_TEMP/site-full"
+          # The announce step reads <dir>/indexnow-previous.json as --previous.
+          # Only the announce copy gets it; it is never deployed.
+          if [ -s "$RUNNER_TEMP/indexnow-previous.json" ]; then
+            cp "$RUNNER_TEMP/indexnow-previous.json" "$RUNNER_TEMP/site-full/indexnow-previous.json"
+          fi
           node platform/pages/cloudflare/split.mjs platform/pages/dist platform/pages/dist-shard
 
       # The shard first: the site Worker's binding needs it to exist.
@@ -645,8 +650,7 @@ jobs:
           EXIT_NO_EGRESS: "3"
         run: |
           status=0
-          node platform/marketing/indexnow.mjs --submit --dir "$RUNNER_TEMP/site-full" \
-            --previous "$RUNNER_TEMP/indexnow-previous.json" || status=$?
+          node platform/marketing/indexnow.mjs --submit --dir "$RUNNER_TEMP/site-full" || status=$?
           case "${status}" in
             0) echo "IndexNow notified (accepted means asked, not indexed)." ;;
             "${EXIT_NO_EGRESS}") echo "::notice::This runner has no egress to api.indexnow.org; nothing was submitted." ;;

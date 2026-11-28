@@ -618,6 +618,8 @@ export function parseArgs(argv) {
  */
 
 export const MANIFEST_FILE = 'indexnow-manifest.json';
+/** With `--dir` and no `--previous`, a previous manifest saved here in the dir is used. */
+export const PREVIOUS_FILE = 'indexnow-previous.json';
 export const MANIFEST_VERSION = 1;
 
 /** A short content hash: 16 hex characters of SHA-256, plenty for change detection. */
@@ -721,6 +723,17 @@ if (isMain) {
   } catch (err) {
     console.error(`indexnow: ${err.message}`);
     process.exit(2);
+  }
+  // The deploy job drops the live site's manifest into the announce copy
+  // under PREVIOUS_FILE, so its announce step needs no extra flag.
+  if (args.dir && !args.previous) {
+    const saved = path.join(args.dir, PREVIOUS_FILE);
+    try {
+      await fs.access(saved);
+      args.previous = saved;
+    } catch {
+      // None saved: every URL, as before.
+    }
   }
   const readFile = readerFor(args);
   // A missing ref or a bad --base-url is a user error with a message already

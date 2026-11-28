@@ -696,3 +696,16 @@ test('the CLI falls back to every URL when the previous manifest is missing or j
       assert.match(res.stdout, /missing or not a manifest/);
     }
   }));
+
+test('the CLI uses indexnow-previous.json in --dir when no --previous is given', () =>
+  withFixtureDir(async (dir) => {
+    await writePages(dir);
+    execFileSync(process.execPath, [SCRIPT, '--dir', dir, '--manifest-out', path.join(dir, 'indexnow-previous.json')], {
+      stdio: 'pipe',
+    });
+    await fs.writeFile(path.join(dir, 'about.html'), '<html>new about</html>');
+    const res = spawnSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.equal(res.status, 0, res.stderr);
+    assert.match(res.stdout, /indexnow: 1 URL\(s\)/);
+    assert.match(res.stdout, /0 added, 1 changed, 0 removed/);
+  }));
