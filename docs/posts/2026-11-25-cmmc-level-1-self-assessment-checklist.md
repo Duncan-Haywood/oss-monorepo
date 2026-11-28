@@ -77,3 +77,15 @@ Nothing about the rules changes. The workspace prepares the shop's own self-asse
 certification or a C3PAO assessment, the Department of Defense does not endorse it, and the affirming
 official still enters the result in SPRS. The 21 free machine-shop guides now link to the sign-up page
 from the card at the foot of each page.
+
+## Update, 28 November 2026: first check that it is only FCI
+
+Everything above assumes the shop holds Federal Contract Information and nothing more. One CUI drawing changes the level, so the workspace's site now has a page for that first question: [FCI vs CUI](https://marisstella.app/cmmc/fci-vs-cui). It quotes both definitions word for word (FAR 52.204-21 for FCI, 32 CFR 2002.4(h) for CUI) and the marking rules of 32 CFR 2002.20, read from the eCFR on 28 November and pinned by hash in the site's tests, as the clause texts were.
+
+Three points from the regulation text matter most to a small shop:
+
+- **Payment details are neither.** The FCI definition leaves out "simple transactional information, such as necessary to process payments", so invoices and remittances do not bring Level 1 on their own.
+- **What you make from a CUI drawing is CUI too.** DFARS 252.204-7012 counts information "developed ... by or on behalf of the contractor in support of the performance of the contract", and 2002.20(k) has working papers marked like the finished product. CAM programs, setup sheets and first-article reports made from a controlled drawing sit inside the Level 2 boundary with it.
+- **A missing marking is not an exemption.** Section 2002.20(a)(7) says the lack of a CUI marking "does not exempt the authorized holder" from handling rules when the information qualifies. When a prime sends an unmarked drawing that looks controlled, ask in writing for a properly marked copy and protect it until they answer.
+
+The page sorts seven kinds of paperwork a shop holds into FCI, CUI, neither or ask, with the quotation each reading rests on. The readings are ours, and the contract and its markings decide.

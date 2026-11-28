@@ -323,6 +323,44 @@ function transformPoly(faces, m) {
 
 const solid = (terms = [], mesh = 0, notes = [], shells = mesh ? null : []) => ({ terms, mesh, notes, shells });
 
+/**
+ * Points that bound a revolved area: every profile corner turned about the
+ * axis (point p, unit direction d) through `ang` radians in `steps` equal
+ * turns, its distance from the axis scaled by 1 / cos(half a turn): the
+ * polygon through those points has each side tangent to the arc at its
+ * middle, so it encloses the arc and overshoots by at most 1 / cos(half a
+ * turn) - 1 of the radius (0.12% at the default 64 turns a circle). One loop
+ * per corner, for `loose`.
+ */
+export function revolvedHull(loops, p, d, ang, steps = Math.max(4, Math.ceil(Math.abs(ang) / (Math.PI / 32)))) {
+  const u = unit(d) ?? [0, 0, 1];
+  const half = Math.abs(ang) / steps / 2;
+  const k = 1 / Math.cos(half);
+  const out = [];
+  for (const l of loops) for (const q of l.pts) {
+    const v = [q[0] - p[0], q[1] - p[1], (q[2] ?? 0) - p[2]];
+    const along = mulS(u, dot(v, u));
+    const rad = [v[0] - along[0], v[1] - along[1], v[2] - along[2]];
+    const side = cross(u, rad);
+    const arc = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = (ang * i) / steps, c = Math.cos(t), s = Math.sin(t);
+      arc.push([0, 1, 2].map((j) => p[j] + along[j] + k * (rad[j] * c + side[j] * s)));
+    }
+    out.push(arc);
+  }
+  return out;
+}
+
+/** A CSG primitive: its volume, and the corners of its box [x0, y0, z0, x1, y1, z1] placed by m as loose points. */
+function csgBox(volume, b, m) {
+  const out = solid([], volume * Math.abs(det(m)));
+  const corners = [];
+  for (const x of [b[0], b[3]]) for (const y of [b[1], b[4]]) for (const z of [b[2], b[5]]) corners.push([x, y, z]);
+  out.loose = transformPoly([corners], m);
+  return out;
+}
+
 export function solidVolume(s) {
   let v = s.mesh;
   for (const t of s.terms) v += t.s * polyVolume(t.faces);
@@ -1768,7 +1806,11 @@ export class Geometry {
           const r = norm(cross(d, rel));
           v += l.s * Math.abs(A) * r * ang;
         }
-        return solid([], Math.abs(v) * Math.abs(det(a[1] ? this.placement(a[1]) : IDENTITY)));
+        const m = a[1] ? this.placement(a[1]) : IDENTITY;
+        // no faces, so its points say where it is: each profile corner's arc
+        const out = solid([], Math.abs(v) * Math.abs(det(m)));
+        out.loose = transformPoly(revolvedHull(loops, p, d, ang), m);
+        return out;
       }
       case "IFCCSGSOLID":
         return this.item(a[0], depth + 1);
@@ -1777,12 +1819,21 @@ export class Geometry {
         const x = this.num(a[1]), y = this.num(a[2]), z = this.num(a[3]);
         return solid([{ s: 1, faces: transformPoly(prism([[0, 0], [x, 0], [x, y], [0, y]], [0, 0, z]), m) }]);
       }
-      case "IFCRIGHTCIRCULARCYLINDER":
-        return solid([], Math.PI * this.num(a[2]) ** 2 * this.num(a[1]));
-      case "IFCSPHERE":
-        return solid([], (4 / 3) * Math.PI * this.num(a[1]) ** 3);
-      case "IFCRIGHTCIRCULARCONE":
-        return solid([], (Math.PI / 3) * this.num(a[2]) ** 2 * this.num(a[1]));
+      // CSG primitives: volume by formula; their box (about Position, the
+      // axis along z from 0 to Height, a sphere about its centre) as loose
+      // corners so the body has a place (uniformat, rooms)
+      case "IFCRIGHTCIRCULARCYLINDER": {
+        const h = this.num(a[1]), r = this.num(a[2]);
+        return csgBox(Math.PI * r ** 2 * h, [-r, -r, 0, r, r, h], a[0] ? this.placement(a[0]) : IDENTITY);
+      }
+      case "IFCSPHERE": {
+        const r = this.num(a[1]);
+        return csgBox((4 / 3) * Math.PI * r ** 3, [-r, -r, -r, r, r, r], a[0] ? this.placement(a[0]) : IDENTITY);
+      }
+      case "IFCRIGHTCIRCULARCONE": {
+        const h = this.num(a[1]), r = this.num(a[2]);
+        return csgBox((Math.PI / 3) * r ** 2 * h, [-r, -r, 0, r, r, h], a[0] ? this.placement(a[0]) : IDENTITY);
+      }
       default:
         throw new Unresolved(`body ${e.type}`);
     }

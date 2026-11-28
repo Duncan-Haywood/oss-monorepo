@@ -3,6 +3,7 @@ title: "Labor for siding and trim in a framing budget"
 date: 2026-11-01
 tags: [wall-framing-takeoff, budget, construction]
 description: The framing takeoff's budget now turns a typed siding rate (per sq ft) and trim rate (per foot) into labor lines tied to the model's own quantities.
+folded_into: writing/siding-takeoff-lap-board-and-batten-house-wrap-trim-and-flashing/
 ---
 
 The budget already priced labor for walls, floors, roofs, foundations, drywall and insulation. Siding and trim, whose quantities the takeoff has computed since late October, had material lines but no labor line.
