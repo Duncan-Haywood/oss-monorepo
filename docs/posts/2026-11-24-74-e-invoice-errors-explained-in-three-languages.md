@@ -108,3 +108,20 @@ id, element, URN and amount the English names. What a Belgian bookkeeper gets fr
 [Peppol invoice rejected in Belgium](2026-11-27-peppol-invoice-rejected-belgium-error-codes-in-dutch.md).
 The licence line on the German and French pages also said MIT; it now names the venture's actual licence,
 FSL-1.1-MIT, as the English pages always did.
+
+## Update, 28 November: titles that name the error, and a German front page
+
+A search result shows a page's title, and 94 of these pages had a useless one. A title longer than
+70 characters was replaced by a stock phrase, so the German page for BR-CO-10 was titled
+"BR-CO-10: EN 16931 erklärt" while its heading said what the rule is about. That happened to 32
+German pages, 30 French, 18 Dutch and 14 English. Each of those titles now keeps its own explanation
+and is cut at a word, for example "BR-CO-10: Summe der Positionsnettobeträge passt nicht…". A test
+fails if a rule page's title stops starting with its own explanation.
+
+German businesses with more than 800,000 euro prior-year turnover must issue e-invoices to other
+German businesses from 1 January 2027, and they search in German. The checker now has a German page,
+[E-Rechnung kostenlos prüfen](https://marisstella.app/einvoice-preflight/e-rechnung-pruefen.html),
+with the BMF dates and their sources, what is and is not checked, and links to the German error
+pages. Its two buttons open the checker with the rules already ticked: `?profil=xrechnung` for the
+XRechnung rules and the official EN 16931 rules, and `?profil=en16931` for the official rules alone,
+for a ZUGFeRD file. The checker's own screens are still in English, and the German page says so.
