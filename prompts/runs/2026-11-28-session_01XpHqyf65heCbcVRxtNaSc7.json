@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Local run_workflow_locally failures (pages.yml, conflict-markers, seller-books-site stills) were sparse-checkout artifacts, cleared by `git sparse-checkout disable`; seller-books-site re-ran 125/125 and biome ci clean."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -41,6 +43,10 @@
     {
       "file": "portfolio/ledger/supersede_check.py",
       "issue": "Timed out at 60 s on PR #19718 (stalled, content already on main via another PR), so a stale open PR could not be checked cheaply; left open."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes left the clone in a narrowed non-cone sparse checkout with !*.webp/!*.png patterns, so platform/pages/ and the site's committed stills vanished mid-run; seller-books-site tests then failed 4 (stills) and pages.yml failed 'no publishable product'. `git sparse-checkout disable` restored them and the same tests passed 125/125. PR #20150 (open) names a sparse-checkout fix."
     }
   ],
   "deviations": [
