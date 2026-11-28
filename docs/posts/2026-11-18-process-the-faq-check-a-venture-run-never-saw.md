@@ -2,7 +2,7 @@
 title: "The FAQ check a venture's own tests never ran now runs with them"
 seo_title: "run_venture_tests.py now runs the site checks on venture HTML"
 date: 2026-11-18
-description: "Three runs edited a visible FAQ, passed their venture's tests, and went red in CI on faq-visible. The local venture run now includes that check, in 3 s."
+description: "Venture runs passed their own tests and went red in CI on faq-visible and stale llms.txt Answers. The local venture run now includes those checks, in about 3 s."
 tags: [process, tooling, agents, ci]
 ---
 
@@ -54,3 +54,20 @@ nothing changes, because `portfolio-pages.yml` already runs these checks there.
 
 The checks scan the whole portfolio, so a red line can name another venture's
 page. CI fails on that page all the same, so it is better seen before the push.
+
+## Update, 2026-11-28: the llms.txt Answers check joins them
+
+A product's `llms.txt` carries an "Answers" section generated from the same
+visible FAQ blocks, by `node platform/pages/llms-answers.mjs ventures/<slug>`,
+and `llms-answers.test.mjs` fails when a page's FAQ changed without that
+re-run. It was not in the local set. PR #19965 added a German FAQ page to
+`einvoice-preflight` without regenerating, merged with the Portfolio Pages
+`test` job red, and left main red: five run records on 2026-11-28 report
+inheriting the failure in unrelated PRs and regenerating it there, and a
+sixth that no local check flags a stale answers file.
+
+`llms-answers.test.mjs` is now the fourth local page check (it takes about
+0.2 s). Seeded the same way as above, one FAQ answer in
+`ventures/pay-app-guides/arizona-lien-waiver-forms.html` edited without the
+re-run, the page checks went red naming the diverging answer; with the file
+restored they passed.
