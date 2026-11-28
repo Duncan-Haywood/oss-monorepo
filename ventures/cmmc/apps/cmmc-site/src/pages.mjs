@@ -191,6 +191,10 @@ const sprsFaq = [
     a: "No, except for the two partial credits (3.5.3 and 3.13.11). A requirement counts as met only when every one of its NIST SP 800-171A assessment objectives is met.",
   },
   {
+    q: "What about a machine that cannot meet a requirement, like an old CNC controller?",
+    a: "32 CFR 170.24(b)(1) assesses two cases as met at Level 2: an enduring exception, where full compliance is not feasible (test equipment, a controller on a vendor-locked OS), described with its mitigations in the system security plan; and a temporary deficiency after implementation, addressed in an operational plan of action. The CMMC Workspace records either on an implemented requirement, with its description, and prints both in the SSP. Level 1 has no such exception.",
+  },
+  {
     q: "Is this score official?",
     a: "No. It applies the published scoring rules to your ticks. Your shop's senior official makes the self-assessment and posts the score and affirmation in SPRS, and the score is only as good as the evidence behind each tick.",
   },

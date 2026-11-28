@@ -56,6 +56,8 @@ export async function buildSsp(ctx: AppContext, orgId: string, levelOverride?: C
       controlId: r.controlId,
       status: r.status,
       partialCredit: r.partialCredit,
+      metException: r.metException,
+      metExceptionDetail: r.metExceptionDetail,
       objectiveResults: r.objectiveResults,
       statement: r.statement,
       draftStatement: r.draftStatement,

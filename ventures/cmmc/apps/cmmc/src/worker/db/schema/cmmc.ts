@@ -11,7 +11,12 @@ import type {
   GaugeOwner,
   GaugeStatus,
 } from "@shared/calibration";
-import type { FamilyCode, ImplementationStatus, PartialCreditKey } from "@shared/controls";
+import type {
+  FamilyCode,
+  ImplementationStatus,
+  MetExceptionKind,
+  PartialCreditKey,
+} from "@shared/controls";
 import type { DocEventKind, DocKind, DocOrigin, DocStatus } from "@shared/document-control";
 import type { ObjectiveResult, PoamStatus } from "@shared/enums";
 import type { Affects, ClauseAnswer, IncidentRole, TimelineEntry, Tri } from "@shared/incidents";
@@ -68,6 +73,10 @@ export const controlRecord = sqliteTable(
     controlId: text("control_id").notNull(),
     status: text("status").$type<ImplementationStatus>().notNull().default("not_assessed"),
     partialCredit: text("partial_credit").$type<PartialCreditKey>(),
+    /** 32 CFR 170.24(b)(1)(i)-(ii): enduring exception or temporary deficiency (Level 2, implemented). */
+    metException: text("met_exception").$type<MetExceptionKind>(),
+    /** The SSP description and mitigations, or the operational plan of action. */
+    metExceptionDetail: text("met_exception_detail").notNull().default(""),
     ownerUserId: text("owner_user_id").references(() => user.id, { onDelete: "set null" }),
     notes: text("notes").notNull().default(""),
     /** The accepted implementation statement (human-reviewed). Only this goes in the SSP. */

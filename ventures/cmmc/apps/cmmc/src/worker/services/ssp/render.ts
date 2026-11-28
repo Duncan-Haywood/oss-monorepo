@@ -19,8 +19,12 @@ import {
   type FamilyCode,
   LEVEL2_BASELINE,
   LIBRARY_VERIFICATION,
+  MET_EXCEPTION_LABEL,
   type ObjectiveConflict,
+  objectivesNotMet,
   PARTIAL_CREDIT_RULES,
+  type RecordedException,
+  recordedException,
   SOURCES,
   scoreLevel1,
   scoreLevel2,
@@ -51,6 +55,9 @@ export interface SspRecord {
   controlId: string;
   status: ControlState["status"];
   partialCredit: ControlState["partialCredit"];
+  /** 32 CFR 170.24(b)(1)(i)-(ii); printed with its description under the requirement. */
+  metException?: ControlState["metException"];
+  metExceptionDetail?: string;
   /** Objective results; a "not_met" one makes the requirement NOT MET in the summary. */
   objectiveResults?: ControlState["objectiveResults"];
   statement: string;
@@ -172,7 +179,13 @@ export function renderSsp(input: SspInput): string {
   const states = new Map<string, ControlState>(
     input.records.map((r) => [
       r.controlId,
-      { status: r.status, partialCredit: r.partialCredit, objectiveResults: r.objectiveResults },
+      {
+        status: r.status,
+        partialCredit: r.partialCredit,
+        objectiveResults: r.objectiveResults,
+        metException: r.metException,
+        metExceptionDetail: r.metExceptionDetail,
+      },
     ]),
   );
   const controls = CONTROLS[level];
@@ -242,6 +255,7 @@ export function renderSsp(input: SspInput): string {
       `- Implemented: ${s.counts.implemented} · Not applicable: ${s.counts.not_applicable} · Partially implemented: ${s.counts.partially_implemented} · Not implemented: ${s.counts.not_implemented} · Not yet assessed: ${s.counts.not_assessed}`,
     );
     out.push(...conflictLines(s.objectiveConflicts));
+    out.push(...exceptionLines(s.exceptions));
   } else {
     const s = scoreLevel1(states);
     out.push(
@@ -277,6 +291,13 @@ export function renderSsp(input: SspInput): string {
       out.push(
         `- DoD Assessment Methodology point value: ${c.weight === 0 ? "none (no score without an SSP)" : c.weight}`,
       );
+    const exception = level === 2 ? recordedException(states.get(c.id)) : null;
+    if (exception) {
+      const unmet = objectivesNotMet(states.get(c.id));
+      out.push(
+        `- Assessed MET under 32 CFR 170.24(b)(1): ${MET_EXCEPTION_LABEL[exception]}${unmet.length ? `; objectives not met: ${unmet.join(", ")}` : ""}`,
+      );
+    }
     out.push(`- Responsible: ${r?.ownerName ?? "_Unassigned_"}`);
     const carried = shares.get(c.id);
     if (carried) out.push(`- External service providers: ${tableCell(shareSentence(carried))}`);
@@ -285,6 +306,16 @@ export function renderSsp(input: SspInput): string {
     if (people) out.push(people);
     out.push("");
     out.push(para(r?.statement ?? ""));
+    if (exception) {
+      out.push("");
+      out.push(
+        exception === "enduring_exception"
+          ? "**Enduring exception and mitigations:**"
+          : "**Temporary deficiency, operational plan of action:**",
+      );
+      out.push("");
+      out.push(para(r?.metExceptionDetail ?? ""));
+    }
   }
   const open = input.poam.filter((x) => x.status === "open");
   out.push("");
@@ -416,6 +447,25 @@ function renderProviders(out: string[], providers: SspProvider[]) {
  * A requirement recorded as implemented (or not applicable) with an objective recorded "not_met" is
  * NOT MET under 32 CFR 170.24(b)(2) and is scored that way; say so in the summary.
  */
+/** Requirements counted MET under 32 CFR 170.24(b)(1)(i)-(ii); an assessor will ask for each. */
+function exceptionLines(exceptions: readonly RecordedException[]): string[] {
+  if (exceptions.length === 0) return [];
+  const n = (k: RecordedException["kind"]) => exceptions.filter((e) => e.kind === k);
+  const ids = (xs: RecordedException[]) => xs.map((e) => e.id).join(", ");
+  const enduring = n("enduring_exception");
+  const temporary = n("temporary_deficiency");
+  const out: string[] = [];
+  if (enduring.length)
+    out.push(
+      `- Enduring exceptions, assessed as MET under 32 CFR 170.24(b)(1)(i) and described with their mitigations in section 6: ${ids(enduring)}.`,
+    );
+  if (temporary.length)
+    out.push(
+      `- Temporary deficiencies, assessed as MET under 32 CFR 170.24(b)(1)(ii) while addressed in an operational plan of action (section 6): ${ids(temporary)}.`,
+    );
+  return out;
+}
+
 function conflictLines(conflicts: readonly ObjectiveConflict[]): string[] {
   if (conflicts.length === 0) return [];
   const list = conflicts.map((c) => `${c.id} (${c.objectives.join(", ")})`).join("; ");

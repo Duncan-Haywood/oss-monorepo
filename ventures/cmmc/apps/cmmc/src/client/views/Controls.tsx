@@ -1,5 +1,10 @@
-import type { ImplementationStatus, PartialCreditKey } from "@shared/controls";
-import { IMPLEMENTATION_STATUSES, PARTIAL_CREDIT_RULES } from "@shared/controls";
+import type { ImplementationStatus, MetExceptionKind, PartialCreditKey } from "@shared/controls";
+import {
+  IMPLEMENTATION_STATUSES,
+  MET_EXCEPTION_KINDS,
+  MET_EXCEPTION_LABEL,
+  PARTIAL_CREDIT_RULES,
+} from "@shared/controls";
 import type { ObjectiveResult } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -224,11 +229,13 @@ function ControlDetail({
   const [notes, setNotes] = useState("");
   const [statement, setStatement] = useState("");
   const [draftText, setDraftText] = useState("");
+  const [exceptionDetail, setExceptionDetail] = useState("");
   useEffect(() => {
     setNotes(rec?.notes ?? "");
     setStatement(rec?.statement ?? "");
     setDraftText(rec?.draftStatement ?? "");
-  }, [rec?.notes, rec?.statement, rec?.draftStatement]);
+    setExceptionDetail(rec?.metExceptionDetail ?? "");
+  }, [rec?.notes, rec?.statement, rec?.draftStatement, rec?.metExceptionDetail]);
 
   if (detail.isLoading)
     return (
@@ -318,7 +325,59 @@ function ControlDetail({
               </select>
             </Field>
           )}
+          {status === "implemented" && c.level === 2 && (
+            <Field
+              label="Exception (32 CFR 170.24(b)(1))"
+              hint="Only for an objective you cannot meet: it then counts as met if you describe it below."
+            >
+              <select
+                className={inputCls}
+                disabled={!canEdit}
+                value={rec?.metException ?? ""}
+                onChange={(e) =>
+                  save.mutate({
+                    metException: (e.target.value || null) as MetExceptionKind | null,
+                  })
+                }
+              >
+                <option value="">None</option>
+                {MET_EXCEPTION_KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {MET_EXCEPTION_LABEL[k]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
         </div>
+        {status === "implemented" && c.level === 2 && rec?.metException && (
+          <div className="mt-3">
+            <Field
+              label={
+                rec.metException === "enduring_exception"
+                  ? "The exception and its mitigations (printed in the SSP)"
+                  : "The operational plan of action: deficiency reviews, milestones, progress (printed in the SSP)"
+              }
+              hint={
+                exceptionDetail.trim()
+                  ? undefined
+                  : "Blank: the exception does not count, and a not-met objective still scores this requirement as not met."
+              }
+            >
+              <textarea
+                className={inputCls}
+                rows={3}
+                disabled={!canEdit}
+                value={exceptionDetail}
+                onChange={(e) => setExceptionDetail(e.target.value)}
+                onBlur={() =>
+                  exceptionDetail !== (rec?.metExceptionDetail ?? "") &&
+                  save.mutate({ metExceptionDetail: exceptionDetail })
+                }
+              />
+            </Field>
+          </div>
+        )}
         <ErrorText error={save.error} />
       </Card>
 

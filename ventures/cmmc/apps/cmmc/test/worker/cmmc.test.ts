@@ -118,6 +118,51 @@ describe("controls, score and SSP", () => {
     expect(rec.objectiveResults).toEqual({ "3.1.1[b]": "met" });
   });
 
+  it("records an enduring exception that keeps a requirement MET, clears it off Implemented, refuses it on Level 1", async () => {
+    const t = await setupTenant();
+    const patch = (id: string, body: unknown) =>
+      api(`/api/orgs/${t.orgId}/controls/${id}`, { method: "PATCH", as: t.userId, json: body });
+    const score = async () =>
+      (
+        await json<{ level2: { score: number; provisionalScore: number } }>(
+          await api(`/api/orgs/${t.orgId}/score?level=2`, { as: t.userId }),
+        )
+      ).level2.provisionalScore;
+    expect(
+      (
+        await patch("AC.L2-3.1.1", {
+          status: "implemented",
+          objectiveResults: { "3.1.1[a]": "not_met" },
+        })
+      ).status,
+    ).toBe(200);
+    const before = await score();
+    const res = await patch("AC.L2-3.1.1", {
+      metException: "enduring_exception",
+      metExceptionDetail: "Test bench PC on a vendor-locked OS; isolated VLAN, no CUI at rest.",
+    });
+    expect(res.status).toBe(200);
+    const rec = await json<{ metException: string | null; metExceptionDetail: string }>(res);
+    expect(rec.metException).toBe("enduring_exception");
+    // 3.1.1 is worth 5: the described exception makes it MET.
+    expect(await score()).toBe(before + 5);
+    const off = await json<{ metException: string | null; metExceptionDetail: string }>(
+      await patch("AC.L2-3.1.1", { status: "partially_implemented" }),
+    );
+    expect(off.metException).toBeNull();
+    expect(off.metExceptionDetail).toContain("Test bench PC");
+    expect(await score()).toBe(before);
+    expect(
+      (
+        await patch("AC.L1-b.1.i", {
+          status: "implemented",
+          metException: "enduring_exception",
+          metExceptionDetail: "x",
+        })
+      ).status,
+    ).toBe(400);
+  });
+
   it("rejects unknown controls and objectives", async () => {
     const t = await setupTenant();
     expect((await api(`/api/orgs/${t.orgId}/controls/XX.L2-9.9.9`, { as: t.userId })).status).toBe(

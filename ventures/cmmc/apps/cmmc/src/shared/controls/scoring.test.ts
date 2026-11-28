@@ -300,3 +300,106 @@ describe("scoreLevel1", () => {
     expect(scoreLevel1(m)).toMatchObject({ met: 14, allMet: false, notMet: ["PE.L1-b.1.ix"] });
   });
 });
+
+describe("enduring exceptions and temporary deficiencies — 32 CFR 170.24(b)(1)(i)-(ii)", () => {
+  const notMetA = { "3.1.1[a]": "not_met" } as const;
+
+  it("3.1.1 (5 points) implemented, [a] not met, enduring exception described: MET, 110", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "implemented",
+          objectiveResults: notMetA,
+          metException: "enduring_exception",
+          metExceptionDetail:
+            "CNC controller runs a vendor-fixed OS; isolated VLAN, no CUI at rest.",
+        },
+      }),
+    );
+    expect(s.score).toBe(110);
+    expect(s.objectiveConflicts).toEqual([]);
+    expect(s.exceptions).toEqual([
+      { id: id("3.1.1"), nistId: "3.1.1", kind: "enduring_exception", objectives: ["3.1.1[a]"] },
+    ]);
+  });
+
+  it("temporary deficiency with an operational plan of action: MET, 110", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "implemented",
+          objectiveResults: notMetA,
+          metException: "temporary_deficiency",
+          metExceptionDetail:
+            "OPA-7: account review lapsed after HR change; review weekly, close 2027-01-15.",
+        },
+      }),
+    );
+    expect(s.score).toBe(110);
+    expect(s.exceptions.map((e) => e.kind)).toEqual(["temporary_deficiency"]);
+  });
+
+  it("an exception with a blank description does not count: 110 - 5 = 105, listed as a conflict", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "implemented",
+          objectiveResults: notMetA,
+          metException: "enduring_exception",
+          metExceptionDetail: "   ",
+        },
+      }),
+    );
+    expect(s.score).toBe(105);
+    expect(s.exceptions).toEqual([]);
+    expect(s.objectiveConflicts.map((c) => c.nistId)).toEqual(["3.1.1"]);
+  });
+
+  it("an exception does not rescue a requirement that is not implemented: 110 - 5 = 105", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.1": {
+          status: "partially_implemented",
+          metException: "enduring_exception",
+          metExceptionDetail: "described",
+        },
+      }),
+    );
+    expect(s.score).toBe(105);
+    expect(s.exceptions).toEqual([]);
+  });
+
+  it("an implemented requirement with every objective met and an exception is listed, still 110", () => {
+    const s = scoreLevel2(
+      states({
+        "3.1.8": {
+          status: "implemented",
+          metException: "enduring_exception",
+          metExceptionDetail: "test bench PC",
+        },
+      }),
+    );
+    expect(s.score).toBe(110);
+    expect(s.exceptions).toEqual([
+      { id: id("3.1.8"), nistId: "3.1.8", kind: "enduring_exception", objectives: [] },
+    ]);
+  });
+
+  it("Level 1 ignores an exception: an objective not met is still not met", () => {
+    const r = LEVEL1_REQUIREMENTS[0];
+    const obj = r?.objectives[0]?.id;
+    if (!r || !obj) throw new Error("empty Level 1 library");
+    const m = new Map<string, ControlState>(
+      LEVEL1_REQUIREMENTS.map((x) => [x.id, { status: "implemented" }]),
+    );
+    m.set(r.id, {
+      status: "implemented",
+      objectiveResults: { [obj]: "not_met" },
+      metException: "enduring_exception",
+      metExceptionDetail: "described",
+    });
+    const l1 = scoreLevel1(m);
+    expect(l1.notMet).toEqual([r.id]);
+    expect(l1.objectiveConflicts.map((c) => c.id)).toEqual([r.id]);
+  });
+});

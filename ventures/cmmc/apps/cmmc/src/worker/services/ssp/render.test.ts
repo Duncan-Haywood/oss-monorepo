@@ -82,6 +82,31 @@ describe("renderSsp", () => {
     expect(md).toContain("scored as not met");
   });
 
+  it("counts a described enduring exception as MET and prints it under the requirement", () => {
+    const md = renderSsp({
+      ...base,
+      records: [
+        ...base.records,
+        {
+          controlId: "AC.L2-3.1.2",
+          status: "implemented",
+          partialCredit: null,
+          objectiveResults: { "3.1.2[a]": "not_met" },
+          metException: "enduring_exception",
+          metExceptionDetail: "## Legacy CMM PC on a vendor OS; isolated VLAN.",
+          statement: "Role-based access.",
+          draftStatement: null,
+          ownerName: null,
+        },
+      ],
+    });
+    expect(md).not.toContain("scored as not met");
+    expect(md).toContain("Enduring exceptions, assessed as MET under 32 CFR 170.24(b)(1)(i)");
+    expect(md).toContain("objectives not met: 3.1.2[a]");
+    expect(md).toContain("**Enduring exception and mitigations:**");
+    expect(md).toContain("\\## Legacy CMM PC");
+  });
+
   it("says no score can be produced without an SSP", () => {
     const md = renderSsp({ ...base, records: [] });
     expect(md).toContain("not computable");

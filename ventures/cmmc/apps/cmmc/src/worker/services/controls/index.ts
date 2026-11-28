@@ -6,6 +6,7 @@ import {
   type ControlState,
   controlById,
   type ImplementationStatus,
+  type MetExceptionKind,
   PARTIAL_CREDIT_RULES,
   type PartialCreditKey,
 } from "@shared/controls";
@@ -69,6 +70,9 @@ export async function ensureRecord(ctx: AppContext, orgId: string, controlId: st
 export interface ControlPatch {
   status?: ImplementationStatus;
   partialCredit?: PartialCreditKey | null;
+  /** Level 2 only; kept only while the status is "implemented" (32 CFR 170.24(b)(1)(i)-(ii)). */
+  metException?: MetExceptionKind | null;
+  metExceptionDetail?: string;
   ownerUserId?: string | null;
   notes?: string;
   statement?: string;
@@ -91,6 +95,11 @@ export async function updateControl(
     );
     if (!ok) throw badRequest("That partial-credit option does not apply to this requirement");
   }
+  if (patch.metException && def.level !== 2) {
+    throw badRequest(
+      "Enduring exceptions and temporary deficiencies apply to Level 2; Level 1 needs every requirement met",
+    );
+  }
   if (patch.ownerUserId && !(await isMember(ctx, orgId, patch.ownerUserId))) {
     throw badRequest("Owner must be a member of this organization");
   }
@@ -107,6 +116,11 @@ export async function updateControl(
   // Partial credit only means something on a partially implemented requirement.
   const nextStatus = patch.status ?? existing.status;
   if (nextStatus !== "partially_implemented") set.partialCredit = null;
+  if (patch.metException !== undefined) set.metException = patch.metException;
+  if (patch.metExceptionDetail !== undefined) set.metExceptionDetail = patch.metExceptionDetail;
+  // An exception or temporary deficiency is a reason an implemented requirement is still MET; on any
+  // other status it means nothing, so it is cleared (the description is kept for when it returns).
+  if (nextStatus !== "implemented") set.metException = null;
   if (patch.ownerUserId !== undefined) set.ownerUserId = patch.ownerUserId;
   if (patch.notes !== undefined) set.notes = patch.notes;
   if (patch.statement !== undefined) {
@@ -175,7 +189,13 @@ export function statesFrom(rows: ControlRecordRow[]): Map<string, ControlState> 
   return new Map(
     rows.map((r) => [
       r.controlId,
-      { status: r.status, partialCredit: r.partialCredit, objectiveResults: r.objectiveResults },
+      {
+        status: r.status,
+        partialCredit: r.partialCredit,
+        objectiveResults: r.objectiveResults,
+        metException: r.metException,
+        metExceptionDetail: r.metExceptionDetail,
+      },
     ]),
   );
 }

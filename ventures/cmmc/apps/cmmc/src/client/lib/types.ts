@@ -1,5 +1,10 @@
 // Response shapes the client reads. They mirror the Worker's JSON (src/worker/routes/org/index.ts).
-import type { ControlDef, ImplementationStatus, PartialCreditKey } from "@shared/controls";
+import type {
+  ControlDef,
+  ImplementationStatus,
+  MetExceptionKind,
+  PartialCreditKey,
+} from "@shared/controls";
 import type { MemberRole, ObjectiveResult, PoamStatus } from "@shared/enums";
 import type { LegalStatusDto } from "@shared/legal";
 
@@ -42,6 +47,8 @@ export interface OrgInfo {
 export interface ControlRecord {
   status: ImplementationStatus;
   partialCredit: PartialCreditKey | null;
+  metException: MetExceptionKind | null;
+  metExceptionDetail: string;
   ownerUserId: string | null;
   notes: string;
   statement: string;
