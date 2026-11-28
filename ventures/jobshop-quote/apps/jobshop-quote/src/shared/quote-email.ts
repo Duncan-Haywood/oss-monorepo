@@ -157,10 +157,34 @@ export function quoteEmailFooter(f: QuoteEmailFacts): string[] {
  * HTML with every character of the message escaped (no markup from the message survives).
  */
 export function composeQuoteEmail(f: QuoteEmailFacts, message: string): ComposedQuoteEmail {
+  return {
+    subject: quoteEmailSubject(f),
+    ...renderEmail(message, {
+      signature: f.signature,
+      changes: quoteEmailChangeLines(f.changes),
+      footer: quoteEmailFooter(f),
+      acceptUrl: f.acceptUrl ?? null,
+    }),
+  };
+}
+
+/**
+ * The body of any customer email the app sends for a quote (the quote email and a follow-up): the
+ * estimator's message, optional "Changes from" lines, the shop's signature and a fixed footer, as
+ * plain text and as HTML with every character of the message escaped.
+ */
+function renderEmail(
+  message: string,
+  parts: {
+    signature?: string | null;
+    changes: string[];
+    footer: string[];
+    acceptUrl: string | null;
+  },
+): { text: string; html: string } {
   const body = message.replace(/\r\n?/g, "\n").trim();
-  const signature = cleanSignature(f.signature);
-  const footer = quoteEmailFooter(f);
-  const changes = quoteEmailChangeLines(f.changes);
+  const signature = cleanSignature(parts.signature);
+  const { footer, changes, acceptUrl } = parts;
   const changesText = changes.length ? `${changes.join("\n")}\n\n` : "";
   const text = `${body ? `${body}\n\n` : ""}${changesText}${signature ? `${signature}\n\n` : ""}--\n${footer.join("\n")}\n`;
   const paragraphs = body
@@ -182,13 +206,123 @@ export function composeQuoteEmail(f: QuoteEmailFacts, message: string): Composed
 ${paragraphs}${changesHtml}${sigHtml}
 <p style="margin-top:24px;border-top:1px solid #d6d3d1;padding-top:8px;font-size:12px;color:#57534e">${footer
     .map((l) =>
-      f.acceptUrl && l === acceptLinkLine(f.acceptUrl)
-        ? `<strong>Accept or decline this quote online:</strong> <a href="${escapeHtml(f.acceptUrl)}">${escapeHtml(f.acceptUrl)}</a>`
+      acceptUrl && l === acceptLinkLine(acceptUrl)
+        ? `<strong>Accept or decline this quote online:</strong> <a href="${escapeHtml(acceptUrl)}">${escapeHtml(acceptUrl)}</a>`
         : escapeHtml(l),
     )
     .join("<br>")}</p>
 </body></html>`;
-  return { subject: quoteEmailSubject(f), text, html };
+  return { text, html };
+}
+
+// ---- Following up on a sent quote by email ------------------------------------------------------
+//
+// A follow-up is a short note to the customer a few days after the quote went out ("any questions
+// on Q-1001?"), drafted from the quote and edited by the estimator before it goes. It replies in
+// the same thread as the quote email: the quote's RFQ thread when the quote went back to the RFQ's
+// sender, then the Message-IDs of the emails already sent for this quote, so the buyer sees it under
+// the quote rather than as a new conversation. The PDF can go along again (the same frozen file).
+
+export interface FollowUpEmailFacts {
+  shopName: string;
+  /** "Q-1001" or "Q-1001 Rev 2". */
+  quoteLabel: string;
+  /** The PDF's file name when it is attached again, else null. */
+  attachedFileName: string | null;
+  senderName: string;
+  senderEmail: string;
+  /** The shop day the quote was marked sent, if known. */
+  sentDay: string | null;
+  validUntil: string | null;
+  signature?: string | null;
+}
+
+/** The fixed footer under a follow-up: which quote, what is attached, where replies go. */
+export function followUpEmailFooter(f: FollowUpEmailFacts): string[] {
+  const sent = f.sentDay ? `, sent ${f.sentDay}` : "";
+  const lines = [`Following up on quote ${f.quoteLabel} from ${oneLine(f.shopName)}${sent}.`];
+  if (f.attachedFileName) lines.push(`Attached again: ${f.attachedFileName}.`);
+  if (f.validUntil) lines.push(`Prices are valid until ${f.validUntil}.`);
+  lines.push(`Reply to this email to reach ${oneLine(f.senderName, 120)} (${f.senderEmail}).`);
+  return lines;
+}
+
+/**
+ * A follow-up's subject: "Re: " and the subject of the last email sent for this quote, so it joins
+ * that conversation; with none sent from the app, "Following up: Quote Q-1001 from <shop>".
+ */
+export function followUpSubject(
+  lastSubject: string | null,
+  f: Pick<FollowUpEmailFacts, "shopName" | "quoteLabel">,
+): string {
+  if (lastSubject && oneLine(lastSubject)) return replySubject(lastSubject);
+  return oneLine(`Following up: ${quoteEmailSubject(f)}`);
+}
+
+export function composeFollowUpEmail(
+  f: FollowUpEmailFacts,
+  lastSubject: string | null,
+  message: string,
+): ComposedQuoteEmail {
+  return {
+    subject: followUpSubject(lastSubject, f),
+    ...renderEmail(message, {
+      signature: f.signature,
+      changes: [],
+      footer: followUpEmailFooter(f),
+      acceptUrl: null,
+    }),
+  };
+}
+
+/** The message a follow-up form starts with; `previous` counts follow-up emails already sent. */
+export function defaultFollowUpMessage(o: {
+  customerName: string | null;
+  quoteLabel: string;
+  sentDay: string | null;
+  senderName?: string;
+  previous?: number;
+}): string {
+  const hello = o.customerName?.trim() ? `Hello ${oneLine(o.customerName, 120)},` : "Hello,";
+  const sent = o.sentDay ? `, sent on ${o.sentDay}` : "";
+  const opener =
+    (o.previous ?? 0) > 0
+      ? `I'm checking in again on our quote ${o.quoteLabel}${sent}.`
+      : `I'm following up on our quote ${o.quoteLabel}${sent}.`;
+  const sign = o.senderName?.trim() ? `\n${oneLine(o.senderName, 120)}` : "";
+  return `${hello}\n\n${opener} Do you have any questions, or anything we should change (quantities, material, finish or lead time)? If the job has been awarded or put on hold, a quick note helps us plan.\n\nBest regards,${sign}`;
+}
+
+/**
+ * A provider's id for a sent message as a Message-ID header value, or null when it is not one. A
+ * bare `id@host` gets its angle brackets; anything that is still not a safe msg-id (a provider's
+ * internal id, a fake sender's) is not used. An id that matches no message the customer has does
+ * no harm: mail clients thread on the ids they know and ignore the rest.
+ */
+export function asMessageId(providerId: string | null | undefined): string | null {
+  if (!providerId) return null;
+  const id = providerId.trim();
+  if (isSafeMessageId(id)) return id;
+  const wrapped = `<${id}>`;
+  return isSafeMessageId(wrapped) ? wrapped : null;
+}
+
+/**
+ * How a follow-up threads: after the quote's RFQ thread (when the quote went back to the RFQ's
+ * sender, `quoteEmailThread`), the Message-IDs of the emails already sent for the quote, oldest
+ * first. It replies to the newest of them. Null when there is nothing to reply to.
+ */
+export function followUpThread(
+  rfqThread: Pick<QuoteEmailThread, "references"> | null,
+  priorMessageIds: (string | null | undefined)[],
+): { inReplyTo: string; references: string } | null {
+  const ids: string[] = [];
+  for (const id of [...messageIdsIn(rfqThread?.references), ...priorMessageIds.map(asMessageId)]) {
+    if (id && !ids.includes(id)) ids.push(id);
+  }
+  const last = ids[ids.length - 1];
+  if (!last) return null;
+  return { inReplyTo: last, references: limitReferences(ids).join(" ") };
 }
 
 /**

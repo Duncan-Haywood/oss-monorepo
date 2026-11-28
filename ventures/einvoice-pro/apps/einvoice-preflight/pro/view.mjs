@@ -123,6 +123,7 @@ const DOC_TYPES = {
   "389": { en: "Self-billed invoice", de: "Gutschrift (Selbstfakturierung)", fr: "Autofacture", nl: "Self-billing factuur", pl: "Samofakturowanie" },
   "326": { en: "Partial invoice", de: "Teilrechnung", fr: "Facture partielle", nl: "Deelfactuur", pl: "Faktura częściowa" },
   "875": { en: "Partial construction invoice", de: "Abschlagsrechnung (Bau)", fr: "Situation de travaux", nl: "Termijnfactuur (bouw)", pl: "Faktura częściowa (budowa)" },
+  "876": { en: "Partial final construction invoice", de: "Teilschlussrechnung (Bau)", fr: "Décompte partiel définitif de travaux", nl: "Gedeeltelijke eindafrekening (bouw)", pl: "Faktura częściowa końcowa (budowa)" },
   "877": { en: "Final construction invoice", de: "Schlussrechnung (Bau)", fr: "Décompte final de travaux", nl: "Eindafrekening (bouw)", pl: "Faktura końcowa (budowa)" },
 };
 

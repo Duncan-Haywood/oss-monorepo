@@ -222,6 +222,19 @@ checks the pair. No customers yet.
   (`quote_follow_ups`, `quotes.follow_up_on`); `src/shared/follow-up.ts`,
   `services/quotes/follow-ups.ts`, docs/EMAIL.md "Quotes due for a follow-up"; unit, worker
   (tenancy, roles, once-per-day mail) and e2e (`test/e2e/12-quote-follow-up.spec.ts`) tests.
+- Quote follow-up, part 2 (2026-11-28, every plan, quote-follow-up-email): "Email a follow-up…" on
+  a sent quote's Follow-up card opens a form drafted from the quote (to: the last email's
+  recipients, else the customer email; a message naming the contact, the quote and the day it was
+  sent, "checking in again" after the first). The estimator edits it, ticks the PDF again (on by
+  default) and a copy to themselves, adds an optional shop note and picks the next follow-up day;
+  Send mails it as a reply to the last email sent for the quote (`Re: <subject>`, References: the
+  RFQ thread when it goes back to the RFQ's sender, then each sent email's provider Message-ID,
+  shared/quote-email.ts `followUpThread`) and logs "Emailed a follow-up to ..." with that day, so
+  the due list moves on. Same sender rules and shared limits as the quote email; a failed send logs
+  nothing. `quote_emails.kind` (migration 0044) marks follow-ups, shown as "Follow-up ·" in the
+  quote's email history. `GET|POST /quotes/:id/follow-up-email`; docs/EMAIL.md, "Follow-up emails
+  to the customer"; tests: `src/shared/follow-up-email.test.ts`,
+  `test/worker/follow-up-email.test.ts`, e2e `12-quote-follow-up.spec.ts` (second test).
 - Material price lists, part 1: price dates and history (2026-11-27, bets.md growth path "material
   price lists"): each material row carries the day its price was last set (`materials.price_set_at`;
   only a change to the price it charges by, $/lb or $/stock piece, or a change of basis moves it,
@@ -941,10 +954,11 @@ checks the pair. No customers yet.
     2026-11-28, next if shops ask: several won quotes in one file, up to QuickBooks' 100 invoices): an item per part family if shops ask, class and location for
     Plus and Advanced companies, and an estimate at "Mark sent" for shops that keep quotes in
     QuickBooks too; then, if shops ask, payments read back to mark the job paid.
-14. Quote follow-up, part 2 (part 1 done 2026-11-26): a follow-up email to the customer drafted from
-    the quote (the estimator sends it, threaded like the quote email) if estimators ask for it;
-    follow-up counts and response time on the Win/loss page (does a second follow-up change the
-    win rate?) once shops have a few months of logged follow-ups.
+14. Quote follow-up, part 3 (part 1 done 2026-11-26; part 2, the follow-up email drafted from the
+    quote and sent threaded, done 2026-11-28): follow-up counts and response time on the Win/loss
+    page (does a second follow-up change the win rate?) once shops have a few months of logged
+    follow-ups; a shop-level follow-up template (like the signature) if estimators rewrite the
+    draft the same way each time.
 15. Material price lists, part 2 (part 1 done 2026-11-27: price dates, history, the stale-price
     warning, "New price"; "quotes this changes" done 2026-11-27; the supplier's sheet with supplier,
     date, the move per row and the quotes each change touches done 2026-11-27, part 2b): the

@@ -11,7 +11,7 @@ import { profitAndLoss, accountMap } from "./ledger.mjs";
 export function setBudget(books, code, cents) {
   const a = accountMap(books.accounts).get(code);
   if (!a || (a.type !== "income" && a.type !== "expense")) throw new Error(`${code} is not an income or expense account`);
-  if (!Number.isInteger(cents) || cents < 0) throw new Error("budget must be a whole number of cents, zero or more");
+  if (!Number.isSafeInteger(cents) || cents < 0) throw new Error("budget must be a whole number of cents, zero or more");
   const budget = { ...(books.budget ?? {}) };
   if (cents === 0) delete budget[code]; else budget[code] = cents;
   return { ...books, budget };

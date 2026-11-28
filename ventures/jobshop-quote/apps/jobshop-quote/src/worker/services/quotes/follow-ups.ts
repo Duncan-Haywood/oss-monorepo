@@ -195,25 +195,49 @@ export async function logFollowUp(
   if (!note && input.nextOn === q.followUpOn) {
     throw badRequest("Write what happened, or pick a different next follow-up day");
   }
-  // The day moves only while the quote is still sent; if it was decided a moment ago, nothing is
-  // logged. The entry is written after, so a refused update leaves no orphan note.
+  if (!(await recordFollowUp(ctx, orgId, userId, quoteId, note, input.nextOn))) {
+    throw conflict("This quote was decided while you were writing");
+  }
+  return quoteFollowUpLog(ctx, orgId, quoteId);
+}
+
+/**
+ * Writes a checked follow-up: moves the quote's next day and adds the log entry. The day moves
+ * only while the quote is still sent; if it was decided a moment ago, nothing is logged and this
+ * returns false. The entry is written after, so a refused update leaves no orphan note. Callers
+ * check `nextOn` (`nextFollowUpError`) first.
+ */
+export async function recordFollowUp(
+  ctx: AppContext,
+  orgId: string,
+  userId: string,
+  quoteId: string,
+  note: string | null,
+  nextOn: string | null,
+): Promise<boolean> {
   const moved = await ctx.db
     .update(quotes)
-    .set({ followUpOn: input.nextOn })
+    .set({ followUpOn: nextOn })
     .where(and(eq(quotes.id, quoteId), eq(quotes.orgId, orgId), eq(quotes.status, "sent")))
     .returning({ id: quotes.id });
-  if (moved.length === 0) throw conflict("This quote was decided while you were writing");
+  if (moved.length === 0) return false;
   await ctx.db.insert(quoteFollowUps).values({
     id: newId("qfu"),
     orgId,
     quoteId,
     byUserId: userId,
     note,
-    nextOn: input.nextOn,
+    nextOn,
     createdAt: ctx.now(),
   });
-  ctx.logger.info("quote.follow_up_logged", { orgId, quoteId, more: input.nextOn !== null });
-  return quoteFollowUpLog(ctx, orgId, quoteId);
+  ctx.logger.info("quote.follow_up_logged", { orgId, quoteId, more: nextOn !== null });
+  return true;
+}
+
+/** The shop's today (its own calendar), for checking a next follow-up day. */
+export async function shopToday(ctx: AppContext, orgId: string): Promise<string> {
+  const s = await shopFollowUpSettings(ctx, orgId);
+  return shopDay(ctx.now(), s.timeZone);
 }
 
 /** PUT /quotes/follow-ups/settings (admins): the first follow-up N days after sending, 0 off. */

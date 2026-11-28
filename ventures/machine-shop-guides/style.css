@@ -43,3 +43,10 @@ textarea { resize: vertical; min-height: 4.5em; }
 @media (max-width: 620px) { .sspmore { padding-left: 0; } }
 @media print { #actions, .sspmore input[type=file] { display: none; } }
 .cols { columns: 3 11em; padding-left: 1.2em; }
+/* Checkbox rows (ISO 9001 audit scope picker): box and text on one line. */
+label.tick, .scope-section label { display: flex; gap: 8px; align-items: baseline; font-weight: 400; margin: 4px 0; }
+label.tick input, .scope-section label input { width: auto; margin: 0; flex: none; }
+.scope-section { margin: 8px 0; }
+.scope-section > label { font-weight: 600; }
+.scope-clauses { padding-left: 22px; }
+#programme li { margin: 6px 0; }

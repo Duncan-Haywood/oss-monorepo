@@ -2656,6 +2656,24 @@ nothing to copy. No customers yet. Paid plans are dark
   same day and still out: Oklahoma (oscn.net shows a Turnstile bot check), Alabama (no official text
   reachable), Hawaii and New Mexico (403).
 
+- State bond claims, Montana, North Dakota, South Carolina and South Dakota (2026-11-28,
+  state-bond-claims-mt-nd-sc-sd, every plan), each read on the legislature's own site that day
+  (excerpts appended to `ventures/pay-app-guides/sources/state-bond-claims.txt`): South Carolina
+  (§ 11-35-3030(2)(c): a remote claimant's 90-day notice; (d): suit within a year of the last day;
+  a note on the notice of furnishing that lifts the cap on a remote claim, and that local bodies with
+  their own procurement codes may differ), North Dakota (§ 48-01.2-11: a sub's sub's 90-day notice
+  by registered mail; § 48-01.2-12: suit within a year of completion and acceptance, dated from the
+  acceptance date), Montana (§ 18-2-204: everyone files a notice of claim with the public body
+  within 90 days after acceptance, dated; § 18-2-206: a supplier to a sub notifies the contractor
+  within 30 days of first delivery, undated; no suit limit in part 2, said in a note) and South
+  Dakota (§ 5-21-6: no notice; one suit in the public body's name, not before six months after
+  complete performance and final settlement and within a year after, undated; § 5-21-2's 90 days
+  from acceptance when no bond was taken, in a note). Twenty-nine states in `STATE_BOND_RULES`.
+  Not done: Pennsylvania, Illinois, New Jersey, Connecticut, West Virginia, New Hampshire and Hawaii
+  (refused, 403 or timed out through the proxy on 2026-11-28); Georgia, Tennessee, Alabama,
+  Arkansas and Mississippi publish their codes only through a vendor's site; Alaska, Kentucky,
+  Indiana, Oklahoma, New Mexico, Wyoming, Vermont and Wisconsin not read yet.
+
 - Late-payment interest, part 2 (2026-11-27, paid-late-interest, every plan): an application paid
   in full after its due date, on a job with a late-payment rate, keeps the interest it earned from the
   due date to the last payment (`paidLateApps` in `src/shared/cash-report.ts`, on what was paid, net
@@ -2889,5 +2907,5 @@ nothing to copy. No customers yet. Paid plans are dark
   part 2 (part 1, eight states on the job page, and the next bond date on the cash page and weekly
   email 45 days ahead, done 2026-11-27; MA, MI, MN, NV and OR added 2026-11-27, part 2d);
   California's stop payment notice and bond claim (leginfo.legislature.ca.gov answered 2026-11-27);
-  more states, each read from the statute page (Louisiana added 2026-11-28), if contractors mark public jobs (ilga.gov and
+  more states, each read from the statute page (Louisiana added 2026-11-28; MT, ND, SC and SD 2026-11-28), if contractors mark public jobs (ilga.gov and
   docs.legis.wisconsin.gov timed out and legis.state.pa.us returned 403 on 2026-11-27)

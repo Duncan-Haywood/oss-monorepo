@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leitweg-ID prüfen: Prüfziffer und häufige Fehler</title>
+<meta name="description" content="Leitweg-ID prüfen: Prüfziffer nach Modulo 97-10 im Browser. Gemessen: Welche Fehler in der XRechnung-Käuferreferenz die offiziellen Regeln übersehen.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/leitweg-id-pruefen.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Leitweg-ID prüfen: Prüfziffer und häufige Fehler">
+<meta property="og:description" content="Leitweg-ID prüfen: Prüfziffer nach Modulo 97-10 im Browser. Gemessen: Welche Fehler in der XRechnung-Käuferreferenz die offiziellen Regeln übersehen.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/leitweg-id-pruefen.html">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Was ist eine Leitweg-ID?", "acceptedAnswer": {"@type": "Answer", "text": "Die Leitweg-ID ist die Adresse eines öffentlichen Rechnungsempfängers in Deutschland. Sie besteht aus der Grobadressierung (2 bis 12 Ziffern), einer optionalen Feinadressierung (bis zu 30 Buchstaben oder Ziffern) und zwei Prüfziffern, getrennt durch Bindestriche, zum Beispiel 04011000-1234512345-06. In der XRechnung steht sie in der Käuferreferenz (BT-10). Sie wird in der Regel mit dem Auftrag mitgeteilt."}}, {"@type": "Question", "name": "Wie wird die Prüfziffer der Leitweg-ID berechnet?", "acceptedAnswer": {"@type": "Answer", "text": "Nach ISO/IEC 7064, Modulo 97-10, wie bei der IBAN: Bindestriche weglassen, Buchstaben durch Zahlen ersetzen (A = 10 bis Z = 35), zwei Nullen anhängen, den Rest der Division durch 97 von 98 abziehen. Zur Kontrolle wird die vollständige Leitweg-ID ohne Bindestriche durch 97 geteilt; bleibt der Rest 1, stimmen die Prüfziffern."}}, {"@type": "Question", "name": "Prüft der KoSIT-Validator die Leitweg-ID?", "acceptedAnswer": {"@type": "Answer", "text": "In unserer Messung nicht: Die offiziellen Regeln (EN 16931 und XRechnung der KoSIT) meldeten nur die ganz fehlende Käuferreferenz (BR-DE-15). Vertauschte Ziffern, eine falsche Ziffer, fehlende Prüfziffern, Leerzeichen statt Bindestrichen oder die Bestellnummer an ihrer Stelle bestanden alle Regeln. Die Prüfziffern sehen nur zusätzliche Prüfungen wie die dieses Werkzeugs."}}, {"@type": "Question", "name": "Wo steht die Leitweg-ID in der XRechnung?", "acceptedAnswer": {"@type": "Answer", "text": "In der Käuferreferenz, BT-10: in UBL im Element cbc:BuyerReference, in CII in ram:BuyerReference. Wird über Peppol versandt, kann die Leitweg-ID zusätzlich als elektronische Adresse des Käufers (BT-49) mit dem Schema 0204 dienen; die Peppol-ID nennt der Empfänger."}}, {"@type": "Question", "name": "Was mache ich, wenn ich keine Leitweg-ID habe?", "acceptedAnswer": {"@type": "Answer", "text": "Fragen Sie beim öffentlichen Auftraggeber nach; die Leitweg-ID wird in der Regel mit dem Auftrag übermittelt. Raten oder aus einer anderen Rechnung übernehmen hilft nicht: Eine gültige, aber fremde Leitweg-ID besteht jede Prüfung und führt die Rechnung trotzdem an die falsche Stelle."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.cta{display:inline-block;background:#0b5f8a;color:#fff;padding:.6rem 1rem;border-radius:10px;text-decoration:none;font-weight:600;margin:.2rem .4rem .2rem 0}.cta.alt{background:#fff;color:#0b5f8a;border:1px solid #0b5f8a}label{font-weight:600;display:block;margin-bottom:.3rem}input{font:inherit;font-size:1.05rem;padding:.55rem .7rem;border:1px solid #9fb0c0;border-radius:10px;width:100%;max-width:32rem;box-sizing:border-box}button{font:inherit;font-weight:600;padding:.55rem 1rem;border-radius:10px;border:0;background:#0b5f8a;color:#fff;margin-top:.5rem;cursor:pointer}#lw-result{margin:.8rem 0 0;font-weight:600;min-height:1.4em}#lw-result.ok{color:#1d6b35}#lw-result.bad{color:#9b2c1c}#lw-result.hint{color:#7a4b00}code{overflow-wrap:anywhere}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./" hreflang="en">E-invoice Preflight</a> · <a href="e-rechnung-pruefen.html">E-Rechnung prüfen</a> · <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD?</a></p>
+<header>
+<h1>Leitweg-ID prüfen, bevor die XRechnung rausgeht</h1>
+<p class="lede">Die Leitweg-ID sagt der Eingangsplattform, bei welcher Behörde Ihre XRechnung landen soll. Ein vertippter Bindestrich oder eine vertauschte Ziffer fällt dabei leichter durch, als man denkt: In unserer Messung meldeten die offiziellen XRechnung-Regeln keinen einzigen solchen Fehler, nur die ganz fehlende Käuferreferenz. Prüfen Sie die Prüfziffern hier, oder die ganze Rechnung im kostenlosen Prüfer.</p>
+<p><a class="cta" href="./?profil=xrechnung#drop">Ganze XRechnung prüfen</a> <a class="cta alt" href="create.html" hreflang="en">XRechnung erstellen</a></p>
+</header>
+<section id="pruefen">
+<h2>Prüfziffer der Leitweg-ID prüfen</h2>
+<form id="lw-form" autocomplete="off">
+<label for="lw-input">Leitweg-ID</label>
+<input id="lw-input" name="leitweg" inputmode="text" spellcheck="false" placeholder="z. B. 04011000-1234512345-06">
+<button type="submit">Prüfen</button>
+</form>
+<p id="lw-result" role="status" aria-live="polite"></p>
+<p class="fine">Die Prüfung läuft in Ihrem Browser; die Eingabe wird nirgendwohin gesendet. Sie prüft Form und Prüfziffern nach der Format-Spezifikation, nicht, ob es die Leitweg-ID gibt oder ob sie zu Ihrem Auftraggeber gehört. Das weiß nur der Auftraggeber.</p>
+</section>
+<section>
+<h2>So ist eine Leitweg-ID aufgebaut</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Teil</th><th scope="col">Inhalt</th><th scope="col">im Beispiel 04011000-1234512345-06</th></tr></thead>
+<tbody>
+<tr><td>Grobadressierung (Pflicht)</td><td>2 bis 12 Ziffern, abgeleitet vom Regionalschlüssel</td><td>04011000</td></tr>
+<tr><td>Feinadressierung (optional)</td><td>bis zu 30 Buchstaben A–Z oder Ziffern, Groß- und Kleinschreibung egal, mit einem Bindestrich davor</td><td>1234512345</td></tr>
+<tr><td>Prüfziffer (Pflicht)</td><td>zwei Ziffern nach ISO/IEC 7064, Modulo 97-10, mit einem Bindestrich davor</td><td>06</td></tr>
+</tbody>
+</table>
+</div>
+<p>Insgesamt 5 bis 46 Zeichen. Das Trennzeichen ist immer das Bindestrich-Minus „-“ (U+002D), kein Leerzeichen, Punkt oder Gedankenstrich. Die Prüfziffer berechnet sich wie bei der IBAN: Bindestriche weglassen, Buchstaben durch ihre Position ersetzen (A = 10 bis Z = 35), zwei Nullen anhängen, den Rest der Division durch 97 von 98 abziehen. Für <code>04011000-1234512345</code> ergibt das 04011000123451234500 mod 97 = 92, also 98 − 92 = <strong>06</strong>. Zur Kontrolle bleibt beim Teilen der vollständigen Zahl durch 97 der Rest 1.</p>
+<p class="fine">Quelle: <a href="https://xeinkauf.de/app/uploads/2022/11/Leitweg-ID-Formatspezifikation-v2-0-2-1.pdf" rel="noopener">KoSIT, Leitweg-ID Format-Spezifikation Version 2.0.2</a>, Kapitel 2, am 28. November 2026 gelesen. Dort steht auch das Beispiel. Die Leitweg-ID ist seit 2019 unter dem ICD-Wert 0204 in ISO/IEC 6523 registriert und kann deshalb auch als Peppol-Adresse dienen.</p>
+</section>
+<section>
+<h2>Gemessen: welche Fehler die Prüfung findet</h2>
+<p>Ausgangspunkt ist die Beispielrechnung des Erstellers (ein Berliner Verkäufer, ein Hamburger Käufer), erzeugt als XRechnung in UBL mit der erfundenen Leitweg-ID <code>04011000-12345-03</code> in der Käuferreferenz (BT-10). In jede Datei kam genau ein typischer Fehler; dann wurde sie zweimal geprüft: mit den offiziellen Regeln (EN-16931-Schematron und die XRechnung-Regeln der KoSIT, ausgewählt über BT-24) und mit den zusätzlichen Prüfungen dieses Werkzeugs.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Fehler in der Käuferreferenz</th><th scope="col">offizielle Regeln</th><th scope="col">dieses Werkzeug</th></tr></thead>
+<tbody>
+<tr><td>richtig übernommen</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>zwei Ziffern vertauscht (04011000-12354-03)</td><td>keine Meldung</td><td>Fehler XR-002 (Prüfziffer)</td></tr>
+<tr><td>eine Ziffer falsch (04011000-12346-03)</td><td>keine Meldung</td><td>Fehler XR-002 (Prüfziffer)</td></tr>
+<tr><td>Bindestrich verschoben (0401100-012345-03)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>Prüfziffer vergessen (04011000-12345)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>ohne Bindestriche (040110001234503)</td><td>keine Meldung</td><td>Warnung XR-012 (Schreibweise)</td></tr>
+<tr><td>Leerzeichen statt Bindestrich (04011000 12345 03)</td><td>keine Meldung</td><td>Warnung XR-012 (Schreibweise)</td></tr>
+<tr><td>mit Vorsatz (Leitweg-ID: 04011000-12345-03)</td><td>keine Meldung</td><td>Warnung XR-012 (Schreibweise)</td></tr>
+<tr><td>die Bestellnummer statt der Leitweg-ID (PO-77)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+<tr><td>gar keine Käuferreferenz</td><td>abgewiesen: <a href="rules/de/br-de-15.html">BR-DE-15</a></td><td>Fehler XR-001</td></tr>
+<tr><td>eine gültige, aber fremde Leitweg-ID (991-12345-73)</td><td>keine Meldung</td><td>keine Meldung</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">Gemessen am 28. November 2026 mit <code>leitweg-id-bench.mjs</code> im Quellcode dieses Werkzeugs; die Tabelle ist an das Ergebnis des Skripts gebunden. Die offiziellen Regeln verlangen in BT-10 nur irgendeinen Text. Ob die Eingangsplattform eine Rechnung mit falscher Leitweg-ID zurückweist oder an die falsche Stelle leitet, entscheidet sie selbst; die Datei besteht die Validierung in jedem Fall.</p>
+<p><strong>Was die Prüfziffer leistet:</strong> Von den 135 Möglichkeiten, eine einzelne Ziffer der Beispiel-ID durch eine andere zu ersetzen, und den 9 Vertauschungen zweier benachbarter, verschiedener Ziffern bestand keine einzige die Prüfziffer (ebenfalls von <code>leitweg-id-bench.mjs</code> gezählt). Ein Tippfehler dieser Art fällt also immer auf, wenn jemand die Prüfziffer prüft.</p>
+<p><strong>Was sie nicht leistet:</strong> Der Bindestrich geht nicht in die Berechnung ein. Rückt er von der Grob- in die Feinadressierung, stimmt die Prüfziffer trotzdem. Die Spezifikation empfiehlt deshalb, eine Feinadressierung mit einem Buchstaben beginnen zu lassen. Fehlt die Prüfziffer ganz, sieht der Rest aus wie eine Leitweg-ID ohne Feinadressierung oder wie eine gewöhnliche Kundenreferenz. Und eine gültige Leitweg-ID einer anderen Behörde besteht jede Prüfung.</p>
+<p class="fine">XR-012 ist eine Warnung, kein Fehler, denn BT-10 darf auch eine eigene Referenz des Kunden enthalten. Bei einer reinen Ziffernfolge passt die Prüfziffer zufällig etwa in einem von 97 Fällen; bei den 10.000 Zahlen von 100000 bis 109999 schlug die Warnung 104-mal an (erwartet wären rund 103).</p>
+</section>
+<section>
+<h2>Woran Sie vor dem Versand denken sollten</h2>
+<ul>
+<li><strong>Kopieren statt abtippen:</strong> Übernehmen Sie die Leitweg-ID aus dem Auftrag oder der Bestellung des Auftraggebers, nicht aus einer älteren Rechnung an eine andere Dienststelle.</li>
+<li><strong>Nur die ID ins Feld:</strong> kein „Leitweg-ID:“ davor, keine Leerzeichen, Bindestriche zwischen den Teilen.</li>
+<li><strong>Nicht mit der Bestellnummer verwechseln:</strong> Die Bestellnummer gehört in die Auftragsreferenz (BT-13), die Leitweg-ID in die Käuferreferenz (BT-10).</li>
+<li><strong>Bei Peppol:</strong> Versenden Sie über Peppol, ist die elektronische Adresse des Käufers (BT-49) oft die Leitweg-ID mit dem Schema 0204. Laut Spezifikation muss die Peppol-ID aber nicht genau der Leitweg-ID entsprechen; maßgebend ist, was der Empfänger nennt.</li>
+<li><strong>Die ganze Datei prüfen:</strong> Die Leitweg-ID ist nur eine der XRechnung-Pflichtangaben. Was sonst nur die XRechnung verlangt, steht auf der Seite <a href="xrechnung-oder-zugferd.html">XRechnung oder ZUGFeRD?</a>.</li>
+</ul>
+</section>
+<section>
+<h2>Für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch erklärt, eine korrigierte Datei vorschlägt und die Rechnungen vieler Mandanten auf einmal prüft, ist in Entwicklung; die Leitweg-ID-Warnung dieser Seite gehört dazu. Noch ist nichts zu kaufen: <a href="https://marisstella.app/industries/eu-e-invoicing/">Frühzugang und Fristen</a>.</p>
+</section>
+<section id="faq">
+<h2>Häufige Fragen</h2>
+<h3>Was ist eine Leitweg-ID?</h3>
+<p>Die Leitweg-ID ist die Adresse eines öffentlichen Rechnungsempfängers in Deutschland. Sie besteht aus der Grobadressierung (2 bis 12 Ziffern), einer optionalen Feinadressierung (bis zu 30 Buchstaben oder Ziffern) und zwei Prüfziffern, getrennt durch Bindestriche, zum Beispiel 04011000-1234512345-06. In der XRechnung steht sie in der Käuferreferenz (BT-10). Sie wird in der Regel mit dem Auftrag mitgeteilt.</p>
+<h3>Wie wird die Prüfziffer der Leitweg-ID berechnet?</h3>
+<p>Nach ISO/IEC 7064, Modulo 97-10, wie bei der IBAN: Bindestriche weglassen, Buchstaben durch Zahlen ersetzen (A = 10 bis Z = 35), zwei Nullen anhängen, den Rest der Division durch 97 von 98 abziehen. Zur Kontrolle wird die vollständige Leitweg-ID ohne Bindestriche durch 97 geteilt; bleibt der Rest 1, stimmen die Prüfziffern.</p>
+<h3>Prüft der KoSIT-Validator die Leitweg-ID?</h3>
+<p>In unserer Messung nicht: Die offiziellen Regeln (EN 16931 und XRechnung der KoSIT) meldeten nur die ganz fehlende Käuferreferenz (BR-DE-15). Vertauschte Ziffern, eine falsche Ziffer, fehlende Prüfziffern, Leerzeichen statt Bindestrichen oder die Bestellnummer an ihrer Stelle bestanden alle Regeln. Die Prüfziffern sehen nur zusätzliche Prüfungen wie die dieses Werkzeugs.</p>
+<h3>Wo steht die Leitweg-ID in der XRechnung?</h3>
+<p>In der Käuferreferenz, BT-10: in UBL im Element cbc:BuyerReference, in CII in ram:BuyerReference. Wird über Peppol versandt, kann die Leitweg-ID zusätzlich als elektronische Adresse des Käufers (BT-49) mit dem Schema 0204 dienen; die Peppol-ID nennt der Empfänger.</p>
+<h3>Was mache ich, wenn ich keine Leitweg-ID habe?</h3>
+<p>Fragen Sie beim öffentlichen Auftraggeber nach; die Leitweg-ID wird in der Regel mit dem Auftrag übermittelt. Raten oder aus einer anderen Rechnung übernehmen hilft nicht: Eine gültige, aber fremde Leitweg-ID besteht jede Prüfung und führt die Rechnung trotzdem an die falsche Stelle.</p>
+</section>
+<footer>
+<p><strong>Ohne Gewähr (no warranty).</strong> Dieses Werkzeug ist kostenlos und wird ohne jede ausdrückliche oder stillschweigende Gewährleistung bereitgestellt. Es ist keine Rechts-, Steuer-, Finanz- oder Buchhaltungsberatung und ersetzt keine fachkundige Person (not legal, tax, financial, or accounting advice). <strong>Prüfen Sie das Ergebnis selbst, bevor Sie sich darauf verlassen.</strong> Soweit gesetzlich zulässig, haften die Autoren nicht für Schäden aus der Nutzung.</p>
+<p><strong>Nichts verlässt Ihren Browser.</strong> Alle Prüfungen laufen lokal. Gezählt wird nur anonym und nur auf Ihrem Gerät, dass geprüft wurde, nie die eingegebene Leitweg-ID. Maßgeblich für das Format ist die aktuelle Spezifikation der KoSIT.</p>
+<p class="support">Free to use and source available. Kostenlos und quelloffen: der <a href="LICENSE" rel="noopener">Code steht unter der FSL-1.1-MIT-Lizenz</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> ist freiwillig und ändert nichts an dem, was das Werkzeug tut.</p>
+</footer>
+</main>
+<script type="module">
+import { leitwegCheckDigitsValid, leitwegFormIssue, looksLikeLeitwegId } from "./profile.mjs";
+import { recordUsage, usageStorage } from "./usage.mjs";
+
+const form = document.getElementById("lw-form");
+const input = document.getElementById("lw-input");
+const out = document.getElementById("lw-result");
+
+const MESSAGES = {
+  ok: ["ok", "Form und Prüfziffern stimmen. Ob die Leitweg-ID zu Ihrem Auftraggeber gehört, kann nur er bestätigen."],
+  digits: ["bad", "Die Prüfziffern stimmen nicht. Meist ist eine Ziffer vertippt oder vertauscht: Kopieren Sie die Leitweg-ID erneut aus dem Auftrag."],
+  label: ["hint", "Die Prüfziffern stimmen, aber vor der ID steht ein Vorsatz wie „Leitweg-ID:“. In die Käuferreferenz gehört nur die ID selbst."],
+  separators: ["hint", "Die Prüfziffern stimmen, aber zwischen den Teilen stehen Leerzeichen, Punkte oder Schrägstriche. Das Trennzeichen ist der Bindestrich „-“."],
+  "no-hyphens": ["hint", "Diese Ziffernfolge besteht die Prüfziffer, hat aber keine Bindestriche. Ist es eine Leitweg-ID, schreiben Sie sie mit Bindestrichen, wie der Auftraggeber sie mitgeteilt hat."],
+  shape: ["bad", "Das ist nicht wie eine Leitweg-ID aufgebaut: 2 bis 12 Ziffern, optional ein Bindestrich und bis zu 30 Buchstaben oder Ziffern, dann ein Bindestrich und zwei Prüfziffern."],
+  empty: ["hint", "Bitte eine Leitweg-ID eingeben."],
+};
+
+function classify(raw) {
+  const value = raw.trim();
+  if (!value) return "empty";
+  if (looksLikeLeitwegId(value)) return leitwegCheckDigitsValid(value) ? "ok" : "digits";
+  const issue = leitwegFormIssue(value);
+  if (issue === "XR-002") return "digits";
+  return issue || "shape";
+}
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const kind = classify(input.value);
+  const [cls, text] = MESSAGES[kind];
+  out.className = cls;
+  out.textContent = text;
+  if (kind !== "empty") recordUsage(usageStorage(), false, "leitweg_id_checked");
+});
+</script>
+</body></html>

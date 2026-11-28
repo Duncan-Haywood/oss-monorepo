@@ -1,0 +1,1 @@
+ALTER TABLE `quote_emails` ADD `kind` text DEFAULT 'quote' NOT NULL;
