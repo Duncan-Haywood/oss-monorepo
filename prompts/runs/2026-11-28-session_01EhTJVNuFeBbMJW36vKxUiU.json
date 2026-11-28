@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01EhTJVNuFeBbMJW36vKxUiU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T16:56:08Z",
+  "ended": "2026-11-28T16:57:01Z",
+  "wall_minutes": 5.25,
+  "tokens_in": 3945347,
+  "tokens_out": 16308,
+  "cost_usd": 1.786,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20174",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/payapps/README.md",
+      "issue": "'Where the work happens' still says private-monorepo is where PayApps is built and this is a snapshot; cloud-session.md says it moved here on 2026-11-27. Cost a detour checking whether edits here would be overwritten by sync-from-private.sh."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No post written: a red-team test and validation fix gives a customer nothing new to read; the Miller notice guide already exists.",
+      "did": "Recorded the result in the run record and PR body only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guards added: required-fields snapshot now covers standalone notices (Miller, GA/MS affidavits) discovered from zero-arg exports; statutory.test.ts pins both render() refusal paths. Suite 303/303. Rerun: 6/6 escaped mutants now caught.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/render.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 687832108,
+        "commit": "a89b145b6",
+        "sites": 11,
+        "baseline_seconds": 1.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 14,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": ": b.type === \"signature\"",
+            "after": ": b.type !== \"signature\"",
+            "line_text": "        : b.type === \"signature\"",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 19,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[1]) keys.add(m[1]);",
+            "after": "for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[2]) keys.add(m[1]);",
+            "line_text": "    for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[1]) keys.add(m[1]);",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 19,
+            "col": 95,
+            "operator": "const-plus-one",
+            "before": "for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[1]) keys.add(m[1]);",
+            "after": "for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[1]) keys.add(m[2]);",
+            "line_text": "    for (const text of texts) for (const m of text.matchAll(PLACEHOLDER)) if (m[1]) keys.add(m[1]);",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 34,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "return v === undefined || v === \"\" ? blank : v;",
+            "after": "return v !== undefined || v === \"\" ? blank : v;",
+            "line_text": "    return v === undefined || v === \"\" ? blank : v;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 34,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "return v === undefined || v === \"\" ? blank : v;",
+            "after": "return v === undefined && v === \"\" ? blank : v;",
+            "line_text": "    return v === undefined || v === \"\" ? blank : v;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 34,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "return v === undefined || v === \"\" ? blank : v;",
+            "after": "return v === undefined || v !== \"\" ? blank : v;",
+            "line_text": "    return v === undefined || v === \"\" ? blank : v;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 79,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (!form.body && form.absent) {",
+            "after": "if (!form.body || form.absent) {",
+            "line_text": "  if (!form.body && form.absent) {",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No encoded form has a null body without `absent`, so the per-state pending tests never run; test/statutory.test.ts now renders a CA form with body null both ways."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/render.ts",
+            "line": 81,
+            "col": 10,
+            "operator": "false-to-true",
+            "before": "ok: false,",
+            "after": "ok: true,",
+            "line_text": "      ok: false,",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 997977586,
+        "commit": "a89b145b6",
+        "sites": 12,
+        "baseline_seconds": 1.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 69,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 72,
+            "col": 63,
+            "operator": "true-to-false",
+            "before": "f(\"projectName\", \"Title of the project or building\", \"text\", true),",
+            "after": "f(\"projectName\", \"Title of the project or building\", \"text\", false),",
+            "line_text": "  f(\"projectName\", \"Title of the project or building\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 73,
+            "col": 58,
+            "operator": "true-to-false",
+            "before": "f(\"cityOrTown\", \"City the improvements are in\", \"text\", true),",
+            "after": "f(\"cityOrTown\", \"City the improvements are in\", \"text\", false),",
+            "line_text": "  f(\"cityOrTown\", \"City the improvements are in\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 74,
+            "col": 64,
+            "operator": "true-to-false",
+            "before": "f(\"propertyCounty\", \"County the improvements are in\", \"text\", true),",
+            "after": "f(\"propertyCounty\", \"County the improvements are in\", \"text\", false),",
+            "line_text": "  f(\"propertyCounty\", \"County the improvements are in\", \"text\", true),",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 75,
+            "col": 42,
+            "operator": "true-to-false",
+            "before": "f(\"ownerName\", \"Name of owner\", \"text\", true, \"The owner of the property.\"),",
+            "after": "f(\"ownerName\", \"Name of owner\", \"text\", false, \"The owner of the property.\"),",
+            "line_text": "  f(\"ownerName\", \"Name of owner\", \"text\", true, \"The owner of the property.\"),",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 80,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 87,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/ga.ts",
+            "line": 94,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+        "test": "node --test test/**/*.test.ts  (in ventures/payapps/packages/lien-waivers)",
+        "seed": 389471874,
+        "commit": "a89b145b6",
+        "sites": 9,
+        "baseline_seconds": 1.8,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 49,
+            "col": 48,
+            "operator": "true-to-false",
+            "before": "f(\"noticeDate\", \"Date of the notice\", \"date\", true, \"The day you send the notice.\"),",
+            "after": "f(\"noticeDate\", \"Date of the notice\", \"date\", false, \"The day you send the notice.\"),",
+            "line_text": "  f(\"noticeDate\", \"Date of the notice\", \"date\", true, \"The day you send the notice.\"),",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The Miller notice is not in any state list, so required-fields.test.ts never pinned it; the snapshot now finds standalone notice factories (Miller, GA and MS affidavits) by calling every zero-argument export."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 54,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The Miller notice is not in any state list, so required-fields.test.ts never pinned it; the snapshot now finds standalone notice factories (Miller, GA and MS affidavits) by calling every zero-argument export."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 61,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The Miller notice is not in any state list, so required-fields.test.ts never pinned it; the snapshot now finds standalone notice factories (Miller, GA and MS affidavits) by calling every zero-argument export."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 68,
+            "col": 4,
+            "operator": "false-to-true",
+            "before": "false,",
+            "after": "true,",
+            "line_text": "    false,",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 75,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The Miller notice is not in any state list, so required-fields.test.ts never pinned it; the snapshot now finds standalone notice factories (Miller, GA and MS affidavits) by calling every zero-argument export."
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 89,
+            "col": 4,
+            "operator": "false-to-true",
+            "before": "false,",
+            "after": "true,",
+            "line_text": "    false,",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 96,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+            "line": 103,
+            "col": 4,
+            "operator": "true-to-false",
+            "before": "true,",
+            "after": "false,",
+            "line_text": "    true,",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The Miller notice is not in any state list, so required-fields.test.ts never pinned it; the snapshot now finds standalone notice factories (Miller, GA and MS affidavits) by calling every zero-argument export."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/payapps/packages/lien-waivers/src/us-miller.ts",
+        "issue": "The Miller Act 90-day notice rendered with a notice date earlier than the last day of labor or material it claims for, printing a notice that states an impossible date. Added a crossCheck refusing lastDay after noticeDate (INVALID_DATE on lastDay), with tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20174"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7bc1eee3-b484-5d52-970b-d95364d10f6c",
+    "transcripts": 1,
+    "first": "2026-11-28T16:56:08Z",
+    "last": "2026-11-28T17:01:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 87,
+        "output": 16308,
+        "thinking": 3227,
+        "cache_read": 3859303,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85957,
+        "api_equivalent_usd": 1.786,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 87,
+      "output": 16308,
+      "thinking": 3227,
+      "cache_read": 3859303,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85957,
+      "api_equivalent_usd": 1.786,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.25,
+      "active_minutes": 5.25,
+      "model_minutes": 3.31,
+      "tool_minutes": 1.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seeding, triaging and guarding 24 mutants plus one fix, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 168.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
