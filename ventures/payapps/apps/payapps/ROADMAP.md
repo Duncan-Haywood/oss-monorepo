@@ -2841,9 +2841,10 @@ nothing to copy. No customers yet. Paid plans are dark
 ## Next (suite, by promise)
 
 - Late-payment interest, part 3b (part 3a, the billed or waived mark per application, done
-  2026-11-28): "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it
-  as a line on the next pay application, and the paid-late total in the weekly email, if contractors
-  ask.
+  2026-11-28; the weekly email's totals of interest accrued on past-due applications and earned on
+  those paid late and not billed or waived yet, done 2026-11-28, late-interest-weekly-email):
+  "Mark billed" sending a separate invoice for the interest to QuickBooks, or adding it as a line on
+  the next pay application, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if
