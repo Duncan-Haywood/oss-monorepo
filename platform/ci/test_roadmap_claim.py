@@ -809,6 +809,42 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("free and not gated: none (2 waits on demand, 1 claimed);", out)
         self.assertIn("2 of 3 Next items wait on demand, so a bet's work now is demand itself", out)
 
+    def test_front_door_subjects_count_each_bets_demand_side(self):
+        # 2026-11-28 friction: with every Next item waiting on demand, runs took ~15 slug_dupe
+        # and ls probes to see which bet's front door was already crowded.
+        doors = rc.front_door_subjects([
+            "pay-app-guides (bet #1 front door): free submittal log [submittal-log-template] (#19958)",
+            "seller-books (bet #5) front door: Facebook Marketplace taxes page [fb-taxes] (#19959)",
+            "reseller front doors (bet #5): nine calculators link to sign-up [calculator-ctas] (#19884)",
+            "bets' front doors: outbound citation check [outbound-links] (#19912)",
+            "payapps (bet #1): Reverb import [reverb] (#1)",
+            "docs: a post about the front door of bet #3 (#2)",
+        ])
+        self.assertEqual(doors, {1: ["submittal-log-template"], 5: ["fb-taxes", "calculator-ctas"]})
+
+    def test_bets_overview_tallies_front_doors_when_demand_gates_everything(self):
+        t = Path(self.tmp.name)
+        bets = t / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "| 2 | **Quotes** | `private-monorepo/apps/jobshop-quote` |\n")
+        (self.a / "apps" / "payapps" / "ROADMAP.md").write_text(
+            "## Next\n\n- Unit-price billing if people ask\n- Joint checks if GCs ask for them\n")
+        (self.a / "apps" / "jobshop-quote").mkdir()
+        (self.a / "apps" / "jobshop-quote" / "ROADMAP.md").write_text("## Next\n\n- STEP files if shops ask\n")
+        pub = t / "public"
+        run(t, "init", "-q", "-b", "main", str(pub))
+        for subj in ("pay-app-guides (bet #1 front door): lien waiver form [lien-waiver-form]",
+                     "payapps (bet #1) front door: invoice template [invoice-template]"):
+            run(pub, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q",
+                "--allow-empty", "-m", subj)
+        with mock.patch.object(rc, "PUBLIC_ROOT", pub):
+            code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("by bet: #1 2 (invoice-template, lien-waiver-form); #2 0.", out)
+        self.assertIn("Fewest front-door PRs: bet #2.", out)
+        self.assertNotIn("shallow-since", out)
+
     def test_listing_probes_named_hosts(self):
         road = self.a / "apps" / "payapps" / "ROADMAP.md"
         road.write_text(ROADMAP.replace("- Notarization block", "- Wyoming waivers from wyoleg.gov\n- Notarization block"))

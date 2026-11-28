@@ -937,6 +937,62 @@ def print_unblockers(tasks_yaml: Path, tag: str | None) -> None:
     print("  Product items below are fine too; take one of these when it fits your session.")
 
 
+FRONT_DOOR = re.compile(r"front.doors?", re.I)
+BET_NUM = re.compile(r"\bbets?\s*#(\d+)", re.I)
+
+
+def front_door_subjects(subjects: list[str]) -> dict[int, list[str]]:
+    """{bet rank: [slug, ...]} from merged PR titles that say "(bet #N front door)".
+
+    Front-door PRs title themselves "pay-app-guides (bet #1 front door): ... [slug]" or
+    "seller-books (bet #5) front door: ...". When every Next item waits on demand, runs took
+    about 15 slug_dupe and ls probes to see which bets' demand side was already crowded
+    (2026-11-28 records); this counts it from main's log in one pass.
+    """
+    out: dict[int, list[str]] = {}
+    for subj in subjects:
+        head = subj.split(":", 1)[0]  # the scope before the colon names the bet and the door
+        m = BET_NUM.search(head)
+        if not m or not FRONT_DOOR.search(head):
+            continue
+        slug = re.findall(r"\[([^\]]+)\]", subj)
+        out.setdefault(int(m.group(1)), []).append(
+            slug[-1] if slug else slugify(subj.split(":", 1)[-1], 5))
+    return out
+
+
+def front_door_log(repo: Path, days: int = 7) -> tuple[dict[int, list[str]], str | None]:
+    """front_door_subjects over main's last `days` days, and the oldest date the clone holds."""
+    for ref in ("origin/main", "main"):
+        log = git(str(repo), "log", ref, f"--since={days} days ago", "--format=%cs%x09%s")
+        if log.returncode == 0:
+            break
+    else:
+        return {}, None
+    rows = [line.split("\t", 1) for line in log.stdout.splitlines() if "\t" in line]
+    return front_door_subjects([s for _, s in rows]), (rows[-1][0] if rows else None)
+
+
+def print_front_doors(ranks: list[int], repo: Path, days: int = 7) -> None:
+    doors, oldest = front_door_log(repo, days)
+    if oldest is None:
+        return
+    parts = []
+    for rank in ranks:
+        slugs = doors.get(rank, [])
+        shown = ", ".join(slugs[:4]) + (", ..." if len(slugs) > 4 else "")
+        parts.append(f"#{rank} {len(slugs)}" + (f" ({shown})" if slugs else ""))
+    fewest = min(ranks, key=lambda r: (len(doors.get(r, [])), r))
+    since = time.strftime("%Y-%m-%d", time.gmtime(time.time() - days * 86400))
+    short = (f" (the clone's history starts {oldest}: `git fetch --shallow-since={since} origin main` "
+             f"for the full {days} days)") if oldest > since and git(
+        str(repo), "rev-parse", "--is-shallow-repository").stdout.strip() == "true" else ""
+    print(f"  Front-door PRs merged on main since {max(oldest, since)}{short}, by bet: "
+          + "; ".join(parts) + ".")
+    print(f"  Fewest front-door PRs: bet #{fewest}. Its front door is the least-worked demand side; a page for a "
+          f"search its buyers make (bets.md **Distribution:**) is a good pick there.")
+
+
 def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, probe: bool = True,
                   tasks_yaml: Path | None = None) -> int:
     """One line per bet: free ungated items and live claims, then the first bet with work free.
@@ -1046,6 +1102,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
                   f"work now is demand itself: its front-door and search pages, marketing site, "
                   f"sign-up and onboarding, not features nobody has asked for. Check "
                   f"`slug_dupe.py <slug>` first; parallel runs take the same pages.")
+            print_front_doors([r for _, r, _ in sorted(present, key=lambda p: p[1])], PUBLIC_ROOT)
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0
