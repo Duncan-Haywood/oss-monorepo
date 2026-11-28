@@ -262,6 +262,10 @@ const TAX_PAGE_LINKS = {
   whatnot: `Taxes on Whatnot sales, the 1099-K, tips, giveaways and the sales tax Whatnot collects, with one week worked through: <a href="${href("/whatnot-taxes")}">Whatnot taxes</a>.`,
   amazon: `Taxes on Amazon sales, why deposits aren't income, FBA fees, reimbursements and the sales tax Amazon collects, with one month's report worked through: <a href="${href("/amazon-taxes")}">Amazon taxes</a>.`,
 };
+const taxLink = (slug) => {
+  const sentence = Object.hasOwn(TAX_PAGE_LINKS, slug) ? TAX_PAGE_LINKS[slug] : "";
+  return sentence ? `\n  <p>${sentence}</p>` : "";
+};
 
 function platformPage(p) {
   const path = `/platforms/${p.slug}`;
@@ -280,12 +284,9 @@ function platformPage(p) {
   <h2>What's particular about ${esc(p.name)}</h2>
   ${list(p.quirks)}
   <h2>Where it lands on the worksheet</h2>
-  <p>${esc(p.name)} sales go to gross receipts, refunds to returns and allowances, ${esc(p.name)}'s fees to commissions and fees, and each item's cost to cost of goods sold. See <a href="${href("/schedule-c-worksheet")}">the Schedule C worksheet</a> for the full grouping.</p>${
-    TAX_PAGE_LINKS[p.slug]
-      ? `
-  <p>${TAX_PAGE_LINKS[p.slug]}</p>`
-      : ""
-  }
+  <p>${esc(p.name)} sales go to gross receipts, refunds to returns and allowances, ${esc(p.name)}'s fees to commissions and fees, and each item's cost to cost of goods sold. See <a href="${href("/schedule-c-worksheet")}">the Schedule C worksheet</a> for the full grouping.</p>${taxLink(
+    p.slug,
+  )}
   ${notTaxAdvice}
   <p>Also on: ${others}.</p>
 </section>
