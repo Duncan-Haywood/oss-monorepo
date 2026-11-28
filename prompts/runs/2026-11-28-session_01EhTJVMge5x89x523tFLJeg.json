@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "First local CI pass failed check_hidden_unicode: a literal U+FEFF in pricelist.mjs (the Write tool turned the \\uFEFF escape into the character); fixed by writing it as an escape.",
-    "page.test.mjs guards (module import list, privacy-line events) failed until updated for the new import and event."
+    "page.test.mjs guards (module import list, privacy-line events) failed until updated for the new import and event.",
+    "PR CI changed-ventures failed check_cli_entry.py on pricelist-bench.mjs's file:// entry guard (not run by run_venture_tests.py locally without the unwired checks); fixed with pathToFileURL."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "prompt.md / cloud-session.md",
       "issue": "Government hosts (ecfr.gov, dodcui.mil, archives.gov) returned 000 through the proxy, so a sourced regulatory front-door page could not be written this session."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Locally it skips the unwired tree checks by default ('about 90 s'), but CI's changed-ventures runs them, so check_cli_entry failed only in CI; running unwired_checks.py locally would have caught it."
     }
   ],
   "deviations": [
