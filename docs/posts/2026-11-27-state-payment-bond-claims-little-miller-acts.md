@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in twenty states, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 20 states"
+title: "Not paid on a state or city job? Bond claim deadlines in twenty-four states, read from the statutes"
+seo_title: "Little Miller Act deadlines: state payment bond claims in 24 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 20 states, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 24 states, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -45,6 +45,10 @@ The guide links every statute it summarises.
 | Colorado (C.R.S. § 38-26-107) | the same as everyone | verified statement filed with the public body by final settlement | within 90 days of the published final settlement date |
 | Iowa (Code ch. 573) | notice to the prime within 30 days of first furnishing | sworn claim filed with the public body within 30 days of final acceptance | action after day 30 and by day 60 after final acceptance |
 | Maine (14 M.R.S. § 871) | notice to the contractor within 90 days of your last day, registered or certified mail | none | within one year of your last day |
+| Kansas (K.S.A. 60-1111) | none | none | within six months of completion of the public improvement |
+| Delaware (29 Del. C. § 6962(d)(9)) | none | none | within 3 years of the last work on the contract (1 year after the contractor ceased work, if the bond says so) |
+| Nebraska (§§ 52-118.01, 52-118.02) | notice to the contractor within four months of your last day, registered or certified mail | none | within one year of final settlement of the prime contract |
+| Rhode Island (§§ 37-12-2, 37-12-5) | notice to the contractor within 90 days of your last day, certified mail | none | within two years of your last day (or the bond's longer limit) |
 
 ## Three things that catch subs out
 
@@ -62,7 +66,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those twenty states. Each step comes in the statute's order, with its citation
+or local public job in those twenty-four states. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -105,5 +109,19 @@ than day 60. A worker or supplier of a subcontractor must also have told the pri
 from the final settlement date the public body publishes (at least ten days ahead, on contracts over
 $150,000): the verified statement must be filed by then, and the suit brought within 90 days after
 it. PayApps lists those two steps and says they wait on the published date, since a date it cannot
-know is better left blank than guessed. Pennsylvania, Illinois, New Jersey and Kansas are still out:
+know is better left blank than guessed. Pennsylvania, Illinois and New Jersey are still out:
 their statute sites refused our requests on the day.
+
+**Added later on 2026-11-28: Kansas, Delaware, Nebraska and Rhode Island.** Kansas' site answered
+this time. Rhode Island reads like Virginia with a longer tail: a sub's sub notifies the contractor
+by certified mail within 90 days of its last day, and the suit has two years from that day, or
+longer if the bond allows it. Nebraska gives the sub's sub four calendar months, not 90 days, for
+the same notice, so PayApps counts months: a last day of 31 October runs to 28 February, and since
+that is a Sunday in 2027 it shows Friday the 26th. Nebraska's suit limit is a year from final
+settlement of the prime contract, which its Supreme Court reads as the public body's recorded
+finding that the work is complete and final payment is due. Kansas and Delaware ask for no notice
+at all, and both count the suit limit from a day on the prime's side: six months from completion
+of the improvement in Kansas, three years from the last work on the contract in Delaware (one year
+from when the contractor stopped, if the bond says so). Six months is short. PayApps lists the
+step with the day it waits for and does not invent a date. A Delaware suit within a year of your
+own last day falls inside either limit, and the panel says so.

@@ -22,13 +22,15 @@ const dueOf = (r: ReturnType<typeof checked>, citation: string) =>
   r.steps.find((s) => s.citation === citation)?.dueOn;
 
 describe("state bond claims", () => {
-  it("covers the twenty states read, each with a statute link on its legislature's site", () => {
+  it("covers the twenty-four states read, each with a statute link on its legislature's site", () => {
     expect(STATE_BOND_STATES).toEqual([
       "AZ",
       "CO",
+      "DE",
       "FL",
       "IA",
       "ID",
+      "KS",
       "MA",
       "MD",
       "ME",
@@ -36,10 +38,12 @@ describe("state bond claims", () => {
       "MN",
       "MO",
       "NC",
+      "NE",
       "NV",
       "NY",
       "OH",
       "OR",
+      "RI",
       "TX",
       "UT",
       "VA",
@@ -184,6 +188,46 @@ describe("state bond claims", () => {
     ]);
     expect(checked("IA", "first", ACCEPTED).steps).toHaveLength(2);
     expect(checked("IA", "first").dated).toEqual([]);
+  });
+
+  it("Rhode Island: 90-day notice for a sub's sub, two years to sue", () => {
+    const ri = checked("RI", "second");
+    // 10 July + 90 days = Thursday 8 October 2026; two years on, Monday 10 July 2028.
+    expect(dueOf(ri, "R.I. Gen. Laws § 37-12-2")).toBe("2026-10-08");
+    expect(dueOf(ri, "R.I. Gen. Laws § 37-12-5")).toBe("2028-07-10");
+    expect(checked("RI", "first").steps.map((s) => s.citation)).toEqual([
+      "R.I. Gen. Laws § 37-12-5",
+    ]);
+  });
+
+  it("Nebraska: notice within four calendar months; the suit waits on final settlement", () => {
+    const ne = checked("NE", "second", ACCEPTED);
+    // 10 July + four months = Tuesday 10 November 2026.
+    expect(dueOf(ne, "Neb. Rev. Stat. § 52-118.01")).toBe("2026-11-10");
+    const suit = ne.steps.find((s) => s.citation === "Neb. Rev. Stat. § 52-118.02");
+    expect(suit?.dueOn).toBeNull();
+    expect(suit?.waitsFor).toMatch(/final settlement/);
+    expect(ne.dated.map((s) => s.citation)).toEqual(["Neb. Rev. Stat. § 52-118.01"]);
+    // A last day of 31 October: four months on is 28 February, the month's last day.
+    const end = stateBondClaim("NE", {
+      tier: "second",
+      lastFurnishedOn: "2026-10-31",
+      acceptedOn: null,
+    });
+    if (end?.kind !== "checked") throw new Error("expected NE");
+    expect(end.steps[0]?.statutoryOn).toBe("2027-02-28");
+    expect(end.steps[0]?.dueOn).toBe("2027-02-26");
+  });
+
+  it("Kansas and Delaware: no notice, and the suit limit counts from the prime's day, so none is dated", () => {
+    const ks = checked("KS", "second", ACCEPTED);
+    expect(ks.steps.map((s) => s.citation)).toEqual(["K.S.A. 60-1111(b)"]);
+    expect(ks.dated).toEqual([]);
+    expect(ks.steps[0]?.waitsFor).toMatch(/completed/);
+    const de = checked("DE", "second", ACCEPTED);
+    expect(de.steps.map((s) => s.citation)).toEqual(["29 Del. C. § 6962(d)(9)d"]);
+    expect(de.dated).toEqual([]);
+    expect(de.notes.join(" ")).toMatch(/within a year of your own last day/);
   });
 
   it("Colorado: both steps wait on the published final settlement date, so none is dated", () => {
