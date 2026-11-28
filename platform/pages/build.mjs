@@ -52,6 +52,7 @@ import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts,
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads, flattenWorkerGraphs } from './preload.mjs';
 import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH } from './legal-pages.mjs';
+import { applyDir as applyTheme } from '../theme/apply.mjs';
 import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
@@ -14369,6 +14370,13 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // runs the same pass again over pages written after build.mjs (the
   // development dashboard, the daily brief); it skips pages already done.
   if (analyticsOn()) await injectWebAnalytics(outDir, SITE_ANALYTICS_TOKEN);
+
+  // Universal light/dark (platform/theme/): every page follows the visitor's
+  // Auto / Light / Dark choice, and pages without dark styles get the
+  // inverted fallback. Before the offline layer for the same reason as the
+  // beacon; the deploy runs it again over the late pages.
+  const themed = await applyTheme(outDir);
+  log(`Gave ${themed.pages} page(s) the light/dark switch (${themed.native} with their own dark styles, ${themed.fallback} on the fallback).`);
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already

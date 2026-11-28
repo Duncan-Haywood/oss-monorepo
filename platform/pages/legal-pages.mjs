@@ -296,6 +296,7 @@ ${feedback ? `        <li>Early-access sign-ups: at most one year from the sign-
         <thead><tr><th>Name or kind</th><th>Set by</th><th>Purpose</th><th>Lasts</th></tr></thead>
         <tbody>
           <tr><td>Local storage: saved inputs, shop rates, saved bids and settings</td><td>This site, in your browser</td><td>Keeps what you entered in a tool for next time, at your request. Never sent to us.</td><td>Until you clear it</td></tr>
+          <tr><td>Local storage: your light or dark theme choice</td><td>This site, in your browser</td><td>Remembers whether you picked Auto, Light or Dark, so every page opens in it. Never sent to us.</td><td>Until you clear it or pick Auto</td></tr>
           <tr><td>Local storage: usage tallies and the opt-out choice</td><td>This site, in your browser</td><td>Counts which tools you open, on your device only, and remembers if you opted out${counter ? ' of counting' : ''}.</td><td>Until you clear it</td></tr>
           <tr><td>Offline cache (service worker)</td><td>This site, in your browser</td><td>Lets tools you have opened keep working without a connection.</td><td>Until you clear it or a new version replaces it</td></tr>
           <tr><td><code>__cf_bm</code>, <code>cf_clearance</code> and similar</td><td>Cloudflare</td><td>Strictly necessary security cookies, set only when Cloudflare needs to tell people from bots or after a security challenge.</td><td>Up to 30 minutes (<code>__cf_bm</code>) or as Cloudflare sets</td></tr>
