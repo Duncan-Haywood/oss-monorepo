@@ -70,7 +70,7 @@ const PRECUTS = Object.values(PRECUT);
  * @returns {string[][]}
  */
 export function parseCsv(text) {
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = s.split(/\r?\n/, 1)[0] || "";
   const count = (/** @type {string} */ ch) => firstLine.split(ch).length - 1;
   const sep = count(";") > count(",") && count(";") >= count("\t") ? ";" : count("\t") > count(",") ? "\t" : ",";

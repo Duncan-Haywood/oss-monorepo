@@ -37,7 +37,7 @@ test("lumber descriptions as yards write them", () => {
 });
 
 test("CSV: quotes, doubled quotes, CRLF, BOM, semicolons", () => {
-  assert.deepEqual(parseCsv('﻿a,b\r\n"x, ""y""",2\r\n'), [["a", "b"], ['x, "y"', "2"]]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\r\n"x, ""y""",2\r\n'), [["a", "b"], ['x, "y"', "2"]]);
   assert.deepEqual(parseCsv("a;b\n2x4;4,12\n"), [["a", "b"], ["2x4", "4,12"]]);
 });
 
