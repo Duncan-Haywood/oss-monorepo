@@ -6,7 +6,21 @@ import { MISTAKES, mistakeTable } from "./belgium-peppol-bench.mjs";
 
 const read = (f) => fs.readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
 const html = read("peppol-factuur-controleren.html");
-const plain = (s) => s.replace(/<[^>]+>/g, "");
+// Strip tags until nothing changes, so no tag-shaped text can survive a single pass (CodeQL alert #1524).
+const plain = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]+>/g, "");
+  } while (s !== prev);
+  return s;
+};
+
+test("plain() strips tags, doubled brackets included", () => {
+  assert.equal(plain("<td>a</td><td>b</td>"), "ab");
+  assert.equal(plain("x<<b>y</b>"), "xy");
+  assert.doesNotMatch(plain(html), /<[a-z\/][^>]*>/i);
+});
 
 test("Dutch page with the disclaimer and the licence line", () => {
   assert.match(html, /<html lang="nl">/);
