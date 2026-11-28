@@ -396,6 +396,16 @@ before writing the first scene.
 
 **For Other Minds**
 
+- **The Fourteen Days** *(Drafting, 2026-11-28.)* Omitted variable. A custom
+  home builder's office agent in invented Svea Prairie, west-central
+  Minnesota, regresses first-year drywall-crack callbacks on the premium
+  joint compound bought from 1 Jan 2058 and credits it with 1.65 fewer per
+  house (40 houses, 2057-58). The owner proposes cutting the site lead's
+  14-day heated dry-out to five days, since "the compound handles it". The
+  taper says compound does not stop wood shrinking. The dry-out started the
+  same month; with both columns the compound is worth about 0.19 (-1.3 to
+  +0.9) and the dry-out about 2.4 (1.3 to 3.6). Callback $280.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
