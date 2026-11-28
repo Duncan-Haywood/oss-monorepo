@@ -3,6 +3,7 @@ title: "The sliver row: why a 12-foot-deep deck ends in a 1-13/16 inch board"
 date: 2026-10-30
 tags: [wall-framing-takeoff, deck, decking, takeoff]
 description: "A 16 x 12 ft deck of 5/4x6 boards ends in a 1-13/16 in row. Two inches of depth fixes it. Numbers from the deck takeoff, 10 to 14 ft."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 Ask a takeoff for a 16 by 12 foot deck and the lumber list looks fine: 26 decking boards at 16 ft, 13 joists, a two-ply beam, three posts. The notes under it say one more thing. The last decking row is 1-13/16" wide, ripped from a 5-1/2" board.

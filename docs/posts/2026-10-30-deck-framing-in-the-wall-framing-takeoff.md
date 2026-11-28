@@ -4,6 +4,7 @@ seo_title: "Deck framing takeoff: joists, beam, posts, concrete and boards"
 date: 2026-10-30
 tags: [wall-framing-takeoff, construction]
 description: "The open-source wall framing takeoff now prices a deck: joist layout, beam and posts, footing concrete, decking rows with joints on joists and a hardware count."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The wall framing takeoff covers walls, floors, roofs, stairs and foundations. This week it gained decks, the most common thing homeowners and small builders frame and order from a sketch.
