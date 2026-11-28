@@ -621,7 +621,7 @@ export async function POST(request: Request) {
           const isFreeCheckout = session.payment_status === "no_payment_required";
           if (
             typeof amountCents !== "number" ||
-            !Number.isInteger(amountCents) ||
+            !Number.isSafeInteger(amountCents) ||
             (isFreeCheckout ? amountCents !== 0 : amountCents <= 0)
           ) {
             console.warn(
@@ -1095,8 +1095,8 @@ export async function POST(request: Request) {
         const expectedAfterDiscountCents = Math.max(0, expectedCents - discountCents);
         if (
           typeof amountCents !== "number" ||
-          !Number.isInteger(amountCents) ||
-          !Number.isInteger(discountCents) ||
+          !Number.isSafeInteger(amountCents) ||
+          !Number.isSafeInteger(discountCents) ||
           discountCents < 0 ||
           amountCents !== expectedAfterDiscountCents
         ) {
