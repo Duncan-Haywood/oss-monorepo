@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01E5sJKj6oNiVLu8VC6m9KJk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T15:18:01Z",
+  "ended": "2026-11-28T15:26:17Z",
+  "wall_minutes": 8.42,
+  "tokens_in": 6841103,
+  "tokens_out": 30983,
+  "cost_usd": 3.0018,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20158",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says bet #5 has the fewest front-door PRs and suggests a search page there, but slug_dupe shows open PRs for mercari, depop, etsy, tiktok-shop and amazon taxes pages from parallel runs today; the hint does not count open PRs, so it sends parallel runs to a saturated bet"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "curl to marisstella.app is refused by the cloud proxy (CONNECT 403), so a live check of a bet's funnel is impossible here; live_funnel_check.mjs already documents this, but CLAUDE.md does not"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The prompt suggests a new paid-bet idea or a prototype. Front-door pages for every bet were saturated, so I used the slot to walk a bet's onboarding path (the RFQ rule reader the hosted app uses) with realistic buyer layouts instead.",
+      "did": "Probed six RFQ layouts and fixed the four the reader got wrong",
+      "result": "Numbered and bulleted lists, PN without a colon, Item/Req Date columns and two inline parts now read; 805 unit and 316 worker tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-read-a-part-drawing-pdf-before-you-quote.md (dated update, extended rather than a new post)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: adversarial probing of the hosted app's no-AI RFQ rule reader with realistic buyer layouts (numbered list, ERP export space/tab table, Part#, bulleted PN, two inline parts). Four of six were wrong; one was a wrong-price bug (the first part got both counts). Verification: pnpm typecheck clean; test:unit 805 passed; test:worker 316 passed; biome clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ffdca519-0c51-59f2-b748-e866ae252a99",
+    "transcripts": 1,
+    "first": "2026-11-28T15:18:01Z",
+    "last": "2026-11-28T15:26:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 120,
+        "output": 30983,
+        "thinking": 8851,
+        "cache_read": 6711056,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129927,
+        "api_equivalent_usd": 3.0018,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 120,
+      "output": 30983,
+      "thinking": 8851,
+      "cache_read": 6711056,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129927,
+      "api_equivalent_usd": 3.0018,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 63,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.42,
+      "active_minutes": 8.42,
+      "model_minutes": 6.65,
+      "tool_minutes": 1.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

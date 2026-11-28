@@ -83,6 +83,18 @@ checks the pair. No customers yet.
   and dropped them). Only a rising, stand-alone run counts: m/d/yyyy dates, m/d/yy with a 2020-2040
   year ("1/15/26", and so "10/20/30" too: left blank for the estimator), a run right after "due", "by",
   "on" or "ship", inch fractions ("1/2", "3/16") and part numbers ("12345/500-A") add nothing.
+- Rule reader, list lines (2026-11-28, `rule-reader-list-lines`): six RFQ layouts a buyer commonly
+  sends were run through the rule reader, and four came out wrong. Fixed: a numbered or bulleted list
+  with one part per line ("1) 4410-0021 Rev C - Mounting bracket, Qty 50 / 100 / 250") read no part
+  at all and now reads number, revision, quantities and the description as written, with a
+  "Finish:" or "Need by" line back at the margin applied to every item (an indented line stays with
+  its item); "- PN 30311 rev B, qty 12" (no colon after the label) read nothing; a purchasing export's
+  bare "Item" column and its "Req Date" header were not recognised ("Item" counts as the part only
+  when no column names it); and "50 pcs of A-1001 and 100 pcs of A-1002" lost the second part and
+  priced the first at both counts, now one part each with its own count. A count ("- 1000 pcs per
+  year"), a date or a note ("1) M6x1.0 tapped holes, qty 4") in a list is not taken for a part;
+  unlabelled material in a list line is left for the estimator, as before. `RULES_NOTE` names the
+  list lines. Tests: `src/shared/rule-reader.test.ts` (+6).
 - Offline demo (`pnpm demo`), unit + worker tests incl. cross-tenant isolation.
 - AI cost guards (2026-11-25): per-shop monthly LLM spend cap and global daily kill switch
   (`BudgetedLlm` + `services/guards/llm-budget`, copied from grants), 30/min per-user limit on AI
