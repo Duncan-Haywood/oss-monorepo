@@ -3,6 +3,7 @@ title: "Deck joists, checked instead of guessed"
 date: 2026-11-01
 tags: [construction, wall-framing-takeoff]
 description: The deck planner now checks joist bending, shear and deflection from stresses you type in, and says plainly when a 2x8 is too long.
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The deck planner in wall-framing-takeoff already counted joists, posts, footings and decking. Until now it only warned about a joist if you pasted in a span table. This change adds `deck.joistCheck`: type your dead and live load and the Fb, Fv and E you got from your lumber table, and each joist is checked as a beam on the ledger and the beam, with the cantilever past it.

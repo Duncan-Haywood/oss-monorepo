@@ -1,6 +1,7 @@
 // Contractor's sworn statement through the HTTP API: a statement that adds up prints a PDF named for
 // its pay application, with the parties, totals and the notary block; rows over their contract are
-// refused with the reason; a viewer can print; another company's job is a 404; nothing is stored.
+// refused with the reason; a viewer can print; another company's job is a 404. The draft between
+// months is saved with the job: editors save and clear it, viewers read it, half-typed is fine.
 
 import type { ProjectDto } from "@shared/api/types";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -118,5 +119,98 @@ describe("sworn statement PDF", () => {
     expect((await print(STATEMENT, other.userId)).status).toBe(404);
     const otherBase = base.replace(orgId, other.orgId);
     expect((await print(STATEMENT, other.userId, otherBase)).status).toBe(404);
+  });
+});
+
+describe("sworn statement draft saved with the job", () => {
+  const draftPath = () => `${base}/sworn-statement/draft`;
+  interface Dto {
+    draft: (typeof STATEMENT & { rows: { name: string; paidCents?: number }[] }) | null;
+    updatedAt: string | null;
+    updatedByName: string | null;
+  }
+
+  it("starts empty, saves, reads back for another member, and clears", async () => {
+    // Its own company and job, so the order of the tests does not matter.
+    const t = await setupTenant("owner");
+    const p = await call<ProjectDto>(`/api/orgs/${t.orgId}/projects`, {
+      method: "POST",
+      as: t.userId,
+      expect: 201,
+      json: { name: "Draft job", gcName: "Prairie Builders", originalContractSumCents: 1_000_000 },
+    });
+    const path = `/api/orgs/${t.orgId}/projects/${p.id}/sworn-statement/draft`;
+    const as = t.userId;
+    expect(await call<Dto>(path, { as })).toEqual({
+      draft: null,
+      updatedAt: null,
+      updatedByName: null,
+    });
+
+    const saved = await call<Dto>(path, { method: "PUT", as, json: STATEMENT });
+    expect(saved.draft?.rows[1]?.paidCents).toBe(4_500_000);
+    expect(saved.updatedByName).toBe("Test User");
+    expect(saved.updatedAt).not.toBeNull();
+
+    const viewer = await createTestUser();
+    await addToOrg(t.orgId, viewer.id, "viewer");
+    const read = await call<Dto>(path, { as: viewer.id });
+    expect(read.draft?.contractorName).toBe("Lakeside Electric LLC");
+    expect(read.draft?.rows.map((r) => r.name)).toEqual(STATEMENT.rows.map((r) => r.name));
+
+    // A save replaces the whole draft.
+    const next = { ...STATEMENT, rows: [{ ...STATEMENT.rows[0], paidCents: 5_040_000 }] };
+    const replaced = await call<Dto>(path, { method: "PUT", as, json: next });
+    expect(replaced.draft?.rows).toHaveLength(1);
+    expect(replaced.draft?.rows[0]?.paidCents).toBe(5_040_000);
+
+    await call(path, { method: "DELETE", as });
+    expect((await call<Dto>(path, { as })).draft).toBeNull();
+  });
+
+  it("keeps a half-typed draft that printing would refuse", async () => {
+    const half = {
+      ...STATEMENT,
+      contractorName: "",
+      statementDate: "",
+      rows: [{ name: "", contractCents: 0 }],
+    };
+    const res = await call<Dto>(draftPath(), { method: "PUT", as, json: half });
+    expect(res.draft?.rows[0]?.name).toBe("");
+    expect((await print(half)).status).toBe(400);
+  });
+
+  it("refuses money that is not whole cents, and too many rows", async () => {
+    const bad = { ...STATEMENT, rows: [{ name: "A", contractCents: 1.5 }] };
+    expect((await api(draftPath(), { method: "PUT", as, json: bad })).status).toBe(400);
+    const many = {
+      ...STATEMENT,
+      rows: Array.from({ length: 301 }, (_, i) => ({ name: `P${i}`, contractCents: 0 })),
+    };
+    expect((await api(draftPath(), { method: "PUT", as, json: many })).status).toBe(400);
+  });
+
+  it("a viewer cannot save or clear it", async () => {
+    const viewer = await createTestUser();
+    await addToOrg(orgId, viewer.id, "viewer");
+    const put = await api(draftPath(), { method: "PUT", as: viewer.id, json: STATEMENT });
+    expect(put.status).toBe(403);
+    expect((await api(draftPath(), { method: "DELETE", as: viewer.id })).status).toBe(403);
+  });
+
+  it("another company cannot read, save or clear it", async () => {
+    await call(draftPath(), { method: "PUT", as, json: STATEMENT });
+    const other = await setupTenant("owner");
+    expect((await api(draftPath(), { as: other.userId })).status).toBe(404);
+    const otherPath = draftPath().replace(orgId, other.orgId);
+    expect((await api(otherPath, { as: other.userId })).status).toBe(404);
+    expect(
+      (await api(otherPath, { method: "PUT", as: other.userId, json: STATEMENT })).status,
+    ).toBe(404);
+    expect((await api(otherPath, { method: "DELETE", as: other.userId })).status).toBe(404);
+    // Still there for its own company.
+    expect((await call<Dto>(draftPath(), { as })).draft?.contractorName).toBe(
+      "Lakeside Electric LLC",
+    );
   });
 });

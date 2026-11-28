@@ -3,6 +3,7 @@ title: "Does a deck post ever fail in compression? Numbers from the takeoff"
 date: 2026-10-31
 tags: [wall-framing-takeoff, deck, posts, structural-check]
 description: "A 16 x 12 ft deck at 50 psf puts about 2,300 lb on its busiest post. A 4x4 at 90 in is still at 27% of its column capacity. Where the limit really is."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The wall-framing takeoff's `--deck` mode now has an optional `postCheck`: you type the dead and live load (psf) and the post's design values `fc` and `Emin` (psi), and it reports the busiest post's load against its column capacity. It uses the NDS column-stability factor, pin-ended, and also checks the beam's bearing on the post top if you type `fcPerp`.

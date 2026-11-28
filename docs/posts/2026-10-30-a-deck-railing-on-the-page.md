@@ -3,6 +3,7 @@ title: "The deck takeoff now lays out the railing on the page"
 date: 2026-10-30
 tags: [wall-framing-takeoff, deck, takeoff]
 description: "A 16 x 12 ft deck 48 in off the ground gets a guard: posts, balusters under a 4 in gap and rails. It was CLI only; now it is two dropdowns."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already framed decks on its page: joists, beam, posts, footings and decking rows. The guard (railing) was only reachable from the command line. The deck card now has a **Guard** switch (automatic over 30 in above grade, always, or none) and a **Guarded edges** choice (all open edges, outer only, or outer plus the two sides).

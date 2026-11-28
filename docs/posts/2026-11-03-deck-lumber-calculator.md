@@ -4,6 +4,7 @@ seo_title: "Deck lumber calculator: joists, beam, posts, boards and footings"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, calculators]
 description: "A free page that lays out a deck and counts joists, beam, posts, deck board rows, concrete and hardware, in your browser."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 Most deck calculators multiply an area by a number. The new deck lumber calculator in wall-framing-takeoff lays the deck out: joists on every spacing multiple, a beam and posts under them, footings, deck board rows with joints on joist centres, then a lumber order in stock lengths and a hardware count.

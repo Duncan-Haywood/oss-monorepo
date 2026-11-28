@@ -864,6 +864,18 @@ page is left out of it.
   suite the subs, payments and waivers are already kept per job, which is
   where this statement would come from without retyping.
 
+  Since 2026-11-28 the hosted statement is also saved with the job. The
+  hard part of a sworn statement is the "paid to date" column, because it
+  has to grow by exactly what was owing last month. "Start next month"
+  carries it forward, but until now the list lived in one browser, so the
+  office manager who prints the statement on a different computer from
+  the owner who typed it started from blank. Now every editor's change is
+  saved with the job as they type, everyone in the company opens the
+  same list, and the page says who saved it last and when. A half-filled
+  list saves; only printing insists on every name and date. A viewer's
+  changes stay in their own browser.
+  ([source](../../ventures/payapps/apps/payapps/src/worker/services/payapps/sworn-drafts.ts))
+
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.

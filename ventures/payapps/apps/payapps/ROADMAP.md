@@ -2037,6 +2037,17 @@ nothing to copy. No customers yet. Paid plans are dark
   preview line counts them; docs/EMAIL.md; privacy policy 2026-11-28.3. Why: the punch list gates the
   retainage release (often 5 to 10% of the contract), and the overdue item was visible only on each
   job's own page, so a PM running several jobs found it when the GC held the release.
+- **Punch list, part 2c: photos in the punch list PDF** (2026-11-28, every plan, punch-list-pdf-photos):
+  "PDF + photos" and "What is left + photos" next to the list's PDF links (shown once an item has a
+  photo) download one PDF: the punch list, an index, then each printed item's photos in item order,
+  before, after, the marked-up sheet, then other, oldest first within each, each named on the index
+  as "P-004 (Room 104): Before". The "what is left" packet keeps only the items still to fix or awaiting
+  back-check and their photos. Same packet rules as the daily report and T&M packets (JPEG/PNG one to
+  a page, PDFs as uploaded, a file over the size budget or unreadable listed as left out). Route
+  `GET .../punch-list/punch-list-with-photos.pdf[?only=open]`, `buildPunchListPacket` and
+  `punchPacketFiles` in `services/payapps/packet.ts`. Why: the GC walks the back-check from one
+  document, and a "not ours" or "already fixed" item is settled by the photo beside its number, not a
+  separate download per item.
 - **Close-out, part 1** (2026-11-26, every plan, closeout-checklist): per job, the close-out documents
   the subcontract asks for, each with its kind (warranty, O&M manuals, as-builts, attic stock, final
   lien waiver, consent of surety, owner training, test and start-up reports, final inspection
@@ -2766,6 +2777,18 @@ nothing to copy. No customers yet. Paid plans are dark
   Not yet: counting the 20 days on the job (with §§ 570.1108(10), (11)'s delays), a log of notices
   served with the certified mail receipts, the proof of service the claim of lien attaches, and the
   laborer's notices (§ 570.1109(2), (3)).
+- Sworn statement saved with the job (2026-11-28, every plan, sworn-statement-saved): the statement's
+  parties, paid and owing columns were kept in one browser's storage, so the next month's statement
+  started blank on any other computer and for anyone else in the company. Now an editor's changes are
+  saved with the job as they type (`PUT .../sworn-statement/draft`, one row per job in
+  `sworn_statement_drafts`, migration 0093, replaced whole on each save; `swornDraftSchema` in
+  `src/shared/sworn-statement.ts` takes a half-typed list that printing would refuse, with the same money
+  and 300-row limits), everyone in the company reads it, and the page says who saved it last and when.
+  A viewer's changes stay in their browser; a draft kept in a browser before this is picked up once and
+  saved. "Clear" deletes it for everyone. Tests: `test/worker/sworn-statement.test.ts` (save, read as a
+  viewer, replace, clear, half-typed, refusals, viewer 403, another company 404) and
+  `test/e2e/05-sworn-draft.spec.ts` (typed, browser storage wiped, still there; cleared).
+
 ## Must do before a public launch
 
 - Done 2026-11-27 (run 45949861746): the deploy sets `EMAIL_FROM` and `GET /api/health` answers
@@ -2866,9 +2889,10 @@ nothing to copy. No customers yet. Paid plans are dark
   Illinois 770 ILCS 60/5 and Michigan MCL 570.1110, and a lender's or title company's draw, done
   2026-11-26: `src/shared/sworn-statement.ts`, the job's "Sworn statement" page, parties prefilled from
   its purchase orders and subcontracts with invoiced to date as a cross-check, checked against the
-  contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; nothing
-  stored. Next, if people ask: saving the paid column per pay app instead of in the browser, and the
-  Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
+  contract sum and the pay app's amount due, PDF with our own affirmation and a generic jurat; the
+  draft saved with the job instead of in the browser, done 2026-11-28, sworn-statement-saved. Next, if
+  people ask: a saved copy per pay application (each month's statement kept, not only the latest), and
+  the Michigan statutory form's own wording once the section can be read in full); GC portal export formats, part 4:
   other portals (Trimble Pay/Flashtract, Siteline) if customers bill through
   them. Parts 1 to 3 (Procore SSOV and invoice sheet, Textura's two billing uploads, GCPay's SOV
   upload) are done
@@ -2906,9 +2930,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
   email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
   required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
-- Punch list, part 2 (2a, photos per item and their history rows, and 2b, items overdue across jobs
-  in the weekly email, done 2026-11-28): punch events beyond photos in the job history, photos in the
-  punch list PDF itself, and a line on the
+- Punch list, part 2 (2a, photos per item and their history rows, 2b, items overdue across jobs
+  in the weekly email, and 2c, the photos in one PDF with the list, done 2026-11-28): punch events
+  beyond photos in the job history, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
   PDF read into items (text layer) once customers share real ones
 - Submittals, part 4: spec sections from a scan, and OCR of a scanned stamp with no text layer (the
