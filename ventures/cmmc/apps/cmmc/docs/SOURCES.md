@@ -148,6 +148,21 @@ The app's own choices, not the clause's: the image-hold date adds one hour to 90
 so a daylight-saving change can only make it later (the clause says "at least"); "closed" is the shop's
 own close date. NIST SP 800-171 Rev. 2 3.6.1 to 3.6.3 are cited by number only.
 
+## Calibration (`src/shared/calibration.ts`)
+
+No source text is quoted. ISO 9001:2015 is copyrighted, so the module names clause 7.1.5 ("Monitoring and
+measuring resources", heading checked against the contents page above) as a pointer only. The checks are
+the app's own reading of what an auditor of a machine shop asks to see at the inspection bench: each gauge
+identified (its id) so its status can be told; calibrated at intervals the shop sets, against a standard
+that traces to national or international measurement standards (a lab's certificate, or the shop's own
+masters when done in house); and, when one is found out of tolerance, a record of whether results measured
+with it since its last good calibration were affected and what was done. "Reference only", employee-owned
+gauges and the as found / as left wording are common shop and lab practice, not terms the standard defines.
+The 30-day "due soon" window and the 1 to 60 month interval range are the app's choices; ISO 9001 sets no
+interval, and the page says intervals and tolerances are the shop's. A due date counts the interval in
+calendar months from the calibration date (31 January plus one month is 28 February), and a gauge is
+overdue on its due date. AS9100D additions are not covered.
+
 ## Suppliers (`src/shared/suppliers.ts`)
 
 Read on 2026-11-26. ecfr.gov and acquisition.gov refused this environment that day, so the DFARS text came

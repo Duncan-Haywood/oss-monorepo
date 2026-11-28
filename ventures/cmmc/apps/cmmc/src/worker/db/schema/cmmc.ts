@@ -4,6 +4,14 @@
 import type { AffirmationKind, CmmcStatus, Deadline } from "@shared/affirmation";
 import type { AssetCategory, SpecializedType } from "@shared/assets";
 import type {
+  AsFound,
+  AsLeft,
+  CalPerformer,
+  GaugeKind,
+  GaugeOwner,
+  GaugeStatus,
+} from "@shared/calibration";
+import type {
   FamilyCode,
   ImplementationStatus,
   MetExceptionKind,
@@ -652,4 +660,75 @@ export const incident = sqliteTable(
     updatedAt: updatedAt(),
   },
   (t) => [index("incident_org_idx").on(t.orgId, t.discoveredAt)],
+);
+
+/**
+ * The gauge and instrument list (ISO 9001 7.1.5): one row per gauge, with its interval. Its last
+ * calibration and due date are read from `gauge_calibration`, newest first.
+ */
+export const gauge = sqliteTable(
+  "gauge",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgRef(),
+    /** The number on its sticker or engraving, unique per org. */
+    tag: text("tag").notNull(),
+    description: text("description").notNull(),
+    kind: text("kind").$type<GaugeKind>().notNull(),
+    manufacturer: text("manufacturer").notNull().default(""),
+    serial: text("serial").notNull().default(""),
+    /** Range and resolution as the shop writes them ("0-1 in x 0.0001"). */
+    range: text("range").notNull().default(""),
+    location: text("location").notNull().default(""),
+    owner: text("owner").$type<GaugeOwner>().notNull().default("company"),
+    /** The machinist an employee-owned gauge belongs to, or who it is issued to. */
+    assignedTo: text("assigned_to").notNull().default(""),
+    status: text("status").$type<GaugeStatus>().notNull().default("active"),
+    intervalMonths: integer("interval_months"),
+    /** How it is calibrated: the procedure or work instruction number, or the lab's method. */
+    method: text("method").notNull().default(""),
+    notes: text("notes").notNull().default(""),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("gauge_org_tag_uq").on(t.orgId, t.tag)],
+);
+
+/**
+ * One calibration of a gauge: kept, never edited, except the impact record of an out-of-tolerance
+ * result, which is written once the parts it measured have been looked at.
+ */
+export const gaugeCalibration = sqliteTable(
+  "gauge_calibration",
+  {
+    id: text("id").primaryKey(),
+    orgId: orgRef(),
+    gaugeId: text("gauge_id")
+      .notNull()
+      .references(() => gauge.id, { onDelete: "cascade" }),
+    calibratedOn: text("calibrated_on").notNull(),
+    performer: text("performer").$type<CalPerformer>().notNull(),
+    performedBy: text("performed_by").notNull(),
+    asFound: text("as_found").$type<AsFound>().notNull(),
+    asLeft: text("as_left").$type<AsLeft>().notNull(),
+    /** The readings, as found and as left, in the shop's own words or the lab's. */
+    readings: text("readings").notNull().default(""),
+    certificateNo: text("certificate_no").notNull().default(""),
+    traceability: text("traceability").notNull().default(""),
+    /** The interval that applied and the due date it gave, kept as recorded. */
+    intervalMonths: integer("interval_months"),
+    dueOn: text("due_on"),
+    /** The certificate file, held as evidence; its name and hash stay if the file is deleted. */
+    evidenceId: text("evidence_id").references(() => evidence.id, { onDelete: "set null" }),
+    fileName: text("file_name"),
+    fileSha256: text("file_sha256"),
+    /** Out of tolerance: what was measured with it since the last good calibration, and what was done. */
+    impact: text("impact").notNull().default(""),
+    impactOn: text("impact_on"),
+    /** A corrective action raised for it (CA-0007), as text so either record can be deleted. */
+    correctiveActionRef: text("corrective_action_ref").notNull().default(""),
+    recordedBy: text("recorded_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("gauge_calibration_gauge_idx").on(t.orgId, t.gaugeId, t.calibratedOn)],
 );

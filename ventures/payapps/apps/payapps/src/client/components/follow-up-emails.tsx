@@ -2,6 +2,7 @@
 // report's own figures (src/shared/follow-up-email.ts). Nothing is sent from PayApps: the contractor
 // edits the draft, then copies it or opens it in their own mail program.
 
+import type { QuickBooksInterestInvoicesDto } from "@shared/api/types";
 import { FOLLOW_UP_ANCHOR_PREFIX, followUpAnchor } from "@shared/cash-digest";
 import {
   type CashReport,
@@ -25,6 +26,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { api, projectPath } from "../lib/api";
 import { ErrorText } from "./error";
+import { InterestQuickBooks, useInterestInvoices } from "./interest-quickbooks";
 
 const KIND_LABELS: Record<FollowUpKind, string> = {
   status: "Not due yet: check it is in for processing",
@@ -234,10 +236,12 @@ function SettledRow({
   orgId,
   job,
   app,
+  qbo,
 }: {
   orgId: string;
   job: CashReportProject;
   app: PaidLateApp;
+  qbo: QuickBooksInterestInvoicesDto | undefined;
 }) {
   const settle = useSettle(orgId, job, app);
   const s = app.settled;
@@ -254,7 +258,8 @@ function SettledRow({
         onClick={() => settle.mutate({ settlement: null })}
       >
         Undo
-      </button>
+      </button>{" "}
+      <InterestQuickBooks orgId={orgId} job={job} app={app} data={qbo} />
       {settle.error && <ErrorText error={settle.error} />}
     </li>
   );
@@ -280,8 +285,30 @@ export function PaidLateInterest({
   const settled: { job: CashReportProject; app: PaidLateApp }[] = report.projects.flatMap((job) =>
     (job.paidLateSettled ?? []).map((app) => ({ job, app })),
   );
-  const [open, setOpen] = useState<string | null>(null);
   if (rows.length === 0 && settled.length === 0) return null;
+  return (
+    <PaidLateInterestList orgId={orgId} report={report} from={from} rows={rows} settled={settled} />
+  );
+}
+
+type PaidLateRow = { job: CashReportProject; app: PaidLateApp };
+
+/** The list itself, rendered only when there is something on it (it reads QuickBooks' state). */
+function PaidLateInterestList({
+  orgId,
+  report,
+  from,
+  rows,
+  settled,
+}: {
+  orgId: string;
+  report: CashReport;
+  from: From;
+  rows: PaidLateRow[];
+  settled: PaidLateRow[];
+}) {
+  const [open, setOpen] = useState<string | null>(null);
+  const qbo = useInterestInvoices(orgId);
   return (
     <section className="card space-y-2" aria-labelledby="paid-late-interest">
       <h2 id="paid-late-interest" className="font-semibold">
@@ -293,7 +320,11 @@ export function PaidLateInterest({
         date to the last payment, so the figure no longer grows. Whether you can collect it depends
         on your subcontract, any statute that applies and any waiver you signed: check before you
         ask. {formatCents(report.totals.paidLateInterestCents)} in all; it is not in the totals
-        above. Mark each one billed or waived once you have dealt with it.
+        above. Mark each one billed or waived once you have dealt with it
+        {qbo.data?.status.connection && qbo.data.status.planIncludes
+          ? ", or invoice it in QuickBooks, which marks it billed"
+          : ""}
+        .
       </p>
       {rows.length === 0 && (
         <p className="text-sm text-slate-600">Nothing left to decide: every one is marked.</p>
@@ -321,6 +352,7 @@ export function PaidLateInterest({
                   {open === app.payAppId ? "Hide draft" : `Draft interest email for #${app.number}`}
                 </button>
                 <SettleForm orgId={orgId} job={job} app={app} />
+                <InterestQuickBooks orgId={orgId} job={job} app={app} data={qbo.data} />
               </span>
             </div>
             {open === app.payAppId && (
@@ -345,7 +377,7 @@ export function PaidLateInterest({
           </summary>
           <ul className="divide-y divide-slate-100">
             {settled.map(({ job, app }) => (
-              <SettledRow key={app.payAppId} orgId={orgId} job={job} app={app} />
+              <SettledRow key={app.payAppId} orgId={orgId} job={job} app={app} qbo={qbo.data} />
             ))}
           </ul>
         </details>

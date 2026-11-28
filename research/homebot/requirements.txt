@@ -14,3 +14,6 @@ shapely==2.1.2
 rtree==1.4.1
 # Camera (optional): homebot.perception and experiments/fiducial_pose.py
 opencv-contrib-python-headless==5.0.0.93
+# Security floor for a transitive dependency (matplotlib, opencv): pip already picks a
+# fixed version, this keeps resolvers that pick old ones (osv-scanner via deps.dev) off 9.x.
+pillow>=13.0.0

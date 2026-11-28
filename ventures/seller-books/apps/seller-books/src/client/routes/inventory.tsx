@@ -439,7 +439,7 @@ export function InventoryPage() {
 
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Lots</h2>
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Lot</th>
@@ -460,33 +460,44 @@ export function InventoryPage() {
                     {l.name}
                     {l.vendor && <span className="ml-1 text-xs text-stone-500">{l.vendor}</span>}
                   </td>
-                  <td>{l.acquiredDate}</td>
-                  <td className="num">{usd(l.totalCostCents)}</td>
-                  <td>
-                    <select
-                      className="input w-auto py-0 text-xs"
-                      aria-label={`How ${l.name}'s cost is split`}
-                      value={l.splitBy}
-                      onChange={(e) =>
-                        updateLot.mutate({ id: l.id, body: { splitBy: e.target.value } })
-                      }
-                    >
-                      <option value="even">evenly</option>
-                      <option value="value">by expected price</option>
-                    </select>
-                    {l.splitBy === "value" && l.missingValueCount > 0 && (
-                      <span className="ml-1 text-xs text-accent-700">
-                        evenly until {l.missingValueCount} more{" "}
-                        {l.missingValueCount === 1 ? "item has" : "items have"} a price
-                      </span>
-                    )}
+                  <td data-label="Bought">{l.acquiredDate}</td>
+                  <td data-label="Cost" className="num">
+                    {usd(l.totalCostCents)}
                   </td>
-                  <td className="num">{l.itemCount}</td>
-                  <td className="num">{l.soldCount}</td>
-                  <td className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}>
+                  <td data-label="Split">
+                    <div>
+                      <select
+                        className="input w-auto py-0 text-xs"
+                        aria-label={`How ${l.name}'s cost is split`}
+                        value={l.splitBy}
+                        onChange={(e) =>
+                          updateLot.mutate({ id: l.id, body: { splitBy: e.target.value } })
+                        }
+                      >
+                        <option value="even">evenly</option>
+                        <option value="value">by expected price</option>
+                      </select>
+                      {l.splitBy === "value" && l.missingValueCount > 0 && (
+                        <span className="ml-1 text-xs text-accent-700">
+                          evenly until {l.missingValueCount} more{" "}
+                          {l.missingValueCount === 1 ? "item has" : "items have"} a price
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td data-label="Items" className="num">
+                    {l.itemCount}
+                  </td>
+                  <td data-label="Sold" className="num">
+                    {l.soldCount}
+                  </td>
+                  <td
+                    data-label="Not assigned to items"
+                    className={`num ${l.unallocatedCents ? "text-accent-700" : ""}`}
+                  >
                     {usd(l.unallocatedCents)}
                   </td>
-                  <td>{receiptsButton(l.id, l.receiptCount)}</td>
+                  <td data-label="Receipt">{receiptsButton(l.id, l.receiptCount)}</td>
                 </tr>
                 {openReceipts === l.id && (
                   <tr>
@@ -508,7 +519,7 @@ export function InventoryPage() {
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Items</h2>
         <ErrorText error={update.error ?? updateLot.error ?? removeItem.error} />
-        <table className="table">
+        <table className="table table-stack">
           <thead>
             <tr>
               <th>Item</th>
@@ -533,25 +544,29 @@ export function InventoryPage() {
                       <span className="ml-1 text-xs text-stone-500">· {lotName(i.lotId)}</span>
                     )}
                   </td>
-                  <td>{i.acquiredDate}</td>
-                  <td className="num">
-                    {usd(i.costCents)}
-                    {i.lotId && !i.costIsManual && (
-                      <span className="ml-1 text-xs text-stone-500">(lot share)</span>
-                    )}
-                    {i.estimatedValueCents != null && (
-                      <span className="block text-xs text-stone-500">
-                        expected {usd(i.estimatedValueCents)}
-                      </span>
-                    )}
+                  <td data-label="Bought">{i.acquiredDate}</td>
+                  <td data-label="Cost" className="num">
+                    <div>
+                      {usd(i.costCents)}
+                      {i.lotId && !i.costIsManual && (
+                        <span className="ml-1 text-xs text-stone-500">(lot share)</span>
+                      )}
+                      {i.estimatedValueCents != null && (
+                        <span className="block text-xs text-stone-500">
+                          expected {usd(i.estimatedValueCents)}
+                        </span>
+                      )}
+                    </div>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     {i.status.replace("_", " ")}
                     {i.disposedDate && (
                       <span className="ml-1 text-xs text-stone-500">{i.disposedDate}</span>
                     )}
                   </td>
-                  <td>{receiptsButton(i.id, i.receiptCount, i.lotReceiptCount)}</td>
+                  <td data-label="Receipt">
+                    {receiptsButton(i.id, i.receiptCount, i.lotReceiptCount)}
+                  </td>
                   <td className="space-x-2 text-xs">
                     {i.lotId && (
                       <button type="button" className="underline" onClick={() => setExpected(i)}>

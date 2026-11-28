@@ -56,6 +56,20 @@ The title block's general tolerance is printed at the top and never applied to a
 
 It is a draft, and the file says so. A PDF's text layer holds only what was written as text. A dimension drawn as geometry, a boxed basic dimension or a feature control frame drawn as lines is not in it, and neither is anything on a scanned drawing. The text also has no positions, so the drawing zone column is left for the inspector, along with the designator and the results. Paste the finished rows into the checker above to judge them.
 
+## Then the results, in the same list (added 28 November 2026)
+
+Beside the CSV link there is now **Inspect first article**, which opens the same list as a screen in the app. For each row, the inspector types the drawing zone, the result, the gauge and, on a reject, the nonconformance number. A row turns accept, reject or open as it's typed, using the same rules as the checker above:
+
+- a measured row accepts when every reading is inside its limits, limits included. `3.250 3.251 3.256` against `3.250 ±.005` rejects, and the row says `3.256 is over the upper limit 3.255 in`;
+- a surface finish has only a maximum, so only the maximum is checked;
+- a thread gauge, a note or a material certificate needs "accept" or "reject" written in words. A number on one of those rows stays open;
+- anything it can't read stays open. It is never accepted;
+- a reject with no nonconformance number keeps the sheet from showing as complete.
+
+A false read from the drawing's text can be marked "not a characteristic". It stays on the sheet and is left out of the counts. A characteristic the text missed, such as a boxed basic dimension or a frame drawn as lines, can be added with its own limits. It's numbered after the drafted rows. The results are saved with the drawing. From then on the Form 3 CSV carries them, with a count line at the top (accepted, rejected, open) and a verdict and reason on every row.
+
+It is still arithmetic on the limits listed, not a sign-off. The inspector checks the list against the drawing and signs the report. Forms 1 and 2 and the balloons on the drawing are not drawn yet.
+
 ## Where it fits
 
 The [RFQ review checklist](https://marisstella.app/machine-shop-guides/rfq-review.html) flags an AS9102 requirement in the RFQ, so the inspection time can go into the [quote](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html). This page is the other end of that job. Both are free front doors to two products for small machine shops. Job Shop Quote, the RFQ-to-quote app, and CMMC Workspace, for CMMC and ISO 9001 records, are both open on a free plan, and neither one's paid plans are on sale yet. See the [manufacturing page](https://marisstella.app/industries/manufacturing/).

@@ -75,6 +75,8 @@ describe("DXF flat parts", () => {
     const s = flat.holes.find((h) => h.kind === "slot");
     close(s?.diameter, 8);
     close(s?.length, 20);
+    // a slot's centre is its bounding-box centre: x 62..82, y 21..29
+    assert.deepEqual(s?.center, { x: 72, y: 25 });
     const holesPerim = 4 * Math.PI * 6 + Math.PI * 10 + (24 + Math.PI * 8);
     close(flat.cutLength, 300 + holesPerim);
     assert.equal(flat.bendLineSource, "layer");
@@ -139,6 +141,85 @@ describe("DXF flat parts", () => {
         [145, 50, 4],
       ].sort((a, b) => (a[0] as number) - (b[0] as number)),
     );
+  });
+
+  it("lays out a rotated insert array along the rotated axes", () => {
+    // 2 columns × 2 rows, 20 apart, rotated 90°: columns step +y, rows step -x
+    const blocks = [{ name: "HOLE", entities: [circle("0", 0, 0, 1)] }];
+    const ents = [
+      lwpolyline(
+        "0",
+        [
+          [0, 0],
+          [200, 0],
+          [200, 100],
+          [0, 100],
+        ],
+        true,
+      ),
+      insert("HOLE", 100, 30, { rot: 90, cols: 2, rows: 2, colSpacing: 20, rowSpacing: 20 }),
+    ];
+    const r = extractDxf(dxf(ents, { insunits: 4, blocks }));
+    const centers = r.flat?.holes
+      .map((h) => [h.center.x, h.center.y])
+      .sort((a, b) => (a[0] as number) - (b[0] as number) || (a[1] as number) - (b[1] as number));
+    assert.deepEqual(centers, [
+      [80, 30],
+      [80, 50],
+      [100, 30],
+      [100, 50],
+    ]);
+  });
+
+  it("refuses to measure an outline with a non-numeric coordinate", () => {
+    // One vertex x reads "abc". Measuring it gave NaN net area and cut length at "high"
+    // confidence with no flag, so a quote could price material and cutting from NaN.
+    const bad = pairs(
+      0,
+      "LWPOLYLINE",
+      8,
+      "0",
+      90,
+      4,
+      70,
+      1,
+      10,
+      "abc",
+      20,
+      0,
+      10,
+      10,
+      20,
+      0,
+      10,
+      10,
+      20,
+      10,
+      10,
+      0,
+      20,
+      10,
+    );
+    const plate = lwpolyline(
+      "0",
+      [
+        [0, 0],
+        [100, 0],
+        [100, 50],
+        [0, 50],
+      ],
+      true,
+    );
+    const r = extractDxf(dxf([plate, bad], { insunits: 4 }));
+    const flat = r.flat;
+    assert.ok(flat);
+    for (const v of [flat.outerPerimeter, flat.grossArea, flat.netArea, flat.cutLength]) {
+      assert.ok(Number.isFinite(v), `expected a finite measure, got ${v}`);
+    }
+    close(flat.netArea, 5000);
+    assert.equal(flat.holeCount, 0);
+    assert.ok(codes(r).includes("unsupported-entities"));
+    assert.notEqual(r.confidence, "high");
   });
 
   it("treats the mirrored insert as outside the part and flags it", () => {

@@ -337,6 +337,17 @@ function paymentReference(means) {
   return "";
 }
 
+// BT-20, the payment terms text: each cac:PaymentTerms' first cbc:Note, the lines BR-DE-18 reads.
+function paymentTermsNote(root) {
+  const notes = [];
+  for (const child of root.children) {
+    if (child.name !== "PaymentTerms") continue;
+    const note = child.children.find((c) => c.name === "Note");
+    if (note && note.text.trim()) notes.push(note.text);
+  }
+  return notes.join("\n");
+}
+
 function paymentTermsDays(root) {
   for (const child of root.children) {
     if (child.name !== "PaymentTerms") continue;
@@ -625,6 +636,8 @@ export function parseUblInvoice(source) {
   const payment = payeePayment(root) || {};
   const termsDays = paymentTermsDays(root);
   if (termsDays) payment.terms_days = termsDays;
+  const termsNote = paymentTermsNote(root);
+  if (termsNote) payment.terms_note = termsNote;
   if (Object.keys(payment).length) invoice.payment = payment;
   Object.assign(invoice, documentExemption(root));
   const breakdown = taxBreakdown(root);

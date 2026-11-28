@@ -410,7 +410,7 @@ tasks:
       other tools, and priv-security-scan-repo.yml gets back its
       `schedule: cron "29 7 * * 1"`.
     hours: 6
-    status: open
+    status: done
     added: 2026-11-27
     notes: >-
       Split by tool so each is one PR: (1) gitleaks, done 2026-11-28: all
@@ -437,6 +437,15 @@ tasks:
       items 2 and 4 accepted in baseline.yaml in a separate PR; item 1
       (requirements pins, osv) left: osv's API was refused by this
       session's proxy.
+      Item 1 done 2026-11-28: osv's offline database (the
+      osv-vulnerabilities bucket answers where api.osv.dev and api.deps.dev
+      do not) and pip's own resolution (Python 3.11 wheels) of all 20 files
+      against PyPI's advisory data: the one real finding was pyarrow 20.0.0
+      pinned directly (now 23.0.1); pip resolves Pillow 13.0.0 and certifi
+      2026.11.20 already, so the 9.5.0 / 2026.7.22 readings came from
+      deps.dev's resolver; floors keep it there. Repo-wide osv (no-resolve,
+      offline) is 0 blocking; the weekly cron is back
+      (docs/reports/2026-11-28-full-repo-scan-osv-trivy-zizmor.md, part 4).
 
   - id: aws-org-baseline
     direction: security-first

@@ -66,3 +66,48 @@ The episode adds two entries to the series list in
 first sheaf and the counting to the feast of weeks (Leviticus 23), and
 Gehazi and the silver after Naaman (Second Kings 5:19-27), which episode 36
 left for another night.
+
+## The same famine? Episode 185 and the field given back
+
+[The Shunammite and the Field Given Back](../../ventures/saints-by-candlelight/episodes/185-the-shunammite-and-the-field-given-back.md),
+episode 185, tells the other famine story in Elisha's chapters, Second Kings
+8:1-6, and it may be the same famine. The chapter opens with a pluperfect:
+Elisha *had said* to the woman whose son he restored to life, "Arise, and
+go," because "the Lord has called for a famine, and it will come upon the
+land for seven years" (8:1). Some commentators read that as a flashback to
+the famine at Gilgal in 4:38; others take it as a different one. The episode
+names both readings and settles neither. It is text only for the same reason
+as episode 169, and runs about 7,300 spoken words, some forty-seven minutes.
+
+The six verses give the woman no words of her own. She goes with her
+household to the land of the Philistines for seven years, comes home to find
+her house and land taken, and goes to cry out to the king. At that moment
+the king is asking Gehazi to "tell me all the great things that Elisha has
+done", and Gehazi is telling him how Elisha restored the dead to life. "My
+lord the king, this is the woman, and this is her son" (8:5). The king hears
+her and orders an officer to restore "all that was hers, and all the produce
+of the field from the day that she left the land until now" (8:6).
+
+What the episode does with that:
+
+- **An echo, not an addition.** In 4:13 she turned down Elisha's offer to
+  speak to the king for her: "I dwell among my own people." Seven years as a
+  stranger reverses that line, and the episode leans on it, with Exodus
+  23:9, "you know the heart of a stranger", as the Law's own comment.
+- **No villain.** The book does not say who held her land: a neighbour, the
+  crown, or a buyer from someone with no right to sell. The episode invents
+  no wrongdoer, and sets the scene beside Naboth's "the inheritance of my
+  fathers" (1 Kings 21) and Leviticus 25:23 only as background.
+- **Two puzzles left open.** The king is unnamed; Jehoram son of Ahab is a
+  common identification, given as one. And Gehazi, struck with Naaman's
+  disease at the end of chapter five, is chatting with the king in chapter
+  eight. The notes give the usual explanations, out of order, at a distance,
+  or stories gathered by theme, and choose none.
+- **Labelled invention.** The Philistine town, a dyer's widow with blue hands
+  across the lane, the old servant who counts the harvests, and a clay lamp
+  left in the room on the roof are ours, and the welcome, the notes and the
+  `fiction` field say so.
+
+The episode closes the woman of Shunem's arc that episode 77 opened, and adds
+one sequel to the series list: the four men at the gate of Samaria and the
+empty Aramean camp (Second Kings 7:3-16).

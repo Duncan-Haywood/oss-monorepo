@@ -4,5 +4,8 @@ scipy==1.16.3
 scikit-learn==1.7.2
 joblib==1.5.2
 threadpoolctl==3.6.0
-pyarrow==20.0.0
+pyarrow==23.0.1  # was 20.0.0 (PYSEC-2026-113 / GHSA-rgxp-2hwp-jwgg, fixed in 23.0.1); parquet read/write only
 matplotlib==3.10.7
+# Security floor for a transitive dependency (matplotlib): pip already picks a fixed
+# version, this keeps resolvers that pick old ones (osv-scanner via deps.dev) off 9.x.
+pillow>=13.0.0
