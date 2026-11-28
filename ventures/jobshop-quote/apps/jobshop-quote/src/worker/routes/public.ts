@@ -23,6 +23,7 @@ import {
   respondToQuote,
   viewCustomerQuote,
 } from "../services/quotes/customer-link";
+import { recordSignupSource } from "../services/signup-source";
 import type { AppEnv } from "../types";
 
 // `email` says whether account mail leaves the Worker: a deploy's smoke test checks it, because
@@ -71,6 +72,21 @@ meRoutes.post("/legal/accept", requireUser, validate("json", acceptLegalSchema),
       "These documents have changed since you opened them. Reload and read the current version.",
     );
   return c.json(status);
+});
+
+const sourceBody = z.object({ source: z.string().min(1).max(200) });
+
+/**
+ * Which of our pages sent this account (the "Start free" link's `from`), posted once by the browser
+ * after the first sign-in. Answers 200 either way ({ recorded: false, reason } when the account is
+ * not new or already has one); a value that is not one of our page names in shape is a 400.
+ */
+meRoutes.post("/signup-source", requireUser, validate("json", sourceBody), async (c) => {
+  const user = c.var.user;
+  if (!user) throw new Error("unreachable");
+  const result = await recordSignupSource(c.var.ctx, user.id, c.req.valid("json").source);
+  if (!result.recorded && result.reason === "invalid") throw badRequest("Not a page name.");
+  return c.json(result);
 });
 
 export const orgsRoutes = new Hono<AppEnv>()

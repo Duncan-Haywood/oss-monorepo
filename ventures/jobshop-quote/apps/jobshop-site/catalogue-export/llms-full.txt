@@ -1036,6 +1036,199 @@ The Early access plan is free and needs no card.
 
 Start free
 
+## How to quote CNC turning and lathe parts
+
+Source: https://marisstella.app/jobshop/how-to-quote-cnc-turning
+
+Guide
+
+## How to quote CNC turning and lathe parts
+
+A turned part's quote comes down to three numbers: the cycle time, the setup, and how
+much bar the order really uses, which is the easiest of the three to undercount. Here is the
+method, a worked example at 10, 100 and 500 pins, and the
+mistakes that lose money on jobs you win.
+
+### The method in six steps
+
+- Read the drawing for what changes the price. Material and bar size, the
+diameters and their tolerances, surface finish, threads, cross holes and flats (a second operation
+or live tooling), concentricity and runout callouts, and the finish or plating. A missing material
+grade or finish is a question to the customer, not a guess.
+
+- Pick the bar and the cut length. The smallest standard bar that cleans up the
+largest diameter. Each part takes its finished length plus the part-off tool's width and a facing
+allowance off the bar.
+
+- Count parts per bar. Parts per bar = (bar length − the remnant the chuck or bar
+feeder leaves) ÷ cut length, rounded down. Bars for the order = parts to start ÷ parts per bar,
+rounded up.
+
+- Time each cut. rpm = surface speed (sfm) × 12 ÷ (π × diameter); minutes =
+length of cut ÷ (feed per rev × rpm), times the passes. Roughing passes = radial stock to remove,
+less what you leave to finish, ÷ depth of cut, rounded up. Add facing, finishing, drilling,
+threading and the part-off, then the time between cuts: tool indexes, rapids and the bar pull, timed
+on your own machines.
+
+- Add setup, secondary operations and outside processes. Loading the program,
+setting tools and proving out the first part once per job; deburring, inspection, any milling
+after the lathe; plating, passivation or heat treat with their lot minimums.
+
+- Add fallout and markup, then quote every quantity. Start enough parts to ship
+the good ones, and repeat the sum at each break, since the setup, the first bar and the vendor's
+minimum spread differently at each.
+
+### A worked example
+
+A stainless pin: 303 stainless round bar, 1-1/4 in, faced, turned from 1.25 in to 1
+in over 2.5 in, parted off at 2.875 in long, deburred, inspected and
+passivated by a vendor. Every number here is made up to show the arithmetic; they are
+not recommended speeds, feeds, prices or rates for any material, machine or region. Use your own
+tooling maker's data and your own timing.
+
+#### The cycle time
+
+- Face the end: 400 sfm on 1.25 in is 1222 rpm;
+0.625 in radial at 0.006 in/rev =
+0.085 min.
+
+- Roughing passes: (1.25 − 1) ÷ 2 =
+0.125 in of radial stock, less 0.01 in left to finish, is
+0.115 in at 0.06 in a pass: 2
+passes.
+
+- Rough the diameter: 400 sfm on 1.25 in is 1222 rpm;
+2 passes × 2.5 in long at 0.008 in/rev =
+0.511 min.
+
+- Finish the diameter: 500 sfm on 1 in is 1910 rpm;
+2.5 in long at 0.004 in/rev =
+0.327 min.
+
+- Part off: 250 sfm on 1.25 in is 764 rpm;
+0.625 in radial at 0.002 in/rev =
+0.409 min.
+
+- Between cuts: 0.5 min a part for tool indexes, rapids
+and the bar pull. Cycle = 1.333 min cutting + 0.5 =
+1.833 min, rounded up to 1.84 min a part.
+
+The facing and part-off times are worked on the bar's diameter: on a lathe holding constant surface
+speed the spindle speeds up as the tool moves to the centre, up to the machine's limit, so a cut
+timed at the starting rpm errs long.
+
+#### The bar
+
+- Cut length: 2.875 in + 0.125 in for the part-off
+tool and facing = 3 in a part.
+
+- Parts per bar: 144 in bars (12 ft) less a
+6 in remnant is 138 in usable ÷ 3 in =
+46 parts a bar.
+
+- Price: $9.80 a foot, $117.60 a bar.
+With 2% fallout, 10 pins start 11 (1
+bar), 100 start 103 (3 bars) and 500 start
+511 (12 bars).
+
+#### The rest
+
+- CNC lathe with bar feeder at $85.00 an hour:
+75 min setup, 1.84 min a part.
+
+- Bench at $55.00 an
+hour: deburr and inspect, 0.75 min a part; a
+30 min first-article check once per job.
+
+- Passivation (outside vendor): $0.45 a part, minimum
+$125.00 a lot.
+
+- Markup: 20% on material,
+15% on the outside service, none on labor (the shop rates are taken
+to hold the margin already); a $250.00 minimum per line.
+
+The made-up stainless pin at three quantities, with whole bars charged. Each component is rounded to the cent, then summed; the price each is rounded up to the cent.
+Line10 pins100 pins500 pins
+
+Bars pulled1312Material (whole bars)$117.60$352.80$1,411.20Setup and first article$133.75$133.75$133.75Run time$36.23$339.30$1,683.32Passivation (outside)$125.00$125.00$229.95Cost$412.58$950.85$3,458.22Markup$42.27$89.31$316.73Price each$45.49$10.41$7.55Line total$454.90$1,041.00$3,775.00
+
+What the table shows:
+
+- On a short run the bar decides more than the metal in the part. 10
+pins use 11 × 3 in = 33 in of a
+144 in bar. Charged by the length used, the material is $26.95
+and the price each $34.61; charged the whole bar, it is
+$117.60 and $45.49. Which is right depends on
+whether the rest of that bar will be used on another job soon; decide it per material, not per
+quote.
+
+- Setup is the price of a small order. The $133.75 of setup
+and first article and the $125.00 passivation minimum are
+63% of the cost at
+10 pins; at 500 the same setup is
+$0.27 a pin. That is why the price each falls from $45.49 to
+$10.41 to $7.55.
+
+- At volume it is cycle time and bar. At 500 pins, run time
+($1,683.32) and bar ($1,411.20) are
+89% of the cost. Each
+second off the cycle is worth $12.07
+on this order, and whole bars matter less: priced by the length used, the 500 would be
+$7.17 each instead of $7.55.
+
+### Mistakes that lose money on jobs you win
+
+- Pricing the metal in the part. The part-off tool, the facing stock and the
+remnant at the end of every bar are bought too. On a short part they can be a large share of the
+bar.
+
+- Counting only cutting time. Tool indexes, rapids, the bar pull and the
+spindle coming up to speed are time on the machine on every part; time a real cycle and add them.
+
+- One roughing pass where the stock needs three. Work the passes out from the
+stock to remove and the depth your tooling takes in that material.
+
+- Forgetting the second operation. Cross holes, flats, hex features and back-side
+work need live tooling, a sub-spindle or a trip to the mill, each with its own setup and cycle.
+
+- Leaving out deburring and inspection. Hand deburring threads and cross holes
+and checking tight diameters take time on every part.
+
+- Missing the outside minimum. Plating, passivation and heat treat have lot
+charges; on a small order the minimum is the whole charge.
+
+### Doing it in Job Shop Quote
+
+Job Shop Quote does not compute lathe cycle times: you work out the times above and type them in.
+What it does do is the bar. A rate-card material can be priced by the foot, with the cut allowance,
+the bar length the shop buys and the remnant each bar leaves. A quote line with a round blank then
+counts parts per bar, charges whole bars for the parts started (or, with no bar length, the length
+used plus the row's scrap), prints the arithmetic ("2.875 in blank + 0.125
+in cut allowance = 3 in per part ... 46 parts per bar"), and puts the cut list
+and the bars to pull on the job traveler once the quote is won. Fallout, the lathe and bench at their
+own rates, the passivation with its lot minimum and every quantity break follow, and a line missing
+a time or a material is blocked rather than priced as if it were free. The example above is priced to
+the cent the app gives for the same inputs, both ways, checked by a test in its code. You can
+see how a quote is built or read about
+material price tracking.
+
+For milled parts, see how to
+quote a CNC machining job and how
+to estimate CNC machining time; for your shop rate,
+how to work out a machine shop hourly
+rate; for what goes on the quote you send, the
+machine shop quote template.
+
+This page explains a common costing method. It is not accounting, tax,
+engineering or financial advice, and the speeds, feeds, prices, times and rates in it are made up.
+Check every quote before you send it.
+
+### Quote your next turned part this way
+
+The Early access plan is free and needs no card.
+
+Start free
+
 ## How to estimate CNC machining time
 
 Source: https://marisstella.app/jobshop/how-to-estimate-cnc-machining-time
@@ -1497,6 +1690,7 @@ Reading RFQ emails and PDF drawings with AI is built but not switched on in the 
 ### Free guides on this
 
 - How to quote a CNC machining job
+- How to quote CNC turning and lathe parts
 - How to work out a machine shop hourly rate
 - Machine shop quote template (free CSV)
 - Machine shop quoting software compared
@@ -1766,6 +1960,7 @@ Start free
 ### Free guides on this
 
 - How to quote a CNC machining job
+- How to quote CNC turning and lathe parts
 - How to quote sheet metal and laser cut parts
 
 ### Common questions

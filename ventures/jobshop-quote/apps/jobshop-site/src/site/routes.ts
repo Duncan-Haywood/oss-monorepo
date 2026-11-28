@@ -146,6 +146,16 @@ export function allRoutes(launch: Launch = LAUNCH): readonly PublicRoute[] {
       lastmod: CONTENT_DATE,
     },
     {
+      path: "/how-to-quote-cnc-turning",
+      label: "How to quote CNC turning and lathe parts",
+      title: `How to quote CNC turning and lathe parts · ${SITE_NAME}`,
+      description:
+        "Quote a turned part: rpm and feed per rev, roughing passes, cycle time, parts per bar after the cut allowance and remnant, whole bars, and quantity breaks.",
+      changefreq: "monthly",
+      priority: 0.7,
+      lastmod: CONTENT_DATE,
+    },
+    {
       path: "/how-to-estimate-cnc-machining-time",
       label: "How to estimate CNC machining time",
       title: `How to estimate CNC machining time for a quote · ${SITE_NAME}`,

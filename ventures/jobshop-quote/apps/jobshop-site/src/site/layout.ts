@@ -3,7 +3,7 @@
 
 import { appLink, CMMC_SITE_URL, CONTACT_EMAIL, PUBLISHER, SITE_NAME, TAGLINE } from "./config";
 import { type Html, html, raw } from "./html";
-import { href, primaryCta, type RenderContext } from "./pages";
+import { href, primaryCta, type RenderContext, signUpLink } from "./pages";
 import type { PublicRoute } from "./routes";
 
 export interface DocumentContext extends RenderContext {
@@ -113,7 +113,7 @@ ${body}
             ${NAV.map((n) => html`<li><a href="${href(ctx, n.path)}">${n.label}</a></li>`)}
             ${
               open
-                ? html`<li><a href="${appLink(ctx.launch, "/sign-up")}">Start free</a></li>
+                ? html`<li><a href="${signUpLink(ctx)}">Start free</a></li>
             <li><a href="${appLink(ctx.launch, "/legal/terms")}">Terms</a></li>`
                 : html`<li><a href="${href(ctx, "/early-access")}">Early access</a></li>`
             }
@@ -121,6 +121,7 @@ ${body}
             <li><a href="${href(ctx, "/how-to-quote-cnc-machining")}">How to quote a machining job</a></li>
             <li><a href="${href(ctx, "/how-to-quote-sheet-metal")}">How to quote sheet metal</a></li>
             <li><a href="${href(ctx, "/how-to-quote-welding")}">How to quote welding</a></li>
+            <li><a href="${href(ctx, "/how-to-quote-cnc-turning")}">How to quote turned parts</a></li>
             <li><a href="${href(ctx, "/how-to-estimate-cnc-machining-time")}">Estimating machining time</a></li>
             <li><a href="${href(ctx, "/machining-material-cost")}">Material cost</a></li>
             <li><a href="${href(ctx, "/machine-shop-quote-template")}">Quote template</a></li>

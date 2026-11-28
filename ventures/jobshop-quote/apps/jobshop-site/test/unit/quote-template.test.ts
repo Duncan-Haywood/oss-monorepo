@@ -67,6 +67,6 @@ describe("/machine-shop-quote-template", () => {
     }
     expect(page).toContain("are made up");
     expect(page).toContain("not legal, tax or");
-    expect(page).toContain('href="https://app.example.test/sign-up"');
+    expect(page).toContain('href="https://app.example.test/sign-up?from=jobshop-site%2F');
   });
 });
