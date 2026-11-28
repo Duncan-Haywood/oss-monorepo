@@ -204,9 +204,10 @@ export function gaWaiverClocks(
     const unpaid = w.amountCents - Math.max(0, receivedCents);
     const filed = w.gaAffidavit;
     if (unpaid <= 0 && !filed) continue;
-    const start = utc(w.sentOn);
+    // A real calendar day, not just YYYY-MM-DD: Date.parse rolls 2026-02-30 over to 2 March, and
+    // msPeriodEnd throws on it, which would take the whole cash report down (red team, 2026-11-28).
+    if (!isCalendarDay(w.sentOn) || Number.isNaN(utc(today))) continue;
     const now = utc(today);
-    if (Number.isNaN(start) || Number.isNaN(now)) continue;
     const endsOn = addDays(w.sentOn, rule.days);
     const days = (iso: string) => Math.round((utc(iso) - now) / DAY_MS);
     const clock: GaWaiverClock = {
@@ -233,7 +234,7 @@ export function gaWaiverClocks(
         clock.lastDay = { on: p.lastDay, daysLeft: days(p.lastDay), because: closedBecause(p) };
       }
     }
-    if (filed && ISO_DAY.test(filed.filedOn) && !Number.isNaN(utc(filed.filedOn))) {
+    if (filed && isCalendarDay(filed.filedOn)) {
       const copyDueOn =
         rule.state === "MS"
           ? msPeriodEnd(filed.filedOn, rule.copyDays).lastDay
@@ -251,6 +252,9 @@ export function gaWaiverClocks(
 }
 
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+/** YYYY-MM-DD and on the calendar (2026-02-30 is not). */
+const isCalendarDay = (iso: string) =>
+  ISO_DAY.test(iso) && !Number.isNaN(utc(iso)) && addDays(iso, 0) === iso;
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 /** Why the 60th day moved: "a Saturday", or "a Friday, Christmas Day" (a legal holiday). */
@@ -279,7 +283,7 @@ export function gaClockText(c: GaWaiverClock): string {
   }
   if (f) {
     const late = f.late
-      ? ` That date is after the ${r.days} days ended on ${c.endsOn}; the statute asks for the filing before they end, so ask counsel where the waiver stands.`
+      ? ` That date is after the ${r.days} days ended on ${c.lastDay?.on ?? c.endsOn}; the statute asks for the filing before they end, so ask counsel where the waiver stands.`
       : "";
     if (!f.copySentOn) {
       const when =
