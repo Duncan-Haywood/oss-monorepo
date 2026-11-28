@@ -25,6 +25,7 @@ import {
   lienNoticeFiles,
   payAppAttachments,
   payApps,
+  punchItemFiles,
   rfiFiles,
   submittalFiles,
   tmTicketFiles,
@@ -104,58 +105,64 @@ async function assertPayApp(ctx: AppContext, orgId: string, projectId: string, p
  * limit).
  */
 export async function usedBytes(ctx: AppContext, orgId: string) {
-  const [apps, cos, notices, insurance, rfi, subs, daily, closeout, tm, docs] = await Promise.all([
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${payAppAttachments.sizeBytes}), 0)` })
-      .from(payAppAttachments)
-      .where(eq(payAppAttachments.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${changeOrderAttachments.sizeBytes}), 0)` })
-      .from(changeOrderAttachments)
-      .where(eq(changeOrderAttachments.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${lienNoticeFiles.sizeBytes}), 0)` })
-      .from(lienNoticeFiles)
-      .where(eq(lienNoticeFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${insuranceCertificateFiles.sizeBytes}), 0)` })
-      .from(insuranceCertificateFiles)
-      .where(eq(insuranceCertificateFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${rfiFiles.sizeBytes}), 0)` })
-      .from(rfiFiles)
-      .where(eq(rfiFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${submittalFiles.sizeBytes}), 0)` })
-      .from(submittalFiles)
-      .where(eq(submittalFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${dailyReportFiles.sizeBytes}), 0)` })
-      .from(dailyReportFiles)
-      .where(eq(dailyReportFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${closeoutFiles.sizeBytes}), 0)` })
-      .from(closeoutFiles)
-      .where(eq(closeoutFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${tmTicketFiles.sizeBytes}), 0)` })
-      .from(tmTicketFiles)
-      .where(eq(tmTicketFiles.orgId, orgId))
-      .get(),
-    ctx.db
-      .select({ n: sql<number>`coalesce(sum(${companyDocumentFiles.sizeBytes}), 0)` })
-      .from(companyDocumentFiles)
-      .where(eq(companyDocumentFiles.orgId, orgId))
-      .get(),
-  ]);
+  const [apps, cos, notices, insurance, rfi, subs, daily, closeout, tm, docs, punch] =
+    await Promise.all([
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${payAppAttachments.sizeBytes}), 0)` })
+        .from(payAppAttachments)
+        .where(eq(payAppAttachments.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${changeOrderAttachments.sizeBytes}), 0)` })
+        .from(changeOrderAttachments)
+        .where(eq(changeOrderAttachments.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${lienNoticeFiles.sizeBytes}), 0)` })
+        .from(lienNoticeFiles)
+        .where(eq(lienNoticeFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${insuranceCertificateFiles.sizeBytes}), 0)` })
+        .from(insuranceCertificateFiles)
+        .where(eq(insuranceCertificateFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${rfiFiles.sizeBytes}), 0)` })
+        .from(rfiFiles)
+        .where(eq(rfiFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${submittalFiles.sizeBytes}), 0)` })
+        .from(submittalFiles)
+        .where(eq(submittalFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${dailyReportFiles.sizeBytes}), 0)` })
+        .from(dailyReportFiles)
+        .where(eq(dailyReportFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${closeoutFiles.sizeBytes}), 0)` })
+        .from(closeoutFiles)
+        .where(eq(closeoutFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${tmTicketFiles.sizeBytes}), 0)` })
+        .from(tmTicketFiles)
+        .where(eq(tmTicketFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${companyDocumentFiles.sizeBytes}), 0)` })
+        .from(companyDocumentFiles)
+        .where(eq(companyDocumentFiles.orgId, orgId))
+        .get(),
+      ctx.db
+        .select({ n: sql<number>`coalesce(sum(${punchItemFiles.sizeBytes}), 0)` })
+        .from(punchItemFiles)
+        .where(eq(punchItemFiles.orgId, orgId))
+        .get(),
+    ]);
   return (
     Number(apps?.n ?? 0) +
     Number(cos?.n ?? 0) +
@@ -166,7 +173,8 @@ export async function usedBytes(ctx: AppContext, orgId: string) {
     Number(daily?.n ?? 0) +
     Number(closeout?.n ?? 0) +
     Number(tm?.n ?? 0) +
-    Number(docs?.n ?? 0)
+    Number(docs?.n ?? 0) +
+    Number(punch?.n ?? 0)
   );
 }
 

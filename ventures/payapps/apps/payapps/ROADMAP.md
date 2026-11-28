@@ -2011,6 +2011,19 @@ nothing to copy. No customers yet. Paid plans are dark
   policy 2026-11-26.17 names the items. Why: close-out is where a sub's retainage (often 5-10% of
   the contract) waits, and the punch list is the usual gate; Procore, Buildertrend and Contractor
   Foreman all carry one, and the bet's suite grows into it (portfolio bets.md, #1).
+- **Punch list, part 2a: photos per item** (2026-11-28, every plan, punch-list-photos): each punch
+  item keeps up to 10 files, "Before: the item as listed", "After: the item fixed" and the GC's
+  marked-up sheet (the stored categories photo, signed and backup; `PUNCH_CATEGORY_LABELS`), taken
+  with the phone's camera from a "Photos (n)" link on the row. Same rules as the RFI files: type from
+  the extension allow-list, downloads as attachments with nosniff, the company's one storage limit,
+  objects under `orgs/{org}/projects/{job}/punch/{item}/` cleared when the item or the job goes.
+  The list's DTO, CSV ("Photos kept") and PDF ("(2 photos kept)") carry the count; each photo added
+  or removed is a job-history row ("Punch item P-004: photo attached, ..."). Table
+  `punch_item_files` (migration 0091), `services/payapps/punch-item-files.ts`, routes under
+  `/punch-list/:itemId/attachments`; privacy policy 2026-11-28.1 names the photos. Why: before and
+  after photos are what settles a back-check or a "not ours" dispute, and every competing punch tool
+  (Procore, Buildertrend, Fieldwire) has them; the item had waited "if people ask", but a punch list
+  without photos is below the bar a buyer compares against.
 - **Close-out, part 1** (2026-11-26, every plan, closeout-checklist): per job, the close-out documents
   the subcontract asks for, each with its kind (warranty, O&M manuals, as-builts, attic stock, final
   lien waiver, consent of surety, owner training, test and start-up reports, final inspection
@@ -2768,8 +2781,9 @@ nothing to copy. No customers yet. Paid plans are dark
 - Close-out, part 4: (part 3, retainage waiting on close-out on the cash report and in the weekly
   email, done 2026-11-27) close-out events beyond files in the job history (sent, accepted, not
   required) and documents overdue across jobs in the weekly email, if contractors use the checklist.
-- Punch list, part 2: photos per item (before and after, the attachments rules the RFIs use),
-  punch events in the job history, items overdue across jobs in the weekly email, and a line on the
+- Punch list, part 2 (2a, photos per item and their history rows, done 2026-11-28): punch events
+  beyond photos in the job history, items overdue across jobs in the weekly email, photos in the
+  punch list PDF itself, and a line on the
   retainage-release pay application naming the punch list's state, if people ask; a GC's punch list
   PDF read into items (text layer) once customers share real ones
 - Submittals, part 4: spec sections from a scan, and OCR of a scanned stamp with no text layer (the

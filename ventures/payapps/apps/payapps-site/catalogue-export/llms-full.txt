@@ -301,6 +301,7 @@ At the end of a job the GC walks it and sends a list. Paste it in (one item per 
 - Open, overdue, fixed and awaiting back-check, accepted; or not ours, with the reason (another trade's work, built as drawn), kept out of the count
 - A pasted list read line by line: numbering dropped and the location taken from the text before " - " or ": "
 - One back-check email to the GC's project manager listing every fixed item, with how many are still open
+- Before and after photos on each item, taken with the phone's camera on site, plus the GC's marked-up sheet, so a disputed item comes down to the pictures
 - The list as a PDF to bring to the walk (all items, or only what is left), with a column for the GC's initials, and as CSV
 - Every plan
 

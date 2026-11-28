@@ -3,7 +3,7 @@
 // to one change order (pricing backup, photos of the condition, the signed change order), a notice
 // given, an RFI (marked-up sheets, photos, the response), a submittal revision (product data, shop
 // drawings, sample photos, the stamped copy returned), a daily report (the day's photos, delivery
-// tickets, inspection reports), a T&M ticket (photos of the extra work, material receipts, a scan of
+// tickets, inspection reports), a punch list item (before and after photos), a T&M ticket (photos of the extra work, material receipts, a scan of
 // the paper-signed ticket), a close-out document (the document as sent, photos, the GC's
 // receipt), one of the company's insurance certificates (the certificate PDF, its endorsements) or
 // one of its company documents (the license card, the bonding letter, a signed W-9).
@@ -30,9 +30,11 @@ import {
   MAX_ATTACHMENTS_PER_DAILY_REPORT,
   MAX_ATTACHMENTS_PER_NOTICE,
   MAX_ATTACHMENTS_PER_PAY_APP,
+  MAX_ATTACHMENTS_PER_PUNCH_ITEM,
   MAX_ATTACHMENTS_PER_RFI,
   MAX_ATTACHMENTS_PER_SUBMITTAL,
   MAX_ATTACHMENTS_PER_TM_TICKET,
+  PUNCH_CATEGORY_LABELS,
   packetTypeProblem,
   RFI_CATEGORY_LABELS,
   SUBMITTAL_CATEGORY_LABELS,
@@ -230,6 +232,14 @@ const HOLDERS = {
       'copy. "PDF + photos" puts the priced ticket and every one of these files in one PDF for the ' +
       "GC, and the change order's backup can carry them too. Files are private to your company.",
   },
+  punch: {
+    labels: PUNCH_CATEGORY_LABELS,
+    limit: { max: MAX_ATTACHMENTS_PER_PUNCH_ITEM, noun: "punch item" },
+    intro:
+      "Take a photo of the item as listed, and another once it is fixed, so a back-check or a " +
+      "disputed item comes down to the pictures, not memory. Add the GC's marked-up sheet if the " +
+      "item came on one. Files are private to your company.",
+  },
   closeout: {
     labels: CLOSEOUT_CATEGORY_LABELS,
     limit: { max: MAX_ATTACHMENTS_PER_CLOSEOUT_ITEM, noun: "close-out document" },
@@ -262,7 +272,9 @@ export function AttachmentsPanel(props: {
   });
   // Daily report and T&M ticket files are mostly photos; everything else starts on backup.
   const [category, setCategory] = useState<AttachmentCategory>(
-    props.holder === "dailyReport" || props.holder === "tmTicket" ? "photo" : "backup",
+    props.holder === "dailyReport" || props.holder === "tmTicket" || props.holder === "punch"
+      ? "photo"
+      : "backup",
   );
   const [progress, setProgress] = useState("");
   // What the last upload converted (HEIC or WebP photos made JPEG for the packet), shown after it.

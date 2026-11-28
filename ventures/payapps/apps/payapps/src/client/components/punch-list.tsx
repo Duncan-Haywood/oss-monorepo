@@ -18,6 +18,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
+import { AttachmentsPanel } from "./attachments";
 import { ErrorText } from "./error";
 import { StartButton, useStartOpen } from "./start-open";
 
@@ -83,6 +84,7 @@ export function PunchList(props: {
     }
   }, [loaded]);
   const [editing, setEditing] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string | null>(null);
   const [showEmail, setShowEmail] = useState(false);
   const [paste, setPaste] = useState(false);
   const blankDraft = { description: "", location: "", dueOn: "", listedOn: "", pasted: "" };
@@ -243,6 +245,10 @@ export function PunchList(props: {
                   today={list.today}
                   editing={editing === it.id}
                   busy={patch.isPending}
+                  base={url}
+                  photosOpen={photos === it.id}
+                  onPhotos={() => setPhotos(photos === it.id ? null : it.id)}
+                  onFilesChanged={refresh}
                   onToggle={() => setEditing(editing === it.id ? null : it.id)}
                   onPatch={(body) => patch.mutateAsync({ id: it.id, body })}
                   onDelete={() => {
@@ -367,6 +373,11 @@ function PunchRow(props: {
   today: string;
   editing: boolean;
   busy: boolean;
+  /** The punch list's API path; an item's photos live under `${base}/${id}/attachments`. */
+  base: string;
+  photosOpen: boolean;
+  onPhotos: () => void;
+  onFilesChanged: () => unknown;
   onToggle: () => void;
   onPatch: (body: Record<string, unknown>) => Promise<unknown>;
   onDelete: () => void;
@@ -421,12 +432,32 @@ function PunchRow(props: {
                 Accepted today
               </button>
             )}
+            <button
+              type="button"
+              className="link whitespace-nowrap"
+              aria-expanded={props.photosOpen}
+              onClick={props.onPhotos}
+            >
+              {it.fileCount > 0 ? `Photos (${it.fileCount})` : "Photos"}
+            </button>
             <button type="button" className="link" onClick={props.onToggle}>
               {editing ? "Close" : "Edit"}
             </button>
           </span>
         </td>
       </tr>
+      {props.photosOpen && !editing && (
+        <tr>
+          <td className="td bg-slate-50" colSpan={5}>
+            <AttachmentsPanel
+              base={`${props.base}/${encodeURIComponent(it.id)}`}
+              holder="punch"
+              embedded
+              onChanged={props.onFilesChanged}
+            />
+          </td>
+        </tr>
+      )}
       {editing && (
         <tr>
           <td className="td" colSpan={5}>
