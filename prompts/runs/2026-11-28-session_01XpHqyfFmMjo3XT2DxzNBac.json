@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01XpHqyfFmMjo3XT2DxzNBac",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T07:39:13Z",
+  "ended": "2026-11-28T07:53:12Z",
+  "wall_minutes": 14.18,
+  "tokens_in": 14864647,
+  "tokens_out": 64665,
+  "cost_usd": 5.872,
+  "tool_calls": 100,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20041",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First commit carried a wrong Claude-Session trailer (typed from memory); amended before push from CLAUDE_CODE_REMOTE_SESSION_ID.",
+    "A Bash call that started a background http.server and Playwright in one compound command was refused by the rm safety check (no rm in it); split into separate calls."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at einvoice-preflight's least-worked topic, but slug_dupe then showed open PRs #20028/#20029/#20032/#20033 already covering the obvious German pages; the bet picker does not read open PR titles, so parallel runs converge on the same bet."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo for private-monorepo worked first time, but every bet still there (grants) has its paid path built and owner-blocked, so the clone cost time without a task; the doc could say to check the bet's GO-LIVE/ROADMAP owner items before cloning."
+    },
+    {
+      "file": "ventures/machine-shop-guides (eCFR versioner API)",
+      "issue": "the versioner API returns 406 'requires response compression' without Accept-Encoding; SOURCES.md's earlier entries do not say so. Noted in the new SOURCES section."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bets (#1 payapps, #2 jobshop, #3 einvoice) had no free ungated Next item and their obvious front-door searches were claimed by open PRs; paid paths for all are owner-blocked on Paddle.",
+      "did": "Took bet #4's front door (fewest-claimed demand side), a CUI markings guide and checker with no duplicate.",
+      "result": "merged-ready page with 18 tests and 28 pinned quotes"
+    },
+    {
+      "file": "CLAUDE.md (Writing goes to consolidated posts)",
+      "why": "No new post; consolidation default.",
+      "did": "Extended the existing SSP-template for-customers post with a CUI-markings section.",
+      "result": "one post extended"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md (extended: CUI markings section)"
+  ],
+  "goal": null,
+  "notes": "Also crawled ~1,500 live URLs across the bets' marketing sites and guides (no broken links) and checked live health endpoints of payapps, jobshop-quote, cmmc, seller-books (all 200). Local checks: run_venture_tests.py machine-shop-guides 353 ok; inherited_keys 0 new; Playwright 390px no console errors; venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2138ec9f-5617-5359-afad-1ea9447bbf0c",
+    "transcripts": 1,
+    "first": "2026-11-28T07:39:13Z",
+    "last": "2026-11-28T07:53:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 97,
+        "input": 187,
+        "output": 64665,
+        "thinking": 14199,
+        "cache_read": 14658688,
+        "cache_write_5m": 0,
+        "cache_write_1h": 205772,
+        "api_equivalent_usd": 5.872,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 97,
+      "input": 187,
+      "output": 64665,
+      "thinking": 14199,
+      "cache_read": 14658688,
+      "cache_write_5m": 0,
+      "cache_write_1h": 205772,
+      "api_equivalent_usd": 5.872,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 91,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.18,
+      "active_minutes": 14.18,
+      "model_minutes": 11.12,
+      "tool_minutes": 3.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "source reading, reader module with tests, page and wiring for one compliance guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 102.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
