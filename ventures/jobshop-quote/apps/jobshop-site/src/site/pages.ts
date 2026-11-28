@@ -3447,7 +3447,10 @@ export function faiGuidePage(ctx: RenderContext): Html {
     carries the results and verdicts. "Ballooned drawing" downloads the same PDF with a numbered
     balloon beside each listed characteristic it found in the drawing's text, with the CSV's row
     numbers; the drawing itself is left as it was, and a characteristic whose text was not found gets
-    no balloon rather than a guessed one. ${SITE_NAME} does not fill in Forms 1 and 2. The
+    no balloon rather than a guessed one. On a drawing whose border prints its zone letters and
+    numbers as text, each row's zone (C4) is read from the border into Form 3's Reference Location,
+    ASME and ISO layouts alike; a border it cannot read leaves the zone blank for you.
+    ${SITE_NAME} does not fill in Forms 1 and 2. The
     <a class="link" href="${href(ctx, "/rfq-review-checklist")}">RFQ review checklist</a> has the question
     to ask before you price: is a first article required, and to which standard?</p>
     <p class="fineprint">This page explains a common estimating approach and summarises a published

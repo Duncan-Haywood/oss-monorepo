@@ -31,6 +31,7 @@ import { isCadFile, isMeasuredCadFile } from "../../ports/geometry";
 import { notifyAllowanceUsage } from "../allowance-notice";
 import { claimRfqRead, orgPlan, usage } from "../billing";
 import { getRateCardDto, loadRateCard } from "../ratecard";
+import { drawingZones } from "./balloons";
 import { RFQ_EXTRACT_SYSTEM, rfqExtractPrompt } from "./prompts";
 
 /** The first warning on an RFQ the rule reader read, so nobody takes it for an AI read. */
@@ -721,7 +722,13 @@ export async function getFile(ctx: AppContext, orgId: string, rfqId: string, fil
 /** One drawing file's text, its part and its drafted characteristics; 404 across shops. */
 async function loadDrawing(ctx: AppContext, orgId: string, rfqId: string, fileId: string) {
   const f = await ctx.db
-    .select({ fileName: rfqFiles.fileName, extractedText: rfqFiles.extractedText })
+    .select({
+      fileName: rfqFiles.fileName,
+      extractedText: rfqFiles.extractedText,
+      mimeType: rfqFiles.mimeType,
+      r2Key: rfqFiles.r2Key,
+      sizeBytes: rfqFiles.sizeBytes,
+    })
     .from(rfqFiles)
     .where(and(eq(rfqFiles.id, fileId), eq(rfqFiles.rfqId, rfqId), eq(rfqFiles.orgId, orgId)))
     .get();
@@ -762,6 +769,7 @@ export async function characteristicsCsv(
   fileId: string,
 ): Promise<{ csv: string; fileName: string; count: number }> {
   const { file, part, draft, saved } = await loadDrawing(ctx, orgId, rfqId, fileId);
+  const zones = await drawingZones(ctx, orgId, file, draft);
   const header = {
     fileName: file.fileName,
     partNumber: part?.partNumber ?? null,
@@ -769,11 +777,11 @@ export async function characteristicsCsv(
   };
   const base = file.fileName.replace(/\.[A-Za-z0-9]{1,5}$/, "") || "drawing";
   if (!saved) {
-    const csv = form3Csv(draft, header);
+    const csv = form3Csv(draft, header, undefined, undefined, zones);
     return { csv, fileName: `${base}-form3-draft.csv`, count: draft.characteristics.length };
   }
   const rows = buildRows(draft.characteristics, saved.added, saved.entries);
-  const csv = form3Csv(draft, header, rows, summarise(rows));
+  const csv = form3Csv(draft, header, rows, summarise(rows), zones);
   return { csv, fileName: `${base}-form3.csv`, count: rows.length };
 }
 
@@ -789,6 +797,7 @@ export async function getFaiSheet(
   const rows = buildRows(draft.characteristics, added, saved?.entries ?? {});
   return {
     fileName: file.fileName,
+    zones: await drawingZones(ctx, orgId, file, draft),
     partNumber: part?.partNumber ?? null,
     revision: part?.revision ?? null,
     general: draft.general.map((g) => g.text),

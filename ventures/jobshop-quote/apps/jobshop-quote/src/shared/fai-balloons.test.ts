@@ -190,7 +190,7 @@ describe("balloonPdf on a PDF 1.5 file (object streams, cross-reference stream)"
 
 describe("balloonStream", () => {
   it("draws a circle and stroked digits for each label, nothing for other characters", () => {
-    const s = balloonStream([{ label: "12", page: 0, x: 100, y: 200, r: 8 }], 0);
+    const s = balloonStream([{ label: "12", page: 0, x: 100, y: 200, r: 8, zone: null }], 0);
     expect(s).toMatch(/^q 1 0 0 1 100 200 cm/);
     // One circle (four Bézier arcs, filled and stroked) for the two digits.
     expect((s.match(/ c(?= )/g) ?? []).length).toBe(4);

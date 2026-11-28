@@ -87,6 +87,18 @@ export function FirstArticlePage() {
   if (sheet.isLoading) return <p className="text-sm text-stone-600">Loading…</p>;
   if (sheet.error) return <ErrorText error={sheet.error} />;
   const s = sheet.data as FaiSheetDto;
+  // Zones read from the drawing's border, for rows whose Zone is still empty.
+  const zoneFills = Object.entries(s.zones ?? {}).filter(
+    ([no]) => !entries[no]?.location?.trim() && !entries[no]?.notApplicable,
+  );
+  const fillZones = () => {
+    setEntries((e) => {
+      const next = { ...e };
+      for (const [no, zone] of zoneFills) next[no] = { ...next[no], location: zone };
+      return next;
+    });
+    setDirty(true);
+  };
   const shown = openOnly
     ? rows.filter((r) => r.verdict === "open" || r.verdict === "reject")
     : rows;
@@ -151,6 +163,12 @@ export function FirstArticlePage() {
               {save.isPending ? "Saving…" : dirty ? "Save results" : "Saved"}
             </Button>
           )}
+          {editable && zoneFills.length > 0 && (
+            <Button variant="secondary" onClick={fillZones} data-testid="fai-fill-zones">
+              Fill {zoneFills.length} zone{zoneFills.length === 1 ? "" : "s"} from the
+              drawing&apos;s border
+            </Button>
+          )}
           <label className="flex items-center gap-1 text-sm">
             <input
               type="checkbox"
@@ -183,6 +201,7 @@ export function FirstArticlePage() {
                 <Row
                   key={r.no}
                   r={r}
+                  zone={s.zones?.[r.no]}
                   editable={editable}
                   onChange={(patch) => setEntry(r.no, patch)}
                   onRemove={
@@ -211,11 +230,13 @@ export function FirstArticlePage() {
 
 function Row({
   r,
+  zone,
   editable,
   onChange,
   onRemove,
 }: {
   r: FaiRowDto;
+  zone?: string;
   editable: boolean;
   onChange: (patch: Partial<FaiEntry>) => void;
   onRemove?: () => void;
@@ -231,6 +252,8 @@ function Row({
       aria-label={`${k} for ${r.no}`}
       className={width}
       value={e[k] ?? ""}
+      placeholder={k === "location" ? zone : undefined}
+      title={k === "location" && zone ? `Read from the drawing's border: ${zone}` : undefined}
       maxLength={max}
       disabled={!editable || na}
       onChange={(ev) => onChange({ [k]: ev.target.value })}

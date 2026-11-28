@@ -906,6 +906,25 @@ checks the pair. No customers yet.
   CSV's rows, scan refusal, tenancy). Why: auto-ballooning is what the first-article tools charge
   their higher tiers for (bets.md, bet #2 "First article": 1factory's $75 tier).
 
+- First article list, drawing zones (2026-11-28, fai-drawing-zone, every plan): Form 3's Reference
+  Location filled from the drawing's zoned border. `shared/drawing-zones.ts` takes the text runs
+  that are one letter or one number in the page's edge bands (10% of the width or height) and keeps,
+  per axis, the longest chain of consecutive labels on one line, in order and evenly spaced (within
+  25% of the median gap), with and without I and O; the direction comes from the labels, so ASME
+  (letters up from the bottom, numbers from the right) and ISO (down from the top, from the left)
+  both read. A zone's edges are the midpoints between labels; a characteristic's zone is where the
+  middle of its matched text lies (the balloons' own match, `placeBalloons`, now records `zone`), a
+  repeat's rows share the callout's, and a multi-page file prefixes the sheet (`SH2 C4`). No grid,
+  no zone: fewer than three labels, uneven or out-of-order labels, labels drawn as lines. The CSV
+  writes the zone where the inspector entered none (`form3Csv`'s `zones`) and its Draft line says
+  so; the inspection screen shows it as each Zone field's placeholder and offers "Fill N zones from
+  the drawing's border" (`FaiSheetDto.zones`, `services/rfq/balloons.ts drawingZones`: PDFs up to
+  20 MB, never throws). Tests: `src/shared/drawing-zones.test.ts` (a Chromium-printed two-sheet
+  drawing, ASME and ISO borders, `test/fixtures/pdf/zoned-drawing-chrome.pdf`; hand-made layouts for
+  I/O skipping, too few, out of order, uneven, labels away from the edges) and
+  `test/worker/fai-balloons.test.ts` (zones on the sheet and in the CSV, the inspector's zone kept,
+  none without a border).
+
 - First article results, part 2a (2026-11-28, every plan, fai-results-screen): "Inspect first
   article" beside the CSV link opens the drafted list as a screen
   (`/app/:orgId/rfqs/:rfqId/files/:fileId/first-article`, `GET`/`PUT
@@ -1085,11 +1104,11 @@ checks the pair. No customers yet.
     dimension's size when a tolerance line pairs a size with the class, and band limits an admin can
     set per shop, if shops ask.
 
-17. First article list, part 2b (part 1, the results screen, part 2a, and balloons on a copy of the
-    drawing PDF, done 2026-11-28): Forms 1 and 2 filled from the quote (part number, revision,
-    material and finish certificates), the drawing zone from the PDF's text positions (the positions
-    are now read, `readPdfLayout`; the zone needs the border's zone letters and numbers located on the
-    sheet), and results for more than one part per sheet, if shops use the screen. Balloons, next: a
+17. First article list, part 2b (part 1, the results screen, part 2a, balloons on a copy of the
+    drawing PDF, and the drawing zone from the border's labels, done 2026-11-28): Forms 1 and 2 filled
+    from the quote (part number, revision, material and finish certificates), and results for more
+    than one part per sheet, if shops use the screen. Zones, next: a border whose labels are drawn as
+    lines (OCR or glyph shapes), and a zone for rows the inspector adds, from a click on the drawing. Balloons, next: a
     leader line to the feature when the callout is far from it, balloons for rows the inspector adds
     on the screen, and balloons from OCR text on a scanned drawing.
 
