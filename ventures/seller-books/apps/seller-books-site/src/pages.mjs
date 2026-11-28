@@ -123,9 +123,13 @@ function home() {
   const title = `${SITE_NAME}: ${TAGLINE}`;
   const description =
     "Bookkeeping for resellers on eBay, Poshmark, Mercari, Etsy, Whatnot and more: true profit after fees and cost of goods, and a Schedule C worksheet.";
-  const features = FEATURES.map(
-    (f) => `<div class="card"><h3>${esc(f.title)}</h3><p>${esc(f.body)}</p></div>`,
-  ).join("\n");
+  const titleOf = new Map(guidePages().map((p) => [p.path, p.title]));
+  const features = FEATURES.map((f) => {
+    const guide = f.guide
+      ? `<p class="feature-guide"><a href="${href(f.guide)}">${esc(titleOf.get(f.guide))}</a></p>`
+      : "";
+    return `<div class="card feature"><h3>${esc(f.title)}</h3><p>${esc(f.short)}</p><details><summary>How it works</summary><p>${esc(f.body)}</p></details>${guide}</div>`;
+  }).join("\n");
   const platformLinks = PLATFORMS.map(
     (p) =>
       `<li><a href="${href(`/platforms/${p.slug}`)}">${esc(p.name)}</a> <span class="muted">${esc(p.what)}</span></li>`,
@@ -2966,6 +2970,21 @@ function notFound() {
   <p><a href="${href("/")}">Go to the ${esc(SITE_NAME)} home page</a>.</p>
 </section>`,
   };
+}
+
+/** The pages a feature card can link to (the home page's cards name them by path). */
+function guidePages() {
+  return [
+    platformsIndex(),
+    scheduleC(),
+    form1099k(),
+    costOfGoodsSold(),
+    mileageDeduction(),
+    taxDeductions(),
+    salesTax(),
+    estimatedTax(),
+    compare(),
+  ];
 }
 
 /** Every page, in sitemap order. */

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, describe, test } from "node:test";
 import { build, fileFor } from "../build.mjs";
-import { BASE_PATH, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
+import { BASE_PATH, FEATURES, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
 import {
   ALTERNATIVES,
   COGS_EXAMPLE,
@@ -1049,5 +1049,42 @@ describe("app stills on the home page", () => {
       assert.ok(existsSync(join(base(), "assets", s.file)), `${s.file} is not in the build`);
     }
     assert.match(home, /The shop and its numbers are invented/);
+  });
+});
+
+describe("feature cards on the home page", () => {
+  // The stills carry "what it does"; each card is a short summary, the full text behind a
+  // disclosure (still in the HTML and llms-full.txt), and a link to its guide page.
+  test("each card's summary is short and its guide is a built page", () => {
+    for (const f of FEATURES) {
+      assert.ok(f.short && f.short.length <= 130, `${f.key}: summary is ${f.short?.length} chars`);
+      assert.ok(f.body.length > f.short.length, f.key);
+      if (f.guide)
+        assert.ok(
+          pages.some((p) => p.path === f.guide),
+          `${f.key}: no page ${f.guide}`,
+        );
+    }
+  });
+
+  test("the home page shows each summary, keeps the full text in a details block, and links the guide", () => {
+    const home = read("index.html");
+    const esc = (t) =>
+      t.replaceAll("&", "&amp;").replaceAll("'", "&#39;").replaceAll('"', "&quot;");
+    for (const f of FEATURES) {
+      const card = home.match(
+        new RegExp(
+          `<div class="card feature"><h3>${esc(f.title).replace(/[?()]/g, "\\$&")}</h3>.*?</div>`,
+          "s",
+        ),
+      );
+      assert.ok(card, `${f.key}: no card`);
+      assert.ok(
+        card[0].includes(`<details><summary>How it works</summary>`),
+        `${f.key}: no details`,
+      );
+      if (f.guide) assert.ok(linksTo(card[0], `${BASE_PATH}${f.guide}`), `${f.key}: no guide link`);
+    }
+    assert.ok(read("llms-full.txt").includes(FEATURES[0].body.slice(0, 80)));
   });
 });
