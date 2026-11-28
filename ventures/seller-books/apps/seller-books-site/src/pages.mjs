@@ -978,7 +978,7 @@ function poshmarkTaxes() {
 ${exRows}
       </tbody>
     </table></div>
-    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (${cents(L.poshFee)} of Poshmark's fee and ${cents(L.texas)} of Texas tax on it); line 27a, postage, <strong>${cents(L.line27a)}</strong> (the shipping discount). Together they leave ${cents(L.line1 - L.line10 - L.line27a)}, the ${cents(L.net)} of earnings, before the items' cost.</p>
+    <p>On the Schedule C worksheet: line 1, gross receipts, <strong>${cents(L.line1)}</strong>; line 10, commissions and fees, <strong>${cents(L.line10)}</strong> (${cents(L.poshFee)} of Poshmark's fee and ${cents(L.texas)} of Texas tax on it); line 27a, postage, <strong>${cents(L.line27a)}</strong> (the shipping discount). Line 1 less those two is ${cents(L.line1 - L.line10 - L.line27a)}, exactly the earnings Poshmark paid out; the items' cost comes off after that.</p>
     <p class="muted">The fees worked out here, 20% on the two items of $15 or more and $2.95 on the two under it, match the rates third-party fee pages report for Poshmark. Poshmark's own <a href="${POSHMARK_FEE_ARTICLE}">fee article</a> did not load when we checked (${esc(POSHMARK_CHECKED_ON)}), so we state no rate as Poshmark's: your report's figures are what was charged.</p>
   </div>
   <h2>Sales tax</h2>
