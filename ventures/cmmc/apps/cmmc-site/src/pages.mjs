@@ -602,7 +602,7 @@ export function privacyPage(launch) {
     kind: "page",
     title: `Privacy notice for this site · ${SITE_NAME}`,
     description:
-      "This marketing site stores nothing that identifies you: no forms, no cookies, and cookieless Cloudflare Web Analytics visit counts. The workspace's own privacy policy covers your account.",
+      "This site stores nothing that identifies you: no forms, no cookies, only cookieless visit counts. The workspace's own privacy policy covers your account.",
     changefreq: "yearly",
     priority: 0.3,
     body: `<h1>Privacy notice for this site</h1>

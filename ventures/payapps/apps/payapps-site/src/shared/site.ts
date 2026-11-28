@@ -192,7 +192,7 @@ export const EARLY_ACCESS_PAGES: readonly PageKey[] = [
 export const PRIVACY_NO_LIST: PublicPage = {
   ...PAGES.privacy,
   description:
-    "The PayApps website has no forms or cookies; Cloudflare Web Analytics counts visits without identifying you. What the host sees when you load a page, and where your PayApps account's own privacy policy is.",
+    "The PayApps website: no forms, no cookies, cookieless visit counts. What the host sees when you load a page, and where your account's own privacy policy is.",
 };
 
 /** The page keys a build writes: all of them, or all but the early-access pages. */

@@ -854,7 +854,7 @@ function privacyNoList(ctx: SiteContext): BuiltPage {
   <h2>What this website stores</h2>
   <p>Nothing that identifies you. These pages have no forms, set no cookies and run no advertising scripts.</p>
   <h2>Visit counts</h2>
-  <p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from <code>static.cloudflareinsights.com</code> stops it and the pages still work. The site's <a href="https://marisstella.app/privacy/">privacy policy</a> has the details.</p>
+  <p>Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from <code>static.cloudflareinsights.com</code> stops it and the pages still work. The site's <a href="../privacy/">privacy policy</a> has the details.</p>
   <h2>What the host sees</h2>
   <p>The pages are served by Cloudflare as part of the marisstella.app site. Like any web host, Cloudflare handles the request your browser sends (including its IP address) to deliver the page and protect the site, under Cloudflare's own privacy policy.</p>
   <h2>Your ${PRODUCT_NAME} account</h2>

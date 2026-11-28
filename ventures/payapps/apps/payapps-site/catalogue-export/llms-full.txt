@@ -551,7 +551,7 @@ Nothing that identifies you. These pages have no forms, set no cookies and run n
 
 ## Visit counts
 
-Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from static.cloudflareinsights.com stops it and the pages still work. The site's [privacy policy](https://marisstella.app/privacy/) has the details.
+Like the rest of marisstella.app, these pages load Cloudflare Web Analytics, which counts page views, the page you came from and how fast pages load. It sets no cookies and keeps no identifier for you, so the counts are aggregate. Blocking scripts from static.cloudflareinsights.com stops it and the pages still work. The site's [privacy policy](../privacy/) has the details.
 
 ## What the host sees
 
