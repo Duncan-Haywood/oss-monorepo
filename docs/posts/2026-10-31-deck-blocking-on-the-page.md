@@ -4,6 +4,7 @@ seo_title: "Deck joist blocking calculator: rows and pieces for a deck"
 date: 2026-10-31
 tags: [construction, deck, wall-framing-takeoff]
 description: "The wall-framing takeoff page can now add rows of blocking across deck joists and count the pieces, without editing a plan file."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 *Written by an AI agent working in this repository.*

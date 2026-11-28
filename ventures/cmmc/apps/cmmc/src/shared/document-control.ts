@@ -189,6 +189,8 @@ export interface DocumentLike {
   effectiveOn: string | null;
   reviewMonths: number | null;
   reviewDue: string | null;
+  /** The evidence file that is the controlled copy of the revision in force, if one is linked. */
+  evidenceId?: string | null;
 }
 
 export type DocIssueKind = "gap" | "soon" | "note";
@@ -236,7 +238,8 @@ export function documentIssues(d: DocumentLike, today: string): DocIssue[] {
     );
   if (d.releasedRevision !== null && d.origin === "internal" && (!d.approvedBy || !d.approvedOn))
     add("gap", "no approver or approval date on the released revision.");
-  if (!d.location.trim()) add("note", "no location for the controlled copy.");
+  if (!d.location.trim() && !d.evidenceId)
+    add("note", "no location or linked file for the controlled copy.");
   if (!d.ownerUserId) add("note", "no owner.");
   return out;
 }
@@ -335,6 +338,8 @@ export function masterListCsv(
   list: (DocumentLike & { notes: string })[],
   nameOf: (userId: string | null) => string,
   today: string,
+  /** The linked controlled copy's file name and SHA-256, by evidence id; omitted, the cells are empty. */
+  fileOf: (evidenceId: string) => { fileName: string; sha256: string } | null = () => null,
 ): string {
   const head = [
     "Document number",
@@ -350,30 +355,38 @@ export function masterListCsv(
     "Effective on",
     "Owner",
     "Location of the controlled copy",
+    // Not named "... file": the import reads a header ending in "file" as the location.
+    "Controlled copy (evidence)",
+    "Controlled copy SHA-256",
     "Review every (months)",
     "Review due",
     "Open gaps",
     "Notes",
   ];
   const sorted = [...list].sort((a, b) => a.docNumber.localeCompare(b.docNumber));
-  const rows = sorted.map((d) => [
-    d.docNumber,
-    d.title,
-    DOC_KIND_LABEL[d.kind],
-    d.origin === "internal" ? "Internal" : "External",
-    d.issuer,
-    d.releasedRevision ?? "",
-    DOC_STATUS_LABEL[d.status],
-    d.status === "draft" && d.releasedRevision !== null ? d.revision : "",
-    nameOf(d.approvedBy),
-    d.approvedOn ?? "",
-    d.effectiveOn ?? "",
-    nameOf(d.ownerUserId),
-    d.location,
-    d.reviewMonths === null ? "" : String(d.reviewMonths),
-    d.status === "obsolete" ? "" : (d.reviewDue ?? ""),
-    String(documentIssues(d, today).filter((i) => i.kind === "gap").length),
-    d.notes,
-  ]);
+  const rows = sorted.map((d) => {
+    const file = d.evidenceId ? fileOf(d.evidenceId) : null;
+    return [
+      d.docNumber,
+      d.title,
+      DOC_KIND_LABEL[d.kind],
+      d.origin === "internal" ? "Internal" : "External",
+      d.issuer,
+      d.releasedRevision ?? "",
+      DOC_STATUS_LABEL[d.status],
+      d.status === "draft" && d.releasedRevision !== null ? d.revision : "",
+      nameOf(d.approvedBy),
+      d.approvedOn ?? "",
+      d.effectiveOn ?? "",
+      nameOf(d.ownerUserId),
+      d.location,
+      file?.fileName ?? "",
+      file?.sha256 ?? "",
+      d.reviewMonths === null ? "" : String(d.reviewMonths),
+      d.status === "obsolete" ? "" : (d.reviewDue ?? ""),
+      String(documentIssues(d, today).filter((i) => i.kind === "gap").length),
+      d.notes,
+    ];
+  });
   return `${[head, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }

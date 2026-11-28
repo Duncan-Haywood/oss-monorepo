@@ -3,6 +3,7 @@ title: "A deck over 30 inches needs a guard, and the takeoff now counts it"
 date: 2026-10-30
 tags: [wall-framing-takeoff, deck, guard, takeoff]
 description: "The free deck takeoff now lays out a guard on decks over 30 inches: posts, balusters under the 4 inch gap and rails in the lumber order."
+folded_into: writing/deck-framing-takeoff-joists-beam-posts-footings-decking-and-guard/
 ---
 
 A deck takeoff that stops at the decking leaves out the part inspectors look at first. Most codes ask for a guard where the walking surface is more than 30 inches above grade, with no gap a 4 inch sphere can pass.

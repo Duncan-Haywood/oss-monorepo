@@ -148,7 +148,10 @@ export function layoutDeck(d) {
   const frame = nb * pitch;
   const fieldW = d.width - 2 * frame, fieldD = d.depth - 2 * frame;
   const boardMax = longest("5/4x6 deck");
-  const rows = Math.ceil((fieldD + board.gap) / pitch - 1e-9);
+  // A row starts every pitch; the last one is needed only if it starts inside the field. (Was ceil((D + gap) / pitch):
+  // when the leftover strip was narrower than one gap it added a row that started past the edge, so an 18 ft deck
+  // bought a 39th board and printed a last row of "-1-7/8 in".)
+  const rows = Math.ceil(fieldD / pitch - 1e-9);
   const stagger = [1, 0.67, 0.34, 0.84, 0.5];
   const deckBoards = [];
   const fieldCentres = centres.map((c) => c - frame).filter((c) => c > EPS && c < fieldW - EPS);
@@ -410,7 +413,7 @@ export function deckText(l) {
   out.push("  Hardware:");
   for (const h of l.hardware) out.push(`    ${h.qty} x ${h.item}${h.note ? ` (${h.note})` : ""}`);
   if (l.guard) out.push(`  Guard (${l.guard.sides.join(", ")}): ${l.guard.posts.count} posts, ${l.guard.balusters.count} balusters of ${formatInches(l.guard.balusters.length)} (clear gap at most ${formatInches(l.guard.balusters.maxGap)}), ${l.guard.guardRails.count} rails of ${l.guard.guardRails.size} PT in the order; posts and balusters are not bought`);
-  else out.push(`    ${l.railPosts} guard-rail posts at the open edges (by spacing only)`);
+  else out.push(`    ${l.railPosts} railing posts at the open edges if you add a railing (by spacing only; no guard is laid out or bought)`);
   if (l.joistCheck) {
     const c = l.joistCheck;
     if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));

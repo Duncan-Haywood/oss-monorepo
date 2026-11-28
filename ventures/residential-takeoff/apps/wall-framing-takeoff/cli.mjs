@@ -7,6 +7,7 @@ import { readOutline, offsetOutline, outlineRoof, roofFromOutline } from "./roof
 import { frameOutlineRoof, outlineFrameCuts, outlineFrameText } from "./hipframe.mjs";
 import { sheatheOutlineRoof, outlineSheathingText, outlineSheathingCuts } from "./outlinesheathing.mjs";
 import { materialList, materialListCsv, materialListText } from "./materiallist.mjs";
+import { readPriceList, applyPriceList } from "./pricelist.mjs";
 import { entitlement, allowed } from "./plans.mjs";
 import { isDark, createBillingProvider } from "./billing.mjs";
 import { PADDLE } from "./checkout.mjs";
@@ -92,6 +93,7 @@ Usage:
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs 1st.json --stack=2nd.json,3rd.json      (a drawing takes its heights: 2nd.dxf+2nd-plan.json) order several floors' plan files together (ids get the file name in front; one lumber list, one cutting-stock order)
+  node cli.mjs plan.json --price-list=yard.csv  price the lumber list and the plan's "prices" from a supplier's CSV (description, price, optional unit EA/LF/MBF, size, length, key); boards the list sizes but does not list are dropped, every row not read is named
   node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
   node cli.mjs plan.json --whole-house  shorthand for --doors-to-floor --shallow-headers --trim-openings --skip-refused: frame a whole-house read through the model's own height conflicts, each change noted (placeholders, check them against the source model)
   node cli.mjs plan.json --doors-to-floor  a door whose bottom is more than 2 in above the floor in the model (a 39 in sill on a French door) is framed down to the floor, leaf height kept, with a note
@@ -204,7 +206,7 @@ let runOpts = {};
 // Every flag the CLI reads. A flag outside this list used to be ignored, so a misspelt option
 // quietly printed the plain order. cli-flags.test.mjs checks this list against the flags in this file.
 export const BARE_FLAGS = ["--budget", "--material-list", "--priced", "--csv", "--deck", "--doors-to-floor", "--dormer", "--double-line", "--drawings", "--drilling", "--drywall", "--eaves", "--electrical", "--example", "--fasteners", "--fireblock", "--fixed-plan", "--floor", "--flooring", "--foundation", "--gang", "--gutters", "--headers", "--help", "--horizontal", "--hvac", "--insulation", "--json", "--level-bids", "--openings", "--orders", "--overhang", "--paint", "--panel-order", "--panel-sheets", "--paver", "--pdf", "--plan-only", "--plumbing", "--proposal", "--pull-lists", "--risk", "--roof", "--schedule", "--schedule-template", "--sensitivity", "--shallow-headers", "--sheathing", "--siding", "--single-line", "--skip-refused", "--stairs", "--stucco", "--trim", "--trim-openings", "--ventilation", "--wall-tile", "--whole-house"];
-export const VALUE_FLAGS = ["--add-board", "--job", "--licence", "--roof-pitch", "--compare", "--door-layer", "--eave-overhang", "--rake-overhang", "--roof-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
+export const VALUE_FLAGS = ["--add-board", "--job", "--price-list", "--licence", "--roof-pitch", "--compare", "--door-layer", "--eave-overhang", "--rake-overhang", "--roof-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
 
 /** @param {string} a @param {string} b @returns {number} */
 function editDistance(a, b) {
@@ -391,6 +393,17 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     } catch (e) {
       return { code: 2, out: `Could not read a stacked plan: ${e instanceof Error ? e.message : e}` };
     }
+  }
+  // --price-list=FILE: a supplier's CSV price list reprices the lumber list (so the order is optimised on the yard's prices) and fills the plan's "prices" (pricelist.mjs).
+  const priceListFile = argv.find((x) => x.startsWith("--price-list="))?.slice(13);
+  if (priceListFile) {
+    let text;
+    try { text = readInput(priceListFile); } catch (e) { return { code: 2, out: `Could not read the price list ${priceListFile}: ${e instanceof Error ? e.message : e}` }; }
+    const pl = readPriceList(text);
+    if (!pl.ok) return { code: 1, out: `The price list ${priceListFile} could not be used:\n${pl.errors.map((e) => `  - ${e}`).join("\n")}${pl.skipped.length ? `\n${pl.skipped.slice(0, 10).map((s) => `  - line ${s.line} "${s.text.slice(0, 60)}": ${s.why}`).join("\n")}` : ""}` };
+    const ap = applyPriceList(plan, pl);
+    plan = ap.plan;
+    dxfNotes += ap.notes.map((n) => `Note: ${n}`).join("\n") + "\n\n";
   }
   // --add-board=SIZE:LENGTH[:PRICE] (repeatable) puts a longer board on the lumber list, for a DXF or IFC read (which carries no stock) or a plan that lacks one.
   const boardNotes = [];

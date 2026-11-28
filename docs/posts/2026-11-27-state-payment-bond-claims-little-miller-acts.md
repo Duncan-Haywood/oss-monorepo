@@ -1,9 +1,9 @@
 ---
-title: "Not paid on a state or city job? Bond claim deadlines in thirty states, read from the statutes"
-seo_title: "Little Miller Act deadlines: state payment bond claims in 30 states"
+title: "Not paid on a state or city job? Bond claim deadlines in thirty-two states, read from the statutes"
+seo_title: "Little Miller Act deadlines: state payment bond claims in 32 states"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, pay-app-guides, public-jobs]
-description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 30 states, read from each state's statute."
+description: "No lien on public work, so subs claim on the payment bond. The notice and suit deadlines in 32 states, read from each state's statute."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: bond claim rights are lost
@@ -54,6 +54,8 @@ The guide links every statute it summarises.
 | North Dakota (§§ 48-01.2-11, 48-01.2-12) | notice to the contractor within 90 days of your last day, registered mail | none | within one year of completion and acceptance of the project |
 | South Carolina (§ 11-35-3030(2)) | notice to the contractor within 90 days of your last day, in person or registered or certified mail | none | within one year of your last day |
 | South Dakota (§ 5-21-6) | none | an affidavit to the public body for a copy of the bond | not before six months after final settlement, then within one year |
+| Alaska (AS 36.25.020) | notice to the contractor within 90 days of your last day, registered mail | none | within one year of final settlement of the contract |
+| Wyoming (W.S. 16-6-113, 16-6-115) | none | none before suit; notice of the suit to the public entity | within one year of the final completion date the public entity posts |
 | Alabama (§ 39-1-1) | the same as everyone | written notice to the surety of the amount and nature of the claim, registered or certified mail, at least 45 days before suit | within one year of final settlement of the contract |
 
 ## Three things that catch subs out
@@ -72,7 +74,7 @@ notice sent when you start. Sent late, it limits what you can recover or ends th
 ## In PayApps
 
 PayApps, our pay-app billing for subcontractors, now lists these steps on every job marked as a state
-or local public job in those thirty states. Each step comes in the statute's order, with its citation
+or local public job in those thirty-two states. Each step comes in the statute's order, with its citation
 and a date. The date is counted from the last day on the job you save, or from the acceptance date
 you enter, wherever the statute counts from one of them. Steps that run from a day PayApps cannot
 know, such as your first day of work or the day you mail a Texas notice, are listed with the day
@@ -160,8 +162,23 @@ bond statute sets no suit limit of its own, and PayApps says so instead of guess
 Dakota still reads like the 1907 law it came from: no notice, an affidavit to the public body for a
 copy of the bond, and one suit in the public body's name that cannot start until six months after
 final settlement of the contract. PayApps lists that step with the day it waits for.
+**Added later still on 2026-11-28: Alaska and Wyoming.** Alaska reads like the federal Miller Act
+it was copied from: a sub's sub sends the contractor written notice by registered mail within 90
+days of its last day, stating the amount and who it worked for, and anyone may sue once 90 days
+pass unpaid. The suit limit is a year from final settlement of the contract, not from your last
+day, so PayApps dates the notice and lists the suit with the day it waits for. One thing to know
+before relying on the bond: Alaska's payment bond covers only half of a contract up to $1 million,
+40% up to $5 million, and $2.5 million above that (AS 36.25.010), so on a job with many unpaid
+claimants it can run short. Wyoming asks for no notice before suing, from any tier; when you sue,
+you notify the public entity named in the bond, and no judgment comes for 30 days after that. The
+limit is a year from the date of final completion, which the public entity must post on its
+website or the state procurement site (W.S. 16-6-115, 16-6-116). Wyoming also has a date worth
+watching before any claim: after the public entity publishes its notice of substantial
+completion, it pays the GC the retainage on the forty-first day. Raise an unpaid balance before
+then. If the GC's sworn statement lists your claim as disputed, W.S. 16-6-117 lets you file the
+amount as a claim against the surety bond.
 
-**Also added on 2026-11-28: Alabama.** Ala. Code § 39-1-1 asks for no notice to the contractor,
+**And Alabama, also 2026-11-28.** Ala. Code § 39-1-1 asks for no notice to the contractor,
 from anyone. Its one notice goes to the surety: a written statement of the amount claimed and the
 nature of the claim, by registered or certified mail to any of its offices, and the suit cannot be
 filed until 45 days after it. If the surety or contractor does not pay in full within those 45
@@ -173,3 +190,4 @@ newspaper, on its website, or on the awarding authority's notice site), and fina
 cannot come until 30 days after that notice ends. Watch for it. The bond is required on contracts
 of $100,000 or more. Alabama also caps public retainage at 5% of the work done and stops it once
 the job is half complete (§ 39-2-12(c)); the PayApps panel checks a job's rate against both.
+
