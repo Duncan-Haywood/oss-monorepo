@@ -26,11 +26,11 @@ history): start it with `run_in_background` (plain `>file 2>&1`, not a chained s
 `--section candidates` or `--section friction` prints one part. Make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
-  `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
+  `python3 prompts/derive.py fetch --limit 300 && python3 prompts/derive.py build`. It
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR into `prompts/derived/`, which `measure` reads, so
   records need no hand edits. Commit the regenerated directory with the review.
-  `fetch` is incremental and takes 2 to 5 min: run `fetch && build` once with
+  `fetch` is incremental; `--limit 300` takes the newest PRs first (the backlog is 5,000+, hours uncapped) in about 5 min: run `fetch && build` once with
   `run_in_background`, as its own command (chained with others it blew the timeout) and poll it with `python3 platform/ci/wait_for.py <log>` (Monitor and chained
   `sleep` are blocked). Run it and `measure` one after the other: `measure` holds git's `shallow.lock`, so a parallel `git fetch` fails. On a 403 (no GitHub API), skip both and say so.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that

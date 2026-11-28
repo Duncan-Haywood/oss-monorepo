@@ -179,12 +179,19 @@ def log_flushed(msg: str) -> None:
 
 
 def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = http_get,
-          log: Callable[[str], None] = log_flushed) -> dict[str, Any]:
+          log: Callable[[str], None] = log_flushed, limit: int | None = None) -> dict[str, Any]:
     cache = load_json(root / "derived" / "github.json", {})
     wanted = sorted({key(*ref): ref for _, rec in promptctl.load_runs(root)
                      if (ref := parse_pr(rec))}.items())
     todo = [(k, ref) for k, ref in wanted if refresh or k not in cache or not is_final(cache[k])]
-    log(f"{len(wanted)} pull request(s) named by run records; fetching {len(todo)}")
+    # Newest first, so a capped fetch measures the runs a review grades (the last few hundred)
+    # and older backlog drains over later reviews; uncapped, 5,000+ PRs took hours (E127, E128).
+    todo.sort(key=lambda t: t[1][1], reverse=True)
+    backlog = len(todo)
+    if limit is not None:
+        todo = todo[:limit]
+    log(f"{len(wanted)} pull request(s) named by run records; fetching {len(todo)}"
+        + (f" of {backlog}, newest first" if len(todo) < backlog else ""))
     def safe(item: Any) -> tuple[str, Any]:
         try:
             return item[0], fetch_pr(*item[1], get)
@@ -457,11 +464,13 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("fetch", help="PR facts from the GitHub API, cached in derived/github.json")
     p.add_argument("--refresh", action="store_true", help="refetch PRs already final in the cache")
+    p.add_argument("--limit", type=int, default=None,
+                   help="fetch at most N PRs, newest first (a review uses 300; the rest drains later)")
     sub.add_parser("build", help="join records, PR facts and git rework into derived/runs.json")
     sub.add_parser("report", help="coverage and rework by track, version and model")
     args = parser.parse_args(argv)
     if args.cmd == "fetch":
-        fetch(ROOT, args.refresh)
+        fetch(ROOT, args.refresh, limit=args.limit)
     elif args.cmd == "build":
         rows = build(ROOT)
         print(f"ok: {len(rows)} row(s) in {RUNS_OUT.relative_to(REPO_ROOT)}")
