@@ -281,7 +281,12 @@ function numberWord(str, i, j) {
   return neg ? -v : v;
 }
 
-function* tokens(str) {
+// Hands each operand to value(v) and each operator name to op(name), in
+// order, without building an object per token: a CAD drawing is millions of
+// tokens, and a { v } or { op } object each (from a generator) made the
+// garbage collector the largest cost after the scan itself (perf note
+// docs/history/drawing-review-perf-2026-11-28.md).
+function scanTokens(str, value, op) {
   let i = 0;
   const n = str.length;
   while (i < n) {
@@ -290,7 +295,7 @@ function* tokens(str) {
     if (c === 37) { while (i < n && str.charCodeAt(i) !== 10 && str.charCodeAt(i) !== 13) i++; continue; } // %
     if (c === 40 || c === 60 || c === 91 || c === 47) { // ( < [ /
       const [v, next] = parseValue(str, i);
-      yield { v };
+      value(v);
       i = Math.max(next, i + 1);
       continue;
     }
@@ -299,12 +304,30 @@ function* tokens(str) {
     while (j < n && ((d = str.charCodeAt(j)) >= 256 || !TOK_DELIM[d])) j++;
     if (j === i) { i++; continue; }
     const num = numberWord(str, i, j);
-    if (num !== undefined) { yield { v: num }; i = j; continue; }
+    if (num !== undefined) { value(num); i = j; continue; }
     const word = str.slice(i, j);
     i = j;
     if (word === 'BI') i = skipInlineImage(str, i);
-    else yield { op: word };
+    else op(word);
   }
+}
+
+// Operators are mostly one or two characters (m, l, S, re, cm, Tj), and a
+// fresh slice per operator was most of what the collector still had to sweep.
+// Each short word is sliced once and then reused (the same string value).
+const SHORT_WORDS = [];
+function shortWord(str, i, j) {
+  const a = str.charCodeAt(i);
+  const key = j - i === 1 ? a : a < 256 && str.charCodeAt(i + 1) < 256 ? 256 + (a << 8) + str.charCodeAt(i + 1) : -1;
+  if (key < 0) return str.slice(i, j);
+  return SHORT_WORDS[key] ??= str.slice(i, j);
+}
+
+/** The tokens of a content stream as an array of { v } and { op } (for tests and readers that want a list). */
+function tokens(str) {
+  const out = [];
+  scanTokens(str, (v) => { out.push({ v }); }, (name) => { out.push({ op: name }); });
+  return out;
 }
 
 // --- A content stream read once, for readers that walk it twice ---------
@@ -316,7 +339,7 @@ function* tokens(str) {
 // byte code, and only other operators and values (names, strings, arrays,
 // dicts) as objects, so keeping a page's tokens between the two passes leaves
 // almost nothing for the garbage collector. run() hands the same values and
-// operators, in the same order, as iterating tokens(str).
+// operators, in the same order, as scanning str.
 const OP_NAMES = ['q', 'Q', 'cm', 'w', 'J', 'j', 'M', 'd', 'ri', 'i', 'gs', 'm', 'l', 'c', 'v', 'y', 'h', 're',
   'S', 's', 'f', 'F', 'f*', 'B', 'B*', 'b', 'b*', 'n', 'W', 'W*', 'BT', 'ET', 'Tc', 'Tw', 'Tz', 'TL', 'Tf', 'Tr', 'Ts',
   'Td', 'TD', 'Tm', 'T*', 'Tj', 'TJ', "'", '"', 'd0', 'd1', 'CS', 'cs', 'SC', 'SCN', 'sc', 'scn', 'G', 'g', 'RG', 'rg',
@@ -328,20 +351,22 @@ export class TokenList {
     let cap = 1024, n = 0;
     let kind = new Uint8Array(cap), num = new Float64Array(cap);
     const other = [];
-    for (const t of tokens(str)) {
-      if (n === cap) {
-        cap *= 2;
-        const k2 = new Uint8Array(cap); k2.set(kind); kind = k2;
-        const n2 = new Float64Array(cap); n2.set(num); num = n2;
-      }
-      if ('op' in t) {
-        const code = OP_CODE.get(t.op);
-        if (code !== undefined) kind[n] = code;
-        else { kind[n] = 1; other.push(t.op); }
-      } else if (typeof t.v === 'number') num[n] = t.v; // kind 0
-      else { kind[n] = 2; other.push(t.v); }
+    const grow = () => {
+      cap *= 2;
+      const k2 = new Uint8Array(cap); k2.set(kind); kind = k2;
+      const n2 = new Float64Array(cap); n2.set(num); num = n2;
+    };
+    scanTokens(str, (v) => {
+      if (n === cap) grow();
+      if (typeof v === 'number') { kind[n] = 0; num[n] = v; } else { kind[n] = 2; other.push(v); }
       n++;
-    }
+    }, (name) => {
+      if (n === cap) grow();
+      const code = OP_CODE.get(name);
+      if (code !== undefined) kind[n] = code;
+      else { kind[n] = 1; other.push(name); }
+      n++;
+    });
     this.n = n; this.kind = kind; this.num = num; this.other = other;
   }
   /** Call value(v) for each operand and op(name) for each operator, in order. */
@@ -360,9 +385,7 @@ export class TokenList {
 /** Walk a content stream (a string, or a TokenList of one). */
 export function runTokens(content, value, op) {
   if (typeof content !== 'string') { content.run(value, op); return; }
-  for (const t of tokens(content)) {
-    if ('op' in t) op(t.op); else value(t.v);
-  }
+  scanTokens(content, value, op);
 }
 
 function mul(m, n) { // m then n  (row-vector convention used by PDF)
@@ -414,9 +437,9 @@ export function textRuns(content, fonts, forms = null, startCtm = null, depth = 
     tm = mul([1, 0, 0, 1, tx, 0], tm);
   };
   const value = (v) => { operands.push(v); if (operands.length > 64) operands.shift(); };
+  const num = (k) => (typeof operands[k] === 'number' ? operands[k] : 0);
   // `content` is a stream or its TokenList (geometry.mjs reads both passes from one).
   const step = (op) => {
-    const num = (k) => (typeof operands[k] === 'number' ? operands[k] : 0);
     switch (op) {
       case 'q': stack.push(ctm.slice()); break;
       case 'Q': if (stack.length) ctm = stack.pop(); break;

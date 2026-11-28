@@ -107,8 +107,24 @@ describe("prerendered pages", () => {
       );
     }
     for (const p of pages) {
-      expect(p.html, p.route.path).toContain(`href="${APP}/sign-up"`);
+      expect(p.html, p.route.path).toContain(`href="${APP}/sign-up?from=jobshop-site%2F`);
       expect(p.html, p.route.path).toContain(`href="${APP}/sign-in"`);
+    }
+  });
+
+  it("tags each page's Start free link with that page, in the app's source shape", () => {
+    const home = pages.find((p) => p.route.path === "/");
+    const pricing = pages.find((p) => p.route.path === "/pricing");
+    expect(home?.html).toContain(`href="${APP}/sign-up?from=jobshop-site%2Fhome"`);
+    expect(pricing?.html).toContain(`href="${APP}/sign-up?from=jobshop-site%2Fpricing"`);
+    // Every tag passes the app's own check (apps/jobshop-quote/src/shared/signup-source.ts).
+    const shape = /^[a-z0-9][a-z0-9._/-]{0,79}$/;
+    for (const p of pages) {
+      for (const m of p.html.matchAll(/sign-up\?from=([^"]+)"/g)) {
+        const from = decodeURIComponent(m[1] ?? "");
+        expect(from, p.route.path).toMatch(shape);
+        expect(from.includes("..") || from.includes("//") || from.endsWith("/"), from).toBe(false);
+      }
     }
   });
 
