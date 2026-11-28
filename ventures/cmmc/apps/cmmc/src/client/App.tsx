@@ -389,6 +389,7 @@ function Workspace({ me }: { me: Me }) {
                 onOpenDocuments={() => setTab("documents")}
                 onOpenAudits={() => setTab("audits")}
                 onOpenGauges={() => setTab("gauges")}
+                onOpenReviews={() => setTab("reviews")}
               />
             )}
             {tab === "controls" && (

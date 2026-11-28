@@ -10,7 +10,9 @@ import {
   REVIEW_OUTPUTS,
   type ReviewFields,
   type ReviewLike,
+  reviewActionsDue,
   reviewAttention,
+  reviewDueDates,
   reviewFacts,
   reviewMinutesMarkdown,
   validateReview,
@@ -371,5 +373,85 @@ describe("reviewMinutesMarkdown", () => {
     expect(text).toContain("| 1 | Hire \\| train inspector | Dana | 2027-02-01 | open |");
     expect(text).toContain("- Next review: 2027-11-20");
     expect(text).toContain("does not by itself make a quality system conform");
+  });
+});
+
+describe("review dates for the calendar and the dashboard", () => {
+  const act = (id: string, dueOn: string | null, doneOn: string | null = null) => ({
+    id,
+    text: `Action ${id}`,
+    owner: "Sam Lee",
+    dueOn,
+    doneOn,
+  });
+  const r = (over: Partial<ReviewLike>): ReviewLike => ({
+    ...fields(),
+    id: "r",
+    status: "final",
+    finalisedOn: "2025-11-20",
+    ...over,
+  });
+
+  it("puts nothing in the calendar before the first final review", () => {
+    expect(reviewDueDates([r({ status: "draft", actions: [act("a", "2027-01-10")] })])).toEqual([]);
+  });
+
+  it("dates the next review from the latest final one, and counts open actions per date", () => {
+    const reviews = [
+      r({
+        id: "old",
+        heldOn: "2025-11-10",
+        nextReviewOn: "2026-11-10",
+        actions: [
+          act("a", "2026-03-01"),
+          act("b", "2026-12-15"),
+          act("c", "2026-02-01", "2026-01-20"),
+        ],
+      }),
+      r({
+        id: "new",
+        heldOn: "2026-11-20",
+        actions: [act("d", "2026-12-15"), act("e", null), act("f", "2026-13-40")],
+      }),
+      r({ id: "draft", status: "draft", heldOn: "2026-11-27", actions: [act("g", "2026-12-01")] }),
+    ];
+    expect(reviewDueDates(reviews)).toEqual([
+      { kind: "review", due: "2027-11-20", count: 1 },
+      { kind: "action", due: "2026-03-01", count: 1 },
+      { kind: "action", due: "2026-12-15", count: 2 },
+    ]);
+  });
+
+  it("uses the next review date the minutes set", () => {
+    expect(reviewDueDates([r({ heldOn: "2026-11-20", nextReviewOn: "2027-05-20" })])).toEqual([
+      { kind: "review", due: "2027-05-20", count: 1 },
+    ]);
+  });
+
+  it("lists open final-review actions overdue or due within 30 days, oldest first", () => {
+    const due = reviewActionsDue(
+      [
+        r({
+          id: "r1",
+          heldOn: "2025-11-20",
+          actions: [
+            act("a", "2026-12-20"),
+            act("b", "2027-02-01"),
+            act("c", "2026-10-01", "2026-10-02"),
+          ],
+        }),
+        r({ id: "r2", heldOn: "2026-06-01", actions: [act("d", "2026-11-01")] }),
+        r({ id: "r3", status: "draft", actions: [act("e", "2026-11-01")] }),
+      ],
+      TODAY,
+    );
+    expect(due.map((d) => [d.reviewId, d.text, d.dueOn, d.state])).toEqual([
+      ["r2", "Action d", "2026-11-01", "overdue"],
+      ["r1", "Action a", "2026-12-20", "due_soon"],
+    ]);
+  });
+
+  it("counts an action due today as due soon, not overdue", () => {
+    expect(reviewActionsDue([r({ actions: [act("a", TODAY)] })], TODAY)[0]?.state).toBe("due_soon");
   });
 });

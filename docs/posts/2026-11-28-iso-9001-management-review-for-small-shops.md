@@ -88,6 +88,20 @@ done date can change. Next year's review reads those actions as its first input.
 The minutes download as a Markdown file with every heading, the figures, your notes and the action
 table, ready to print or paste into your quality manual's records.
 
+## Remembering the next one
+
+The review most shops miss is not the first one but the second: a year is long enough to forget. Once
+a review is final, the workspace knows two kinds of date. The next review is the date your minutes set,
+or twelve months after the meeting if they set none. Each action has its own due date. Both go into the
+calendar file the workspace already makes for CMMC affirmations, and into the private link your calendar
+app can subscribe to, with alarms 60 and 7 days ahead. The calendar shows "Management review due" and
+"Management review action due: 2 actions", never what the actions say or who owns them, because that
+link can be shared and an action like "requalify the plater after the escape on the Acme order" names a customer.
+
+The dashboard says the same thing in more detail, for people signed in: when the next review is due,
+red once it is past, and which actions are late or due within 30 days, with their owners. Actions in a
+draft review are left out of both until the minutes are final. A draft is still being argued about.
+
 ## What it costs
 
 Reading reviews works on every plan. Recording them is part of the Level 2 + Quality plan, together with

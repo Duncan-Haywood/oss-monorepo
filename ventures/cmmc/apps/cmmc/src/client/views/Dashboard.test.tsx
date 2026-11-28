@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CalibrationCard,
+  ManagementReviewCard,
   PoliciesCard,
   QualityDatesCard,
   SuppliersCard,
@@ -345,6 +346,102 @@ describe("CalibrationCard", () => {
       "CAL-1 Caliper: calibration was due 2026-11-01",
       "MIC-2 Mic: calibration due 2026-12-10",
       "PIN-3 Pin set: in use, never calibrated",
+    ]);
+    expect(screen.getByRole("link", { name: "The calendar file" }).getAttribute("href")).toBe(
+      "/api/orgs/o1/affirmations/calendar.ics",
+    );
+  });
+});
+
+describe("ManagementReviewCard", () => {
+  const attention = (over: Record<string, unknown> = {}) => ({
+    timing: "current" as const,
+    lastHeldOn: "2026-11-20",
+    nextDueOn: "2027-11-20",
+    actionsOverdue: 0,
+    actionsOpen: 0,
+    drafts: 0,
+    ...over,
+  });
+
+  it("asks for a first review when none is final, and opens the tab", () => {
+    const onOpen = vi.fn();
+    render(
+      <ManagementReviewCard
+        orgId="o1"
+        data={{
+          today: "2026-11-28",
+          attention: attention({ timing: "never", lastHeldOn: null, nextDueOn: null, drafts: 1 }),
+          actionsDue: [],
+          dueSoonDays: 30,
+        }}
+        error={null}
+        onOpen={onOpen}
+      />,
+    );
+    expect(screen.getByText(/No management review finalised yet/)).toBeTruthy();
+    expect(screen.getByText(/1 draft review is not finalised yet/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Mgmt review" }));
+    expect(onOpen).toHaveBeenCalled();
+  });
+
+  it("says when the next review is due and that every action is done", () => {
+    render(
+      <ManagementReviewCard
+        orgId="o1"
+        data={{ today: "2026-11-28", attention: attention(), actionsDue: [], dueSoonDays: 30 }}
+        error={null}
+        onOpen={() => {}}
+      />,
+    );
+    expect(screen.getByText(/Next review due 2027-11-20 \(last held 2026-11-20\)/)).toBeTruthy();
+    expect(screen.getByText("Every action from past reviews is done.")).toBeTruthy();
+  });
+
+  it("flags an overdue review and lists late and due-soon actions with the calendar link", () => {
+    render(
+      <ManagementReviewCard
+        orgId="o1"
+        data={{
+          today: "2026-11-28",
+          attention: attention({
+            timing: "overdue",
+            lastHeldOn: "2025-10-01",
+            nextDueOn: "2026-10-01",
+            actionsOpen: 3,
+            actionsOverdue: 1,
+          }),
+          actionsDue: [
+            {
+              reviewId: "r1",
+              actionId: "a1",
+              heldOn: "2025-10-01",
+              text: "Requalify the plater",
+              owner: "Sam",
+              dueOn: "2026-11-01",
+              state: "overdue",
+            },
+            {
+              reviewId: "r1",
+              actionId: "a2",
+              heldOn: "2025-10-01",
+              text: "Buy a bore gauge",
+              owner: "",
+              dueOn: "2026-12-10",
+              state: "due_soon",
+            },
+          ],
+          dueSoonDays: 30,
+        }}
+        error={null}
+        onOpen={() => {}}
+      />,
+    );
+    expect(screen.getByText(/The next review was due 2026-10-01/)).toBeTruthy();
+    expect(screen.getByText(/3 open actions from past reviews, 1 past due/)).toBeTruthy();
+    expect(screen.getAllByRole("listitem").map((li) => li.textContent)).toEqual([
+      "Requalify the plater (Sam): was due 2026-11-01",
+      "Buy a bore gauge: due 2026-12-10",
     ]);
     expect(screen.getByRole("link", { name: "The calendar file" }).getAttribute("href")).toBe(
       "/api/orgs/o1/affirmations/calendar.ics",

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-28",
+  "session": "https://claude.ai/code/session_01AcxTtHRjWpCPotkipGK4q9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T17:07:04Z",
+  "ended": "2026-11-28T17:15:18Z",
+  "wall_minutes": 8.41,
+  "tokens_in": 9136845,
+  "tokens_out": 30883,
+  "cost_usd": 3.7421,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20178",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Worker test first failed: a long UID in the .ics is folded at 75 octets (RFC 5545), so the test now unfolds the file before matching.",
+    "biome flagged an array-index React key; the action's id is used instead.",
+    "First CI run failed biome ci: Affirmations.tsx was edited after the last local biome pass; reformatted and pushed (fix: run biome after the last edit, not before the docs pass)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Bets #1 (payapps) and #2 (jobshop-quote) each showed only one free, ungated item and it was already being worked by parallel runs; nearly every other item waits on demand that cannot arrive before the first customer. The bet order says #1 first, but there was little left on #1 that moves it toward a paying customer without the owner's Paddle step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #4 (CMMC) instead of the top bet: payapps' only free item (more state bond claims) was being ground by several parallel runs, and #20175 (another session) already owns the payapps deploy fix.",
+      "did": "CMMC ROADMAP Next #1, management review part 2.",
+      "result": "Landed in PR #20178 with tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-28-iso-9001-management-review-for-small-shops.md (extended with a 'Remembering the next one' section; no new post, per the consolidation direction)"
+  ],
+  "goal": null,
+  "notes": "Local checks: biome ci clean; tsc clean; unit 632/632; worker 200/200; cmmc-site 111/111; platform/pages/cmmc-site.test.mjs 5/5. Security queue empty (security_next exit 3); ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "09def566-aa8c-560e-b465-334b16583d52",
+    "transcripts": 1,
+    "first": "2026-11-28T17:07:04Z",
+    "last": "2026-11-28T17:15:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 129,
+        "output": 30883,
+        "thinking": 3538,
+        "cache_read": 8970494,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166222,
+        "api_equivalent_usd": 3.7421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 129,
+      "output": 30883,
+      "thinking": 3538,
+      "cache_read": 8970494,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166222,
+      "api_equivalent_usd": 3.7421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 62,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.41,
+      "active_minutes": 8.41,
+      "model_minutes": 5.55,
+      "tool_minutes": 2.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mid-level full-stack dev: shared date logic, ICS wiring, an endpoint, a React card, tests and policy text, following an existing pattern",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 160.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

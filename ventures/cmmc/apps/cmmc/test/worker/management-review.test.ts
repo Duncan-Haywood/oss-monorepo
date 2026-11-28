@@ -205,4 +205,78 @@ describe("management review", () => {
     const peek = await api(`/api/orgs/${t.orgId}/reviews`, { as: other.userId });
     expect(peek.status).toBe(404);
   });
+  it("puts the next review and open actions in the calendar as counts, and on the dashboard", async () => {
+    const t = await setupTenant();
+    const r = await json<Review>(create(t, { heldOn: daysAgo(1), attendees: "Dana (owner)" }), 201);
+    const l = await list(t);
+    const action = (text: string, dueOn: string) => ({ text, owner: "Sam", dueOn, doneOn: null });
+    await json(
+      patch(t, r.id, {
+        inputs: complete(l.inputs, "Discussed; nothing further."),
+        outputs: complete(l.outputs, "None."),
+        nextReviewOn: daysAgo(-180),
+        actions: [
+          action("Requalify Acme Plating", daysAgo(-10)),
+          action("Second bore gauge for op 30", daysAgo(-10)),
+          action("Retrain night shift on FAI", daysAgo(-90)),
+        ],
+      }),
+    );
+    await json(finalise(t, r.id));
+    // A draft's actions are not agreed yet: neither the calendar nor the card counts them.
+    const draft = await json<Review>(create(t, { heldOn: daysAgo(0) }), 201);
+    await json(patch(t, draft.id, { actions: [action("Draft-only idea", daysAgo(-5))] }));
+
+    const summary = await json<{
+      attention: { timing: string; nextDueOn: string; actionsOpen: number; drafts: number };
+      actionsDue: { text: string; dueOn: string; state: string }[];
+      dueSoonDays: number;
+    }>(api(path(t, "/reviews/summary"), { as: t.userId }));
+    expect(summary.attention).toMatchObject({
+      timing: "current",
+      nextDueOn: daysAgo(-180),
+      actionsOpen: 3,
+      drafts: 1,
+    });
+    expect(summary.actionsDue.map((a) => [a.text, a.state])).toEqual([
+      ["Requalify Acme Plating", "due_soon"],
+      ["Second bore gauge for op 30", "due_soon"],
+    ]);
+    expect(summary.dueSoonDays).toBe(30);
+
+    const day = (d: string) => d.replace(/-/g, "");
+    // RFC 5545 folds lines past 75 octets; unfold before matching.
+    const file = (
+      await (await api(path(t, "/affirmations/calendar.ics"), { as: t.userId })).text()
+    ).replace(/\r\n /g, "");
+    expect(file).toContain(`UID:cmmc-${t.orgId}-mgmt-review@cmmc-workspace`);
+    expect(file).toContain(`DTSTART;VALUE=DATE:${day(daysAgo(-180))}`);
+    expect(file).toContain(
+      `UID:cmmc-${t.orgId}-mgmt-review-action-${day(daysAgo(-10))}@cmmc-workspace`,
+    );
+    expect(file).toContain("SUMMARY:Management review action due: 2 actions");
+    expect(file).toContain("SUMMARY:Management review action due: 1 action");
+    expect(file).not.toContain(day(daysAgo(-5)));
+    for (const secret of ["Acme Plating", "bore gauge", "night shift", "Sam", "Draft-only"])
+      expect(file).not.toContain(secret);
+
+    const feed = await json<{ url: string }>(
+      api(path(t, "/affirmations/calendar-feed"), { method: "POST", as: t.userId }),
+      201,
+    );
+    const linked = await (await api(new URL(feed.url).pathname)).text();
+    expect(linked).toContain("SUMMARY:Management review due");
+    expect(linked).not.toContain("Acme Plating");
+
+    // Viewers read the card; another org sees neither the card's data nor the dates.
+    const viewer = await createTestUser("Viewer");
+    await addToOrg(t.orgId, viewer.id, "viewer");
+    await json(api(path(t, "/reviews/summary"), { as: viewer.id }));
+    const other = await setupTenant();
+    expect((await api(path(t, "/reviews/summary"), { as: other.userId })).status).toBe(404);
+    const theirs = await (
+      await api(path(other, "/affirmations/calendar.ics"), { as: other.userId })
+    ).text();
+    expect(theirs).not.toContain("Management review");
+  });
 });

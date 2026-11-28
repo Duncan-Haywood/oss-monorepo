@@ -493,6 +493,86 @@ export function reviewAttention(
   return { timing, lastHeldOn: last.heldOn, nextDueOn: due, ...base };
 }
 
+/** An open action from a final review that is past due or falls due soon: the dashboard's list. */
+export interface ReviewActionDue {
+  reviewId: string;
+  actionId: string;
+  /** The meeting that set it. */
+  heldOn: string;
+  text: string;
+  owner: string;
+  dueOn: string;
+  state: "overdue" | "due_soon";
+}
+
+/**
+ * Open actions from final reviews that are past due (oldest first) or due within `days`, then the
+ * rest by due date. Draft reviews are left out: their actions are not agreed until the minutes are.
+ */
+export function reviewActionsDue(
+  reviews: readonly Pick<ReviewLike, "id" | "status" | "heldOn" | "actions">[],
+  today: string,
+  days = REVIEW_DUE_SOON_DAYS,
+): ReviewActionDue[] {
+  const out: ReviewActionDue[] = [];
+  for (const r of reviews) {
+    if (r.status !== "final") continue;
+    for (const a of r.actions) {
+      if (a.doneOn || !a.dueOn || !isIsoDate(a.dueOn)) continue;
+      const left = daysBetween(today, a.dueOn);
+      if (left > days) continue;
+      out.push({
+        reviewId: r.id,
+        actionId: a.id,
+        heldOn: r.heldOn,
+        text: a.text,
+        owner: a.owner,
+        dueOn: a.dueOn,
+        state: left < 0 ? "overdue" : "due_soon",
+      });
+    }
+  }
+  return out.sort((a, b) => a.dueOn.localeCompare(b.dueOn) || a.heldOn.localeCompare(b.heldOn));
+}
+
+export type ReviewDueKind = "review" | "action";
+
+/** Management review dates for the calendar file: a count per kind and date, never an action's text. */
+export interface ReviewDueDate {
+  kind: ReviewDueKind;
+  due: string;
+  count: number;
+}
+
+/**
+ * The next management review's due date (from the latest final review: its own next date, else 12
+ * months on) and the due dates of open actions from final reviews, grouped by date, oldest first.
+ * An action's text and owner never go in: they can name a customer, a part or a person. With no final
+ * review there is no date to put in a calendar (the dashboard says a first review is needed).
+ */
+export function reviewDueDates(
+  reviews: readonly Pick<ReviewLike, "status" | "heldOn" | "nextReviewOn" | "actions">[],
+): ReviewDueDate[] {
+  const finals = reviews
+    .filter((r) => r.status === "final" && isIsoDate(r.heldOn))
+    .sort((a, b) => (a.heldOn < b.heldOn ? 1 : -1));
+  const out: ReviewDueDate[] = [];
+  const last = finals[0];
+  if (last) {
+    const due = nextReviewDue(last);
+    if (isIsoDate(due)) out.push({ kind: "review", due, count: 1 });
+  }
+  const byDate = new Map<string, number>();
+  for (const r of finals)
+    for (const a of r.actions) {
+      if (a.doneOn || !a.dueOn || !isIsoDate(a.dueOn)) continue;
+      byDate.set(a.dueOn, (byDate.get(a.dueOn) ?? 0) + 1);
+    }
+  for (const [due, count] of [...byDate.entries()].sort(([a], [b]) => a.localeCompare(b)))
+    out.push({ kind: "action", due, count });
+  return out;
+}
+
 // ---------- the minutes ----------
 
 const md = (s: string) => s.replace(/\r\n?/g, "\n").trim();

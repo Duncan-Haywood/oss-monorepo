@@ -318,6 +318,44 @@ describe("gauge calibration due dates in the calendar", () => {
   });
 });
 
+describe("management review dates in the calendar", () => {
+  const ics = renderAffirmationCalendar({
+    orgId: "org_abc123",
+    orgName: "Acme",
+    schedules: [],
+    reviewDue: [
+      { kind: "review", due: "2027-11-20", count: 1 },
+      { kind: "action", due: "2026-12-15", count: 2 },
+      { kind: "action", due: "2027-01-10", count: 1 },
+      { kind: "action", due: "2027-02-30x", count: 1 },
+      { kind: "action", due: "2027-03-01", count: 0 },
+    ],
+    now,
+  });
+  const lines = unfold(ics);
+
+  it("adds the next review once per org and the actions per date, with counts only", () => {
+    expect(lines.filter((l) => l.startsWith("UID:"))).toEqual([
+      "UID:cmmc-org_abc123-mgmt-review@cmmc-workspace",
+      "UID:cmmc-org_abc123-mgmt-review-action-20261215@cmmc-workspace",
+      "UID:cmmc-org_abc123-mgmt-review-action-20270110@cmmc-workspace",
+    ]);
+    expect(lines).toContain("SUMMARY:Management review due");
+    expect(lines).toContain("SUMMARY:Management review action due: 2 actions");
+    expect(lines).toContain("SUMMARY:Management review action due: 1 action");
+    expect(lines.filter((l) => l.startsWith("TRIGGER"))).toHaveLength(6);
+    expect(ics).not.toContain("20270301");
+  });
+
+  it("names clause 9.3 and the Mgmt review tab, and keeps lines within 75 octets", () => {
+    const d = lines.find((l) => l.startsWith("DESCRIPTION:The next management review"));
+    expect(d).toContain("clause 9.3");
+    expect(d).toContain("Mgmt review tab");
+    const enc = new TextEncoder();
+    for (const l of ics.split("\r\n")) expect(enc.encode(l).length).toBeLessThanOrEqual(75);
+  });
+});
+
 describe("calendar feed tokens", () => {
   it("accepts only the prefix and 43 base64url characters", () => {
     const good = `cmcal_${"A".repeat(40)}-_9`;

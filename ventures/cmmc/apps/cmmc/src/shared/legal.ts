@@ -23,7 +23,8 @@
 // "2026-11-28.3": the Privacy Policy now lists the gauge and calibration records and the gauge list CSV.
 // "2026-11-28.4": the Privacy Policy now says the calendar link also carries gauges' calibration due dates (a count of gauges per date, no gauge ids).
 // "2026-11-28.5": the Privacy Policy now lists ISO 9001 management reviews and their minutes download.
-export const POLICY_VERSION = "2026-11-28.5";
+// "2026-11-28.6": the Privacy Policy now says the calendar link also carries the next management review and its open actions' due dates (a count per date, no action text or owners).
+export const POLICY_VERSION = "2026-11-28.6";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];

@@ -6,6 +6,7 @@ import {
   CA_WARNING_DAYS,
   type QualityAttention,
 } from "@shared/internal-audits";
+import type { ReviewActionDue, ReviewAttention } from "@shared/management-review";
 import { TRAINING_DUE_SOON_DAYS, TRAINING_INFO, type TrainingAttention } from "@shared/personnel";
 import type { QualityChecklistResponse } from "@shared/quality";
 import type { ReviewState } from "@shared/security-policies";
@@ -29,6 +30,7 @@ export function Dashboard({
   onOpenDocuments,
   onOpenAudits,
   onOpenGauges,
+  onOpenReviews,
 }: {
   orgId: string;
   info: OrgInfo;
@@ -42,6 +44,7 @@ export function Dashboard({
   onOpenDocuments: () => void;
   onOpenAudits: () => void;
   onOpenGauges: () => void;
+  onOpenReviews: () => void;
 }) {
   const level = info.profile.targetLevel === 1 ? 1 : 2;
   const score = useQuery({
@@ -96,6 +99,12 @@ export function Dashboard({
   const gauges = useQuery({
     queryKey: ["gauges", orgId],
     queryFn: () => api<GaugeSummary>(`/api/orgs/${orgId}/gauges`),
+    enabled: info.plan.quality,
+  });
+  // Management review (ISO 9001 9.3), quality plan only: the light summary, not the draft figures.
+  const reviews = useQuery({
+    queryKey: ["reviews-summary", orgId],
+    queryFn: () => api<ReviewSummary>(`/api/orgs/${orgId}/reviews/summary`),
     enabled: info.plan.quality,
   });
   // The target level's record, or the other level's when only that one is recorded.
@@ -240,6 +249,14 @@ export function Dashboard({
           data={gauges.data}
           error={gauges.error}
           onOpen={onOpenGauges}
+        />
+      )}
+      {info.plan.quality && (
+        <ManagementReviewCard
+          orgId={orgId}
+          data={reviews.data}
+          error={reviews.error}
+          onOpen={onOpenReviews}
         />
       )}
       <button type="button" className={btnCls} onClick={onOpenControls}>
@@ -884,6 +901,105 @@ export function CalibrationCard({
               The calendar file
             </a>{" "}
             has the due dates as a count of gauges per day (no gauge ids or names).
+          </p>
+        </>
+      )}
+    </Card>
+  );
+}
+
+/** GET /reviews/summary (services/management-review, reviewSummary). */
+interface ReviewSummary {
+  today: string;
+  attention: ReviewAttention;
+  actionsDue: ReviewActionDue[];
+  dueSoonDays: number;
+}
+
+const REVIEW_ACTION_LINES = 8;
+
+/**
+ * When the next management review is due and which actions the last reviews set are late or due
+ * soon. With no final review yet, says a first one is needed (an ISO 9001 audit asks for its minutes).
+ */
+export function ManagementReviewCard({
+  orgId,
+  data,
+  error,
+  onOpen,
+}: {
+  orgId: string;
+  data: ReviewSummary | undefined;
+  error: unknown;
+  onOpen: () => void;
+}) {
+  const a = data?.attention;
+  const due = data?.actionsDue ?? [];
+  const drafts =
+    a && a.drafts > 0
+      ? ` ${a.drafts} draft ${a.drafts === 1 ? "review is" : "reviews are"} not finalised yet.`
+      : "";
+  return (
+    <Card
+      title="Management review"
+      actions={
+        <button type="button" className={btnGhostCls} onClick={onOpen}>
+          Mgmt review
+        </button>
+      }
+    >
+      <ErrorText error={error} />
+      {!data && !error && <p className="text-sm text-stone-600">Loading…</p>}
+      {data && a && a.timing === "never" && (
+        <p className="text-sm text-stone-600">
+          No management review finalised yet. ISO 9001 asks top management to review the quality
+          system at planned intervals and keep the minutes; start one on the Mgmt review tab and its
+          figures fill in from your audits, corrective actions, gauges and suppliers.{drafts}
+        </p>
+      )}
+      {data && a && a.timing !== "never" && (
+        <>
+          <p
+            className={`text-sm ${a.timing === "overdue" ? "text-red-800" : a.timing === "due_soon" ? "text-amber-800" : "text-stone-700"}`}
+          >
+            {a.timing === "overdue"
+              ? `The next review was due ${a.nextDueOn} (last held ${a.lastHeldOn}).`
+              : `Next review due ${a.nextDueOn} (last held ${a.lastHeldOn}).`}
+            {drafts}
+          </p>
+          {a.actionsOpen === 0 ? (
+            <p className="mt-1 text-sm text-emerald-800">Every action from past reviews is done.</p>
+          ) : (
+            <p className="mt-1 text-sm text-stone-700">
+              {a.actionsOpen} open {a.actionsOpen === 1 ? "action" : "actions"} from past reviews,{" "}
+              {a.actionsOverdue} past due.
+            </p>
+          )}
+          {due.length > 0 && (
+            <ul className="mt-2 space-y-1 text-sm">
+              {due.slice(0, REVIEW_ACTION_LINES).map((d) => (
+                <li
+                  key={`${d.reviewId}-${d.actionId}`}
+                  className={d.state === "overdue" ? "text-red-800" : "text-amber-800"}
+                >
+                  {d.text}
+                  {d.owner ? ` (${d.owner})` : ""}:{" "}
+                  {d.state === "overdue" ? `was due ${d.dueOn}` : `due ${d.dueOn}`}
+                </li>
+              ))}
+            </ul>
+          )}
+          {due.length > REVIEW_ACTION_LINES && (
+            <p className="mt-1 text-xs text-stone-500">
+              and {due.length - REVIEW_ACTION_LINES} more on the Mgmt review tab.
+            </p>
+          )}
+          <p className="mt-2 text-xs text-stone-500">
+            <a className="underline" href={`/api/orgs/${orgId}/affirmations/calendar.ics`}>
+              The calendar file
+            </a>{" "}
+            has the next review and the actions' due dates as a count per day (no action text or
+            owners).
           </p>
         </>
       )}

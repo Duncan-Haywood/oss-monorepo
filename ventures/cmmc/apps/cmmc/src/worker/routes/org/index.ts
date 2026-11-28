@@ -252,8 +252,10 @@ import {
   createReview,
   deleteReview,
   finaliseReview,
+  reviewDueDatesFor,
   reviewList,
   reviewMinutes,
+  reviewSummary,
   setActionDone,
   updateReview,
 } from "../../services/management-review";
@@ -1242,7 +1244,7 @@ routes.get("/ssp/download", validate("query", levelQuery), async (c) => {
 routes.get("/affirmations", async (c) =>
   c.json(await listAffirmations(c.var.ctx, c.var.tenant.orgId)),
 );
-// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates, gauges' calibration due dates) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
+// The due dates (and approved policies' review dates, training refresher dates, suppliers' current-through dates, controlled documents' review dates, planned audits and corrective-action dates, gauges' calibration due dates, the next management review and its open actions) as an iCalendar file with alarms 60 and 7 days ahead: reminders without the app
 // sending email. Every member may download it, like the list it is built from.
 routes.get("/affirmations/calendar.ics", async (c) => {
   const t = c.var.tenant;
@@ -1256,6 +1258,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     qualityDue,
     incidentHolds,
     calibrationDue,
+    reviewDue,
   ] = await Promise.all([
     getOrg(c.var.ctx, t.orgId),
     listAffirmations(c.var.ctx, t.orgId),
@@ -1266,6 +1269,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     qualityDueDatesFor(c.var.ctx, t.orgId),
     incidentHoldDatesFor(c.var.ctx, t.orgId),
     calibrationDueDatesFor(c.var.ctx, t.orgId),
+    reviewDueDatesFor(c.var.ctx, t.orgId),
   ]);
   const ics = renderAffirmationCalendar({
     orgId: t.orgId,
@@ -1278,6 +1282,7 @@ routes.get("/affirmations/calendar.ics", async (c) => {
     qualityDue,
     incidentHolds,
     calibrationDue,
+    reviewDue,
     now: c.var.ctx.now(),
   });
   return new Response(ics, {
@@ -1975,6 +1980,10 @@ routes.get("/reviews", async (c) =>
     inputs: REVIEW_INPUTS,
     outputs: REVIEW_OUTPUTS,
   }),
+);
+// The dashboard card: next review due and overdue or due-soon actions, without the draft figures.
+routes.get("/reviews/summary", async (c) =>
+  c.json(await reviewSummary(c.var.ctx, c.var.tenant.orgId)),
 );
 routes.get("/reviews/:id/minutes.md", async (c) => {
   const md = await reviewMinutes(c.var.ctx, c.var.tenant.orgId, c.req.param("id"));
