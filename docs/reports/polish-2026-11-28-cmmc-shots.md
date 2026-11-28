@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, seo, product-fix]
+topics: [design, seo]
 date: 2026-11-28
 ---
 
