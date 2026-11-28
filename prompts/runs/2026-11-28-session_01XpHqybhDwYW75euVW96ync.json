@@ -38,7 +38,7 @@
   ],
   "integrity_issues": [
     {
-      "what": "lumber-waste-factor.html (PR #19981) footer said 'MIT licence' for an all-rights-reserved directory",
+      "what": "lumber-waste-factor.html (PR #19981) and roof-sheathing-sheets.html (PR #20005) footers said 'MIT licence' for an all-rights-reserved directory",
       "fix": "footer now matches LICENSE; new test asserts the guide carries the all-rights-reserved notice"
     }
   ],
@@ -58,7 +58,7 @@
     "ventures/wall-framing-takeoff/README.md 'A worked takeoff, step by step'"
   ],
   "goal": "$10k MRR: demand for bet #6 (residential takeoff) via a search page for 'framing takeoff'",
-  "notes": "Security queue: none workable (exit 3). IDEAS: none. Route: ventures/1. All bets' Next items wait on demand; bet #6 had the fewest front-door PRs. run_venture_tests.py wall-framing-takeoff: ok 1297 tests. risk_review: nothing blocked, no checks triggered.",
+  "notes": "Security queue: none workable (exit 3). IDEAS: none. Route: ventures/1. All bets' Next items wait on demand; bet #6 had the fewest front-door PRs. run_venture_tests.py wall-framing-takeoff: ok 1297 tests. risk_review: nothing blocked, no checks triggered. Merge with main (PR #20005 touched the same more-tools blocks, README, ROADMAP, post): kept both sides, regenerated the nav; suite after merge ok 1303 tests. venture-preflight clean (second run).",
   "corrections": [],
   "redteam": null
 }

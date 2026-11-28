@@ -216,11 +216,14 @@ Ticked items are on `main`.
       growth path "waste factors"): cutting waste of the stud-size order on three houses for four ways
       of buying (0.2 to 0.4% from every length with a cut plan, 18.9 to 29.8% with none), kept apart
       from the typed cull allowance; page figures pinned to the bench by `waste-bench.test.mjs`.
+      Next, if people use it: the same split for sheathing sheets and siding. Roof sheathing on gable
+      roofs: **done 2026-11-28** (roof-sheathing-sheets: `roof-sheathing-bench.mjs`, `roof-sheathing-sheets.html`
+      in the free edition, 20 generated gable roofs counted against area / 32 + 10%, with a pitch factor
+      table). Hip roofs wait on offcut reuse in the hip course count (today an upper bound).
 - [x] **How to do a framing takeoff, worked** (2026-11-28, free edition: `takeoff-example.mjs`,
       `how-to-do-a-framing-takeoff.html`, a front-door guide for the "framing takeoff" searches):
       Open House Plans 1 taken off in six steps, 436 pieces to a 276-board order; every count pinned
       to the engine by `takeoff-example.test.mjs`.
-      Next, if people use it: the same split for sheathing sheets and siding.
 
 ### 2. Getting the house in without typing
 
