@@ -7,22 +7,24 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-28T05:38:13Z",
   "ended": "2026-11-28T05:38:56Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 5.19,
+  "tokens_in": 4022546,
+  "tokens_out": 21191,
+  "cost_usd": 1.8581,
+  "tool_calls": 52,
   "task": "redteam: jobshop-quote qbo-sync retainage/costs/money + billing grace",
   "projects": [
     "jobshop-quote",
     "payapps",
     "platform/ci"
   ],
-  "pr": null,
-  "repo": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
@@ -404,20 +406,95 @@
         "file": "ventures/jobshop-quote/packages/qbo-sync/src/money.ts",
         "issue": "amountToCents still used Math.round(n*100): 1.005 -> 100 cents, -0.125 -> -12 while 0.125 -> 13. The same file in ventures/payapps was fixed earlier today; the Job Shop Quote copy kept the bug. Ported the fix and its test.",
         "patched": true,
-        "patched_in": null
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
       },
       {
         "file": "ventures/jobshop-quote/packages/qbo-sync/src/retainage.ts",
         "issue": "planPayAppInvoice accepted a negative retainageHeldToDateCents and a deductive change order at a rate with no retainage behind it, posting a positive 'Retainage held' line (releasing retainage never held, bypassing the release check) and reporting a negative Retainage Receivable balance. Now refused when the prior balance is known.",
         "patched": true,
-        "patched_in": null
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
       },
       {
         "file": "ventures/payapps/packages/qbo-sync/src/retainage.ts",
         "issue": "Same retainage defect in the PayApps copy. Patched here; PayApps is still a snapshot of private-monorepo (README 'Where the work happens'), so the private source needs the same change or the next sync-from-private.sh brings the bug back (check_shared_package_drift.py then goes red).",
         "patched": true,
-        "patched_in": null
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/20008"
       }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1a2feb86-9331-5a4a-8753-e516120053b3",
+    "transcripts": 1,
+    "first": "2026-11-28T05:38:13Z",
+    "last": "2026-11-28T05:43:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 21191,
+        "thinking": 4378,
+        "cache_read": 3941764,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80690,
+        "api_equivalent_usd": 1.8581,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 21191,
+      "thinking": 4378,
+      "cache_read": 3941764,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80690,
+      "api_equivalent_usd": 1.8581,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.19,
+      "active_minutes": 5.19,
+      "model_minutes": 3.93,
+      "tool_minutes": 1.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: 3 mutation campaigns triage, two money fixes with tests, a CI lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 161.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
     ]
   }
 }
