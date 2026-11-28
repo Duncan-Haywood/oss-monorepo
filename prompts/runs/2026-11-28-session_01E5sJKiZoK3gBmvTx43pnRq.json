@@ -30,7 +30,9 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First venture-suite run failed 5 tests: page.test.mjs and more-tools.test.mjs read every .html in the app folder as a calculator page; fixed with a LEGAL_PAGES set."
+    "First venture-suite run failed 5 tests: page.test.mjs and more-tools.test.mjs read every .html in the app folder as a calculator page; fixed with a LEGAL_PAGES set.",
+    "The site builder's share-tag test found the legal pages had no og:image or twitter:card; fixed with the site card, made absolute in rewritePage.",
+    "The pages build's check.mjs refused the legal pages for carrying no 'no warranty' disclaimer; added a no-warranty footer line. Neither was caught by the venture's own tests, only by priv-portfolio-pages.yml."
   ],
   "integrity_issues": [
     "The paid edition's footer at /residential-takeoff/ said 'no accounts, cookies, or analytics vendors' while the zone injects Cloudflare Web Analytics; corrected, and the guard now reads the page."
@@ -47,6 +49,10 @@
     {
       "file": "platform/pages/analytics-claims.test.mjs",
       "issue": "SITE_SOURCES listed four bet sites but not bet #6's served page, so its false analytics denial survived PR #20029's sweep."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "Its rule that every shipped page needs a 'no warranty' disclaimer only runs after the full site build in CI, and run_workflow_locally skipped that build ('Build the site' holds a ${{ }} expression). A new page in a served folder found it out in CI, about 20 minutes per round."
     }
   ],
   "deviations": [
