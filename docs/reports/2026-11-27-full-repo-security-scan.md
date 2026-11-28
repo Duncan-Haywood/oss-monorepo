@@ -165,5 +165,10 @@ in a PR of their own (the gate reads main's copy), with these reasons:
 | `ventures/local-site-studio/src/lib/db/sqlite-schema.ts:191`, `ventures/photo-nutrition-agent/self-host/store.mjs:487,525`, `ventures/retail-pilot-intel/packages/analytics/src/db.ts:44` | js-child-process-dynamic | SQLite `db.exec` (SQL, not a shell); the interpolated table and column names are literals at every call site |
 | `ventures/status-keeper/certs.mjs:12` | js-tls-verify-off | a certificate monitor must complete the handshake with a bad certificate to report it; it reads `socket.authorized` and fails the check unless the monitor says `strict: false`, and sends nothing over the socket |
 
-Left for this task after the baseline PR: the gitleaks 97, then one
+The gitleaks 97 were triaged on 2026-11-28: every line opened, none a live
+credential, each accepted in `baseline.yaml` with its line fingerprint and the
+reason (what the string is: a placeholder, a synthetic AWS id, a published
+example token, a DKIM public key, a citation key, a hash). Editing one of those
+lines changes its fingerprint, so the next full-repo reading flags it again to
+be re-checked. Left for this task: one
 `workflow_dispatch` run for checkov, trivy, zizmor and osv, then the schedule.
