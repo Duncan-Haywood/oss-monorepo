@@ -1,9 +1,9 @@
 ---
 title: "Mechanics lien deadlines in sixteen states, now with Michigan, Minnesota, Nevada, Oregon, Utah and Virginia"
-seo_title: "Mechanics lien deadlines by state: MI, MN, NV, OR, UT, VA, CA, TX, FL and 7 more"
+seo_title: "Mechanics lien deadlines by state: MI, MN, NV, OR, UT, VA and 10 more"
 date: 2026-11-10
 tags: [construction, subcontractors, mechanics-lien, lien-waivers, pay-app-guides, payapps, for-customers]
-description: "Lien filing deadlines for subcontractors in sixteen states, and the preliminary notice in eleven, with the statute for each, in a free calculator and on every job in PayApps."
+description: "Lien filing deadlines for subcontractors in sixteen states, with the statute for each, in a free calculator and on every job in PayApps."
 ---
 
 The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) takes your first and last day on a job and shows the two dates that keep a lien alive: the early notice and the lien filing. It covers sixteen states.
