@@ -10,6 +10,7 @@ import { level1RequirementsPage } from "./level1-requirements.mjs";
 import { level2RequirementsPage } from "./level2-requirements.mjs";
 import { publicPlans } from "./plans.mjs";
 import { poamRulesPage } from "./poam-rules.mjs";
+import { REV3_PATH, rev2VsRev3Page } from "./rev2-vs-rev3.mjs";
 import {
   CONSENT_TEXT,
   JOBSHOP,
@@ -177,7 +178,7 @@ ${statusBox()}
   <p>Shops of roughly 5 to 100 people that machine or fabricate parts for defense or aerospace primes, have no full-time
   security staff, and need to post a Level 1 or Level 2 self-assessment. DoD estimates ${cite("venable-size", "229,818 small entities")}
   among the 337,968 contractors the CMMC rule affects.</p>
-  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, or go straight to the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>. Weighing tools? See <a href="${COMPARE_PATH}">CMMC compliance software compared</a>.</p>
+  <p>Not sure which level applies? Read <a href="/cmmc-level-1-vs-level-2">CMMC Level 1 vs Level 2</a>, or go straight to the <a href="/cmmc-level-1-requirements">15 Level 1 requirements</a>. Want a number first? Try the free <a href="/sprs-score-calculator">SPRS score calculator</a>. Weighing tools? See <a href="${COMPARE_PATH}">CMMC compliance software compared</a>. Heard about Rev. 3? See <a href="${REV3_PATH}">NIST 800-171 Rev. 2 vs Rev. 3</a>.</p>
 </section>
 <section>
   <h2>What it is not</h2>
@@ -371,6 +372,7 @@ ${cta}`,
     poamRulesPage({ cite, statusBox, sourcesList, cta }),
     level1RequirementsPage({ cite, statusBox, sourcesList, cta }),
     level2RequirementsPage({ cite, statusBox, sourcesList, cta }),
+    rev2VsRev3Page({ cite, statusBox, sourcesList, cta }),
     dfarsClausesPage({ cite, statusBox, sourcesList, cta }),
     assessmentSheetPage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
     comparePage({ cite, statusBox, sourcesList, cta, paidOn: launch.paidOn }),
