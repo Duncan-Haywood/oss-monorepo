@@ -724,3 +724,33 @@ accepted:
     fingerprint: dff2b9e843de127c
     reason: "a synthetic AWS key id (AKIA then the letters A to P) in the checker's built-in sample plan"
     added: 2026-11-28
+  - tool: zizmor
+    rule: dangerous-triggers
+    path: .github/workflows/priv-risk-review.yml
+    fingerprint: 3acaba169fef5c31
+    reason: "pull_request_target on purpose: the required risk-review check must run main's copy of risk_review.py, never the PR's. Its only checkout pins ref to github.event.pull_request.base.sha with persist-credentials false; the PR is read as a diff, never executed (header comment, re-read 2026-11-28)."
+    added: 2026-11-28
+  - tool: zizmor
+    rule: dangerous-triggers
+    path: .github/workflows/priv-security-gate.yml
+    fingerprint: 3acaba169fef5c31
+    reason: "pull_request_target on purpose: security-scan and adversarial-gate must judge a PR with main's rules. Every checkout is the base branch (or the commit before a push), persist-credentials false; materialize.py fetches the PR into worktrees under RUNNER_TEMP that are read as files, never installed, built or imported (header comment, re-read 2026-11-28)."
+    added: 2026-11-28
+  - tool: zizmor
+    rule: dangerous-triggers
+    path: .github/workflows/priv-branch-cleanup.yml
+    fingerprint: 3acaba169fef5c31
+    reason: "pull_request_target only to receive the closed event with a token that can delete the merged head ref. The checkout is the base branch (sparse platform/ci, persist-credentials false); branch_cleanup.py takes only the PR number, so no PR code or text runs (re-read 2026-11-28)."
+    added: 2026-11-28
+  - tool: zizmor
+    rule: dangerous-triggers
+    path: .github/workflows/priv-agent-pr-auto-merge.yml
+    fingerprint: 4beb374db786012d
+    reason: "workflow_run on purpose: the merge decision must run main's review.py, not a PR's. Its checkout pins ref to github.event.repository.default_branch with persist-credentials false, and review.py reads the PR only through the API as data (header comment, re-read 2026-11-28)."
+    added: 2026-11-28
+  - tool: trivy-config
+    rule: AZU-0012
+    path: platform/deploy/templates/azure/tofu/main.tf
+    fingerprint: ec847532de840bc7
+    reason: "the template's storage account serves a public static website (azurerm_storage_account_static_website, $web container); a deny default would block the site's visitors. Nested public blobs are off and TLS 1.2 / HTTPS-only are set."
+    added: 2026-11-28

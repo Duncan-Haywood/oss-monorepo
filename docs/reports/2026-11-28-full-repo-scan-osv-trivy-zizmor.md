@@ -92,7 +92,9 @@ Once 1 to 4 are fixed or accepted, `priv-security-scan-repo.yml` can get its wee
 - **Items 2 and 4** were re-read for a baseline entry: all four `dangerous-triggers` workflows check
   out the base branch only (`persist-credentials: false`, `ref:` the base SHA, the default branch, or
   the trigger's default), and the security gate reads the PR only as files through
-  `materialize.py`. The entries go in the next PR, on their own.
+  `materialize.py`. Accepted in `platform/security/baseline.yaml` (path and fingerprint each) in
+  the PR after #20073; with them `scan.py repo --tools zizmor,trivy-config` reports **0 blocking**,
+  so only item 1 (osv) stands between the task and its weekly schedule.
 - **Item 1 not rerun:** osv-scanner could not reach its API from this session (the proxy refused
   the host), so the `requirements.txt` fixed versions were not read again. The next session with
   osv access takes it.
