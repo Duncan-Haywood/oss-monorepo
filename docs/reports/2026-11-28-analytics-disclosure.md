@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-28
+subjects: [payapps, cmmc, seller-books, jobshop-quote]
+---
 # Analytics disclosure on the bet sites, and CMMC's blocked beacon (2026-11-28)
 
 A ventures run checked the four live bet apps and their marketing pages in Chromium (mobile width,
